@@ -14,6 +14,8 @@
 // Standard Headers
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
+#include <random>
 
 #include "Shader.h"
 
@@ -102,7 +104,7 @@ int main(int argc, char * argv[])
     // Texture 1 
     stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("Textures/container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("Textures/revue.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -180,11 +182,18 @@ int main(int argc, char * argv[])
     glBindVertexArray(0);
 
     // use our shader program when we want to render an object
-    Shader triangleShader("triangle.vert", "triangle.frag");
+    Shader triangleShader("../Glitter/Shaders/triangle.vert", "../Glitter/Shaders/triangle.frag");
     triangleShader.use();
     glUniform1i(glGetUniformLocation(triangleShader.ID, "tex1"), 0);
     glUniform1i(glGetUniformLocation(triangleShader.ID, "tex2"), 1);
 
+    std::vector<glm::vec3> cubePositions = {
+        glm::vec3( 0.0f,  1.0f, -2.0f),
+        glm::vec3( 1.0f,  2.0f, -3.0f),
+        glm::vec3(-3.5f,  2.5f, -4.0f),
+        glm::vec3(-2.4f, -0.5f, -5.0f),
+        glm::vec3( 1.5f, -1.0f, -7.0f),
+    };
  
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) 
@@ -195,6 +204,7 @@ int main(int argc, char * argv[])
 
         // Background Fill Color
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         triangleShader.use();            
@@ -207,30 +217,41 @@ int main(int argc, char * argv[])
         glUniform1f(glGetUniformLocation(triangleShader.ID, "texMix"), texMix);
         // transformation matrix 
         // DH note: make sure to initialize the matrices first
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view  = glm::mat4(1.0f);
-        glm::mat4 proj  = glm::mat4(1.0f);
 
-        //model = glm::scale(model, glm::vec3(0.5f));
-        //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, (float)glm::radians(100.0f * glfwGetTime()), glm::vec3(1.0f, 1.0f, 0.0f));
+        // Draw our cubes
+        for (int i = 0; i < cubePositions.size(); ++i)
+        {
+            glm::mat4 model = glm::mat4(1.0f); 
+            glm::mat4 view  = glm::mat4(1.0f);
+            glm::mat4 proj  = glm::mat4(1.0f);
 
-        glUniformMatrix4fv(glGetUniformLocation(triangleShader.ID, "model"),
-            1, GL_FALSE, glm::value_ptr(model));
+            // Model transforms
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            //glm::vec3 rotAngle = glm::vec3((float)rand()/RAND_MAX, (float)rand()/RAND_MAX,(float)rand()/RAND_MAX);
+            if (i % 3 == 0)
+            {
+                model = glm::rotate(model, (float)glm::radians(angle + 100.0f * glfwGetTime()), glm::vec3(1.0f, 1.0f, 0.0f));
+            }
 
-        // Translate the scene in the reverse direction of where we want to
-        // move 
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        glUniformMatrix4fv(glGetUniformLocation(triangleShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(glGetUniformLocation(triangleShader.ID, "model"),
+                    1, GL_FALSE, glm::value_ptr(model));
 
-        // projection matrix
-        proj = glm::perspective(glm::radians(45.0f), (float)mWidth/(float)mHeight, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(triangleShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+            // Translate the scene in the reverse direction of where we want to
+            // move 
+            view = glm::translate(view, glm::vec3(0.0f, -2.0f, -3.0f));
+            glUniformMatrix4fv(glGetUniformLocation(triangleShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-        // Draw the object
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+            // projection matrix
+            proj = glm::perspective(glm::radians(45.0f), (float)mWidth/(float)mHeight, 0.1f, 100.0f);
+            //proj = glm::perspective(glm::radians(45.0f), 5.0f/1.0f, 0.1f, 100.0f);
+            glUniformMatrix4fv(glGetUniformLocation(triangleShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+
+            // Draw the object
+            glBindVertexArray(VAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glBindVertexArray(0);
+       }
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
