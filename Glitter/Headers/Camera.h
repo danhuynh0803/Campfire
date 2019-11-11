@@ -65,6 +65,24 @@ public:
     // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix()
     {
+        //glm::vec3 PF = Position + Front;
+        //float vOrientation[16] = {
+        //    Right.x, Right.y, Right.z, 0,
+        //    Up.x,    Up.y,    Up.z,    0,
+        //    PF.x,    PF.y,    PF.z,    0,    
+        //    0,       0,       0,       1
+        //};
+
+        //float vPosition[16] = {
+        //    1, 0, 0, -Position.x,
+        //    0, 1, 0, -Position.y,
+        //    0, 0, 1, -Position.z,
+        //    0, 0, 0, 1,
+        //};
+
+        //glm::mat4 orientation = glm::make_mat4(vOrientation);
+        //glm::mat4 position = glm::make_mat4(vPosition);
+        //return orientation * orientation;
         return glm::lookAt(Position, Position + Front, Up);
     }
 
@@ -80,6 +98,8 @@ public:
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
+
+        Position.y = 0.0f;
     }
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
