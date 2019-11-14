@@ -8,33 +8,41 @@ struct Light
 
 in vec3 position;
 in vec2 texCoords;
-in vec3 normals;
+in vec3 normal;
 
 out vec4 fragColor;
 
 uniform sampler2D tex;
 uniform Light lights[1];
 
-vec4 Phong()
+vec3 Phong()
 {
-    vec3 color = texture(tex, texCoords).rgb;
+    vec3 albedo = texture(tex, texCoords).rgb;
+    //albedo = vec3(0.3f);
 
-    float ambient = 0.2f;
-    float diffuse = 0.0f;
-    float specular = 0.0f;
+    float ambient = 0.3f;
+    float specularCoeff = 0.0f;
+
+    vec3 diffuse = vec3(0.0f);
+    vec3 specular = vec3(0.0f);
 
     for (int i = 0; i < lights.length; ++i)
     {
+        vec3 Li = normalize(lights[i].pos - position);
         // Diffuse portion
-        //vec3 dir = normalize(
+        diffuse += max(0.0f, dot(Li, normal)) * lights[i].color;
     }
 
-    //return vec4(ambient * color, 1.0f); //+ diffuse + specular;
-    return vec4(normals, 1.0f);
+
+    vec3 totalColor = (ambient + diffuse + specular) * albedo;
+
+    return totalColor;
+    //return lights[0].color;
 }
 
 void main()
 {
     //fragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    fragColor = Phong();
+    fragColor = vec4(Phong(), 1.0f);
+    //fragColor = vec4(normal, 1.0f);
 }

@@ -213,11 +213,11 @@ int main(int argc, char * argv[])
     glUniform1i(glGetUniformLocation(boxShader.ID, "tex"), 0);
 
     std::vector<glm::vec3> lightPositions = {
-        glm::vec3( 1.0f,  1.0f, -2.0f),
-   //     glm::vec3( 1.0f,  2.0f, -3.0f),
-   //     glm::vec3(-3.5f,  2.5f, -4.0f),
-   //     glm::vec3(-2.4f, -0.5f, -5.0f),
-   //     glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3( 1.0f,  0.0f, -2.0f),
+        //glm::vec3( 1.0f,  2.0f, -3.0f),
+        //glm::vec3(-3.5f,  2.5f, -4.0f),
+        //glm::vec3(-2.4f, -0.5f, -5.0f),
+        //glm::vec3( 1.5f, -1.0f, -7.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
@@ -298,17 +298,6 @@ int main(int argc, char * argv[])
             glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "mvp"),
                     1, GL_FALSE, glm::value_ptr(mvp));
 
-            // Also add our light info to each box
-            GLuint lightPosLoc = glGetUniformLocation(boxShader.ID, "lights[0].pos");
-            for (int j = 0; j < lights.size(); ++j)
-            {
-                std::string lightPos = "lights[" + std::to_string(j) + "].pos";
-                std::string lightColor = "lights[" + std::to_string(j) + "].color";
-
-                glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(lights[i].pos));
-                glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
-            }
-
             // Draw the box
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -319,10 +308,50 @@ int main(int argc, char * argv[])
         lightShader.use();
         for (int i = 0; i < lights.size(); ++i)
         {
-            model = glm::mat4(1.0f); 
-            model = glm::translate(model, lights[i].pos);
-            model = glm::scale(model, glm::vec3(0.5f));
+            glm::vec3 newPos;
+            // first light is moving light
+            if (i == 0)
+            {
+                float radius = 5.0f;
+                float omega = 1.0f;
 
+                newPos = lights[i].pos + 
+                    radius * glm::vec3(cos(omega * glfwGetTime()), 
+                            0.0f,
+                            sin(omega * glfwGetTime())
+                            );
+                model = glm::mat4(1.0f); 
+                model = glm::translate(model, newPos);
+                model = glm::scale(model, glm::vec3(0.2f));
+            }
+            else
+            {
+                model = glm::mat4(1.0f); 
+                model = glm::translate(model, lights[i].pos);
+                model = glm::scale(model, glm::vec3(0.2f));
+            }
+
+            // Also add our light info to each box
+            boxShader.use();
+            GLuint lightPosLoc = glGetUniformLocation(boxShader.ID, "lights[0].pos");
+            for (int j = 0; j < lights.size(); ++j)
+            {
+                std::string lightPos = "lights[" + std::to_string(j) + "].pos";
+                std::string lightColor = "lights[" + std::to_string(j) + "].color";
+
+                if (i == 0)
+                {
+                    glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
+                }
+                else
+                {
+                    glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(lights[i].pos));
+                }
+                glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
+            }
+
+
+            lightShader.use();
             glm::mat4 mvp = proj * view * model;
             // Send in MVP
             glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
@@ -332,8 +361,7 @@ int main(int argc, char * argv[])
 
              // Draw the object
             glBindVertexArray(VAO);
-            //glDrawArrays(GL_TRIANGLES, 0, 36);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
        }
 
