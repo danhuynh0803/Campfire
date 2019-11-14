@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <vector>
 #include <random>
+#include <string>
 
 #include "Shader.h"
 #include "Camera.h"
@@ -68,48 +69,48 @@ int main(int argc, char * argv[])
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
     float vertices[] = {
-        // Position           // UV
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        // Position           // UV         // Normals
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,   0, 0, -1,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 0, -1,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, 0, 1,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   0, 0, 1,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,   
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1, 0, 0,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1, 0, 0,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,   
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   1, 0, 0,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   1, 0, 0,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,   
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,   0, -1, 0,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, -1, 0,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0,   
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 1, 0,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,   0, 1, 0,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0
     };
 
     // texture 1
@@ -188,11 +189,13 @@ int main(int argc, char * argv[])
     // 4. Do we want data to be normalized? 
     // 5. Stride of data: the space between consecutive vertex attribs
     // 6. Offset of the attrib data. Needs to be casted to void*    
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);   // position
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texture
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);   // position
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // texture
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // normals
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);    
+    glEnableVertexAttribArray(2);
 
     // unbinding VBO
     // this is allowed, since the call to glVertexAttribPointer registered VBO
@@ -246,6 +249,10 @@ int main(int argc, char * argv[])
         // per-frame time logic
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
+        // TODO add an FPS counter
+        // have it render to the screen
+        // look at text rendering tutorials
+        //printf("%f ms/frame\n", 1000.0/double
         lastFrame = currentFrame;
 
         processInput(mWindow); 
@@ -291,6 +298,17 @@ int main(int argc, char * argv[])
             glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "mvp"),
                     1, GL_FALSE, glm::value_ptr(mvp));
 
+            // Also add our light info to each box
+            GLuint lightPosLoc = glGetUniformLocation(boxShader.ID, "lights[0].pos");
+            for (int j = 0; j < lights.size(); ++j)
+            {
+                std::string lightPos = "lights[" + std::to_string(j) + "].pos";
+                std::string lightColor = "lights[" + std::to_string(j) + "].color";
+
+                glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(lights[i].pos));
+                glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
+            }
+
             // Draw the box
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -314,7 +332,8 @@ int main(int argc, char * argv[])
 
              // Draw the object
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            //glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindVertexArray(0);
        }
 
