@@ -214,10 +214,10 @@ int main(int argc, char * argv[])
 
     std::vector<glm::vec3> lightPositions = {
         glm::vec3( 1.0f,  0.0f, -2.0f),
-        //glm::vec3( 1.0f,  2.0f, -3.0f),
-        //glm::vec3(-3.5f,  2.5f, -4.0f),
-        //glm::vec3(-2.4f, -0.5f, -5.0f),
-        //glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3( 1.0f,  2.0f, -3.0f),
+        glm::vec3(-3.5f,  2.5f, -4.0f),
+        glm::vec3(-2.4f, -0.5f, -5.0f),
+        glm::vec3( 1.5f, -1.0f, -7.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
@@ -308,48 +308,31 @@ int main(int argc, char * argv[])
         lightShader.use();
         for (int i = 0; i < lights.size(); ++i)
         {
-            glm::vec3 newPos;
+            glm::vec3 newPos = lights[i].pos;
             // first light is moving light
             if (i == 0)
             {
                 float radius = 5.0f;
                 float omega = 1.0f;
 
-                newPos = lights[i].pos + 
-                    radius * glm::vec3(cos(omega * glfwGetTime()), 
-                            0.0f,
-                            sin(omega * glfwGetTime())
-                            );
-                model = glm::mat4(1.0f); 
-                model = glm::translate(model, newPos);
-                model = glm::scale(model, glm::vec3(0.2f));
+                newPos += radius * glm::vec3(cos(omega * glfwGetTime()), 
+                                            0.0f,
+                                            sin(omega * glfwGetTime()));
             }
-            else
-            {
-                model = glm::mat4(1.0f); 
-                model = glm::translate(model, lights[i].pos);
-                model = glm::scale(model, glm::vec3(0.2f));
-            }
+
+            model = glm::mat4(1.0f); 
+            model = glm::translate(model, newPos);
+            model = glm::scale(model, glm::vec3(0.2f));
 
             // Also add our light info to each box
             boxShader.use();
-            GLuint lightPosLoc = glGetUniformLocation(boxShader.ID, "lights[0].pos");
-            for (int j = 0; j < lights.size(); ++j)
-            {
-                std::string lightPos = "lights[" + std::to_string(j) + "].pos";
-                std::string lightColor = "lights[" + std::to_string(j) + "].color";
+            std::string lightPos = "lights[" + std::to_string(i) + "].pos";
+            std::string lightColor = "lights[" + std::to_string(i) + "].color";
 
-                if (i == 0)
-                {
-                    glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
-                }
-                else
-                {
-                    glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(lights[i].pos));
-                }
-                glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
-            }
-
+            // First box has moving position
+            //
+            glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
+            glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
 
             lightShader.use();
             glm::mat4 mvp = proj * view * model;

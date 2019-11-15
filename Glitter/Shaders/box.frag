@@ -13,7 +13,7 @@ in vec3 normal;
 out vec4 fragColor;
 
 uniform sampler2D tex;
-uniform Light lights[1];
+uniform Light lights[5];
 
 vec3 Phong()
 {
