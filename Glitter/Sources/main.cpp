@@ -118,12 +118,9 @@ int main(int argc, char * argv[])
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
     Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
 
-    // for testing UBOs
-    Shader redShader   ("../Glitter/Shaders/standard.vert", "../Glitter/Shaders/red.frag");
-    Shader greenShader ("../Glitter/Shaders/standard.vert", "../Glitter/Shaders/green.frag");
-    Shader blueShader  ("../Glitter/Shaders/standard.vert", "../Glitter/Shaders/blue.frag");
-    Shader yellowShader("../Glitter/Shaders/standard.vert", "../Glitter/Shaders/yellow.frag");
-
+    // ===================================================================
+    // Setup for textures
+    //
     // texture 1
     unsigned int tex1, tex2;
     glGenTextures(1, &tex1);    
@@ -174,7 +171,10 @@ int main(int argc, char * argv[])
     stbi_image_free(data);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, tex2);
+    // Pass in texture info
+    glUniform1i(glGetUniformLocation(boxShader.ID, "tex"), 0);
 
+    // ===================================================================
     // generating a VAO 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -216,24 +216,7 @@ int main(int argc, char * argv[])
     // unbinding VAO for later use
     glBindVertexArray(0);
 
-    // Bind UBO block index to shaders
-    glUniformBlockBinding(redShader.ID   , glGetUniformBlockIndex(redShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(greenShader.ID , glGetUniformBlockIndex(greenShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(blueShader.ID  , glGetUniformBlockIndex(blueShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(yellowShader.ID, glGetUniformBlockIndex(yellowShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "Matrices"), 0);
-
-    // Create a uniform buffer to handle viewprojection and lights
-    unsigned int uboMatrices;
-    glGenBuffers(1, &uboMatrices);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
-
-    glUniform1i(glGetUniformLocation(boxShader.ID, "tex"), 0);
-
-    // =============================================
+    // ===================================================================
     // Scene information
     // 
     std::vector<glm::vec3> lightPositions = {
@@ -266,7 +249,20 @@ int main(int argc, char * argv[])
         //     glm::vec3( 1.5f, -1.0f, -7.0f),
     };
 
+    // ===================================================================
+    // Bind UBO block index to shaders
+    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "Matrices"), 0);
+    glUniformBlockBinding(lightShader.ID   , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
+
+    // Create a uniform buffer to handle viewprojection and lights
+    unsigned int uboMatrices;
+    glGenBuffers(1, &uboMatrices);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
    
+    // ===================================================================
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) 
     {        
@@ -307,56 +303,11 @@ int main(int argc, char * argv[])
         // Send the view and projection matrices to the UBO
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(view));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        // DH NOTE: make sure the offset is set
-        glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         // Draw the four test boxes for UBO testing
         glm::vec3 scale = glm::vec3(2.0f);
-
-        redShader.use(); 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.0f, 2.0f, 0.0f));
-        model = glm::scale(model, scale);
-        glUniformMatrix4fv(glGetUniformLocation(redShader.ID, "model"), 
-            1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-    
-        greenShader.use(); 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 2.0f, 0.0f));
-        model = glm::scale(model, scale);
-        glUniformMatrix4fv(glGetUniformLocation(redShader.ID, "model"), 
-            1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        blueShader.use(); 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.0f, -2.0f, 0.0f));
-        model = glm::scale(model, scale);
-        glUniformMatrix4fv(glGetUniformLocation(redShader.ID, "model"), 
-            1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        yellowShader.use(); 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, -2.0f, 0.0f));
-        model = glm::scale(model, scale);
-        glUniformMatrix4fv(glGetUniformLocation(redShader.ID, "model"), 
-            1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
 
         // Draw our box
         boxShader.use();
@@ -391,7 +342,7 @@ int main(int argc, char * argv[])
 
             model = glm::mat4(1.0f); 
             model = glm::translate(model, newPos);
-            model = glm::scale(model, glm::vec3(0.2f));
+            model = glm::scale(model, glm::vec3(0.5f));
 
             // Also add our light info to each box
             boxShader.use();
@@ -403,7 +354,8 @@ int main(int argc, char * argv[])
             lightShader.use();
             glm::mat4 mvp = proj * view * model;
             // Send in MVP
-            glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+            //glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+            glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
             // Pass in light color to shader
             glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
