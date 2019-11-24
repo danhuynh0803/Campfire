@@ -243,7 +243,7 @@ int main(int argc, char * argv[])
 
     std::vector<glm::vec3> boxPositions = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
-        //     glm::vec3( 1.0f,  2.0f, -3.0f),
+        glm::vec3( 0.1f,  0.0f, -1.5f),
         //     glm::vec3(-3.5f,  2.5f, -4.0f),
         //     glm::vec3(-2.4f, -0.5f, -5.0f),
         //     glm::vec3( 1.5f, -1.0f, -7.0f),
@@ -252,7 +252,9 @@ int main(int argc, char * argv[])
     // ===================================================================
     // Bind UBO block index to shaders
     glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(lightShader.ID   , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
+    glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
+
+    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(lightShader.ID, "LightBlock"), 1);
 
     // Create a uniform buffer to handle viewprojection and lights
     unsigned int uboMatrices;
@@ -262,6 +264,13 @@ int main(int argc, char * argv[])
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
    
+    unsigned int uboLights;
+    glGenBuffers(1, &uboLights);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+    glBufferData(GL_UNIFORM_BUFFER, lightPositions.size() * sizeof(Light), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 1, uboLights, 0, lightPositions.size() * sizeof(Light));
+
     // ===================================================================
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) 
@@ -346,6 +355,13 @@ int main(int argc, char * argv[])
 
             // Also add our light info to each box
             boxShader.use();
+            // Send light info to UBO
+            // TODO: figure out how to pass in struct info to UBOs
+            glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(newPos));
+            glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(lights[i].color));
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
             std::string lightPos = "lights[" + std::to_string(i) + "].pos";
             std::string lightColor = "lights[" + std::to_string(i) + "].color";
             glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));

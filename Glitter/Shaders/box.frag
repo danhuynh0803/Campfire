@@ -1,19 +1,39 @@
 #version 450 core
 
+const int NUM_LIGHTS = 5;
+
 struct Light
 {
     vec3 pos;
     vec3 color;
 };
 
+// =========================================
+//layout (std140) uniform LightBlock
+//{
+//    Light lights[NUM_LIGHTS];
+//};
+
+// =========================================
 in vec3 position;
 in vec2 texCoords;
 in vec3 normal;
 
+// =========================================
 out vec4 fragColor;
 
+// =========================================
+uniform Light lights[NUM_LIGHTS];
 uniform sampler2D tex;
-uniform Light lights[5];
+
+float near = 0.1f;
+float far = 100.0f;
+
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0f - 1.0f;
+    return (2.0f * near * far) / (far + near - z * (far - near));
+}
 
 vec3 Phong()
 {
@@ -42,7 +62,7 @@ vec3 Phong()
 
 void main()
 {
-    //fragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
     fragColor = vec4(Phong(), 1.0f);
-    //fragColor = vec4(normal, 1.0f);
+    float depth = LinearizeDepth(gl_FragCoord.z) / far;
+    fragColor = vec4(vec3(1.0f - depth), 1.0f);
 }
