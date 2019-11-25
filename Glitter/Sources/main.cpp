@@ -42,6 +42,15 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float texMix = 0.2f;
 
+void RenderScene(Shader);
+void RenderLights(Shader);
+
+// TODO: move buffers to their own classes at some point
+unsigned int VAO;
+unsigned int tex1, tex2;
+std::vector<Light> lights;
+std::vector<glm::vec3> boxPositions;
+
 int main(int argc, char * argv[]) 
 {
     // Load GLFW and Create a Window
@@ -122,7 +131,6 @@ int main(int argc, char * argv[])
     // Setup for textures
     //
     // texture 1
-    unsigned int tex1, tex2;
     glGenTextures(1, &tex1);    
     glBindTexture(GL_TEXTURE_2D, tex1);    
     // set the texture wrapping/filtering options (on the currenty bound texture object) 
@@ -153,11 +161,11 @@ int main(int argc, char * argv[])
     glGenTextures(1, &tex2);    
     glBindTexture(GL_TEXTURE_2D, tex2);
     // set the texture wrapping/filtering options (on the currenty bound texture object) 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
- 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     data = stbi_load("Textures/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
@@ -176,7 +184,6 @@ int main(int argc, char * argv[])
 
     // ===================================================================
     // generating a VAO 
-    unsigned int VAO;
     glGenVertexArrays(1, &VAO);
 
     // Initialization code, which is typically done once 
@@ -212,12 +219,12 @@ int main(int argc, char * argv[])
     // as the vertex attribute's bound vertex buffer object so afterwards we 
     // can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
+
     // unbinding VAO for later use
     glBindVertexArray(0);
 
     // ===================================================================
-    // Scene information
+    // Light information
     // 
     std::vector<glm::vec3> lightPositions = {
         glm::vec3( 1.0f,  0.0f, -2.0f),
@@ -235,13 +242,12 @@ int main(int argc, char * argv[])
         glm::vec3(0.0f, 1.0f, 1.0f),
     };
 
-    std::vector<Light> lights;
     for (int i = 0; i < lightPositions.size(); ++i)
     {
         lights.push_back(Light(lightPositions[i], lightColors[i]));   
     }
 
-    std::vector<glm::vec3> boxPositions = {
+    boxPositions = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
         glm::vec3( 0.1f,  0.0f, -1.5f),
         //     glm::vec3(-3.5f,  2.5f, -4.0f),
@@ -263,13 +269,39 @@ int main(int argc, char * argv[])
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
-   
+
     unsigned int uboLights;
     glGenBuffers(1, &uboLights);
     glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
     glBufferData(GL_UNIFORM_BUFFER, lightPositions.size() * sizeof(Light), NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 1, uboLights, 0, lightPositions.size() * sizeof(Light));
+
+    // ====================================================
+    // Frame buffer for depth map
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+
+    // Create a 2D texture to store framebuffer's depth buffer
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+            SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glEnable(GL_DEPTH_TEST);
 
     // ===================================================================
     // Rendering Loop
@@ -286,23 +318,6 @@ int main(int argc, char * argv[])
 
         processInput(mWindow); 
 
-        glEnable(GL_DEPTH_TEST);
-
-        // Background Fill Color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        // Add texture to our box
-        boxShader.use();            
-        // bind textures on corresponding texture units
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex1);
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, tex2);
-      
-        glm::mat4 model = glm::mat4(1.0f);
-
         glm::mat4 view  = glm::mat4(1.0f);
         view = camera.GetViewMatrix();
 
@@ -315,72 +330,12 @@ int main(int argc, char * argv[])
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        // Draw the four test boxes for UBO testing
-        glm::vec3 scale = glm::vec3(2.0f);
 
-        // Draw our box
-        boxShader.use();
-        for (int i = 0; i < boxPositions.size(); ++i)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, boxPositions[i]);
-            glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "model"),
-                1, GL_FALSE, glm::value_ptr(model));
-
-            // Draw the box
-            glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-        }
-
-        // Draw our lights
-        lightShader.use();
-        for (int i = 0; i < lights.size(); ++i)
-        {
-            glm::vec3 newPos = lights[i].pos;
-            // first light is moving light
-            if (i == 0)
-            {
-                float radius = 5.0f;
-                float omega = 1.0f;
-
-                newPos += radius * glm::vec3(cos(omega * glfwGetTime()), 
-                                            0.0f,
-                                            sin(omega * glfwGetTime()));
-            }
-
-            model = glm::mat4(1.0f); 
-            model = glm::translate(model, newPos);
-            model = glm::scale(model, glm::vec3(0.5f));
-
-            // Also add our light info to each box
-            boxShader.use();
-            // Send light info to UBO
-            // TODO: figure out how to pass in struct info to UBOs
-            glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(newPos));
-            glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(lights[i].color));
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-            std::string lightPos = "lights[" + std::to_string(i) + "].pos";
-            std::string lightColor = "lights[" + std::to_string(i) + "].color";
-            glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
-            glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
-
-            lightShader.use();
-            glm::mat4 mvp = proj * view * model;
-            // Send in MVP
-            //glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
-            glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-            // Pass in light color to shader
-            glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
-
-             // Draw the object
-            glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-       }
+        // Background Fill Color
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        RenderLights(lightShader);
+        RenderScene(boxShader);
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
@@ -389,6 +344,91 @@ int main(int argc, char * argv[])
 
     glfwTerminate();
     return EXIT_SUCCESS;
+}
+
+void RenderLights(Shader lightShader)
+{
+    // Draw our lights
+    lightShader.use();
+    for (int i = 0; i < lights.size(); ++i)
+    {
+        glm::vec3 newPos = lights[i].pos;
+        // first light is moving light
+        if (i == 0)
+        {
+            float radius = 5.0f;
+            float omega = 1.0f;
+
+            newPos += radius * glm::vec3(cos(omega * glfwGetTime()), 
+                    0.0f,
+                    sin(omega * glfwGetTime()));
+        }
+
+        glm::mat4 model = glm::mat4(1.0f); 
+        model = glm::translate(model, newPos);
+        model = glm::scale(model, glm::vec3(0.5f));
+
+        /*
+         * TODO make this with UBOs
+        // Also add our light info to each box
+        boxShader.use();
+        // Send light info to UBO
+        // TODO: figure out how to pass in struct info to UBOs
+        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(newPos));
+        glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(lights[i].color));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        std::string lightPos = "lights[" + std::to_string(i) + "].pos";
+        std::string lightColor = "lights[" + std::to_string(i) + "].color";
+        glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
+        glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
+        */
+
+        lightShader.use();
+        // send in model
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+        // Pass in light color to shader
+        glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
+
+        // Draw the object
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+    }
+
+}
+
+void RenderScene(Shader sceneShader)
+{
+    // Add texture to our box
+    sceneShader.use();            
+    // bind textures on corresponding texture units
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex1);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, tex2);
+
+    glm::mat4 model = glm::mat4(1.0f);
+
+    // Draw the four test boxes for UBO testing
+    glm::vec3 scale = glm::vec3(2.0f);
+
+    // Draw our box
+    sceneShader.use();
+    for (int i = 0; i < boxPositions.size(); ++i)
+    {
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, boxPositions[i]);
+        glUniformMatrix4fv(glGetUniformLocation(sceneShader.ID, "model"),
+                1, GL_FALSE, glm::value_ptr(model));
+
+        // Draw the box
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+    }
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
