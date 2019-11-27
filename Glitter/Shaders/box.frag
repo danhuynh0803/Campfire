@@ -38,7 +38,6 @@ float LinearizeDepth(float depth)
 vec3 Phong()
 {
     vec3 albedo = texture(tex, texCoords).rgb;
-    //albedo = vec3(0.3f);
 
     float ambient = 0.3f;
     float specularCoeff = 0.0f;
@@ -57,12 +56,11 @@ vec3 Phong()
     vec3 totalColor = (ambient + diffuse + specular) * albedo;
 
     return totalColor;
-    //return lights[0].color;
 }
 
 void main()
 {
+    //float depth = LinearizeDepth(gl_FragCoord.z) / far;
+    //fragColor = vec4(vec3(1.0f - depth), 1.0f);
     fragColor = vec4(Phong(), 1.0f);
-    float depth = LinearizeDepth(gl_FragCoord.z) / far;
-    fragColor = vec4(vec3(1.0f - depth), 1.0f);
 }

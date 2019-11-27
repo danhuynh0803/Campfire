@@ -330,11 +330,18 @@ int main(int argc, char * argv[])
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
         // Background Fill Color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            RenderScene(boxShader);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        RenderLights(lightShader);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
         RenderScene(boxShader);
 
         // Flip Buffers and Draw
