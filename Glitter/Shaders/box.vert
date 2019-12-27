@@ -11,7 +11,7 @@ layout (std140) uniform Matrices
 };
 
 out vec3 position;
-out vec2 texCoords;
+out vec2 uvCoords;
 out vec3 normal;
 
 //uniform mat4 mvp;
@@ -20,6 +20,6 @@ uniform mat4 model;
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
-    texCoords = aTexCoords;
+    uvCoords = aTexCoords;
     normal = aNormal;
 }

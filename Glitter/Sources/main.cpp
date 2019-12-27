@@ -1,9 +1,6 @@
 // Local Headers
 #include "glitter.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 // System Headers
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -21,6 +18,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -47,7 +45,7 @@ void RenderLights(Shader);
 
 // TODO: move buffers to their own classes at some point
 unsigned int VAO;
-unsigned int tex1, tex2;
+Texture tex1, tex2;
 std::vector<Light> lights;
 std::vector<glm::vec3> boxPositions;
 
@@ -130,60 +128,15 @@ int main(int argc, char * argv[])
     // ===================================================================
     // Setup for textures
     //
-    // texture 1
-    glGenTextures(1, &tex1);    
-    glBindTexture(GL_TEXTURE_2D, tex1);    
-    // set the texture wrapping/filtering options (on the currenty bound texture object) 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load and generate the texture 
-
-    // Texture 1 
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("Textures/revue.jpg", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load the texture" << std::endl;
-    }
-    stbi_image_free(data);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex1);
-
-    // Texture 2
-    glGenTextures(1, &tex2);    
-    glBindTexture(GL_TEXTURE_2D, tex2);
-    // set the texture wrapping/filtering options (on the currenty bound texture object) 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    data = stbi_load("Textures/awesomeface.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load the texture" << std::endl;
-    }
-    stbi_image_free(data);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, tex2);
+    tex1 = Texture("Textures/revue.jpg");
+    tex2 = Texture("Textures/awesomeface.png");
     // Pass in texture info
-    glUniform1i(glGetUniformLocation(boxShader.ID, "tex"), 0);
+
+    // TODO: How is tex info being passed into the uniform withouth this?
+    //glUniform1i(glGetUniformLocation(boxShader.ID, "tex"), 0);
 
     // ===================================================================
-    // generating a VAO 
+    // generating a VAO
     glGenVertexArrays(1, &VAO);
 
     // Initialization code, which is typically done once 
@@ -200,7 +153,7 @@ int main(int argc, char * argv[])
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // parameter descriptions: 
+    // parameter descriptions:
     // 1. Which vertex attrib we want to configure. Relates to the layout location 
     // 2. Size of the vertex attribute so vec3 is 3 values. 
     // 3. The type of data
@@ -211,7 +164,7 @@ int main(int argc, char * argv[])
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // texture
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // normals
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);    
+    glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
     // unbinding VBO
@@ -306,7 +259,7 @@ int main(int argc, char * argv[])
     // ===================================================================
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) 
-    {        
+    {
         // per-frame time logic
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -332,7 +285,7 @@ int main(int argc, char * argv[])
 
         // Background Fill Color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
+        
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -410,10 +363,10 @@ void RenderLights(Shader lightShader)
 void RenderScene(Shader sceneShader)
 {
     // Add texture to our box
-    sceneShader.use();            
+    sceneShader.use();
     // bind textures on corresponding texture units
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex1);
+    glBindTexture(GL_TEXTURE_2D, tex1.ID);
     //glActiveTexture(GL_TEXTURE1);
     //glBindTexture(GL_TEXTURE_2D, tex2);
 

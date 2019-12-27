@@ -16,7 +16,7 @@ struct Light
 
 // =========================================
 in vec3 position;
-in vec2 texCoords;
+in vec2 uvCoords;
 in vec3 normal;
 
 // =========================================
@@ -37,9 +37,10 @@ float LinearizeDepth(float depth)
 
 vec3 Phong()
 {
-    vec3 albedo = texture(tex, texCoords).rgb;
+    vec3 albedo = texture(tex, uvCoords).rgb;
+    //vec3 albedo = texture(tex, vec2(texCoords.x, 1.0f - texCoords.y)).rgb;
 
-    float ambient = 0.3f;
+    float ambient = 1.0f;
     float specularCoeff = 0.0f;
 
     vec3 diffuse = vec3(0.0f);
