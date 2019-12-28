@@ -185,12 +185,12 @@ int main(int argc, char * argv[])
     // Light information
     //
     std::vector<glm::vec3> lightPositions = {
-    //    glm::vec3( 1.0f,  0.0f, -2.0f),
-        //glm::vec3( 1.0f,  2.0f, -3.0f),
-        glm::vec3( 1.0f,  0.0f, 0.0f),
-        glm::vec3(-1.0f,  0.0f, 0.0f),
-    //    glm::vec3(-2.4f, -0.5f, -5.0f),
-    //    glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3( 1.0f,  0.0f, -2.0f),
+        glm::vec3( 1.0f,  2.0f, -3.0f),
+        //glm::vec3( 1.0f,  0.0f, 0.0f),
+        //glm::vec3(-1.0f,  0.0f, 0.0f),
+        glm::vec3(-2.4f, -0.5f, -5.0f),
+        glm::vec3( 1.5f, -1.0f, -7.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
@@ -204,7 +204,9 @@ int main(int argc, char * argv[])
 
     for (int i = 0; i < lightPositions.size(); ++i)
     {
-        lights.push_back(Light(lightPositions[i], lightColors[i]));   
+        lights.push_back(
+            Light(glm::vec4(lightPositions[i], 1.0f), glm::vec4(lightColors[i], 1.0f))
+        );
     }
 
     boxPositions = {
@@ -323,15 +325,15 @@ void RenderLights(Shader lightShader)
     {
         glm::vec3 newPos = lights[i].pos;
         // first light is moving light
-        //if (i == 0)
-        //{
-        //    float radius = 5.0f;
-        //    float omega = 1.0f;
+        if (i == 0)
+        {
+            float radius = 5.0f;
+            float omega = 1.0f;
 
-        //    newPos += radius * glm::vec3(cos(omega * glfwGetTime()), 
-        //            0.0f,
-        //            sin(omega * glfwGetTime()));
-        //}
+            newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
+                    0.0f,
+                    sin(omega * glfwGetTime()));
+        }
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, newPos);
@@ -345,6 +347,22 @@ void RenderLights(Shader lightShader)
 //        glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
 //        glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
 //
+        // Bind our lights to the uniform light buffer
+        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+        //glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), NULL, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER,
+                2*sizeof(glm::vec4)*i,
+                sizeof(glm::vec4),
+                glm::value_ptr(lights[i].pos));
+
+        glBufferSubData(GL_UNIFORM_BUFFER,
+                2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
+                sizeof(glm::vec4),
+                glm::value_ptr(lights[i].color));
+
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
+
         lightShader.use();
         // send in model
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -358,17 +376,13 @@ void RenderLights(Shader lightShader)
         glBindVertexArray(0);
     }
 
-    for (int i = 0; i < lights.size(); ++i)
-    {
-        // Bind our lights to the uniform light buffer
-        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-        //glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), NULL, GL_DYNAMIC_DRAW);
-        glBufferSubData(GL_UNIFORM_BUFFER, 8*i, sizeof(glm::vec3), glm::value_ptr(lights[i].pos));
-        glBufferSubData(GL_UNIFORM_BUFFER, 8*i + sizeof(glm::vec4), sizeof(glm::vec3), glm::value_ptr(lights[i].color));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
-    }
-
+    // Bind our lights to the uniform light buffer
+    //glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+    //glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), NULL, GL_DYNAMIC_DRAW);
+    ////glBufferSubData(GL_UNIFORM_BUFFER, 8*i, sizeof(glm::vec4), glm::value_ptr(lights[i].pos));
+    ////glBufferSubData(GL_UNIFORM_BUFFER, 8*i + sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(lights[i].color));
+    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    //glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 }
 
 void RenderScene(Shader sceneShader)
