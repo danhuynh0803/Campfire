@@ -49,7 +49,7 @@ Texture tex1, tex2;
 std::vector<Light> lights;
 std::vector<glm::vec3> boxPositions;
 
-int main(int argc, char * argv[]) 
+int main(int argc, char * argv[])
 {
     // Load GLFW and Create a Window
     glfwInit();
@@ -92,28 +92,28 @@ int main(int argc, char * argv[])
         -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   0, 0, 1,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,   
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1, 0, 0,
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1, 0, 0,
         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,   
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   1, 0, 0,
          0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
          0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
          0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   1, 0, 0,
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,   
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
          0.5f, -0.5f, -0.5f,  1.0f, 1.0f,   0, -1, 0,
          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, -1, 0,
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0,   
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 1, 0,
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
@@ -176,9 +176,10 @@ int main(int argc, char * argv[])
     // unbinding VAO for later use
     glBindVertexArray(0);
 
+    // TODO replace this into some more manageable format, like glTF
     // ===================================================================
     // Light information
-    // 
+    //
     std::vector<glm::vec3> lightPositions = {
         glm::vec3( 1.0f,  0.0f, -2.0f),
         glm::vec3( 1.0f,  2.0f, -3.0f),
@@ -269,7 +270,7 @@ int main(int argc, char * argv[])
         //printf("%f ms/frame\n", 1000.0/double
         lastFrame = currentFrame;
 
-        processInput(mWindow); 
+        processInput(mWindow);
 
         glm::mat4 view  = glm::mat4(1.0f);
         view = camera.GetViewMatrix();
@@ -285,7 +286,7 @@ int main(int argc, char * argv[])
 
         // Background Fill Color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        
+
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -297,10 +298,12 @@ int main(int argc, char * argv[])
         glBindTexture(GL_TEXTURE_2D, depthMap);
         RenderScene(boxShader);
 
+        RenderLights(lightShader);
+
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
         glfwPollEvents();
-    }   
+    }
 
     glfwTerminate();
     return EXIT_SUCCESS;
@@ -324,7 +327,7 @@ void RenderLights(Shader lightShader)
                     sin(omega * glfwGetTime()));
         }
 
-        glm::mat4 model = glm::mat4(1.0f); 
+        glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, newPos);
         model = glm::scale(model, glm::vec3(0.5f));
 
@@ -367,8 +370,10 @@ void RenderScene(Shader sceneShader)
     // bind textures on corresponding texture units
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex1.ID);
+    glUniform1i(glGetUniformLocation(sceneShader.ID, "tex1"), 0);
     //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, tex2);
+    //glBindTexture(GL_TEXTURE_2D, tex2.ID);
+    //glUniform1i(glGetUniformLocation(sceneShader.ID, "tex2"), 1);
 
     glm::mat4 model = glm::mat4(1.0f);
 

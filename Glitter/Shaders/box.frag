@@ -24,7 +24,8 @@ out vec4 fragColor;
 
 // =========================================
 uniform Light lights[NUM_LIGHTS];
-uniform sampler2D tex;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
 
 float near = 0.1f;
 float far = 100.0f;
@@ -37,12 +38,9 @@ float LinearizeDepth(float depth)
 
 vec3 Phong()
 {
-    vec3 albedo = texture(tex, uvCoords).rgb;
-    //vec3 albedo = texture(tex, vec2(texCoords.x, 1.0f - texCoords.y)).rgb;
-
-    float ambient = 1.0f;
+    vec3 albedo = texture(tex1, uvCoords).rgb;
+    float ambient = 0.2f;
     float specularCoeff = 0.0f;
-
     vec3 diffuse = vec3(0.0f);
     vec3 specular = vec3(0.0f);
 
@@ -52,7 +50,6 @@ vec3 Phong()
         // Diffuse portion
         diffuse += max(0.0f, dot(Li, normal)) * lights[i].color;
     }
-
 
     vec3 totalColor = (ambient + diffuse + specular) * albedo;
 

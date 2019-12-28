@@ -8,6 +8,16 @@
 
 #include <string>
 
+const std::vector<std::string> transparentFormats =
+{
+    ".png",
+    ".gif",
+    ".tiff",
+    ".bmp",
+    ".jp2",
+    ".jpx"
+};
+
 class Texture
 {
 public:
@@ -24,11 +34,19 @@ public:
         // Check that the texture path is an image format with an alpha channel
         // For now just check if its png, then use alpha
         // all else assume nonalpha channel
-        hasAlphaChannel = (texturePath.find(".png") != std::string::npos);
+        for (std::string format : transparentFormats)
+        {
+            if (texturePath.find(format) != std::string::npos)
+            {
+                hasAlphaChannel = true;
+                break;
+            }
+        }
 
         glGenTextures(1, &ID);
         glBindTexture(GL_TEXTURE_2D, ID);
 
+        // TODO create another constructor that allows changing these parameters
         // Wrapping/Filtering parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -62,7 +80,7 @@ public:
 
 private:
     std::string texturePath;
-    bool hasAlphaChannel;
+    bool hasAlphaChannel = false;
 };
 
 #endif // TEXTURE_H
