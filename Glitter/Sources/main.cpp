@@ -1,4 +1,5 @@
 // Local Headers
+
 #include "glitter.hpp"
 
 // System Headers
@@ -36,7 +37,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
-float deltaTime = 0.0f;	// time between current frame and last frame
+float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
 float texMix = 0.2f;
 
@@ -45,9 +46,11 @@ void RenderLights(Shader);
 
 // TODO: move buffers to their own classes at some point
 unsigned int VAO;
+unsigned int uboLights;
 Texture tex1, tex2;
 std::vector<Light> lights;
 std::vector<glm::vec3> boxPositions;
+Shader boxShader;
 
 int main(int argc, char * argv[])
 {
@@ -75,6 +78,7 @@ int main(int argc, char * argv[])
     gladLoadGL();
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
+    // TODO reformat this to use glTF or some other more manageable way
     // Vertex info for a cube
     float vertices[] = {
         // Position           // UV         // Normals
@@ -123,7 +127,7 @@ int main(int argc, char * argv[])
 
     // use our shader program when we want to render an object
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
-    Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
+    boxShader = Shader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
 
     // ===================================================================
     // Setup for textures
@@ -159,7 +163,7 @@ int main(int argc, char * argv[])
     // 3. The type of data
     // 4. Do we want data to be normalized? 
     // 5. Stride of data: the space between consecutive vertex attribs
-    // 6. Offset of the attrib data. Needs to be casted to void*    
+    // 6. Offset of the attrib data. Needs to be casted to void*
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);   // position
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // texture
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // normals
@@ -181,15 +185,17 @@ int main(int argc, char * argv[])
     // Light information
     //
     std::vector<glm::vec3> lightPositions = {
-        glm::vec3( 1.0f,  0.0f, -2.0f),
-        glm::vec3( 1.0f,  2.0f, -3.0f),
-        glm::vec3(-3.5f,  2.5f, -4.0f),
-        glm::vec3(-2.4f, -0.5f, -5.0f),
-        glm::vec3( 1.5f, -1.0f, -7.0f),
+    //    glm::vec3( 1.0f,  0.0f, -2.0f),
+        //glm::vec3( 1.0f,  2.0f, -3.0f),
+        glm::vec3( 1.0f,  0.0f, 0.0f),
+        glm::vec3(-1.0f,  0.0f, 0.0f),
+    //    glm::vec3(-2.4f, -0.5f, -5.0f),
+    //    glm::vec3( 1.5f, -1.0f, -7.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
-        glm::vec3(1.0f, 1.0f, 1.0f),
+        //glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 0.3f, 0.3f),
         glm::vec3(0.0f, 1.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f),
         glm::vec3(1.0f, 1.0f, 0.0f),
@@ -203,7 +209,7 @@ int main(int argc, char * argv[])
 
     boxPositions = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 0.1f,  0.0f, -1.5f),
+        //glm::vec3( 0.1f,  0.0f, -1.5f),
         //     glm::vec3(-3.5f,  2.5f, -4.0f),
         //     glm::vec3(-2.4f, -0.5f, -5.0f),
         //     glm::vec3( 1.5f, -1.0f, -7.0f),
@@ -213,8 +219,7 @@ int main(int argc, char * argv[])
     // Bind UBO block index to shaders
     glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "Matrices"), 0);
     glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
-
-    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(lightShader.ID, "LightBlock"), 1);
+    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "LightBuffer"), 1);
 
     // Create a uniform buffer to handle viewprojection and lights
     unsigned int uboMatrices;
@@ -224,12 +229,12 @@ int main(int argc, char * argv[])
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
 
-    unsigned int uboLights;
     glGenBuffers(1, &uboLights);
     glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-    glBufferData(GL_UNIFORM_BUFFER, lightPositions.size() * sizeof(Light), NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, lightPositions.size() * sizeof(Light), NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferRange(GL_UNIFORM_BUFFER, 1, uboLights, 0, lightPositions.size() * sizeof(Light));
+    //glBindBufferRange(GL_UNIFORM_BUFFER, 1, uboLights, 0, lightPositions.size() * sizeof(Light));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
     // ====================================================
     // Frame buffer for depth map
@@ -296,6 +301,7 @@ int main(int argc, char * argv[])
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindTexture(GL_TEXTURE_2D, depthMap);
+
         RenderScene(boxShader);
 
         RenderLights(lightShader);
@@ -317,37 +323,28 @@ void RenderLights(Shader lightShader)
     {
         glm::vec3 newPos = lights[i].pos;
         // first light is moving light
-        if (i == 0)
-        {
-            float radius = 5.0f;
-            float omega = 1.0f;
+        //if (i == 0)
+        //{
+        //    float radius = 5.0f;
+        //    float omega = 1.0f;
 
-            newPos += radius * glm::vec3(cos(omega * glfwGetTime()), 
-                    0.0f,
-                    sin(omega * glfwGetTime()));
-        }
+        //    newPos += radius * glm::vec3(cos(omega * glfwGetTime()), 
+        //            0.0f,
+        //            sin(omega * glfwGetTime()));
+        //}
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, newPos);
         model = glm::scale(model, glm::vec3(0.5f));
 
-        /*
-         * TODO make this with UBOs
         // Also add our light info to each box
-        boxShader.use();
         // Send light info to UBO
         // TODO: figure out how to pass in struct info to UBOs
-        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(newPos));
-        glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(lights[i].color));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        std::string lightPos = "lights[" + std::to_string(i) + "].pos";
-        std::string lightColor = "lights[" + std::to_string(i) + "].color";
-        glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
-        glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
-        */
-
+        //        std::string lightPos = "lights[" + std::to_string(i) + "].pos";
+//        std::string lightColor = "lights[" + std::to_string(i) + "].color";
+//        glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
+//        glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
+//
         lightShader.use();
         // send in model
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -359,6 +356,17 @@ void RenderLights(Shader lightShader)
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+    }
+
+    for (int i = 0; i < lights.size(); ++i)
+    {
+        // Bind our lights to the uniform light buffer
+        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+        //glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), NULL, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER, 8*i, sizeof(glm::vec3), glm::value_ptr(lights[i].pos));
+        glBufferSubData(GL_UNIFORM_BUFFER, 8*i + sizeof(glm::vec4), sizeof(glm::vec3), glm::value_ptr(lights[i].color));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
     }
 
 }

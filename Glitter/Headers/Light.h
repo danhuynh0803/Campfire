@@ -7,12 +7,14 @@
 
 class Light
 {
-public: 
+public:
     Light(glm::vec3 p, glm::vec3 c) : pos(p), color(c) {}
-    Light(); 
+    Light();
 
     glm::vec3 pos;
+    float padding1;
     glm::vec3 color;
+    float padding2;
 };
 
 class DirLight : public Light

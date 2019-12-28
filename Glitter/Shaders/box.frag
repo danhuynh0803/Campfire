@@ -5,14 +5,16 @@ const int NUM_LIGHTS = 5;
 struct Light
 {
     vec3 pos;
+    float pad1;
     vec3 color;
+    float pad2;
 };
 
 // =========================================
-//layout (std140) uniform LightBlock
-//{
-//    Light lights[NUM_LIGHTS];
-//};
+layout (std140, binding = 1) uniform LightBuffer
+{
+    Light lights[NUM_LIGHTS];
+};
 
 // =========================================
 in vec3 position;
@@ -23,7 +25,7 @@ in vec3 normal;
 out vec4 fragColor;
 
 // =========================================
-uniform Light lights[NUM_LIGHTS];
+//uniform Light lights[NUM_LIGHTS];
 uniform sampler2D tex1;
 uniform sampler2D tex2;
 
@@ -44,11 +46,12 @@ vec3 Phong()
     vec3 diffuse = vec3(0.0f);
     vec3 specular = vec3(0.0f);
 
-    for (int i = 0; i < lights.length; ++i)
+    for (int i = 0; i < 1; ++i)
+    //for (int i = 0; i < lights.length(); ++i)
     {
-        vec3 Li = normalize(lights[i].pos - position);
+        vec3 Li = normalize(lights[i].pos.xyz - position);
         // Diffuse portion
-        diffuse += max(0.0f, dot(Li, normal)) * lights[i].color;
+        diffuse += max(0.0f, dot(Li, normal)) * lights[i].color.rgb;
     }
 
     vec3 totalColor = (ambient + diffuse + specular) * albedo;
