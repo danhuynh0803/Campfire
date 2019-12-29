@@ -1,6 +1,10 @@
 // Local Headers
-
 #include "glitter.hpp"
+
+// ImGui headers
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -16,10 +20,12 @@
 #include <random>
 #include <string>
 
+// My headers
 #include "Shader.h"
 #include "Camera.h"
 #include "Light.h"
 #include "Texture.h"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -76,6 +82,16 @@ int main(int argc, char * argv[])
 
     gladLoadGL();
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
+
+    // Initialize imgui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 450");
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
 
     // TODO reformat this to use glTF or some other more manageable way
     // Vertex info for a cube
@@ -286,6 +302,10 @@ int main(int argc, char * argv[])
         // Background Fill Color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -300,10 +320,22 @@ int main(int argc, char * argv[])
 
         RenderLights(lightShader);
 
+        ImGui::Begin("Demo window");
+        ImGui::Button("Test Button");
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
         glfwPollEvents();
     }
+    
+    // Cleanup for imgui
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return EXIT_SUCCESS;
@@ -439,7 +471,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
         camera.ProcessMouseMovement(xoffset, yoffset);
     }
