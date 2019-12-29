@@ -1,10 +1,13 @@
 // Local Headers
 #include "glitter.hpp"
 
+#define IMGUI_ENABLED // Comment out to disable ImGui
+#ifdef IMGUI_ENABLED
 // ImGui headers
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#endif
 
 // System Headers
 #include <glad/glad.h>
@@ -83,6 +86,7 @@ int main(int argc, char * argv[])
     gladLoadGL();
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
+#ifdef IMGUI_ENABLED
     // Initialize imgui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -92,6 +96,7 @@ int main(int argc, char * argv[])
     ImGui_ImplOpenGL3_Init("#version 450");
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+#endif
 
     // TODO reformat this to use glTF or some other more manageable way
     // Vertex info for a cube
@@ -302,11 +307,13 @@ int main(int argc, char * argv[])
         // Background Fill Color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+#ifdef IMGUI_ENABLED
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
         ImGui::ShowDemoWindow();
+#endif
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -322,22 +329,26 @@ int main(int argc, char * argv[])
 
         RenderLights(lightShader);
 
+#ifdef IMGUI_ENABLED
         ImGui::Begin("Demo window");
         ImGui::Button("Test Button");
         ImGui::End();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
         glfwPollEvents();
     }
-    
+
+#ifdef IMGUI_ENABLED
     // Cleanup for imgui
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+#endif
 
     glfwTerminate();
     return EXIT_SUCCESS;
