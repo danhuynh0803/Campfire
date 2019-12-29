@@ -21,6 +21,7 @@ public:
     {
         vertexName = std::string(vertexPath);
         fragName = std::string(fragmentPath);
+
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -96,6 +97,9 @@ public:
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
 
+    std::string vertexName;
+    std::string fragName;
+
 private:
     // utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------
@@ -122,9 +126,6 @@ private:
             }
         }
     }
-
-    std::string vertexName;
-    std::string fragName;
 };
-#endif
 
+#endif // SHADER_H

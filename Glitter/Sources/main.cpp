@@ -25,6 +25,7 @@
 
 // My headers
 #include "Shader.h"
+#include "ShaderController.h"
 #include "Camera.h"
 #include "Light.h"
 #include "Texture.h"
@@ -59,6 +60,8 @@ unsigned int uboLights;
 Texture tex1, tex2;
 std::vector<Light> lights;
 std::vector<glm::vec3> boxPositions;
+
+ShaderController shaderController;
 
 int main(int argc, char * argv[])
 {
@@ -148,6 +151,10 @@ int main(int argc, char * argv[])
     // use our shader program when we want to render an object
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
     Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
+    // Add shader to shaderController for hot reloading
+    // TODO handle this seamlessly so that theres no need to add shader each time to controller
+    shaderController.Add(&lightShader);
+    shaderController.Add(&boxShader);
 
     // ===================================================================
     // Setup for textures
@@ -436,9 +443,11 @@ void RenderScene(Shader sceneShader)
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    // Quit
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    // Camera movement
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -448,6 +457,7 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
+    // Camera speed increase
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
         camera.MovementSpeed = maxSpeed;
@@ -456,6 +466,15 @@ void processInput(GLFWwindow *window)
     {
         camera.MovementSpeed = normalSpeed;
     }
+
+    // Hot reload shaders only once per click
+    static int oldState = GLFW_RELEASE;
+    int newState = glfwGetKey(window, GLFW_KEY_R);
+    if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
+    {
+        shaderController.ReloadShaders();
+    }
+    oldState = newState;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
