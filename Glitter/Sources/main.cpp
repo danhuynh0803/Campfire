@@ -186,20 +186,18 @@ int main(int argc, char * argv[])
     //
     std::vector<glm::vec3> lightPositions = {
         glm::vec3( 1.0f,  0.0f,  0.0f),
-        glm::vec3( 1.0f,  2.0f,  0.0f),
-        //glm::vec3( 1.0f,  0.0f, 0.0f),
-        //glm::vec3(-1.0f,  0.0f, 0.0f),
-        glm::vec3(-2.4f, -0.5f,  0.0f),
-        glm::vec3( 1.5f, -1.0f,  0.0f),
+        glm::vec3(-1.0f,  1.0f,  0.0f),
+        glm::vec3(-1.0f,  0.0f,  0.0f),
+        glm::vec3( 1.0f,  0.0f,  0.0f),
+        glm::vec3( 0.0f, -1.0f,  0.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
-        //glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 0.3f, 0.3f),
-        glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 0.3f, 0.3f), // red
+        glm::vec3(0.0f, 1.0f, 0.0f), // green
+        glm::vec3(0.0f, 0.0f, 1.0f), // blue
+        glm::vec3(1.0f, 1.0f, 0.0f), // yellow
+        glm::vec3(0.0f, 1.0f, 1.0f), // purple
     };
 
     for (int i = 0; i < lightPositions.size(); ++i)
@@ -345,7 +343,7 @@ void RenderLights(Shader lightShader)
         glBufferSubData(GL_UNIFORM_BUFFER,
                 2*sizeof(glm::vec4)*i,
                 sizeof(glm::vec4),
-                glm::value_ptr(lights[i].pos));
+                glm::value_ptr(newPos));
 
         glBufferSubData(GL_UNIFORM_BUFFER,
                 2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
