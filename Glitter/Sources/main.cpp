@@ -185,12 +185,12 @@ int main(int argc, char * argv[])
     // Light information
     //
     std::vector<glm::vec3> lightPositions = {
-        glm::vec3( 1.0f,  0.0f, -2.0f),
-        glm::vec3( 1.0f,  2.0f, -3.0f),
+        glm::vec3( 1.0f,  0.0f,  0.0f),
+        glm::vec3( 1.0f,  2.0f,  0.0f),
         //glm::vec3( 1.0f,  0.0f, 0.0f),
         //glm::vec3(-1.0f,  0.0f, 0.0f),
-        glm::vec3(-2.4f, -0.5f, -5.0f),
-        glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3(-2.4f, -0.5f,  0.0f),
+        glm::vec3( 1.5f, -1.0f,  0.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
@@ -339,17 +339,9 @@ void RenderLights(Shader lightShader)
         model = glm::translate(model, newPos);
         model = glm::scale(model, glm::vec3(0.5f));
 
-        // Also add our light info to each box
-        // Send light info to UBO
-        // TODO: figure out how to pass in struct info to UBOs
-        //        std::string lightPos = "lights[" + std::to_string(i) + "].pos";
-//        std::string lightColor = "lights[" + std::to_string(i) + "].color";
-//        glUniform3fv(glGetUniformLocation(boxShader.ID, lightPos.c_str()), 1, glm::value_ptr(newPos));
-//        glUniform3fv(glGetUniformLocation(boxShader.ID, lightColor.c_str()), 1, glm::value_ptr(lights[i].color));
-//
         // Bind our lights to the uniform light buffer
         glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-        //glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), NULL, GL_DYNAMIC_DRAW);
+
         glBufferSubData(GL_UNIFORM_BUFFER,
                 2*sizeof(glm::vec4)*i,
                 sizeof(glm::vec4),
@@ -375,14 +367,6 @@ void RenderLights(Shader lightShader)
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
     }
-
-    // Bind our lights to the uniform light buffer
-    //glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-    //glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), NULL, GL_DYNAMIC_DRAW);
-    ////glBufferSubData(GL_UNIFORM_BUFFER, 8*i, sizeof(glm::vec4), glm::value_ptr(lights[i].pos));
-    ////glBufferSubData(GL_UNIFORM_BUFFER, 8*i + sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(lights[i].color));
-    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    //glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 }
 
 void RenderScene(Shader sceneShader)
@@ -470,7 +454,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        camera.ProcessMouseMovement(xoffset, yoffset);
+    }
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
