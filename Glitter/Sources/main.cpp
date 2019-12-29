@@ -50,7 +50,6 @@ unsigned int uboLights;
 Texture tex1, tex2;
 std::vector<Light> lights;
 std::vector<glm::vec3> boxPositions;
-Shader boxShader;
 
 int main(int argc, char * argv[])
 {
@@ -127,17 +126,13 @@ int main(int argc, char * argv[])
 
     // use our shader program when we want to render an object
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
-    boxShader = Shader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
+    Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
 
     // ===================================================================
     // Setup for textures
     //
     tex1 = Texture("Textures/revue.jpg");
     tex2 = Texture("Textures/awesomeface.png");
-    // Pass in texture info
-
-    // TODO: How is tex info being passed into the uniform withouth this?
-    //glUniform1i(glGetUniformLocation(boxShader.ID, "tex"), 0);
 
     // ===================================================================
     // generating a VAO
@@ -233,7 +228,6 @@ int main(int argc, char * argv[])
     glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
     glBufferData(GL_UNIFORM_BUFFER, lightPositions.size() * sizeof(Light), NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    //glBindBufferRange(GL_UNIFORM_BUFFER, 1, uboLights, 0, lightPositions.size() * sizeof(Light));
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
     // ====================================================
@@ -337,9 +331,8 @@ void RenderLights(Shader lightShader)
         model = glm::translate(model, newPos);
         model = glm::scale(model, glm::vec3(0.5f));
 
-        // Bind our lights to the uniform light buffer
         glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-
+        // Send in light info to light UBO
         glBufferSubData(GL_UNIFORM_BUFFER,
                 2*sizeof(glm::vec4)*i,
                 sizeof(glm::vec4),
@@ -375,14 +368,8 @@ void RenderScene(Shader sceneShader)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex1.ID);
     glUniform1i(glGetUniformLocation(sceneShader.ID, "tex1"), 0);
-    //glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, tex2.ID);
-    //glUniform1i(glGetUniformLocation(sceneShader.ID, "tex2"), 1);
 
     glm::mat4 model = glm::mat4(1.0f);
-
-    // Draw the four test boxes for UBO testing
-    glm::vec3 scale = glm::vec3(2.0f);
 
     // Draw our box
     sceneShader.use();
