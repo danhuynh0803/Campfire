@@ -161,7 +161,7 @@ int main(int argc, char * argv[])
     // use our shader program when we want to render an object
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
     Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
-    Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/postProcess.frag");
+    Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
     shaderController.Add(&lightShader);
@@ -433,6 +433,7 @@ int main(int argc, char * argv[])
         glBindVertexArray(quadVAO);
         glDisable(GL_DEPTH_TEST);
         glBindTexture(GL_TEXTURE_2D, fbTexture);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // ===================================================================
