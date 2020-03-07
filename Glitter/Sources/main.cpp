@@ -148,13 +148,25 @@ int main(int argc, char * argv[])
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0
     };
 
+    float quadVertices[] =
+    {
+        -1,  1,  0,     0.0f, 1.0f,
+        -1, -1,  0,     0.0f, 0.0f,
+         1, -1,  0,     1.0f, 0.0f,
+         1, -1,  0,     1.0f, 0.0f,
+         1,  1,  0,     1.0f, 1.0f,
+        -1,  1,  0,     0.0f, 1.0f
+    };
+
     // use our shader program when we want to render an object
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
     Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
+    Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/postProcess.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
     shaderController.Add(&lightShader);
     shaderController.Add(&boxShader);
+    shaderController.Add(&screenShader);
 
     // ===================================================================
     // Setup for textures
@@ -181,10 +193,10 @@ int main(int argc, char * argv[])
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // parameter descriptions:
-    // 1. Which vertex attrib we want to configure. Relates to the layout location 
-    // 2. Size of the vertex attribute so vec3 is 3 values. 
+    // 1. Which vertex attrib we want to configure. Relates to the layout location
+    // 2. Size of the vertex attribute so vec3 is 3 values.
     // 3. The type of data
-    // 4. Do we want data to be normalized? 
+    // 4. Do we want data to be normalized?
     // 5. Stride of data: the space between consecutive vertex attribs
     // 6. Offset of the attrib data. Needs to be casted to void*
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);   // position
@@ -202,6 +214,26 @@ int main(int argc, char * argv[])
 
     // unbinding VAO for later use
     glBindVertexArray(0);
+
+
+    // Create quadVAO
+    unsigned int quadVAO;
+    glGenVertexArrays(1, &quadVAO);
+    glBindVertexArray(quadVAO);
+
+    unsigned int quadVBO;
+    glGenBuffers(1, &quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
 
     // TODO replace this into some more manageable format, like glTF
     // ===================================================================
@@ -284,6 +316,50 @@ int main(int argc, char * argv[])
 
     glEnable(GL_DEPTH_TEST);
 
+
+    // ===================================================================
+    // Frame buffers for various render passes
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    // To complete a framebuffer we need:
+    // 1. attach at least one buffer (color, depth, or stencil)
+    // 2. should at least have one color attachment
+    // 3. attachments should be complete
+    // 4. buffers should have the same number of samples
+    // NOTE: if sampling data then use textures
+    // else use renderbuffers
+
+    // Attach a texture to fbo
+    unsigned int fbTexture;
+    glGenTextures(1, &fbTexture);
+    glBindTexture(GL_TEXTURE_2D, fbTexture);
+    // Texture will be filled when we render to framebuffer
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    // Attach texture to framebuffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTexture, 0);
+
+    // Create rbo for depth and stencil
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    // Attach rbo
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer not complete!\n";
+        // Exit?
+    }
+    // Bind framebuffer if successful
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glDeleteFramebuffers(1, &fbo);
+
     // ===================================================================
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) 
@@ -311,9 +387,6 @@ int main(int argc, char * argv[])
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        // Background Fill Color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
 #ifdef IMGUI_ENABLED
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -322,19 +395,47 @@ int main(int argc, char * argv[])
         ImGui::ShowDemoWindow();
 #endif
 
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            RenderScene(boxShader);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        // ===================================================================
+        // First render pass
+        // Getting color of the scene
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        // Background Fill Color
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glEnable(GL_DEPTH_TEST);
 
+        // Draw scene
         RenderScene(boxShader);
-
         RenderLights(lightShader);
+
+        // ===================================================================
+
+// TODO: depth pass for shadowmaps
+//        // second pass
+//        // Get depth information for shadows
+//        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+//        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+//            glClear(GL_DEPTH_BUFFER_BIT);
+//            RenderScene(boxShader);
+//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//
+//        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+//        glBindTexture(GL_TEXTURE_2D, depthMap);
+
+        // ===================================================================
+        // Final pass: post-process
+        // Return to default framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        screenShader.use();
+        glBindVertexArray(quadVAO);
+        glDisable(GL_DEPTH_TEST);
+        glBindTexture(GL_TEXTURE_2D, fbTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // ===================================================================
 
 #ifdef IMGUI_ENABLED
         ImGui::Begin("Demo window");
@@ -348,7 +449,8 @@ int main(int argc, char * argv[])
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
         glfwPollEvents();
-    }
+
+    } // End render loop
 
 #ifdef IMGUI_ENABLED
     // Cleanup for imgui
@@ -357,6 +459,7 @@ int main(int argc, char * argv[])
     ImGui::DestroyContext();
 #endif
 
+    glDeleteFramebuffers(1, &fbo);
     glfwTerminate();
     return EXIT_SUCCESS;
 }
@@ -439,6 +542,7 @@ void RenderScene(Shader sceneShader)
     }
 }
 
+// TODO move this into an input handler
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
