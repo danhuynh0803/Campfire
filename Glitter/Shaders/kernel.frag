@@ -9,20 +9,33 @@ uniform sampler2D screenTex;
 const float offset = 1.0f/300.0f;
 
 // outline kernel
-float kernel[9] = float[]
+float outline[9] = float[]
 (
     -1, -1, -1,
     -1,  8, -1,
     -1, -1, -1
 );
 
-// gaussian blur
-//float kernel[9] = float[]
-//(
-//    1.0/16.0, 1.0/8.0, 1.0/16.0,
-//    1.0/8.0 , 1.0/4.0, 1.0/8.0 ,
-//    1.0/16.0, 1.0/8.0, 1.0/16.0
-//);
+float gaussian[9] = float[]
+(
+    1.0/16.0, 1.0/8.0, 1.0/16.0,
+    1.0/8.0 , 1.0/4.0, 1.0/8.0 ,
+    1.0/16.0, 1.0/8.0, 1.0/16.0
+);
+
+float sobelX[9] = float[]
+(
+    1, 0,-1,
+    2, 0,-2,
+    1, 0,-1
+);
+
+float sobelY[9] = float[]
+(
+    1, 2, 1,
+    0, 0, 0,
+   -1,-2,-1
+);
 
 vec2 offsets[9] = vec2[]
 (
@@ -40,10 +53,22 @@ vec2 offsets[9] = vec2[]
 void main()
 {
     vec3 col = vec3(0.0f);
+
+    // Pass 1
     for (int i = 0; i < 9; ++i)
     {
-        col += texture(screenTex, texCoords + offsets[i]).rgb * kernel[i];
+        col += texture(screenTex, texCoords + offsets[i]).rgb * sobelX[i];
     }
 
+    // Pass 2
+    for (int i = 0; i < 9; ++i)
+    {
+        col += texture(screenTex, texCoords + offsets[i]).rgb * sobelY[i];
+    }
+
+    // Gray filter
+    //col = vec3(0.299*col.r + 0.587*col.g + 0.114*col.b);
+
+    col = texture(screenTex, texCoords).rgb;
     fragColor = vec4(col, 1.0f);
 }

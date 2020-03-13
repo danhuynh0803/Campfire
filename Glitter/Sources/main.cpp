@@ -1,13 +1,10 @@
 // Local Headers
 #include "glitter.hpp"
 
-#define IMGUI_ENABLED // Comment out to disable ImGui
-#ifdef IMGUI_ENABLED
 // ImGui headers
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-#endif
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -63,6 +60,8 @@ std::vector<glm::vec3> boxPositions;
 
 ShaderController shaderController;
 
+bool IMGUI_ENABLED = 1;
+
 int main(int argc, char * argv[])
 {
     // Load GLFW and Create a Window
@@ -89,7 +88,6 @@ int main(int argc, char * argv[])
     gladLoadGL();
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
-#ifdef IMGUI_ENABLED
     // Initialize imgui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -99,7 +97,6 @@ int main(int argc, char * argv[])
     ImGui_ImplOpenGL3_Init("#version 450");
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-#endif
 
     // TODO reformat this to use glTF or some other more manageable way
     // Vertex info for a cube
@@ -387,13 +384,14 @@ int main(int argc, char * argv[])
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-#ifdef IMGUI_ENABLED
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        if (IMGUI_ENABLED)
+        {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
-#endif
+            //ImGui::ShowDemoWindow();
+        }
 
         // ===================================================================
         // First render pass
@@ -409,7 +407,6 @@ int main(int argc, char * argv[])
         RenderLights(lightShader);
 
         // ===================================================================
-
 // TODO: depth pass for shadowmaps
 //        // second pass
 //        // Get depth information for shadows
@@ -438,14 +435,15 @@ int main(int argc, char * argv[])
 
         // ===================================================================
 
-#ifdef IMGUI_ENABLED
-        ImGui::Begin("Demo window");
-        ImGui::Button("Test Button");
-        ImGui::End();
+        if (IMGUI_ENABLED)
+        {
+            ImGui::Begin("Demo window");
+            ImGui::Button("Test Button");
+            ImGui::End();
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
@@ -453,12 +451,10 @@ int main(int argc, char * argv[])
 
     } // End render loop
 
-#ifdef IMGUI_ENABLED
     // Cleanup for imgui
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-#endif
 
     glDeleteFramebuffers(1, &fbo);
     glfwTerminate();
@@ -544,6 +540,7 @@ void RenderScene(Shader sceneShader)
 }
 
 // TODO move this into an input handler
+// maybe need shared data update all necessary info
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
@@ -572,6 +569,8 @@ void processInput(GLFWwindow *window)
         camera.MovementSpeed = normalSpeed;
     }
 
+    // TODO move to input handler so that
+    // theres a more reusable way to have this work only once per click
     // Hot reload shaders only once per click
     static int oldState = GLFW_RELEASE;
     int newState = glfwGetKey(window, GLFW_KEY_R);
@@ -580,6 +579,15 @@ void processInput(GLFWwindow *window)
         shaderController.ReloadShaders();
     }
     oldState = newState;
+
+    // Enable/Disable IMGUI once per click
+    static int oldState1 = GLFW_RELEASE;
+    int newState1 = glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT);
+    if (newState1 == GLFW_PRESS && oldState1 == GLFW_RELEASE)
+    {
+        IMGUI_ENABLED ^= 1;
+    }
+    oldState1 = newState1;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
