@@ -26,7 +26,8 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Texture.h"
-
+#include "ObjectManager.h"
+#include "Cube.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -48,7 +49,6 @@ float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
 float texMix = 0.2f;
 
-void RenderScene(Shader);
 void RenderLights(Shader);
 
 // TODO: move buffers to their own classes at some point
@@ -100,51 +100,6 @@ int main(int argc, char * argv[])
 
     // TODO reformat this to use glTF or some other more manageable way
     // Vertex info for a cube
-    float vertices[] = {
-        // Position           // UV         // Normals
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,   0, 0, -1,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 0, -1,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, 0, 1,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   0, 0, 1,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1, 0, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1, 0, 0,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   1, 0, 0,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   1, 0, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,   0, -1, 0,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, -1, 0,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 1, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,   0, 1, 0,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0
-    };
-
     float quadVertices[] =
     {
         -1,  1,  0,     0.0f, 1.0f,
@@ -169,49 +124,9 @@ int main(int argc, char * argv[])
     // Setup for textures
     //
     tex1 = Texture("Textures/revue.jpg");
+    //tex1 = Texture("Textures/uv.png");
     tex2 = Texture("Textures/awesomeface.png");
-
     // ===================================================================
-    // generating a VAO
-    glGenVertexArrays(1, &VAO);
-
-    // Initialization code, which is typically done once 
-    // unless your object will freq change
-    glBindVertexArray(VAO);
-
-    // buffer objects allow us to send large batches of data at once to the GPU
-    // so that we don't have to send data vertex by vertex
-    unsigned int VBO, EBO;
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    // copies vertex data in buffer's memory
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // parameter descriptions:
-    // 1. Which vertex attrib we want to configure. Relates to the layout location
-    // 2. Size of the vertex attribute so vec3 is 3 values.
-    // 3. The type of data
-    // 4. Do we want data to be normalized?
-    // 5. Stride of data: the space between consecutive vertex attribs
-    // 6. Offset of the attrib data. Needs to be casted to void*
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);   // position
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // texture
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // normals
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-
-    // unbinding VBO
-    // this is allowed, since the call to glVertexAttribPointer registered VBO
-    // as the vertex attribute's bound vertex buffer object so afterwards we 
-    // can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // unbinding VAO for later use
-    glBindVertexArray(0);
-
 
     // Create quadVAO
     unsigned int quadVAO;
@@ -261,10 +176,10 @@ int main(int argc, char * argv[])
 
     boxPositions = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
-        //glm::vec3( 0.1f,  0.0f, -1.5f),
-        //     glm::vec3(-3.5f,  2.5f, -4.0f),
-        //     glm::vec3(-2.4f, -0.5f, -5.0f),
-        //     glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3( 0.1f,  0.0f, -1.5f),
+        glm::vec3(-3.5f,  2.5f, -4.0f),
+        glm::vec3(-2.4f, -0.5f, -5.0f),
+        glm::vec3( 1.5f, -1.0f, -7.0f)
     };
 
     // ===================================================================
@@ -357,9 +272,17 @@ int main(int argc, char * argv[])
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //glDeleteFramebuffers(1, &fbo);
 
+    // TODO: refactor later
+    ObjectManager objectManager;
+    objectManager.Add(new Cube(boxShader));
+    objectManager.Add(new Cube(boxShader));
+    objectManager.Add(new Cube(boxShader));
+    objectManager.Add(new Cube(boxShader));
+    objectManager.Add(new Cube(boxShader));
+
     // ===================================================================
     // Rendering Loop
-    while (glfwWindowShouldClose(mWindow) == false) 
+    while (glfwWindowShouldClose(mWindow) == false)
     {
         // per-frame time logic
         float currentFrame = glfwGetTime();
@@ -403,7 +326,12 @@ int main(int argc, char * argv[])
         glEnable(GL_DEPTH_TEST);
 
         // Draw scene
-        RenderScene(boxShader);
+        int i = 0;
+        for (auto renderObject : objectManager.objectList)
+        {
+            renderObject->Draw(tex1, boxPositions[i]);
+            ++i;
+        }
         RenderLights(lightShader);
 
         // ===================================================================
@@ -506,33 +434,6 @@ void RenderLights(Shader lightShader)
         glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
 
         // Draw the object
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-    }
-}
-
-void RenderScene(Shader sceneShader)
-{
-    // Add texture to our box
-    sceneShader.use();
-    // bind textures on corresponding texture units
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex1.ID);
-    glUniform1i(glGetUniformLocation(sceneShader.ID, "tex1"), 0);
-
-    glm::mat4 model = glm::mat4(1.0f);
-
-    // Draw our box
-    sceneShader.use();
-    for (int i = 0; i < boxPositions.size(); ++i)
-    {
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, boxPositions[i]);
-        glUniformMatrix4fv(glGetUniformLocation(sceneShader.ID, "model"),
-                1, GL_FALSE, glm::value_ptr(model));
-
-        // Draw the box
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
