@@ -27,7 +27,7 @@ else()
     endif()
 endif()
 
-include_directories(Glitter/Headers/
+include_directories(Glitter/Sources/
                     Glitter/Vendor/assimp/include/
                     Glitter/Vendor/bullet/src/
                     Glitter/Vendor/glad/include/

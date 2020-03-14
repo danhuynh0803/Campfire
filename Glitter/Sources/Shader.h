@@ -48,6 +48,7 @@ public:
         }
         catch (std::ifstream::failure e)
         {
+            // TODO Add an error shader in case something doesnt compile?
             std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
         }
         const char* vShaderCode = vertexCode.c_str();
