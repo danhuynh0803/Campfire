@@ -4,6 +4,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <string>
+
 #include "GlObject.h"
 #include "Shader.h"
 
@@ -11,8 +14,9 @@ class Cube : public GlObject
 {
 public:
 
-    Cube(Shader _shader)
+    Cube(std::string _name, Shader _shader)
     {
+        name.assign(_name);
         shader = _shader;
         InitRenderData();
     }

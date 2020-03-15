@@ -33,10 +33,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void RenderGUI();
 
 // settings
-const unsigned int SCR_WIDTH = mWidth;
-const unsigned int SCR_HEIGHT = mHeight;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 900;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -60,6 +61,9 @@ std::vector<glm::vec3> boxPositions;
 
 ShaderController shaderController;
 
+ObjectManager objectManager;
+ObjectManager lightManager;
+
 bool IMGUI_ENABLED = 1;
 
 int main(int argc, char * argv[])
@@ -71,7 +75,7 @@ int main(int argc, char * argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    auto mWindow = glfwCreateWindow(mWidth, mHeight, "OpenGL", nullptr, nullptr);
+    auto mWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL", nullptr, nullptr);
 
     // Check for Valid Context
     if (mWindow == nullptr) {
@@ -95,7 +99,7 @@ int main(int argc, char * argv[])
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
     ImGui_ImplOpenGL3_Init("#version 450");
-    // Setup Dear ImGui style
+    // Setup Dear ImGui style;
     ImGui::StyleColorsDark();
 
     // TODO reformat this to use glTF or some other more manageable way
@@ -273,12 +277,12 @@ int main(int argc, char * argv[])
     //glDeleteFramebuffers(1, &fbo);
 
     // TODO: refactor later
-    ObjectManager objectManager;
-    objectManager.Add(new Cube(boxShader));
-    objectManager.Add(new Cube(boxShader));
-    objectManager.Add(new Cube(boxShader));
-    objectManager.Add(new Cube(boxShader));
-    objectManager.Add(new Cube(boxShader));
+    for (int i = 0; i < 5; ++i)
+    {
+        std::string name = "Cube " + std::to_string(i);
+        objectManager.Add(new Cube(name, boxShader));
+        lightManager.Add(new Cube("light", lightShader));
+    }
 
     // ===================================================================
     // Rendering Loop
@@ -313,7 +317,7 @@ int main(int argc, char * argv[])
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            //ImGui::ShowDemoWindow();
+            ImGui::ShowDemoWindow();
         }
 
         // ===================================================================
@@ -332,7 +336,44 @@ int main(int argc, char * argv[])
             renderObject->Draw(tex1, boxPositions[i]);
             ++i;
         }
-        RenderLights(lightShader);
+
+        i = 0;
+        for (auto lightObject : lightManager.objectList)
+        {
+            glm::vec3 newPos = lights[i].pos;
+            glm::vec3 scale(0.5f);
+            if (i == 0)
+            {
+                float radius = 5.0f;
+                float omega = 1.0f;
+
+                newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
+                        0.0f,
+                        sin(omega * glfwGetTime()));
+            }
+
+            glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+            // Send in light info to light UBO
+            glBufferSubData(GL_UNIFORM_BUFFER,
+                    2*sizeof(glm::vec4)*i,
+                    sizeof(glm::vec4),
+                    glm::value_ptr(newPos));
+
+            glBufferSubData(GL_UNIFORM_BUFFER,
+                    2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
+                    sizeof(glm::vec4),
+                    glm::value_ptr(lights[i].color));
+
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+            glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
+
+            glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
+
+            lightObject->Draw(tex1, newPos, scale);
+            ++i;
+        }
+
+        //RenderLights(lightShader);
 
         // ===================================================================
 // TODO: depth pass for shadowmaps
@@ -365,12 +406,7 @@ int main(int argc, char * argv[])
 
         if (IMGUI_ENABLED)
         {
-            ImGui::Begin("Demo window");
-            ImGui::Button("Test Button");
-            ImGui::End();
-
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            RenderGUI();
         }
 
         // Flip Buffers and Draw
@@ -387,6 +423,38 @@ int main(int argc, char * argv[])
     glDeleteFramebuffers(1, &fbo);
     glfwTerminate();
     return EXIT_SUCCESS;
+}
+
+void RenderGUI()
+{
+    ImGui::Begin("Scene Hierarchy");
+    if (ImGui::Button("Reload Shaders"))
+    {
+        shaderController.ReloadShaders();
+    }
+    ImGui::Spacing();
+
+    ImGui::Separator();
+    // List all GLObjects within scene
+    ImGui::Text("Scene Objects");
+    ImGui::Spacing();
+    for (auto object : objectManager.objectList)
+    {
+        ImGui::Text("%s", object->name.c_str());
+        ImGui::Text("Texture: %s", tex1.GetName().c_str());
+        ImGui::Text("Size: %d x %d", tex1.width, tex1.height);
+        ImGui::Image((void*)(intptr_t)tex1.ID, ImVec2(128, 128));
+        ImGui::Separator();
+    }
+    ImGui::End();
+
+    ImGui::Begin("Metrics");
+    static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
+    ImGui::PlotLines("Frame Times", arr, IM_ARRAYSIZE(arr));
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void RenderLights(Shader lightShader)
@@ -527,5 +595,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(yoffset);
+    ImGuiIO& io = ImGui::GetIO();
+    if (!io.WantCaptureMouse)
+    {
+        camera.ProcessMouseScroll(yoffset);
+    }
 }

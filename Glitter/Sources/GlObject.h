@@ -1,10 +1,13 @@
 #ifndef GL_OBJECT_H
 #define GL_OBJECT_H
 
-#include "Shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <string>
+
+#include "Shader.h"
 
 class GlObject
 {
@@ -13,6 +16,7 @@ public:
 
     virtual void InitRenderData() = 0;
 
+    std::string name;
     Shader shader;
     GLuint VAO;
 };

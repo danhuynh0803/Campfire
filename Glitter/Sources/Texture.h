@@ -22,6 +22,7 @@ class Texture
 {
 public:
     unsigned int ID;
+    int width, height;
 
     Texture() {}
 
@@ -56,7 +57,7 @@ public:
         // Flip texture coordinates on y-axis, since UV for most image software are inverted from how openGL UV coordinates are
         stbi_set_flip_vertically_on_load(true);
 
-        int width, height, nrChannels;
+        int nrChannels;
         unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data)
         {
@@ -77,6 +78,8 @@ public:
 
         stbi_image_free(data);
     }
+
+    std::string GetName() { return texturePath; }
 
 private:
     std::string texturePath;
