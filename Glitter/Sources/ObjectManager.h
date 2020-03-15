@@ -13,6 +13,15 @@ public:
         objectList.push_back(object);
     }
 
+    void Draw()
+    {
+        for (auto renderObject : objectList)
+        {
+            //TODO
+            //renderObject->Draw(tex1, boxPositions[i]);
+        }
+    }
+
     std::vector<GlObject*> objectList;
 };
 

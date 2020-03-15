@@ -232,7 +232,6 @@ int main(int argc, char * argv[])
 
     glEnable(GL_DEPTH_TEST);
 
-
     // ===================================================================
     // Frame buffers for various render passes
     unsigned int fbo;
@@ -373,39 +372,69 @@ int main(int argc, char * argv[])
             ++i;
         }
 
-        //RenderLights(lightShader);
-
         // ===================================================================
-// TODO: depth pass for shadowmaps
-//        // second pass
-//        // Get depth information for shadows
-//        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-//        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-//            glClear(GL_DEPTH_BUFFER_BIT);
-//            RenderScene(boxShader);
-//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//
-//        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-//        glBindTexture(GL_TEXTURE_2D, depthMap);
+        // TODO: depth pass for shadowmaps
+        // second pass
+        // Get depth information for shadows
+        {
+            glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            int i = 0;
+            for (auto renderObject : objectManager.objectList)
+            {
+                renderObject->Draw(tex1, boxPositions[i]);
+                ++i;
+            }
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        }
 
+        unsigned int postProcessTexture;
+        glGenTextures(1, &postProcessTexture);
         // ===================================================================
-        // Final pass: post-process
-        // Return to default framebuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        { // Final pass: post-process
+            // Return to default framebuffer
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindTexture(GL_TEXTURE_2D, postProcessTexture);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcessTexture, 0);
 
-        screenShader.use();
-        glBindVertexArray(quadVAO);
-        glDisable(GL_DEPTH_TEST);
-        glBindTexture(GL_TEXTURE_2D, fbTexture);
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            screenShader.use();
+            glBindVertexArray(quadVAO);
+            glDisable(GL_DEPTH_TEST);
+            glBindTexture(GL_TEXTURE_2D, fbTexture);
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         // ===================================================================
 
         if (IMGUI_ENABLED)
         {
+            // TODO store renderpasses in a list
+            ImGui::Begin("Render Pass outputs");
+
+            // Down sample by 4
+            // TODO broken somehow
+            ImGui::Text("Depth map");
+            ImGui::Image((void*)(intptr_t)depthMap, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
+
+            ImGui::Separator();
+
+            ImGui::Text("RGB");
+            ImGui::Image((void*)(intptr_t)fbTexture, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
+
+            ImGui::Separator();
+
+            ImGui::Text("PostProcess");
+            // Down sample by 4
+            ImGui::Image((void*)(intptr_t)postProcessTexture, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
+
+            ImGui::End();
+
             RenderGUI();
         }
 
@@ -421,11 +450,13 @@ int main(int argc, char * argv[])
     ImGui::DestroyContext();
 
     glDeleteFramebuffers(1, &fbo);
+    glDeleteFramebuffers(1, &depthMapFBO);
+
     glfwTerminate();
     return EXIT_SUCCESS;
 }
 
-void RenderGUI()
+void ShowSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
     if (ImGui::Button("Reload Shaders"))
@@ -454,15 +485,52 @@ void RenderGUI()
         ImGui::TreePop();
     }
     ImGui::End();
+}
 
+void ShowMetrics()
+{
     ImGui::Begin("Metrics");
-    static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
-    ImGui::PlotLines("Frame Times", arr, IM_ARRAYSIZE(arr));
+    static bool animate = true;
+    ImGui::Checkbox("Animate", &animate);
+
+    static float values[90] = {};
+    static int values_offset = 0;
+    static double refresh_time = 0.0;
+    if (!animate || refresh_time == 0.0)
+        refresh_time = ImGui::GetTime();
+
+    while (refresh_time < ImGui::GetTime()) // Create dummy data at fixed 60 hz rate for the demo
+    {
+        static float phase = 0.0f;
+        values[values_offset] = cosf(phase);
+        values_offset = (values_offset+1) % IM_ARRAYSIZE(values);
+        phase += 0.10f*values_offset;
+        refresh_time += 1.0f/60.0f;
+    }
+
+    // Display Frame window
+    {
+        float average = 0.0f;
+        for (int n = 0; n < IM_ARRAYSIZE(values); n++)
+            average += values[n];
+        average /= (float)IM_ARRAYSIZE(values);
+        char overlay[32];
+        sprintf(overlay, "avg %f", average);
+        ImGui::PlotLines("Frame times", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0,80));
+    }
+
     ImGui::End();
+}
+
+void RenderGUI()
+{
+    ShowSceneHierarchy();
+    ShowMetrics();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
 
 // TODO delete later
 //void RenderLights(Shader lightShader)
