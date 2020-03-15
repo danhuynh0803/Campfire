@@ -436,15 +436,22 @@ void RenderGUI()
 
     ImGui::Separator();
     // List all GLObjects within scene
-    ImGui::Text("Scene Objects");
-    ImGui::Spacing();
-    for (auto object : objectManager.objectList)
+    if (ImGui::TreeNode("Scene Objects"))
     {
-        ImGui::Text("%s", object->name.c_str());
-        ImGui::Text("Texture: %s", tex1.GetName().c_str());
-        ImGui::Text("Size: %d x %d", tex1.width, tex1.height);
-        ImGui::Image((void*)(intptr_t)tex1.ID, ImVec2(128, 128));
-        ImGui::Separator();
+        int i = 0;
+        for (auto object : objectManager.objectList)
+        {
+            if (ImGui::TreeNode((void*)(intptr_t)i, "%s", object->name.c_str()))
+            {
+                ImGui::Text("Texture: %s", tex1.GetName().c_str());
+                ImGui::Text("Size: %d x %d", tex1.width, tex1.height);
+                ImGui::Image((void*)(intptr_t)tex1.ID, ImVec2(128, 128));
+                ImGui::Separator();
+                ImGui::TreePop();
+            }
+            ++i;
+        }
+        ImGui::TreePop();
     }
     ImGui::End();
 
@@ -457,56 +464,57 @@ void RenderGUI()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void RenderLights(Shader lightShader)
-{
-    // Draw our lights
-    lightShader.use();
-    for (int i = 0; i < lights.size(); ++i)
-    {
-        glm::vec3 newPos = lights[i].pos;
-        // first light is moving light
-        if (i == 0)
-        {
-            float radius = 5.0f;
-            float omega = 1.0f;
-
-            newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
-                    0.0f,
-                    sin(omega * glfwGetTime()));
-        }
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, newPos);
-        model = glm::scale(model, glm::vec3(0.5f));
-
-        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-        // Send in light info to light UBO
-        glBufferSubData(GL_UNIFORM_BUFFER,
-                2*sizeof(glm::vec4)*i,
-                sizeof(glm::vec4),
-                glm::value_ptr(newPos));
-
-        glBufferSubData(GL_UNIFORM_BUFFER,
-                2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
-                sizeof(glm::vec4),
-                glm::value_ptr(lights[i].color));
-
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
-
-        lightShader.use();
-        // send in model
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-        // Pass in light color to shader
-        glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
-
-        // Draw the object
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-    }
-}
+// TODO delete later
+//void RenderLights(Shader lightShader)
+//{
+//    // Draw our lights
+//    lightShader.use();
+//    for (int i = 0; i < lights.size(); ++i)
+//    {
+//        glm::vec3 newPos = lights[i].pos;
+//        // first light is moving light
+//        if (i == 0)
+//        {
+//            float radius = 5.0f;
+//            float omega = 1.0f;
+//
+//            newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
+//                    0.0f,
+//                    sin(omega * glfwGetTime()));
+//        }
+//
+//        glm::mat4 model = glm::mat4(1.0f);
+//        model = glm::translate(model, newPos);
+//        model = glm::scale(model, glm::vec3(0.5f));
+//
+//        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+//        // Send in light info to light UBO
+//        glBufferSubData(GL_UNIFORM_BUFFER,
+//                2*sizeof(glm::vec4)*i,
+//                sizeof(glm::vec4),
+//                glm::value_ptr(newPos));
+//
+//        glBufferSubData(GL_UNIFORM_BUFFER,
+//                2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
+//                sizeof(glm::vec4),
+//                glm::value_ptr(lights[i].color));
+//
+//        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
+//
+//        lightShader.use();
+//        // send in model
+//        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+//
+//        // Pass in light color to shader
+//        glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
+//
+//        // Draw the object
+//        glBindVertexArray(VAO);
+//        glDrawArrays(GL_TRIANGLES, 0, 36);
+//        glBindVertexArray(0);
+//    }
+//}
 
 // TODO move this into an input handler
 // maybe need shared data update all necessary info
@@ -563,7 +571,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }

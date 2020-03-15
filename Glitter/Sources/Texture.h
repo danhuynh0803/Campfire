@@ -10,6 +10,7 @@
 
 const std::vector<std::string> transparentFormats =
 {
+    // TODO see why some png files cause crash
     ".png",
     ".gif",
     ".tiff",
