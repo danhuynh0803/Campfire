@@ -64,6 +64,7 @@ ShaderController shaderController;
 
 ObjectManager objectManager;
 ObjectManager lightManager;
+std::vector<FrameBuffer> renderPasses;
 
 bool IMGUI_ENABLED = 1;
 
@@ -234,7 +235,10 @@ int main(int argc, char * argv[])
     glEnable(GL_DEPTH_TEST);
 
     // Framebuffer for normal color output
-    FrameBuffer colorFB(SCR_WIDTH, SCR_HEIGHT);
+    FrameBuffer colorFB("Color Pass", SCR_WIDTH, SCR_HEIGHT);
+    FrameBuffer postprocessFB("Post Process Pass", SCR_WIDTH, SCR_HEIGHT);
+    renderPasses.push_back(colorFB);
+    renderPasses.push_back(postprocessFB);
 
     // TODO: refactor later
     for (int i = 0; i < 5; ++i)
@@ -281,84 +285,82 @@ int main(int argc, char * argv[])
         }
 
         // ===================================================================
-        // First render pass
-        // Getting color of the scene
-        glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
-        // Background Fill Color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
+        { // First render pass
+            // Getting color of the scene
+            glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
+            // Background Fill Color
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_DEPTH_TEST);
 
-        // Draw scene
-        int i = 0;
-        for (auto renderObject : objectManager.objectList)
-        {
-            renderObject->Draw(tex1, boxPositions[i]);
-            ++i;
-        }
-
-        i = 0;
-        for (auto lightObject : lightManager.objectList)
-        {
-            glm::vec3 newPos = lights[i].pos;
-            glm::vec3 scale(0.5f);
-            if (i == 0)
-            {
-                float radius = 5.0f;
-                float omega = 1.0f;
-
-                newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
-                        0.0f,
-                        sin(omega * glfwGetTime()));
-            }
-
-            glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-            // Send in light info to light UBO
-            glBufferSubData(GL_UNIFORM_BUFFER,
-                    2*sizeof(glm::vec4)*i,
-                    sizeof(glm::vec4),
-                    glm::value_ptr(newPos));
-
-            glBufferSubData(GL_UNIFORM_BUFFER,
-                    2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
-                    sizeof(glm::vec4),
-                    glm::value_ptr(lights[i].color));
-
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
-
-            glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
-
-            lightObject->Draw(tex1, newPos, scale);
-            ++i;
-        }
-
-        // ===================================================================
-        // TODO: depth pass for shadowmaps
-        // second pass
-        // Get depth information for shadows
-        {
-            glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-            glClear(GL_DEPTH_BUFFER_BIT);
+            // Draw scene
             int i = 0;
             for (auto renderObject : objectManager.objectList)
             {
                 renderObject->Draw(tex1, boxPositions[i]);
                 ++i;
             }
+
+            i = 0;
+            for (auto lightObject : lightManager.objectList)
+            {
+                glm::vec3 newPos = lights[i].pos;
+                glm::vec3 scale(0.5f);
+                if (i == 0)
+                {
+                    float radius = 5.0f;
+                    float omega = 1.0f;
+
+                    newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
+                            0.0f,
+                            sin(omega * glfwGetTime()));
+                }
+
+                glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+                // Send in light info to light UBO
+                glBufferSubData(GL_UNIFORM_BUFFER,
+                        2*sizeof(glm::vec4)*i,
+                        sizeof(glm::vec4),
+                        glm::value_ptr(newPos));
+
+                glBufferSubData(GL_UNIFORM_BUFFER,
+                        2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
+                        sizeof(glm::vec4),
+                        glm::value_ptr(lights[i].color));
+
+                glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
+
+                glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
+
+                lightObject->Draw(tex1, newPos, scale);
+                ++i;
+            }
+
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         }
 
-        unsigned int postProcessTexture;
-        glGenTextures(1, &postProcessTexture);
+        // ===================================================================
+        // TODO: depth pass for shadowmaps
+        // second pass
+        // Get depth information for shadows
+//        {
+//            glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+//            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+//            glClear(GL_DEPTH_BUFFER_BIT);
+//            int i = 0;
+//            for (auto renderObject : objectManager.objectList)
+//            {
+//                renderObject->Draw(tex1, boxPositions[i]);
+//                ++i;
+//            }
+//            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//            glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+//        }
+
         // ===================================================================
         { // Final pass: post-process
-            // Return to default framebuffer
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glBindTexture(GL_TEXTURE_2D, postProcessTexture);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcessTexture, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
 
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -367,7 +369,19 @@ int main(int argc, char * argv[])
             glBindVertexArray(quadVAO);
             glDisable(GL_DEPTH_TEST);
             glBindTexture(GL_TEXTURE_2D, colorFB.texture);
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            // TODO how to handle the need to
+            // still render to the default FB to
+            // show something on the screen?
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            screenShader.use();
+            glBindVertexArray(quadVAO);
+            glDisable(GL_DEPTH_TEST);
+            glBindTexture(GL_TEXTURE_2D, colorFB.texture);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
@@ -375,26 +389,24 @@ int main(int argc, char * argv[])
 
         if (IMGUI_ENABLED)
         {
-            // TODO store renderpasses in a list
-            ImGui::Begin("Render Pass outputs");
-
-            // Down sample by 4
-            // TODO broken somehow
-            ImGui::Text("Depth map");
-            ImGui::Image((void*)(intptr_t)depthMap, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
-
-            ImGui::Separator();
-
-            ImGui::Text("RGB");
-            ImGui::Image((void*)(intptr_t)colorFB.texture, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
-
-            ImGui::Separator();
-
-            ImGui::Text("PostProcess");
-            // Down sample by 4
-            ImGui::Image((void*)(intptr_t)postProcessTexture, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
-
-            ImGui::End();
+            // =============================================
+            { // Displayer render pass outputs
+                ImGui::Begin("Render Passes Outputs");
+                if (ImGui::TreeNode("Render Passes"))
+                {
+                    for (int i = 0; i < renderPasses.size(); ++i)
+                    {
+                        if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
+                        {
+                            ImGui::Image((void*)(intptr_t)renderPasses[i].texture, ImVec2(SCR_WIDTH/4, SCR_HEIGHT/4), ImVec2(0,1), ImVec2(1,0));
+                            ImGui::Separator();
+                            ImGui::TreePop();
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+                ImGui::End();
+            }
 
             RenderGUI();
         }
@@ -411,8 +423,10 @@ int main(int argc, char * argv[])
     ImGui::DestroyContext();
 
     // TODO later delete all renderpasses stored in some list
-    glDeleteFramebuffers(1, &colorFB.ID);
-    glDeleteFramebuffers(1, &depthMapFBO);
+    for (auto framebuffers : renderPasses)
+    {
+        glDeleteFramebuffers(1, &framebuffers.ID);
+    }
 
     glfwTerminate();
     return EXIT_SUCCESS;
@@ -438,7 +452,7 @@ void ShowSceneHierarchy()
             {
                 ImGui::Text("Texture: %s", tex1.GetName().c_str());
                 ImGui::Text("Size: %d x %d", tex1.width, tex1.height);
-                ImGui::Image((void*)(intptr_t)tex1.ID, ImVec2(128, 128));
+                ImGui::Image((void*)(intptr_t)tex1.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
                 ImGui::Separator();
                 ImGui::TreePop();
             }

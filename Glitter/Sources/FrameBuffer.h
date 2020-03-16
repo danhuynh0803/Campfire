@@ -14,9 +14,11 @@ struct FrameBuffer
 {
     GLuint ID;
     GLuint texture;
+    char* name;
 
-    FrameBuffer(int width, int height)
+    FrameBuffer(char* _name, int width, int height)
     {
+        name = _name;
         glGenFramebuffers(1, &ID);
         glBindFramebuffer(GL_FRAMEBUFFER, ID);
 
