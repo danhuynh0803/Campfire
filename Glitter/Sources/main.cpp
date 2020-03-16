@@ -28,6 +28,7 @@
 #include "Texture.h"
 #include "ObjectManager.h"
 #include "Cube.h"
+#include "FrameBuffer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -127,7 +128,7 @@ int main(int argc, char * argv[])
     // ===================================================================
     // Setup for textures
     //
-    tex1 = Texture("Textures/revue.jpg");
+    tex1 = Texture("Textures/wall.jpg");
     //tex1 = Texture("Textures/uv.png");
     tex2 = Texture("Textures/awesomeface.png");
     // ===================================================================
@@ -232,48 +233,8 @@ int main(int argc, char * argv[])
 
     glEnable(GL_DEPTH_TEST);
 
-    // ===================================================================
-    // Frame buffers for various render passes
-    unsigned int fbo;
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    // To complete a framebuffer we need:
-    // 1. attach at least one buffer (color, depth, or stencil)
-    // 2. should at least have one color attachment
-    // 3. attachments should be complete
-    // 4. buffers should have the same number of samples
-    // NOTE: if sampling data then use textures
-    // else use renderbuffers
-
-    // Attach a texture to fbo
-    unsigned int fbTexture;
-    glGenTextures(1, &fbTexture);
-    glBindTexture(GL_TEXTURE_2D, fbTexture);
-    // Texture will be filled when we render to framebuffer
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    // Attach texture to framebuffer
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTexture, 0);
-
-    // Create rbo for depth and stencil
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    // Attach rbo
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer not complete!\n";
-        // Exit?
-    }
-    // Bind framebuffer if successful
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glDeleteFramebuffers(1, &fbo);
+    // Framebuffer for normal color output
+    FrameBuffer colorFB(SCR_WIDTH, SCR_HEIGHT);
 
     // TODO: refactor later
     for (int i = 0; i < 5; ++i)
@@ -322,7 +283,7 @@ int main(int argc, char * argv[])
         // ===================================================================
         // First render pass
         // Getting color of the scene
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
         // Background Fill Color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -405,7 +366,7 @@ int main(int argc, char * argv[])
             screenShader.use();
             glBindVertexArray(quadVAO);
             glDisable(GL_DEPTH_TEST);
-            glBindTexture(GL_TEXTURE_2D, fbTexture);
+            glBindTexture(GL_TEXTURE_2D, colorFB.texture);
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
@@ -425,7 +386,7 @@ int main(int argc, char * argv[])
             ImGui::Separator();
 
             ImGui::Text("RGB");
-            ImGui::Image((void*)(intptr_t)fbTexture, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
+            ImGui::Image((void*)(intptr_t)colorFB.texture, ImVec2(SCR_WIDTH / 4, SCR_HEIGHT / 4));
 
             ImGui::Separator();
 
@@ -449,7 +410,8 @@ int main(int argc, char * argv[])
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glDeleteFramebuffers(1, &fbo);
+    // TODO later delete all renderpasses stored in some list
+    glDeleteFramebuffers(1, &colorFB.ID);
     glDeleteFramebuffers(1, &depthMapFBO);
 
     glfwTerminate();
