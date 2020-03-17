@@ -27,8 +27,9 @@
 #include "Light.h"
 #include "Texture.h"
 #include "ObjectManager.h"
-#include "Cube.h"
 #include "FrameBuffer.h"
+#include "Cube.h"
+#include "Quad.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -50,8 +51,6 @@ bool firstMouse = true;
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
 float texMix = 0.2f;
-
-void RenderLights(Shader);
 
 // TODO: move buffers to their own classes at some point
 unsigned int VAO;
@@ -104,54 +103,25 @@ int main(int argc, char * argv[])
     // Setup Dear ImGui style;
     ImGui::StyleColorsDark();
 
-    // TODO reformat this to use glTF or some other more manageable way
-    // Vertex info for a cube
-    float quadVertices[] =
-    {
-        -1,  1,  0,     0.0f, 1.0f,
-        -1, -1,  0,     0.0f, 0.0f,
-         1, -1,  0,     1.0f, 0.0f,
-         1, -1,  0,     1.0f, 0.0f,
-         1,  1,  0,     1.0f, 1.0f,
-        -1,  1,  0,     0.0f, 1.0f
-    };
 
     // use our shader program when we want to render an object
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
-    Shader boxShader("../Glitter/Shaders/box.vert", "../Glitter/Shaders/box.frag");
     Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
+    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
     shaderController.Add(&lightShader);
-    shaderController.Add(&boxShader);
+    shaderController.Add(&genericShader);
     shaderController.Add(&screenShader);
 
     // ===================================================================
     // Setup for textures
     //
     tex1 = Texture("Textures/wall.jpg");
-    //tex1 = Texture("Textures/uv.png");
     tex2 = Texture("Textures/awesomeface.png");
     // ===================================================================
 
-    // Create quadVAO
-    unsigned int quadVAO;
-    glGenVertexArrays(1, &quadVAO);
-    glBindVertexArray(quadVAO);
-
-    unsigned int quadVBO;
-    glGenBuffers(1, &quadVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
+    Quad screenQuad("Screen Quad", screenShader);
 
     // TODO replace this into some more manageable format, like glTF
     // ===================================================================
@@ -180,19 +150,21 @@ int main(int argc, char * argv[])
         );
     }
 
+    // TODO move model info into GlObjects
     boxPositions = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
         glm::vec3( 0.1f,  0.0f, -1.5f),
         glm::vec3(-3.5f,  2.5f, -4.0f),
         glm::vec3(-2.4f, -0.5f, -5.0f),
-        glm::vec3( 1.5f, -1.0f, -7.0f)
+        glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3( 0.0f, -5.0f,  0.0f)
     };
 
     // ===================================================================
     // Bind UBO block index to shaders
-    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "Matrices"), 0);
+    glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "Matrices"), 0);
     glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(boxShader.ID   , glGetUniformBlockIndex(boxShader.ID, "LightBuffer"), 1);
+    glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "LightBuffer"), 1);
 
     // Create a uniform buffer to handle viewprojection and lights
     unsigned int uboMatrices;
@@ -244,9 +216,12 @@ int main(int argc, char * argv[])
     for (int i = 0; i < 5; ++i)
     {
         std::string name = "Cube " + std::to_string(i);
-        objectManager.Add(new Cube(name, boxShader));
+        objectManager.Add(new Cube(name, genericShader));
         lightManager.Add(new Cube("light", lightShader));
     }
+
+    Quad floor("Floor Plane", genericShader);
+    objectManager.Add(&floor);
 
     // ===================================================================
     // Rendering Loop
@@ -365,11 +340,8 @@ int main(int argc, char * argv[])
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            screenShader.use();
-            glBindVertexArray(quadVAO);
             glDisable(GL_DEPTH_TEST);
-            glBindTexture(GL_TEXTURE_2D, colorFB.texture);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            screenQuad.Draw(colorFB.texture, glm::vec3(0,0,0));
 
             // TODO how to handle the need to
             // still render to the default FB to
@@ -378,11 +350,8 @@ int main(int argc, char * argv[])
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            screenShader.use();
-            glBindVertexArray(quadVAO);
             glDisable(GL_DEPTH_TEST);
-            glBindTexture(GL_TEXTURE_2D, colorFB.texture);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            screenQuad.Draw(colorFB.texture, glm::vec3(0,0,0));
         }
 
         // ===================================================================
@@ -448,7 +417,7 @@ void ShowSceneHierarchy()
         int i = 0;
         for (auto object : objectManager.objectList)
         {
-            if (ImGui::TreeNode((void*)(intptr_t)i, "%s", object->name.c_str()))
+            if (ImGui::TreeNode((void*)(intptr_t)i, "Index:%d, Name: %s", i, object->name.c_str()))
             {
                 ImGui::Text("Texture: %s", tex1.GetName().c_str());
                 ImGui::Text("Size: %d x %d", tex1.width, tex1.height);

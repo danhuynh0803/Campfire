@@ -1,7 +1,9 @@
 #version 450 core
 
+// =========================================
 const int NUM_LIGHTS = 5;
 
+// =========================================
 struct Light
 {
     vec4 pos;
@@ -23,21 +25,25 @@ in vec3 normal;
 out vec4 fragColor;
 
 // =========================================
-uniform sampler2D tex1;
-uniform sampler2D tex2;
+uniform sampler2D texIn;
 
-float near = 0.1f;
-float far = 100.0f;
+// =========================================
 
-float LinearizeDepth(float depth)
-{
-    float z = depth * 2.0f - 1.0f;
-    return (2.0f * near * far) / (far + near - z * (far - near));
-}
+//float near = 0.1f;
+//float far = 100.0f;
 
+// =========================================
+// TODO for shadows
+//float LinearizeDepth(float depth)
+//{
+//    float z = depth * 2.0f - 1.0f;
+//    return (2.0f * near * far) / (far + near - z * (far - near));
+//}
+
+// =========================================
 vec3 Phong()
 {
-    vec3 albedo = texture(tex1, uvCoords).rgb;
+    vec3 albedo = texture(texIn, uvCoords).rgb;
     float ambient = 0.2f;
     float specularCoeff = 0.0f;
     vec3 diffuse = vec3(0.0f);
@@ -55,10 +61,8 @@ vec3 Phong()
     return totalColor;
 }
 
+// =========================================
 void main()
 {
-    //float depth = LinearizeDepth(gl_FragCoord.z) / far;
-    //fragColor = vec4(vec3(1.0f - depth), 1.0f);
     fragColor = vec4(Phong(), 1.0f);
-    //fragColor = vec4(1.0f);
 }
