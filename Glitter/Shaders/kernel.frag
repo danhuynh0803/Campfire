@@ -67,8 +67,9 @@ void main()
     }
 
     // Gray filter
-    //col = vec3(0.299*col.r + 0.587*col.g + 0.114*col.b);
+    col = vec3(0.299*col.r + 0.587*col.g + 0.114*col.b);
 
     col = texture(screenTex, texCoords).rgb;
+
     fragColor = vec4(col, 1.0f);
 }

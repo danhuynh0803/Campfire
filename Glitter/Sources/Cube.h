@@ -14,12 +14,35 @@ class Cube : public GlObject
 {
 public:
 
-    Cube(std::string _name, Shader _shader)
+    Cube(std::string _name, Shader _shader, glm::vec3 pos = glm::vec3(0.0f))
     {
         name.assign(_name);
         shader = _shader;
+        position = pos;
         InitRenderData();
     }
+
+    void Draw(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f))
+    {
+        this->shader.use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.ID);
+        glUniform1i(glGetUniformLocation(this->shader.ID, "texIn"), 0);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        // TODO
+        //model = glm::rotate(model, rotate);
+        model = glm::translate(model, position);
+        model = glm::scale(model, scale);
+        glUniformMatrix4fv(glGetUniformLocation(this->shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+        // Draw cube
+        glBindVertexArray(this->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+    }
+
 
     void InitRenderData()
     {
@@ -101,27 +124,6 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // unbinding VAO for later use
-        glBindVertexArray(0);
-    }
-
-    void Draw(Texture &texture, glm::vec3 position, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f))
-    {
-        this->shader.use();
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.ID);
-        glUniform1i(glGetUniformLocation(this->shader.ID, "tex1"), 0);
-
-        glm::mat4 model = glm::mat4(1.0f);
-        // TODO
-        //model = glm::rotate(model, rotate);
-        model = glm::translate(model, position);
-        model = glm::scale(model, scale);
-        glUniformMatrix4fv(glGetUniformLocation(this->shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-        // Draw cube
-        glBindVertexArray(this->VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
     }
 

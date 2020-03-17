@@ -1,6 +1,8 @@
 #ifndef FRAME_BUFFER_H
 #define FRAME_BUFFER_H
 
+#include "Texture.h"
+
 enum BufferAttachmentType
 {
     // TODO
@@ -13,7 +15,7 @@ enum BufferAttachmentType
 struct FrameBuffer
 {
     GLuint ID;
-    GLuint texture;
+    Texture texture;
     char* name;
 
     FrameBuffer(char* _name, int width, int height)
@@ -31,8 +33,8 @@ struct FrameBuffer
         // else use renderbuffers
 
         // Attach a texture to fbo
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glGenTextures(1, &texture.ID);
+        glBindTexture(GL_TEXTURE_2D, texture.ID);
         // Texture will be filled when we render to framebuffer
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -40,7 +42,7 @@ struct FrameBuffer
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Attach texture to framebuffer
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.ID, 0);
 
         // Create rbo for depth and stencil
         GLuint rbo;

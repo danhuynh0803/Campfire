@@ -55,7 +55,6 @@ float texMix = 0.2f;
 // TODO: move buffers to their own classes at some point
 unsigned int VAO;
 unsigned int uboLights;
-Texture tex1, tex2;
 std::vector<Light> lights;
 std::vector<glm::vec3> boxPositions;
 
@@ -105,20 +104,20 @@ int main(int argc, char * argv[])
 
 
     // use our shader program when we want to render an object
+    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
     Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
-    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
-    shaderController.Add(&lightShader);
     shaderController.Add(&genericShader);
+    shaderController.Add(&lightShader);
     shaderController.Add(&screenShader);
 
     // ===================================================================
     // Setup for textures
     //
-    tex1 = Texture("Textures/wall.jpg");
-    tex2 = Texture("Textures/awesomeface.png");
+    Texture tex1("Textures/wall.jpg");
+    Texture tex2("Textures/awesomeface.png");
     // ===================================================================
 
     Quad screenQuad("Screen Quad", screenShader);
@@ -157,7 +156,6 @@ int main(int argc, char * argv[])
         glm::vec3(-3.5f,  2.5f, -4.0f),
         glm::vec3(-2.4f, -0.5f, -5.0f),
         glm::vec3( 1.5f, -1.0f, -7.0f),
-        glm::vec3( 0.0f, -5.0f,  0.0f)
     };
 
     // ===================================================================
@@ -216,11 +214,19 @@ int main(int argc, char * argv[])
     for (int i = 0; i < 5; ++i)
     {
         std::string name = "Cube " + std::to_string(i);
-        objectManager.Add(new Cube(name, genericShader));
-        lightManager.Add(new Cube("light", lightShader));
+        Cube *cube = new Cube(name, genericShader);
+        cube->texture = tex2;
+        cube->position = boxPositions[i];
+        objectManager.Add(cube);
+
+        Cube *light = new Cube("light", lightShader);
+        light->position = lightPositions[i];
+        lightManager.Add(light);
     }
 
     Quad floor("Floor Plane", genericShader);
+    floor.texture = tex1;
+    floor.position = glm::vec3(0.0f, -5.0f, 0.0f);
     objectManager.Add(&floor);
 
     // ===================================================================
@@ -272,7 +278,7 @@ int main(int argc, char * argv[])
             int i = 0;
             for (auto renderObject : objectManager.objectList)
             {
-                renderObject->Draw(tex1, boxPositions[i]);
+                renderObject->Draw();
                 ++i;
             }
 
@@ -306,9 +312,11 @@ int main(int argc, char * argv[])
                 glBindBuffer(GL_UNIFORM_BUFFER, 0);
                 glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
+                lightObject->shader.use();
                 glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
 
-                lightObject->Draw(tex1, newPos, scale);
+                lightObject->position = newPos;
+                lightObject->Draw(scale);
                 ++i;
             }
 
@@ -335,13 +343,14 @@ int main(int argc, char * argv[])
 
         // ===================================================================
         { // Final pass: post-process
+            screenQuad.texture = colorFB.texture;
             glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
 
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glDisable(GL_DEPTH_TEST);
-            screenQuad.Draw(colorFB.texture, glm::vec3(0,0,0));
+            screenQuad.Draw();
 
             // TODO how to handle the need to
             // still render to the default FB to
@@ -351,7 +360,7 @@ int main(int argc, char * argv[])
             glClear(GL_COLOR_BUFFER_BIT);
 
             glDisable(GL_DEPTH_TEST);
-            screenQuad.Draw(colorFB.texture, glm::vec3(0,0,0));
+            screenQuad.Draw();
         }
 
         // ===================================================================
@@ -367,7 +376,7 @@ int main(int argc, char * argv[])
                     {
                         if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
                         {
-                            ImGui::Image((void*)(intptr_t)renderPasses[i].texture, ImVec2(SCR_WIDTH/4, SCR_HEIGHT/4), ImVec2(0,1), ImVec2(1,0));
+                            ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(SCR_WIDTH/4, SCR_HEIGHT/4), ImVec2(0,1), ImVec2(1,0));
                             ImGui::Separator();
                             ImGui::TreePop();
                         }
@@ -404,10 +413,7 @@ int main(int argc, char * argv[])
 void ShowSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
-    if (ImGui::Button("Reload Shaders"))
-    {
-        shaderController.ReloadShaders();
-    }
+
     ImGui::Spacing();
 
     ImGui::Separator();
@@ -417,11 +423,15 @@ void ShowSceneHierarchy()
         int i = 0;
         for (auto object : objectManager.objectList)
         {
-            if (ImGui::TreeNode((void*)(intptr_t)i, "Index:%d, Name: %s", i, object->name.c_str()))
+            if (ImGui::TreeNode((void*)(intptr_t)i, "Idx:%d, Tag:%s", i, object->name.c_str()))
             {
-                ImGui::Text("Texture: %s", tex1.GetName().c_str());
-                ImGui::Text("Size: %d x %d", tex1.width, tex1.height);
-                ImGui::Image((void*)(intptr_t)tex1.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
+                // Positional info
+                ImGui::Text("Pos: (%f, %f, %f)", object->position.x, object->position.y, object->position.z);
+                ImGui::Spacing();
+                Texture objectTex = object->texture;
+                ImGui::Text("Tex: %s", objectTex.GetName().c_str());
+                ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
+                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
                 ImGui::Separator();
                 ImGui::TreePop();
             }
@@ -477,58 +487,6 @@ void RenderGUI()
 }
 
 
-// TODO delete later
-//void RenderLights(Shader lightShader)
-//{
-//    // Draw our lights
-//    lightShader.use();
-//    for (int i = 0; i < lights.size(); ++i)
-//    {
-//        glm::vec3 newPos = lights[i].pos;
-//        // first light is moving light
-//        if (i == 0)
-//        {
-//            float radius = 5.0f;
-//            float omega = 1.0f;
-//
-//            newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
-//                    0.0f,
-//                    sin(omega * glfwGetTime()));
-//        }
-//
-//        glm::mat4 model = glm::mat4(1.0f);
-//        model = glm::translate(model, newPos);
-//        model = glm::scale(model, glm::vec3(0.5f));
-//
-//        glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-//        // Send in light info to light UBO
-//        glBufferSubData(GL_UNIFORM_BUFFER,
-//                2*sizeof(glm::vec4)*i,
-//                sizeof(glm::vec4),
-//                glm::value_ptr(newPos));
-//
-//        glBufferSubData(GL_UNIFORM_BUFFER,
-//                2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
-//                sizeof(glm::vec4),
-//                glm::value_ptr(lights[i].color));
-//
-//        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-//        glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
-//
-//        lightShader.use();
-//        // send in model
-//        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-//
-//        // Pass in light color to shader
-//        glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
-//
-//        // Draw the object
-//        glBindVertexArray(VAO);
-//        glDrawArrays(GL_TRIANGLES, 0, 36);
-//        glBindVertexArray(0);
-//    }
-//}
-
 // TODO move this into an input handler
 // maybe need shared data update all necessary info
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -566,6 +524,7 @@ void processInput(GLFWwindow *window)
     int newState = glfwGetKey(window, GLFW_KEY_R);
     if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
     {
+        std::cout << "RELOADING SHADERS\n";
         shaderController.ReloadShaders();
     }
     oldState = newState;
