@@ -1,10 +1,7 @@
 // Local Headers
 #include "glitter.hpp"
 
-// ImGui headers
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "TentGui.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -406,6 +403,16 @@ int main(int argc, char * argv[])
         glDeleteFramebuffers(1, &framebuffers.ID);
     }
 
+    // TODO?
+    // Clean up all objects in scene
+    /*
+    for (auto object : objectManager.objectList)
+    {
+        delete(object);
+        //objects = nullptr;
+    }
+    */
+
     glfwTerminate();
     return EXIT_SUCCESS;
 }
@@ -486,13 +493,50 @@ void RenderGUI()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+#include <stdlib.h>
+void LoadObject()
+{
+    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
+    Texture tempTex("Textures/wall.jpg");
 
+    Cube* cube = new Cube("Loaded cube", genericShader);
+    cube->scale = glm::vec3(rand()%5+1);
+    cube->position = glm::vec3(rand()%10+1, rand()%10+1, rand()%10+1);
+    cube->texture = tempTex;
+
+    objectManager.Add(cube);
+}
+
+void DeleteObject()
+{
+    // Erase the first element
+    if (!objectManager.objectList.empty())
+    {
+        objectManager.objectList.erase(objectManager.objectList.begin());
+    }
+}
+
+
+void processInputOnce(GLFWwindow *window)
+{
+
+}
 // TODO move this into an input handler
 // maybe need shared data update all necessary info
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    // Load and Delete
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        LoadObject();
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        DeleteObject();
+    }
+
     // Quit
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -520,23 +564,27 @@ void processInput(GLFWwindow *window)
     // TODO move to input handler so that
     // theres a more reusable way to have this work only once per click
     // Hot reload shaders only once per click
-    static int oldState = GLFW_RELEASE;
-    int newState = glfwGetKey(window, GLFW_KEY_R);
-    if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
     {
-        std::cout << "RELOADING SHADERS\n";
-        shaderController.ReloadShaders();
+        static int oldState = GLFW_RELEASE;
+        int newState = glfwGetKey(window, GLFW_KEY_R);
+        if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
+        {
+            std::cout << "RELOADING SHADERS\n";
+            shaderController.ReloadShaders();
+        }
+        oldState = newState;
     }
-    oldState = newState;
 
     // Enable/Disable IMGUI once per click
-    static int oldState1 = GLFW_RELEASE;
-    int newState1 = glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT);
-    if (newState1 == GLFW_PRESS && oldState1 == GLFW_RELEASE)
     {
-        IMGUI_ENABLED ^= 1;
+        static int oldState1 = GLFW_RELEASE;
+        int newState1 = glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT);
+        if (newState1 == GLFW_PRESS && oldState1 == GLFW_RELEASE)
+        {
+            IMGUI_ENABLED ^= 1;
+        }
+        oldState1 = newState1;
     }
-    oldState1 = newState1;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

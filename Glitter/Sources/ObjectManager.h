@@ -13,6 +13,9 @@ public:
         objectList.push_back(object);
     }
 
+    // TODO
+    void Remove();
+
     void Draw()
     {
         for (auto renderObject : objectList)
