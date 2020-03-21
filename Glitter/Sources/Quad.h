@@ -15,14 +15,6 @@ public:
     }
     //~Quad() = delete;
 
-    Quad(std::string _name, Shader _shader, glm::vec3 pos = glm::vec3(0.0f))
-    {
-        name.assign(_name);
-        shader = _shader;
-        position = pos;
-        InitRenderData();
-    }
-
     void Draw(glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f))
     {
         this->shader.use();

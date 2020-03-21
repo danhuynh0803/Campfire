@@ -117,7 +117,8 @@ int main(int argc, char * argv[])
     Texture tex2("Textures/awesomeface.png");
     // ===================================================================
 
-    Quad screenQuad("Screen Quad", screenShader);
+    Quad screenQuad;
+    screenQuad.shader = screenShader;
 
     // TODO replace this into some more manageable format, like glTF
     // ===================================================================
@@ -211,18 +212,24 @@ int main(int argc, char * argv[])
     for (int i = 0; i < 5; ++i)
     {
         std::string name = "Cube " + std::to_string(i);
-        Cube *cube = new Cube(name, genericShader);
+        Cube* cube = new Cube();
+        cube->name = name;
+        cube->shader = genericShader;
         cube->texture = tex2;
         cube->position = boxPositions[i];
         objectManager.Add(cube);
 
-        Cube *light = new Cube("light", lightShader);
+        Cube* light = new Cube();
+        light->name = "light";
+        light->shader = lightShader;
         light->position = lightPositions[i];
         light->scale = glm::vec3(0.5f);
         lightManager.Add(light);
     }
 
-    Quad floor("Floor Plane", genericShader);
+    Quad floor;
+    floor.name = "Floor Plane";
+    floor.shader = genericShader;
     floor.texture = tex1;
     floor.position = glm::vec3(0.0f, -5.0f, 0.0f);
     objectManager.Add(&floor);
