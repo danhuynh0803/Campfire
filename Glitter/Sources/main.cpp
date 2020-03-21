@@ -530,15 +530,15 @@ void ShowPrimitiveGenerator()
     ImGui::InputTextWithHint("Tag", "Enter object tag here", tag, IM_ARRAYSIZE(tag));
 
     static float position[3] = { 0.0f, 0.0f, 0.0f };
-    ImGui::InputFloat3("Position", position);
+    ImGui::DragFloat3("Position", position, 0.01f);
     ImGui::Spacing();
 
     static float rotation[3] = { 0.0f, 0.0f, 0.0f };
-    ImGui::InputFloat3("Rotation", rotation);
+    ImGui::DragFloat3("Rotation", rotation, 0.01f);
     ImGui::Spacing();
 
     static float scale[3] = { 1.0f, 1.0f, 1.0f };
-    ImGui::InputFloat3("Scale", scale);
+    ImGui::DragFloat3("Scale", scale, 0.01f);
     ImGui::Spacing();
 
     std::string tagString(tag);
@@ -561,7 +561,7 @@ void ShowInspector(GlObject* object)
                 object->position.y,
                 object->position.z
             };
-            ImGui::InputFloat3("Position", position);
+            ImGui::DragFloat3("Position", position, 0.01f);
             object->position = glm::make_vec3(position);
             ImGui::Spacing();
 
@@ -570,7 +570,7 @@ void ShowInspector(GlObject* object)
                 object->rotation.y,
                 object->rotation.z
             };
-            ImGui::InputFloat3("Rotation", rotation);
+            ImGui::DragFloat3("Rotation", rotation, 0.01f);
             object->rotation = glm::make_vec3(rotation);
             ImGui::Spacing();
 
@@ -579,7 +579,7 @@ void ShowInspector(GlObject* object)
                 object->scale.y,
                 object->scale.z
             };
-            ImGui::InputFloat3("Scale", scale);
+            ImGui::DragFloat3("Scale", scale, 0.01f);
             object->scale = glm::make_vec3(scale);
             ImGui::TreePop();
         }
@@ -589,6 +589,7 @@ void ShowInspector(GlObject* object)
     { // Mesh details
         if (ImGui::TreeNode("Mesh Details"))
         {
+            // TODO allow loading up new texture and shader
             Texture objectTex = object->texture;
             ImGui::Text("Tex: %s", objectTex.GetName().c_str());
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
@@ -597,6 +598,10 @@ void ShowInspector(GlObject* object)
             ImGui::TreePop();
         }
         ImGui::Separator();
+    }
+
+    { // TODO what other details to add?
+
     }
 
     ImGui::End();
