@@ -548,6 +548,60 @@ void ShowPrimitiveGenerator()
     }
 }
 
+void ShowInspector(GlObject* object)
+{
+    // Show and be able to modify information on selected object
+    ImGui::Begin("Inspector");
+
+    { // Transform info
+        if (ImGui::TreeNode("Transform"))
+        {
+            float position[3] = {
+                object->position.x,
+                object->position.y,
+                object->position.z
+            };
+            ImGui::InputFloat3("Position", position);
+            object->position = glm::make_vec3(position);
+            ImGui::Spacing();
+
+            float rotation[3] = {
+                object->rotation.x,
+                object->rotation.y,
+                object->rotation.z
+            };
+            ImGui::InputFloat3("Rotation", rotation);
+            object->rotation = glm::make_vec3(rotation);
+            ImGui::Spacing();
+
+            float scale[3] = {
+                object->scale.x,
+                object->scale.y,
+                object->scale.z
+            };
+            ImGui::InputFloat3("Scale", scale);
+            object->scale = glm::make_vec3(scale);
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+    { // Mesh details
+        if (ImGui::TreeNode("Mesh Details"))
+        {
+            Texture objectTex = object->texture;
+            ImGui::Text("Tex: %s", objectTex.GetName().c_str());
+            ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
+            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+    ImGui::End();
+}
+
 void ShowSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
@@ -557,22 +611,23 @@ void ShowSceneHierarchy()
     ImGui::Separator();
     // List all GLObjects within scene
     ImGui::Text("Scene Objects");
+
     int i = 0;
+    static int selected = -1;
     for (auto object : objectManager.objectList)
     {
-        if (ImGui::TreeNode((void*)(intptr_t)i, "Idx:%d, Tag:%s", i, object->name.c_str()))
+        char buf[32];
+        sprintf(buf, "Idx:%d\t Tag:%s", i, object->name.c_str());
+        if (ImGui::Selectable(buf, selected == i))
         {
-            // Positional info
-            ImGui::Text("Pos: (%f, %f, %f)", object->position.x, object->position.y, object->position.z);
-            ImGui::Spacing();
-            Texture objectTex = object->texture;
-            ImGui::Text("Tex: %s", objectTex.GetName().c_str());
-            ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
-            ImGui::Separator();
-            ImGui::TreePop();
+            selected = i;
         }
         ++i;
+    }
+
+    if (selected != -1)
+    {
+        ShowInspector(objectManager.objectList[selected]);
     }
 
     ImGui::End();
