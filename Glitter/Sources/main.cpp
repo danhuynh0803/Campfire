@@ -553,6 +553,10 @@ void ShowInspector(GlObject* object)
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
 
+    { // TODO Draw object local coordinates to show orientation
+
+    }
+
     { // Transform info
         if (ImGui::TreeNode("Transform"))
         {
@@ -570,7 +574,7 @@ void ShowInspector(GlObject* object)
                 object->rotation.y,
                 object->rotation.z
             };
-            ImGui::DragFloat3("Rotation", rotation, 0.01f);
+            ImGui::DragFloat3("Rotation", rotation, 0.1f);
             object->rotation = glm::make_vec3(rotation);
             ImGui::Spacing();
 

@@ -21,7 +21,7 @@ public:
 
     ~Cube() = delete;
 
-    void Draw(glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f))
+    void Draw(glm::vec3 color = glm::vec3(1.0f))
     {
         this->shader.use();
 
@@ -30,10 +30,13 @@ public:
         glUniform1i(glGetUniformLocation(this->shader.ID, "texIn"), 0);
 
         glm::mat4 model = glm::mat4(1.0f);
-        // TODO
-        //model = glm::rotate(model, rotate);
+
+        model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
         model = glm::translate(model, position);
-        model = glm::scale(model, this->scale);
+        model = glm::scale(model, scale);
+
         glUniformMatrix4fv(glGetUniformLocation(this->shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         // Draw cube
