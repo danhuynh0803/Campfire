@@ -425,38 +425,6 @@ int main(int argc, char * argv[])
     return EXIT_SUCCESS;
 }
 
-void ShowSceneHierarchy()
-{
-    ImGui::Begin("Scene Hierarchy");
-
-    ImGui::Spacing();
-
-    ImGui::Separator();
-    // List all GLObjects within scene
-    if (ImGui::TreeNode("Scene Objects"))
-    {
-        int i = 0;
-        for (auto object : objectManager.objectList)
-        {
-            if (ImGui::TreeNode((void*)(intptr_t)i, "Idx:%d, Tag:%s", i, object->name.c_str()))
-            {
-                // Positional info
-                ImGui::Text("Pos: (%f, %f, %f)", object->position.x, object->position.y, object->position.z);
-                ImGui::Spacing();
-                Texture objectTex = object->texture;
-                ImGui::Text("Tex: %s", objectTex.GetName().c_str());
-                ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
-                ImGui::Separator();
-                ImGui::TreePop();
-            }
-            ++i;
-        }
-        ImGui::TreePop();
-    }
-    ImGui::End();
-}
-
 void ShowMetrics()
 {
     ImGui::Begin("Metrics");
@@ -534,7 +502,7 @@ void ShowPrimitiveGenerator()
     const char* objects[] = {"Cube", "Quad", "Sphere"};
     static Geometry selectedGeom = NONE;
 
-    ImGui::Begin("Generate Primitive");
+    ImGui::Text("Generate Primitive");
     if (ImGui::Button("Geometry"))
     {
         ImGui::OpenPopup("selectPopup");
@@ -573,13 +541,41 @@ void ShowPrimitiveGenerator()
     {
         LoadObject(selectedGeom, "NA", position, rotation, scale);
     }
+}
+
+void ShowSceneHierarchy()
+{
+    ImGui::Begin("Scene Hierarchy");
+
+    ShowPrimitiveGenerator();
+
+    ImGui::Separator();
+    // List all GLObjects within scene
+    ImGui::Text("Scene Objects");
+    int i = 0;
+    for (auto object : objectManager.objectList)
+    {
+        if (ImGui::TreeNode((void*)(intptr_t)i, "Idx:%d, Tag:%s", i, object->name.c_str()))
+        {
+            // Positional info
+            ImGui::Text("Pos: (%f, %f, %f)", object->position.x, object->position.y, object->position.z);
+            ImGui::Spacing();
+            Texture objectTex = object->texture;
+            ImGui::Text("Tex: %s", objectTex.GetName().c_str());
+            ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
+            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
+            ImGui::Separator();
+            ImGui::TreePop();
+        }
+        ++i;
+    }
 
     ImGui::End();
 }
 
+
 void RenderGUI()
 {
-    ShowPrimitiveGenerator();
     ShowSceneHierarchy();
     ShowMetrics();
 
