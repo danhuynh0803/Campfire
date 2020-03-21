@@ -478,11 +478,12 @@ void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], flo
         default: return;
     }
 
+    object->name = name;
     object->shader = genericShader;
     object->texture = tempTex;
-    object->position = glm::vec3(pos[0], pos[1], pos[2]);
-    object->rotation = glm::vec3(rot[0], rot[1], rot[2]);
-    object->scale = glm::vec3(scale[0], scale[1], scale[2]);
+    object->position = glm::make_vec3(pos);
+    object->rotation = glm::make_vec3(rot);
+    object->scale = glm::make_vec3(scale);
 
     objectManager.Add(object);
 }
@@ -525,6 +526,9 @@ void ShowPrimitiveGenerator()
         ImGui::EndPopup();
     }
 
+    static char tag[128] = "";
+    ImGui::InputTextWithHint("Tag", "Enter object tag here", tag, IM_ARRAYSIZE(tag));
+
     static float position[3] = { 0.0f, 0.0f, 0.0f };
     ImGui::InputFloat3("Position", position);
     ImGui::Spacing();
@@ -537,9 +541,10 @@ void ShowPrimitiveGenerator()
     ImGui::InputFloat3("Scale", scale);
     ImGui::Spacing();
 
+    std::string tagString(tag);
     if (ImGui::Button("Generate"))
     {
-        LoadObject(selectedGeom, "NA", position, rotation, scale);
+        LoadObject(selectedGeom, tagString, position, rotation, scale);
     }
 }
 
@@ -594,6 +599,13 @@ void processInputOnce(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    ImGuiIO& io = ImGui::GetIO();
+    // Dont process any keyinputs when writing text into imgui
+    if (io.WantCaptureKeyboard)
+    {
+        return;
+    }
+
     // Load and Delete
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
@@ -601,7 +613,7 @@ void processInput(GLFWwindow *window)
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     {
-        DeleteObject();
+        //DeleteObject();
     }
 
     // Quit
