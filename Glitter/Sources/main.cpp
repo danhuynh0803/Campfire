@@ -218,6 +218,7 @@ int main(int argc, char * argv[])
 
         Cube *light = new Cube("light", lightShader);
         light->position = lightPositions[i];
+        light->scale = glm::vec3(0.5f);
         lightManager.Add(light);
     }
 
@@ -484,36 +485,99 @@ void ShowMetrics()
     ImGui::End();
 }
 
+enum Geometry { CUBE, QUAD, SPHERE, NONE };
+
+#include <stdlib.h>
+void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
+{
+    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
+    Texture tempTex("Textures/wall.jpg");
+
+    GlObject* object;
+    switch (geom)
+    {
+        case CUBE: object = new Cube(); break;
+        case QUAD: object = new Quad(); break;
+        //case SPHERE: static_cast<Cube*>(object); break;
+        case NONE: return;
+        default: return;
+    }
+
+    object->shader = genericShader;
+    object->texture = tempTex;
+    object->position = glm::vec3(pos[0], pos[1], pos[2]);
+    object->rotation = glm::vec3(rot[0], rot[1], rot[2]);
+    object->scale = glm::vec3(scale[0], scale[1], scale[2]);
+
+    objectManager.Add(object);
+}
+
+void DeleteObject()
+{
+    // Erase the last element
+    if (!objectManager.objectList.empty())
+    {
+        objectManager.objectList.erase(objectManager.objectList.end()-1);
+    }
+}
+
+void ShowPrimitiveGenerator()
+{
+    static int objectIdx = -1;
+    const char* objects[] = {"Cube", "Quad", "Sphere"};
+    static Geometry selectedGeom = NONE;
+
+    ImGui::Begin("Generate Primitive");
+    if (ImGui::Button("Geometry"))
+    {
+        ImGui::OpenPopup("selectPopup");
+    }
+    ImGui::SameLine();
+    ImGui::TextUnformatted(objectIdx == -1 ? "<None>" : objects[objectIdx]);
+    if (ImGui::BeginPopup("selectPopup"))
+    {
+        ImGui::Text("Primitives");
+        ImGui::Separator();
+        for (int i = 0; i < IM_ARRAYSIZE(objects); i++)
+        {
+            if (ImGui::Selectable(objects[i]))
+            {
+                objectIdx = i;
+                selectedGeom = static_cast<Geometry>(i);
+            }
+        }
+
+        ImGui::EndPopup();
+    }
+
+    static float position[3] = { 0.0f, 0.0f, 0.0f };
+    ImGui::InputFloat3("Position", position);
+    ImGui::Spacing();
+
+    static float rotation[3] = { 0.0f, 0.0f, 0.0f };
+    ImGui::InputFloat3("Rotation", rotation);
+    ImGui::Spacing();
+
+    static float scale[3] = { 1.0f, 1.0f, 1.0f };
+    ImGui::InputFloat3("Scale", scale);
+    ImGui::Spacing();
+
+    if (ImGui::Button("Generate"))
+    {
+        LoadObject(selectedGeom, "NA", position, rotation, scale);
+    }
+
+    ImGui::End();
+}
+
 void RenderGUI()
 {
+    ShowPrimitiveGenerator();
     ShowSceneHierarchy();
     ShowMetrics();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-#include <stdlib.h>
-void LoadObject()
-{
-    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
-    Texture tempTex("Textures/wall.jpg");
-
-    Cube* cube = new Cube("Loaded cube", genericShader);
-    cube->scale = glm::vec3(rand()%5+1);
-    cube->position = glm::vec3(rand()%10+1, rand()%10+1, rand()%10+1);
-    cube->texture = tempTex;
-
-    objectManager.Add(cube);
-}
-
-void DeleteObject()
-{
-    // Erase the first element
-    if (!objectManager.objectList.empty())
-    {
-        objectManager.objectList.erase(objectManager.objectList.begin());
-    }
 }
 
 
@@ -530,7 +594,7 @@ void processInput(GLFWwindow *window)
     // Load and Delete
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
-        LoadObject();
+        //LoadObject();
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     {

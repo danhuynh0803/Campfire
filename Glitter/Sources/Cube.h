@@ -14,6 +14,13 @@ class Cube : public GlObject
 {
 public:
 
+    Cube()
+    {
+        InitRenderData();
+    }
+
+    ~Cube() = delete;
+
     Cube(std::string _name, Shader _shader, glm::vec3 pos = glm::vec3(0.0f))
     {
         name.assign(_name);
@@ -22,7 +29,7 @@ public:
         InitRenderData();
     }
 
-    void Draw(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f))
+    void Draw(glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f))
     {
         this->shader.use();
 
@@ -34,7 +41,7 @@ public:
         // TODO
         //model = glm::rotate(model, rotate);
         model = glm::translate(model, position);
-        model = glm::scale(model, scale);
+        model = glm::scale(model, this->scale);
         glUniformMatrix4fv(glGetUniformLocation(this->shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         // Draw cube

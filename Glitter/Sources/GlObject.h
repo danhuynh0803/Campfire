@@ -13,7 +13,7 @@
 class GlObject
 {
 public:
-    virtual void Draw(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f)) = 0;
+    virtual void Draw(glm::vec3 rotate = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 color = glm::vec3(1.0f)) = 0;
 
     virtual void InitRenderData() = 0;
 
