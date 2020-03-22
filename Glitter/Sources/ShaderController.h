@@ -10,7 +10,6 @@ public:
     {
         for (Shader* shader : shaderList)
         {
-            std::cout << "Reload shader\n";
             // TODO Check that there was a change made to the file before reloading it
             Shader newShader(shader->vertexName.c_str(), shader->fragName.c_str());
             shader->ID = newShader.ID;

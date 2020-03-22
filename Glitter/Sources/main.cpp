@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
     // ===================================================================
 
     Quad screenQuad;
-    screenQuad.shader = screenShader;
+    screenQuad.shader = &screenShader;
 
     // TODO replace this into some more manageable format, like glTF
     // ===================================================================
@@ -209,14 +209,14 @@ int main(int argc, char * argv[])
         std::string name = "Cube " + std::to_string(i);
         Cube* cube = new Cube();
         cube->name = name;
-        cube->shader = genericShader;
+        cube->shader = &genericShader;
         cube->texture = tex2;
         cube->position = boxPositions[i];
         objectManager.Add(cube);
 
         Light* light = new Light();
         light->name = "light";
-        light->shader = lightShader;
+        light->shader = &lightShader;
         light->color = glm::vec4(lightColors[i], 1.0f);
         light->position = lightPositions[i];
         light->scale = glm::vec3(0.5f);
@@ -225,7 +225,7 @@ int main(int argc, char * argv[])
 
     Quad floor;
     floor.name = "Floor Plane";
-    floor.shader = genericShader;
+    floor.shader = &genericShader;
     floor.texture = tex1;
     floor.position = glm::vec3(0.0f, -5.0f, 0.0f);
     objectManager.Add(&floor);
@@ -437,7 +437,7 @@ void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], flo
     }
 
     object->name = name;
-    object->shader = genericShader;
+    object->shader = &genericShader;
     object->texture = tempTex;
     object->position = glm::make_vec3(pos);
     object->rotation = glm::make_vec3(rot);
@@ -816,7 +816,6 @@ void processInput(GLFWwindow *window)
         int newState = glfwGetKey(window, GLFW_KEY_R);
         if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
         {
-            std::cout << "RELOADING SHADERS\n";
             shaderController.ReloadShaders();
         }
         oldState = newState;

@@ -88,5 +88,4 @@ vec3 Phong()
 void main()
 {
     fragColor = vec4(Phong(), 1.0f);
-    //fragColor = vec4(1.0f);
 }

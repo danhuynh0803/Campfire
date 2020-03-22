@@ -77,8 +77,8 @@ public:
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
             glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
-            light->shader.use();
-            glUniform3fv(glGetUniformLocation(light->shader.ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(light)->color));
+            light->shader->use();
+            glUniform3fv(glGetUniformLocation(light->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(light)->color));
 
             light->Draw();
             ++i;

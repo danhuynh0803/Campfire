@@ -20,7 +20,7 @@ public:
     {
         if (isActive)
         {
-            this->shader.use();
+            this->shader->use();
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture.ID);
@@ -35,7 +35,7 @@ public:
             model = glm::translate(model, position);
             model = glm::scale(model, scale);
 
-            glUniformMatrix4fv(glGetUniformLocation(this->shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
             // Draw cube
             glBindVertexArray(this->VAO);

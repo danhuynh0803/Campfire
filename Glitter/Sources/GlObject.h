@@ -18,7 +18,7 @@ public:
     virtual void InitRenderData() = 0;
 
     GLuint VAO;
-    Shader shader;
+    Shader* shader;
 
     std::string name = "unnamed";
     glm::vec3 position = glm::vec3(0.0f);
