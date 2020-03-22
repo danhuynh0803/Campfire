@@ -5,6 +5,14 @@
 
 #include "GlObject.h"
 
+enum Geometry {
+    CUBE,
+    QUAD,
+    SPHERE,
+    LIGHT,
+    NONE
+};
+
 class ObjectManager
 {
 public:
@@ -18,24 +26,10 @@ public:
         //}
     }
 
-    void Add(GlObject* object)
-    {
-        objectList.push_back(object);
-    }
-
-    // TODO
-    void Remove();
-
-    void Draw()
-    {
-        for (auto objectPtr: objectList)
-        {
-            if (objectPtr->isActive)
-            {
-                objectPtr->Draw();
-            }
-        }
-    }
+    void Add(GlObject* object);
+    void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3]);
+    void RemoveObject(int index);
+    void Draw();
 
     std::vector<GlObject*> objectList;
 };

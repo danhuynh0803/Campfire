@@ -1,12 +1,12 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include <glad/glad.h>
 
 #include <string>
+#include <vector>
 
 const std::vector<std::string> transparentFormats =
 {

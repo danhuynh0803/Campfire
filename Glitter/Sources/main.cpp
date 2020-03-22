@@ -57,13 +57,13 @@ GLuint VAO;
 GLuint uboLights;
 std::vector<glm::vec3> boxPositions;
 
-ShaderController shaderController;
-
 ObjectManager objectManager;
 LightManager lightManager;
 std::vector<FrameBuffer> renderPasses;
 
 bool IMGUI_ENABLED = 1;
+
+ShaderController shaderController;
 
 int main(int argc, char * argv[])
 {
@@ -108,9 +108,9 @@ int main(int argc, char * argv[])
     Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
-    shaderController.Add(&genericShader);
-    shaderController.Add(&lightShader);
-    shaderController.Add(&screenShader);
+    shaderController.Add("generic", &genericShader);
+    shaderController.Add("light", &lightShader);
+    shaderController.Add("screen", &screenShader);
 
     // ===================================================================
     // Setup for textures
@@ -417,53 +417,11 @@ void ShowMetrics()
     ImGui::End();
 }
 
-enum Geometry { CUBE, QUAD, SPHERE, NONE };
-
-#include <stdlib.h>
-void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
-{
-    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
-    // TODO Default texture object
-    Texture tempTex("Textures/wall.jpg");
-
-    GlObject* object;
-    switch (geom)
-    {
-        case CUBE: object = new Cube(); break;
-        case QUAD: object = new Quad(); break;
-        //case SPHERE: static_cast<Cube*>(object); break;
-        case NONE: return;
-        default: return;
-    }
-
-    object->name = name;
-    object->shader = &genericShader;
-    object->texture = tempTex;
-    object->position = glm::make_vec3(pos);
-    object->rotation = glm::make_vec3(rot);
-    object->scale = glm::make_vec3(scale);
-
-    objectManager.Add(object);
-}
-
-void DeleteObject(int index)
-{
-    if (!objectManager.objectList.empty())
-    {
-        objectManager.objectList.erase(objectManager.objectList.begin() + index);
-    }
-}
-
-void DeleteObject(GlObject *object)
-{
-    // TODO
-    // Find object and delete it
-}
 
 void ShowPrimitiveGenerator()
 {
     static int objectIdx = -1;
-    const char* objects[] = {"Cube", "Quad", "Sphere"};
+    const char* objects[] = {"Cube", "Quad", "Sphere", "Light"};
     static Geometry selectedGeom = NONE;
 
     ImGui::Text("Generate Primitive");
@@ -507,7 +465,7 @@ void ShowPrimitiveGenerator()
     std::string tagString(tag);
     if (ImGui::Button("Generate"))
     {
-        LoadObject(selectedGeom, tagString, position, rotation, scale);
+        objectManager.LoadObject(selectedGeom, tagString, position, rotation, scale);
     }
 }
 
@@ -681,9 +639,9 @@ void ShowObjects(ObjectManager manager)
     // Note: the number 105 was just chosen by eye
     // Eventually figure out a way that takes into account the button's width
     ImGui::SameLine(ImGui::GetWindowWidth()-105);
-    if (ImGui::Button("Delete Object") && selected != -1)
+    if (ImGui::Button("Remove Object") && selected != -1)
     {
-        DeleteObject(selected);
+        manager.RemoveObject(selected);
         selected = -1;
     }
 
@@ -714,9 +672,9 @@ void ShowLights(LightManager manager)
     // Note: the number 105 was just chosen by eye
     // Eventually figure out a way that takes into account the button's width
     ImGui::SameLine(ImGui::GetWindowWidth()-105);
-    if (ImGui::Button("Delete Object") && selected != -1)
+    if (ImGui::Button("Remove Object") && selected != -1)
     {
-        DeleteObject(selected);
+        //DeleteObject(selected);
         selected = -1;
     }
 
