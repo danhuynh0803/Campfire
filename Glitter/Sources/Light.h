@@ -13,6 +13,7 @@ public:
 
     Light()
     {
+        isLight = true;
         InitRenderData();
     }
 

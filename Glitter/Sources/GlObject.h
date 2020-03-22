@@ -29,6 +29,7 @@ public:
     Texture texture;
 
     bool isActive = true;
+    bool isLight = false;
 };
 
 #endif

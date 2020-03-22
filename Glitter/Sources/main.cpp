@@ -57,7 +57,6 @@ GLuint uboLights;
 std::vector<glm::vec3> boxPositions;
 
 ObjectManager objectManager;
-LightManager lightManager;
 std::vector<FrameBuffer> renderPasses;
 
 ShaderController shaderController;
@@ -125,6 +124,14 @@ int main(int argc, char * argv[])
         glm::vec3( 3.0f,  1.0f,  2.0f),
     };
 
+    std::vector<std::string> lightNames = {
+        "Red light",
+        "Green light",
+        "Blue light",
+        "Purple light",
+        "Cyan light"
+    };
+
     std::vector<glm::vec3> lightColors = {
         glm::vec3(1.0f, 0.0f, 0.0f), // red
         glm::vec3(0.0f, 1.0f, 0.0f), // green
@@ -162,6 +169,7 @@ int main(int argc, char * argv[])
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
+    objectManager.uboLights = uboLights;
     // ====================================================
     // Frame buffer for depth map
     unsigned int depthMapFBO;
@@ -206,20 +214,20 @@ int main(int argc, char * argv[])
         objectManager.Add(cube);
 
         Light* light = new Light();
-        light->name = "light";
+        light->name = lightNames[i];
         light->shader = &lightShader;
         light->color = glm::vec4(lightColors[i], 1.0f);
         light->position = lightPositions[i];
         light->scale = glm::vec3(0.5f);
-        lightManager.Add(light);
+        objectManager.Add(light);
     }
 
-    Quad floor;
-    floor.name = "Floor Plane";
-    floor.shader = &genericShader;
-    floor.texture = tex1;
-    floor.position = glm::vec3(0.0f, -5.0f, 0.0f);
-    objectManager.Add(&floor);
+    //Quad floor;
+    //floor.name = "Floor Plane";
+    //floor.shader = &genericShader;
+    //floor.texture = tex1;
+    //floor.position = glm::vec3(0.0f, -5.0f, 0.0f);
+    //objectManager.Add(&floor);
 
     // ===================================================================
     // Rendering Loop
@@ -268,9 +276,6 @@ int main(int argc, char * argv[])
 
             // Draw scene
             objectManager.Draw();
-
-            // Draw lights
-            lightManager.Draw(uboLights);
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }

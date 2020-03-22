@@ -32,6 +32,9 @@ public:
     void Draw();
 
     std::vector<GlObject*> objectList;
+    // TODO better way to do this with UBOs?
+    // Maybe inside a resource manager?
+    GLuint uboLights;
 };
 
 #endif // OBJECT_MANAGER_H

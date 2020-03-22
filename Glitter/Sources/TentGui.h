@@ -21,9 +21,7 @@ public:
     void ShowSceneHierarchy(ObjectManager&);
     void ShowPrimitiveGenerator(ObjectManager&);
     void ShowObjects(ObjectManager&);
-    void ShowLights(LightManager);
     void ShowInspector(GlObject*);
-    void ShowInspector(Light*);
     // =================================
 
     void ShowRenderPasses();
