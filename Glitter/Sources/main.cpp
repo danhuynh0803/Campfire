@@ -566,7 +566,13 @@ void ShowInspector(GlObject* object)
 
     }
 
-    ImGui::Checkbox("Is Active", &object->isActive);
+    ImGui::Checkbox("", &object->isActive);
+    ImGui::SameLine();
+    // TODO: cleaner way of doing this somehow?
+    char tag[128];
+    strcpy(tag, object->name.c_str());
+    ImGui::InputText("Tag", tag, 128);
+    object->name.assign(tag);
 
     { // Transform info
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
