@@ -283,7 +283,10 @@ int main(int argc, char * argv[])
             int i = 0;
             for (auto renderObject : objectManager.objectList)
             {
-                renderObject->Draw();
+                if (renderObject->isActive)
+                {
+                    renderObject->Draw();
+                }
                 ++i;
             }
 
@@ -379,6 +382,7 @@ int main(int argc, char * argv[])
                 {
                     for (int i = 0; i < renderPasses.size(); ++i)
                     {
+                        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
                         if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
                         {
                             ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(SCR_WIDTH/4, SCR_HEIGHT/4), ImVec2(0,1), ImVec2(1,0));
@@ -553,11 +557,19 @@ void ShowInspector(GlObject* object)
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
 
+    // TODO highlight the selected object in the scene
+    {
+
+    }
+
     { // TODO Draw object local coordinates to show orientation
 
     }
 
+    ImGui::Checkbox("Is Active", &object->isActive);
+
     { // Transform info
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Transform"))
         {
             float position[3] = {
@@ -591,6 +603,7 @@ void ShowInspector(GlObject* object)
     }
 
     { // Mesh details
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh Details"))
         {
             // TODO allow loading up new texture and shader
@@ -611,18 +624,12 @@ void ShowInspector(GlObject* object)
     ImGui::End();
 }
 
-void ShowSceneHierarchy()
+void ShowObjects(ObjectManager manager)
 {
-    ImGui::Begin("Scene Hierarchy");
-
-    ShowPrimitiveGenerator();
-
-    ImGui::Separator();
     // List all GLObjects within scene
     ImGui::Text("Scene Objects");
-
-    int i = 0;
     static int selected = -1;
+    int i = 0;
     for (auto object : objectManager.objectList)
     {
         char buf[32];
@@ -636,8 +643,22 @@ void ShowSceneHierarchy()
 
     if (selected != -1)
     {
-        ShowInspector(objectManager.objectList[selected]);
+        ShowInspector(manager.objectList[selected]);
     }
+}
+
+void ShowSceneHierarchy()
+{
+    ImGui::Begin("Scene Hierarchy");
+
+    ShowPrimitiveGenerator();
+
+    ImGui::Separator();
+
+    ShowObjects(objectManager);
+
+    ImGui::Separator();
+    //ShowObjects(lightManager);
 
     ImGui::End();
 }

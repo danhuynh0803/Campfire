@@ -27,6 +27,8 @@ public:
 
     // TODO should there be a default texture and shader?
     Texture texture;
+
+    bool isActive = true;
 };
 
 #endif
