@@ -33,7 +33,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-void RenderGUI();
 
 // settings
 const unsigned int SCR_WIDTH = 1600;
@@ -61,9 +60,9 @@ ObjectManager objectManager;
 LightManager lightManager;
 std::vector<FrameBuffer> renderPasses;
 
-bool IMGUI_ENABLED = 1;
-
 ShaderController shaderController;
+
+TentGui tentGui;
 
 int main(int argc, char * argv[])
 {
@@ -92,15 +91,7 @@ int main(int argc, char * argv[])
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
     // Initialize imgui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
-    ImGui_ImplOpenGL3_Init("#version 450");
-    // Setup Dear ImGui style;
-    ImGui::StyleColorsDark();
-
+    tentGui.Init(mWindow);
 
     // use our shader program when we want to render an object
     Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
@@ -257,7 +248,7 @@ int main(int argc, char * argv[])
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        if (IMGUI_ENABLED)
+        if (tentGui.isEnabled)
         {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -326,7 +317,7 @@ int main(int argc, char * argv[])
 
         // ===================================================================
 
-        if (IMGUI_ENABLED)
+        if (tentGui.isEnabled)
         {
             // =============================================
             { // Displayer render pass outputs
@@ -348,7 +339,7 @@ int main(int argc, char * argv[])
                 ImGui::End();
             }
 
-            RenderGUI();
+            tentGui.RenderGUI(objectManager);
         }
 
         // Flip Buffers and Draw
@@ -382,353 +373,12 @@ int main(int argc, char * argv[])
     return EXIT_SUCCESS;
 }
 
-void ShowMetrics()
-{
-    ImGui::Begin("Metrics");
-    static bool animate = true;
-    ImGui::Checkbox("Animate", &animate);
-
-    static float values[90] = {};
-    static int values_offset = 0;
-    static double refresh_time = 0.0;
-    if (!animate || refresh_time == 0.0)
-        refresh_time = ImGui::GetTime();
-
-    while (refresh_time < ImGui::GetTime()) // Create dummy data at fixed 60 hz rate for the demo
-    {
-        static float phase = 0.0f;
-        values[values_offset] = cosf(phase);
-        values_offset = (values_offset+1) % IM_ARRAYSIZE(values);
-        phase += 0.10f*values_offset;
-        refresh_time += 1.0f/60.0f;
-    }
-
-    // Display Frame window
-    {
-        float average = 0.0f;
-        for (int n = 0; n < IM_ARRAYSIZE(values); n++)
-            average += values[n];
-        average /= (float)IM_ARRAYSIZE(values);
-        char overlay[32];
-        sprintf(overlay, "avg %f", average);
-        ImGui::PlotLines("Frame times", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0,80));
-    }
-
-    ImGui::End();
-}
-
-
-void ShowPrimitiveGenerator()
-{
-    static int objectIdx = -1;
-    const char* objects[] = {"Cube", "Quad", "Sphere", "Light"};
-    static Geometry selectedGeom = NONE;
-
-    ImGui::Text("Generate Primitive");
-    if (ImGui::Button("Geometry"))
-    {
-        ImGui::OpenPopup("selectPopup");
-    }
-    ImGui::SameLine();
-    ImGui::TextUnformatted(objectIdx == -1 ? "<None>" : objects[objectIdx]);
-    if (ImGui::BeginPopup("selectPopup"))
-    {
-        ImGui::Text("Primitives");
-        ImGui::Separator();
-        for (int i = 0; i < IM_ARRAYSIZE(objects); i++)
-        {
-            if (ImGui::Selectable(objects[i]))
-            {
-                objectIdx = i;
-                selectedGeom = static_cast<Geometry>(i);
-            }
-        }
-
-        ImGui::EndPopup();
-    }
-
-    static char tag[TAG_LENGTH] = "";
-    ImGui::InputTextWithHint("Tag", "Enter object tag here", tag, IM_ARRAYSIZE(tag));
-
-    static float position[3] = { 0.0f, 0.0f, 0.0f };
-    ImGui::DragFloat3("Position", position, 0.01f);
-    ImGui::Spacing();
-
-    static float rotation[3] = { 0.0f, 0.0f, 0.0f };
-    ImGui::DragFloat3("Rotation", rotation, 0.01f);
-    ImGui::Spacing();
-
-    static float scale[3] = { 1.0f, 1.0f, 1.0f };
-    ImGui::DragFloat3("Scale", scale, 0.01f);
-    ImGui::Spacing();
-
-    std::string tagString(tag);
-    if (ImGui::Button("Generate"))
-    {
-        objectManager.LoadObject(selectedGeom, tagString, position, rotation, scale);
-    }
-}
-
-void ShowInspector(Light* object)
-{
-    // Show and be able to modify information on selected object
-    ImGui::Begin("Light Inspector");
-
-    // TODO highlight the selected object in the scene
-    {
-
-    }
-
-    { // TODO Draw object local coordinates to show orientation
-
-    }
-
-    ImGui::Checkbox("", &object->isActive);
-    ImGui::SameLine();
-    // TODO: cleaner way of doing this somehow?
-    char tag[TAG_LENGTH];
-    strcpy(tag, object->name.c_str());
-    ImGui::InputText("Tag", tag, IM_ARRAYSIZE(tag));
-    object->name.assign(tag);
-
-    { // Transform info
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Transform"))
-        {
-            float position[3] = {
-                object->position.x,
-                object->position.y,
-                object->position.z
-            };
-            ImGui::DragFloat3("Position", position, 0.01f);
-            object->position = glm::make_vec3(position);
-            ImGui::Spacing();
-
-            float rotation[3] = {
-                object->rotation.x,
-                object->rotation.y,
-                object->rotation.z
-            };
-            ImGui::DragFloat3("Rotation", rotation, 0.1f);
-            object->rotation = glm::make_vec3(rotation);
-            ImGui::Spacing();
-
-            float scale[3] = {
-                object->scale.x,
-                object->scale.y,
-                object->scale.z
-            };
-            ImGui::DragFloat3("Scale", scale, 0.01f);
-            object->scale = glm::make_vec3(scale);
-            ImGui::TreePop();
-        }
-        ImGui::Separator();
-    }
-
-    { // Attenuation factors
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Light Settings"))
-        {
-            float linear = object->linear;
-            float quadratic = object->quadratic;
-            float* color = glm::value_ptr(object->color);
-
-            ImGui::ColorEdit4("Light Color", color);
-            ImGui::DragFloat("Linear", &linear, 0.01f);
-            ImGui::DragFloat("Quadratic", &quadratic, 0.01f);
-
-            object->color = glm::make_vec4(color);
-            object->linear = linear;
-            object->quadratic = quadratic;
-
-            ImGui::TreePop();
-        }
-    }
-
-    { // TODO what other details to add?
-    }
-
-    ImGui::End();
-}
-
-
-void ShowInspector(GlObject* object)
-{
-    // Show and be able to modify information on selected object
-    ImGui::Begin("Inspector");
-
-    // TODO highlight the selected object in the scene
-    {
-
-    }
-
-    { // TODO Draw object local coordinates to show orientation
-
-    }
-
-    ImGui::Checkbox("", &object->isActive);
-    ImGui::SameLine();
-    // TODO: cleaner way of doing this somehow?
-    char tag[TAG_LENGTH];
-    strcpy(tag, object->name.c_str());
-    ImGui::InputText("Tag", tag, IM_ARRAYSIZE(tag));
-    object->name.assign(tag);
-
-    { // Transform info
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Transform"))
-        {
-            float position[3] = {
-                object->position.x,
-                object->position.y,
-                object->position.z
-            };
-            ImGui::DragFloat3("Position", position, 0.01f);
-            object->position = glm::make_vec3(position);
-            ImGui::Spacing();
-
-            float rotation[3] = {
-                object->rotation.x,
-                object->rotation.y,
-                object->rotation.z
-            };
-            ImGui::DragFloat3("Rotation", rotation, 0.1f);
-            object->rotation = glm::make_vec3(rotation);
-            ImGui::Spacing();
-
-            float scale[3] = {
-                object->scale.x,
-                object->scale.y,
-                object->scale.z
-            };
-            ImGui::DragFloat3("Scale", scale, 0.01f);
-            object->scale = glm::make_vec3(scale);
-            ImGui::TreePop();
-        }
-        ImGui::Separator();
-    }
-
-    { // Mesh details
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Mesh Details"))
-        {
-            // TODO allow loading up new texture and shader
-            Texture objectTex = object->texture;
-            ImGui::Text("Tex: %s", objectTex.GetName().c_str());
-            ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
-
-            ImGui::TreePop();
-        }
-        ImGui::Separator();
-    }
-
-    { // TODO what other details to add?
-
-    }
-
-    ImGui::End();
-}
-
-void ShowObjects(ObjectManager manager)
-{
-    static int selected = -1;
-
-    ImGui::Text("Scene Objects");
-    // TODO
-    // Note: the number 105 was just chosen by eye
-    // Eventually figure out a way that takes into account the button's width
-    ImGui::SameLine(ImGui::GetWindowWidth()-105);
-    if (ImGui::Button("Remove Object") && selected != -1)
-    {
-        manager.RemoveObject(selected);
-        selected = -1;
-    }
-
-    int i = 0;
-    for (auto object : manager.objectList)
-    {
-        char tag[TAG_LENGTH];
-        sprintf(tag, "Idx:%d\t Tag:%s", i, object->name.c_str());
-        if (ImGui::Selectable(tag, selected == i))
-        {
-            selected = i;
-        }
-        ++i;
-    }
-
-    if (selected != -1)
-    {
-        ShowInspector(manager.objectList[selected]);
-    }
-}
-
-void ShowLights(LightManager manager)
-{
-    static int selected = -1;
-
-    ImGui::Text("Light Objects");
-    // TODO
-    // Note: the number 105 was just chosen by eye
-    // Eventually figure out a way that takes into account the button's width
-    ImGui::SameLine(ImGui::GetWindowWidth()-105);
-    if (ImGui::Button("Remove Object") && selected != -1)
-    {
-        //DeleteObject(selected);
-        selected = -1;
-    }
-
-    int i = 0;
-    for (auto object : manager.objectList)
-    {
-        char tag[TAG_LENGTH];
-        sprintf(tag, "Idx:%d\t Tag:%s", i, object->name.c_str());
-        if (ImGui::Selectable(tag, selected == i))
-        {
-            selected = i;
-        }
-        ++i;
-    }
-
-    if (selected != -1)
-    {
-        ShowInspector(manager.objectList[selected]);
-    }
-
-}
-
-void ShowSceneHierarchy()
-{
-    ImGui::Begin("Scene Hierarchy");
-
-    ShowPrimitiveGenerator();
-
-    ImGui::Separator();
-
-    ShowObjects(objectManager);
-
-    ImGui::Separator();
-
-    ShowLights(lightManager);
-
-    ImGui::End();
-}
-
-
-void RenderGUI()
-{
-    ShowSceneHierarchy();
-    ShowMetrics();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
 
 void processInputOnce(GLFWwindow *window)
 {
 
 }
+
 // TODO move this into an input handler
 // maybe need shared data update all necessary info
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -785,7 +435,7 @@ void processInput(GLFWwindow *window)
         int newState1 = glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT);
         if (newState1 == GLFW_PRESS && oldState1 == GLFW_RELEASE)
         {
-            IMGUI_ENABLED ^= 1;
+            tentGui.isEnabled ^= 1;
         }
         oldState1 = newState1;
     }
