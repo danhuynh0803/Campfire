@@ -33,9 +33,13 @@ public:
         int i = 0;
         for (auto light : objectList)
         {
+            glm::vec4 color = light->color;
             if (!light->isActive)
             {
-                continue;
+                // If light is inactive, set color to 0
+                // this is to overwrite old data stored
+                // within the UBO
+                color = glm::vec4(0.0f);
             }
 
             glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
@@ -52,7 +56,7 @@ public:
             glBufferSubData(GL_UNIFORM_BUFFER,
                     3*sizeof(glm::vec4)*i + sizeof(glm::vec4),
                     sizeof(glm::vec4),
-                    glm::value_ptr(static_cast<Light*>(light)->color));
+                    glm::value_ptr(color));
 
             // Attenuation factors
             glm::vec4 attenuation =
