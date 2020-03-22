@@ -24,6 +24,7 @@
 #include "Light.h"
 #include "Texture.h"
 #include "ObjectManager.h"
+#include "LightManager.h"
 #include "FrameBuffer.h"
 #include "Cube.h"
 #include "Quad.h"
@@ -38,6 +39,8 @@ void RenderGUI();
 const unsigned int SCR_WIDTH = 1600;
 const unsigned int SCR_HEIGHT = 900;
 
+const int TAG_LENGTH = 32;
+
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -50,15 +53,14 @@ float lastFrame = 0.0f;
 float texMix = 0.2f;
 
 // TODO: move buffers to their own classes at some point
-unsigned int VAO;
-unsigned int uboLights;
-std::vector<Light> lights;
+GLuint VAO;
+GLuint uboLights;
 std::vector<glm::vec3> boxPositions;
 
 ShaderController shaderController;
 
 ObjectManager objectManager;
-ObjectManager lightManager;
+LightManager lightManager;
 std::vector<FrameBuffer> renderPasses;
 
 bool IMGUI_ENABLED = 1;
@@ -126,34 +128,27 @@ int main(int argc, char * argv[])
     //
     std::vector<glm::vec3> lightPositions = {
         glm::vec3( 1.0f,  0.0f,  0.0f),
-        glm::vec3(-1.0f,  1.0f,  0.0f),
-        glm::vec3(-1.0f,  0.0f,  0.0f),
-        glm::vec3( 1.0f,  0.0f,  0.0f),
-        glm::vec3( 0.0f, -1.0f,  0.0f),
+        glm::vec3(-5.0f,  2.0f,  0.0f),
+        glm::vec3( 5.0f, -3.0f, -1.0f),
+        glm::vec3( 0.0f, -2.0f,  1.0f),
+        glm::vec3( 3.0f,  1.0f,  2.0f),
     };
 
     std::vector<glm::vec3> lightColors = {
-        glm::vec3(1.0f, 0.3f, 0.3f), // red
+        glm::vec3(1.0f, 0.0f, 0.0f), // red
         glm::vec3(0.0f, 1.0f, 0.0f), // green
         glm::vec3(0.0f, 0.0f, 1.0f), // blue
-        glm::vec3(1.0f, 1.0f, 0.0f), // yellow
-        glm::vec3(0.0f, 1.0f, 1.0f), // purple
+        glm::vec3(1.0f, 0.0f, 1.0f), // purple
+        glm::vec3(0.0f, 1.0f, 1.0f), // cyan
     };
-
-    for (int i = 0; i < lightPositions.size(); ++i)
-    {
-        lights.push_back(
-            Light(glm::vec4(lightPositions[i], 1.0f), glm::vec4(lightColors[i], 1.0f))
-        );
-    }
 
     // TODO move model info into GlObjects
     boxPositions = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 0.1f,  0.0f, -1.5f),
-        glm::vec3(-3.5f,  2.5f, -4.0f),
-        glm::vec3(-2.4f, -0.5f, -5.0f),
-        glm::vec3( 1.5f, -1.0f, -7.0f),
+        glm::vec3( 2.0f,  0.0f,  0.0f),
+        glm::vec3(-5.0f,  3.0f,  0.0f),
+        glm::vec3( 5.0f, -3.0f, -2.0f),
+        glm::vec3( 1.0f, -2.0f,  1.0f),
+        glm::vec3( 3.0f,  2.0f,  2.0f),
     };
 
     // ===================================================================
@@ -219,9 +214,10 @@ int main(int argc, char * argv[])
         cube->position = boxPositions[i];
         objectManager.Add(cube);
 
-        Cube* light = new Cube();
+        Light* light = new Light();
         light->name = "light";
         light->shader = lightShader;
+        light->color = glm::vec4(lightColors[i], 1.0f);
         light->position = lightPositions[i];
         light->scale = glm::vec3(0.5f);
         lightManager.Add(light);
@@ -280,53 +276,10 @@ int main(int argc, char * argv[])
             glEnable(GL_DEPTH_TEST);
 
             // Draw scene
-            int i = 0;
-            for (auto renderObject : objectManager.objectList)
-            {
-                if (renderObject->isActive)
-                {
-                    renderObject->Draw();
-                }
-                ++i;
-            }
+            objectManager.Draw();
 
-            i = 0;
-            for (auto lightObject : lightManager.objectList)
-            {
-                glm::vec3 newPos = lights[i].pos;
-                glm::vec3 scale(0.5f);
-                if (i == 0)
-                {
-                    float radius = 5.0f;
-                    float omega = 1.0f;
-
-                    newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
-                            0.0f,
-                            sin(omega * glfwGetTime()));
-                }
-
-                glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-                // Send in light info to light UBO
-                glBufferSubData(GL_UNIFORM_BUFFER,
-                        2*sizeof(glm::vec4)*i,
-                        sizeof(glm::vec4),
-                        glm::value_ptr(newPos));
-
-                glBufferSubData(GL_UNIFORM_BUFFER,
-                        2*sizeof(glm::vec4)*i + sizeof(glm::vec4),
-                        sizeof(glm::vec4),
-                        glm::value_ptr(lights[i].color));
-
-                glBindBuffer(GL_UNIFORM_BUFFER, 0);
-                glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
-
-                lightObject->shader.use();
-                glUniform3fv(glGetUniformLocation(lightShader.ID, "lightColor"), 1, glm::value_ptr(lights[i].color));
-
-                lightObject->position = newPos;
-                lightObject->Draw(scale);
-                ++i;
-            }
+            // Draw lights
+            lightManager.Draw(uboLights);
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
@@ -470,6 +423,7 @@ enum Geometry { CUBE, QUAD, SPHERE, NONE };
 void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
 {
     Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
+    // TODO Default texture object
     Texture tempTex("Textures/wall.jpg");
 
     GlObject* object;
@@ -535,7 +489,7 @@ void ShowPrimitiveGenerator()
         ImGui::EndPopup();
     }
 
-    static char tag[128] = "";
+    static char tag[TAG_LENGTH] = "";
     ImGui::InputTextWithHint("Tag", "Enter object tag here", tag, IM_ARRAYSIZE(tag));
 
     static float position[3] = { 0.0f, 0.0f, 0.0f };
@@ -574,9 +528,9 @@ void ShowInspector(GlObject* object)
     ImGui::Checkbox("", &object->isActive);
     ImGui::SameLine();
     // TODO: cleaner way of doing this somehow?
-    char tag[128];
+    char tag[TAG_LENGTH];
     strcpy(tag, object->name.c_str());
-    ImGui::InputText("Tag", tag, 128);
+    ImGui::InputText("Tag", tag, IM_ARRAYSIZE(tag));
     object->name.assign(tag);
 
     { // Transform info
@@ -653,9 +607,9 @@ void ShowObjects(ObjectManager manager)
     int i = 0;
     for (auto object : objectManager.objectList)
     {
-        char buf[32];
-        sprintf(buf, "Idx:%d\t Tag:%s", i, object->name.c_str());
-        if (ImGui::Selectable(buf, selected == i))
+        char tag[TAG_LENGTH];
+        sprintf(tag, "Idx:%d\t Tag:%s", i, object->name.c_str());
+        if (ImGui::Selectable(tag, selected == i))
         {
             selected = i;
         }

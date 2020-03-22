@@ -8,6 +8,17 @@ struct Light
 {
     vec4 pos;
     vec4 color;
+
+    //vec4 ambient;
+    //vec4 diffuse;
+    //vec4 specular;
+
+    // packed into a vec4
+    //x: constant
+    //y: linear
+    //z: quadratic
+    //w: padding
+    vec4 attenFactors;
 };
 
 // =========================================
@@ -40,24 +51,36 @@ uniform sampler2D texIn;
 //    return (2.0f * near * far) / (far + near - z * (far - near));
 //}
 
+//vec3 CalcPointLight()
+//{
+//
+//}
+
 // =========================================
 vec3 Phong()
 {
     vec3 albedo = texture(texIn, uvCoords).rgb;
-    float ambient = 0.2f;
     float specularCoeff = 0.0f;
     vec3 diffuse = vec3(0.0f);
     vec3 specular = vec3(0.0f);
 
+    vec3 ambient = 0.1f * albedo;
     for (int i = 0; i < lights.length(); ++i)
     {
-        vec3 Li = normalize(lights[i].pos.xyz - position);
+        vec4 attenFactor = lights[i].attenFactors;
+        float distance = length(lights[i].pos.xyz - position);
+        float attenuation = 1.0f / (attenFactor[0] + attenFactor[1]*distance + attenFactor[2]*(distance*distance));
+
+        ambient *= attenuation;
+
         // Diffuse portion
-        diffuse += max(0.0f, dot(Li, normal)) * lights[i].color.rgb;
+        vec3 Li = normalize(lights[i].pos.xyz - position);
+        diffuse += max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
     }
 
     vec3 totalColor = (ambient + diffuse + specular) * albedo;
 
+    //return vec3(lights[0].attenFactors[1]);
     return totalColor;
 }
 
@@ -65,4 +88,5 @@ vec3 Phong()
 void main()
 {
     fragColor = vec4(Phong(), 1.0f);
+    //fragColor = vec4(1.0f);
 }

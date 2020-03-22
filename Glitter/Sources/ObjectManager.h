@@ -8,6 +8,16 @@
 class ObjectManager
 {
 public:
+
+    ~ObjectManager()
+    {
+        // TODO crash
+        //for (auto objectPtr : objectList)
+        //{
+        //    delete(objectPtr);
+        //}
+    }
+
     void Add(GlObject* object)
     {
         objectList.push_back(object);
@@ -18,10 +28,12 @@ public:
 
     void Draw()
     {
-        for (auto renderObject : objectList)
+        for (auto objectPtr: objectList)
         {
-            //TODO
-            //renderObject->Draw(tex1, boxPositions[i]);
+            if (objectPtr->isActive)
+            {
+                objectPtr->Draw();
+            }
         }
     }
 
