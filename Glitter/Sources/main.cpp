@@ -492,13 +492,18 @@ void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], flo
     objectManager.Add(object);
 }
 
-void DeleteObject()
+void DeleteObject(int index)
 {
-    // Erase the last element
     if (!objectManager.objectList.empty())
     {
-        objectManager.objectList.erase(objectManager.objectList.end()-1);
+        objectManager.objectList.erase(objectManager.objectList.begin() + index);
     }
+}
+
+void DeleteObject(GlObject *object)
+{
+    // TODO
+    // Find object and delete it
 }
 
 void ShowPrimitiveGenerator()
@@ -632,9 +637,19 @@ void ShowInspector(GlObject* object)
 
 void ShowObjects(ObjectManager manager)
 {
-    // List all GLObjects within scene
-    ImGui::Text("Scene Objects");
     static int selected = -1;
+
+    ImGui::Text("Scene Objects");
+    // TODO
+    // Note: the number 105 was just chosen by eye
+    // Eventually figure out a way that takes into account the button's width
+    ImGui::SameLine(ImGui::GetWindowWidth()-105);
+    if (ImGui::Button("Delete Object") && selected != -1)
+    {
+        DeleteObject(selected);
+        selected = -1;
+    }
+
     int i = 0;
     for (auto object : objectManager.objectList)
     {
@@ -695,16 +710,6 @@ void processInput(GLFWwindow *window)
     if (io.WantCaptureKeyboard)
     {
         return;
-    }
-
-    // Load and Delete
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-    {
-        //LoadObject();
-    }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-    {
-        //DeleteObject();
     }
 
     // Quit
