@@ -19,7 +19,7 @@ public:
         //}
     }
 
-    void Add(GlObject* object)
+    void Add(Light* object)
     {
         objectList.push_back(object);
     }
@@ -33,17 +33,10 @@ public:
         int i = 0;
         for (auto light : objectList)
         {
-            glm::vec3 newPos = light->position;
-
-            //if (i == 0)
-            //{
-            //    float radius = 5.0f;
-            //    float omega = 1.0f;
-
-            //    newPos += radius * glm::vec3(cos(omega * glfwGetTime()),
-            //            0.0f,
-            //            sin(omega * glfwGetTime()));
-            //}
+            if (!light->isActive)
+            {
+                continue;
+            }
 
             glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
 
@@ -53,7 +46,7 @@ public:
             glBufferSubData(GL_UNIFORM_BUFFER,
                     3*sizeof(glm::vec4)*i,
                     sizeof(glm::vec4),
-                    glm::value_ptr(newPos));
+                    glm::value_ptr(light->position));
 
             // Color
             glBufferSubData(GL_UNIFORM_BUFFER,
@@ -83,13 +76,12 @@ public:
             light->shader.use();
             glUniform3fv(glGetUniformLocation(light->shader.ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(light)->color));
 
-            light->position = newPos;
             light->Draw();
             ++i;
         }
     }
 
-    std::vector<GlObject*> objectList;
+    std::vector<Light*> objectList;
 };
 
 #endif // OBJECT_MANAGER_H

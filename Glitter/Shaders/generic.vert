@@ -26,5 +26,7 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
     position = vec3(model*vec4(aPos, 1.0f));
     uvCoords = aTexCoords;
-    normal = aNormal;
+
+    // TODO find a way to not do this too often
+    normal = mat3(transpose(inverse(model))) * aNormal;
 }

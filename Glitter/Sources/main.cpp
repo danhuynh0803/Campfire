@@ -511,6 +511,89 @@ void ShowPrimitiveGenerator()
     }
 }
 
+void ShowInspector(Light* object)
+{
+    // Show and be able to modify information on selected object
+    ImGui::Begin("Light Inspector");
+
+    // TODO highlight the selected object in the scene
+    {
+
+    }
+
+    { // TODO Draw object local coordinates to show orientation
+
+    }
+
+    ImGui::Checkbox("", &object->isActive);
+    ImGui::SameLine();
+    // TODO: cleaner way of doing this somehow?
+    char tag[TAG_LENGTH];
+    strcpy(tag, object->name.c_str());
+    ImGui::InputText("Tag", tag, IM_ARRAYSIZE(tag));
+    object->name.assign(tag);
+
+    { // Transform info
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Transform"))
+        {
+            float position[3] = {
+                object->position.x,
+                object->position.y,
+                object->position.z
+            };
+            ImGui::DragFloat3("Position", position, 0.01f);
+            object->position = glm::make_vec3(position);
+            ImGui::Spacing();
+
+            float rotation[3] = {
+                object->rotation.x,
+                object->rotation.y,
+                object->rotation.z
+            };
+            ImGui::DragFloat3("Rotation", rotation, 0.1f);
+            object->rotation = glm::make_vec3(rotation);
+            ImGui::Spacing();
+
+            float scale[3] = {
+                object->scale.x,
+                object->scale.y,
+                object->scale.z
+            };
+            ImGui::DragFloat3("Scale", scale, 0.01f);
+            object->scale = glm::make_vec3(scale);
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+    { // Attenuation factors
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Light Settings"))
+        {
+            float linear = object->linear;
+            float quadratic = object->quadratic;
+            float* color = glm::value_ptr(object->color);
+
+            ImGui::ColorEdit4("Light Color", color);
+            ImGui::DragFloat("Linear", &linear, 0.01f);
+            ImGui::DragFloat("Quadratic", &quadratic, 0.01f);
+
+            object->color = glm::make_vec4(color);
+            object->linear = linear;
+            object->quadratic = quadratic;
+
+            ImGui::TreePop();
+        }
+    }
+
+    { // TODO what other details to add?
+    }
+
+    ImGui::End();
+}
+
+
 void ShowInspector(GlObject* object)
 {
     // Show and be able to modify information on selected object
@@ -605,7 +688,7 @@ void ShowObjects(ObjectManager manager)
     }
 
     int i = 0;
-    for (auto object : objectManager.objectList)
+    for (auto object : manager.objectList)
     {
         char tag[TAG_LENGTH];
         sprintf(tag, "Idx:%d\t Tag:%s", i, object->name.c_str());
@@ -622,6 +705,40 @@ void ShowObjects(ObjectManager manager)
     }
 }
 
+void ShowLights(LightManager manager)
+{
+    static int selected = -1;
+
+    ImGui::Text("Light Objects");
+    // TODO
+    // Note: the number 105 was just chosen by eye
+    // Eventually figure out a way that takes into account the button's width
+    ImGui::SameLine(ImGui::GetWindowWidth()-105);
+    if (ImGui::Button("Delete Object") && selected != -1)
+    {
+        DeleteObject(selected);
+        selected = -1;
+    }
+
+    int i = 0;
+    for (auto object : manager.objectList)
+    {
+        char tag[TAG_LENGTH];
+        sprintf(tag, "Idx:%d\t Tag:%s", i, object->name.c_str());
+        if (ImGui::Selectable(tag, selected == i))
+        {
+            selected = i;
+        }
+        ++i;
+    }
+
+    if (selected != -1)
+    {
+        ShowInspector(manager.objectList[selected]);
+    }
+
+}
+
 void ShowSceneHierarchy()
 {
     ImGui::Begin("Scene Hierarchy");
@@ -633,7 +750,8 @@ void ShowSceneHierarchy()
     ShowObjects(objectManager);
 
     ImGui::Separator();
-    //ShowObjects(lightManager);
+
+    ShowLights(lightManager);
 
     ImGui::End();
 }
