@@ -28,7 +28,7 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
     {
         case CUBE: object = new Cube(); break;
         case QUAD: object = new Quad(); break;
-        //case SPHERE: static_cast<Cube*>(object); break;
+        //case SPHERE: object = new Sphere(); break;
         case LIGHT: object = new Light(); break;
         case NONE: return;
         default: return;
@@ -83,13 +83,12 @@ void ObjectManager::Draw()
             // Attenuation factors
             glm::vec4 attenuation =
                 glm::vec4(
-                        static_cast<Light*>(light)->constant,
-                        static_cast<Light*>(light)->linear,
-                        static_cast<Light*>(light)->quadratic,
-                        0.0f // padding
-                        );
+                    light->constant,
+                    light->linear,
+                    light->quadratic,
+                    0.0f // padding
+                );
 
-            //printf("(%f, %f, %f, %f)\n", attenuation.x, attenuation.y, attenuation.z, attenuation.w);
             glBufferSubData(GL_UNIFORM_BUFFER,
                     3*sizeof(glm::vec4)*i + 2*sizeof(glm::vec4),
                     sizeof(glm::vec4),

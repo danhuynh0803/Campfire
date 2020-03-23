@@ -229,9 +229,20 @@ void TentGui::ShowInspector(GlObject* object)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh Details"))
         {
-            // TODO allow loading up new texture and shader
             Texture objectTex = object->texture;
-            ImGui::Text("Tex: %s", objectTex.GetName().c_str());
+            static char tex[64];
+            strcpy(tex, objectTex.GetName().c_str());
+            ImGui::InputText("Texture", tex, IM_ARRAYSIZE(tag));
+
+            // TODO allow loading up new texture and shader
+            //if (strcmp(tex, objectTex.GetName().c_str()) != 0)
+            //{
+            //    std::string texPath;
+            //    texPath.assign(tex);
+            //    Texture newTexture(tex);
+            //    object->texture = newTexture;
+            //}
+
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
             ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
 
