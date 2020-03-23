@@ -40,8 +40,10 @@ const unsigned int SCR_HEIGHT = 900;
 
 const int TAG_LENGTH = 32;
 
-// camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+// cameras
+Camera camera(glm::vec3(0.0f, 1.0f, 7.0f));
+Camera gameCamera(glm::vec3(0.0f, 0.0f, 5.0f));
+
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -49,19 +51,29 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
-float texMix = 0.2f;
 
 // TODO: move buffers to their own classes at some point
 GLuint VAO;
 GLuint uboLights;
-std::vector<glm::vec3> boxPositions;
 
 ObjectManager objectManager;
+// TODO move to resource manager
 std::vector<FrameBuffer> renderPasses;
 
+// TODO move to resource manager
 ShaderController shaderController;
+// TODO move to resource manager
+// TextureMaster
 
 TentGui tentGui;
+
+enum State { SCENE, PLAY, PAUSE };
+struct Game
+{
+    State state = SCENE;
+};
+
+Game GAME;
 
 int main(int argc, char * argv[])
 {
@@ -141,7 +153,7 @@ int main(int argc, char * argv[])
     };
 
     // TODO move model info into GlObjects
-    boxPositions = {
+    std::vector<glm::vec3> boxPositions = {
         glm::vec3( 2.0f,  0.0f,  0.0f),
         glm::vec3(-5.0f,  3.0f,  0.0f),
         glm::vec3( 5.0f, -3.0f, -2.0f),
@@ -244,11 +256,21 @@ int main(int argc, char * argv[])
 
         processInput(mWindow);
 
-        glm::mat4 view  = glm::mat4(1.0f);
-        view = camera.GetViewMatrix();
-
-        glm::mat4 proj  = glm::mat4(1.0f);
-        proj = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH/(float)SCR_HEIGHT, 0.1f, 100.0f);
+        // TODO
+        // Set camera based off game state
+        // if GAME is playing then use game camera
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 proj = glm::mat4(1.0f);
+        if (GAME.state == PLAY)
+        {
+            view = gameCamera.GetViewMatrix();
+            proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+        }
+        else
+        {
+            view = camera.GetViewMatrix();
+            proj = camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+        }
 
         // Send the view and projection matrices to the UBO
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
@@ -324,6 +346,9 @@ int main(int argc, char * argv[])
 
         if (tentGui.isEnabled)
         {
+            tentGui.ShowCamera(camera);
+            tentGui.ShowCamera(gameCamera);
+
             // =============================================
             { // Displayer render pass outputs
                 ImGui::Begin("Render Passes Outputs");
@@ -414,11 +439,11 @@ void processInput(GLFWwindow *window)
     // Camera speed increase
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        camera.MovementSpeed = maxSpeed;
+        camera.MovementSpeed = camera.maxSpeed;
     }
     else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
     {
-        camera.MovementSpeed = normalSpeed;
+        camera.MovementSpeed = camera.normalSpeed;
     }
 
     // TODO move to input handler so that
@@ -441,6 +466,10 @@ void processInput(GLFWwindow *window)
         if (newState1 == GLFW_PRESS && oldState1 == GLFW_RELEASE)
         {
             tentGui.isEnabled ^= 1;
+            if (tentGui.isEnabled)
+                GAME.state = SCENE;
+            else
+                GAME.state = PLAY;
         }
         oldState1 = newState1;
     }

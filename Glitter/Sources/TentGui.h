@@ -7,7 +7,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "ObjectManager.h"
-#include "LightManager.h"
+#include "Camera.h"
 
 class TentGui
 {
@@ -16,6 +16,7 @@ public:
 
     void RenderGUI(ObjectManager&);
 
+    void ShowCamera(Camera&);
     // =================================
     // Scene related
     void ShowSceneHierarchy(ObjectManager&);

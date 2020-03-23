@@ -1,6 +1,7 @@
 #include "TentGui.h"
 
 #include "GlObject.h"
+#include "Light.h"
 
 const int TAG_LENGTH = 32;
 
@@ -23,6 +24,25 @@ void TentGui::RenderGUI(ObjectManager& manager)
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+void TentGui::ShowCamera(Camera& cam)
+{
+    ImGui::Begin("Camera");
+
+    float position[3] = {
+        cam.Position.x,
+        cam.Position.y,
+        cam.Position.z
+    };
+    ImGui::DragFloat3("Position", position, 0.01f);
+    ImGui::DragFloat("Near Plane", &cam.nearPlane, 0.01f);
+    ImGui::DragFloat("Far Plane" , &cam.farPlane , 0.01f);
+
+    ImGui::Separator();
+
+    ImGui::End();
+}
+
 
 void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
 {
