@@ -67,10 +67,10 @@ ShaderController shaderController;
 
 TentGui tentGui;
 
-enum State { SCENE, PLAY, PAUSE };
+enum State { PLAY, STOP, PAUSE };
 struct Game
 {
-    State state = SCENE;
+    State state = STOP;
 };
 
 Game GAME;
@@ -348,27 +348,7 @@ int main(int argc, char * argv[])
         {
             tentGui.ShowCamera(camera);
             tentGui.ShowCamera(gameCamera);
-
-            // =============================================
-            { // Displayer render pass outputs
-                ImGui::Begin("Render Passes Outputs");
-                if (ImGui::TreeNode("Render Passes"))
-                {
-                    for (int i = 0; i < renderPasses.size(); ++i)
-                    {
-                        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                        if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
-                        {
-                            ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(SCR_WIDTH/4, SCR_HEIGHT/4), ImVec2(0,1), ImVec2(1,0));
-                            ImGui::Separator();
-                            ImGui::TreePop();
-                        }
-                    }
-                    ImGui::TreePop();
-                }
-                ImGui::End();
-            }
-
+            tentGui.ShowRenderPasses(renderPasses);
             tentGui.RenderGUI(objectManager);
         }
 
@@ -467,7 +447,7 @@ void processInput(GLFWwindow *window)
         {
             tentGui.isEnabled ^= 1;
             if (tentGui.isEnabled)
-                GAME.state = SCENE;
+                GAME.state = STOP;
             else
                 GAME.state = PLAY;
         }

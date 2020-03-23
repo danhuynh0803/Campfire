@@ -8,12 +8,16 @@
 
 #include "ObjectManager.h"
 #include "Camera.h"
+#include "FrameBuffer.h"
+
+#include <vector>
 
 class TentGui
 {
 public:
     void Init(GLFWwindow*);
 
+    void RenderStateButtons();
     void RenderGUI(ObjectManager&);
 
     void ShowCamera(Camera&);
@@ -23,6 +27,7 @@ public:
     void ShowPrimitiveGenerator(ObjectManager&);
     void ShowObjects(ObjectManager&);
     void ShowInspector(GlObject*);
+    void ShowRenderPasses(const std::vector<FrameBuffer>&);
     // =================================
 
     void ShowRenderPasses();

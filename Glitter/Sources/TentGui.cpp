@@ -2,8 +2,24 @@
 
 #include "GlObject.h"
 #include "Light.h"
+#include "FrameBuffer.h"
+
+#include <vector>
 
 const int TAG_LENGTH = 32;
+
+static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
 
 void TentGui::Init(GLFWwindow* window)
 {
@@ -16,14 +32,46 @@ void TentGui::Init(GLFWwindow* window)
     ImGui::StyleColorsDark();
 }
 
+void TentGui::RenderStateButtons()
+{
+    ImGui::Begin("Game State");
+    static int state = 1; // State in stop state (scene mode)
+    ImGui::RadioButton("Play",  &state, 0); ImGui::SameLine();
+    ImGui::RadioButton("Stop",  &state, 1); ImGui::SameLine();
+    ImGui::RadioButton("Pause", &state, 2);
+    ImGui::End();
+}
+
 void TentGui::RenderGUI(ObjectManager& manager)
 {
+    RenderStateButtons();
     ShowSceneHierarchy(manager);
     ShowMetrics();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+void TentGui::ShowRenderPasses(const std::vector<FrameBuffer>& renderPasses)
+{
+    ImGui::Begin("Render Passes Outputs");
+    if (ImGui::TreeNode("Render Passes"))
+    {
+        for (int i = 0; i < renderPasses.size(); ++i)
+        {
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
+            {
+                ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(1600/4, 900/4), ImVec2(0,1), ImVec2(1,0));
+                ImGui::Separator();
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
+    ImGui::End();
+}
+
 
 void TentGui::ShowCamera(Camera& cam)
 {
@@ -51,27 +99,9 @@ void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
     static Geometry selectedGeom = NONE;
 
     ImGui::Text("Generate Primitive");
-    if (ImGui::Button("Geometry"))
-    {
-        ImGui::OpenPopup("selectPopup");
-    }
-    ImGui::SameLine();
-    ImGui::TextUnformatted(objectIdx == -1 ? "<None>" : objects[objectIdx]);
-    if (ImGui::BeginPopup("selectPopup"))
-    {
-        ImGui::Text("Primitives");
-        ImGui::Separator();
-        for (int i = 0; i < IM_ARRAYSIZE(objects); i++)
-        {
-            if (ImGui::Selectable(objects[i]))
-            {
-                objectIdx = i;
-                selectedGeom = static_cast<Geometry>(i);
-            }
-        }
-
-        ImGui::EndPopup();
-    }
+    ImGui::Combo("Geometry", &objectIdx, objects, IM_ARRAYSIZE(objects));
+    ImGui::SameLine(); HelpMarker("Select a geometry to spawn into the scene.\n");
+    selectedGeom = static_cast<Geometry>(objectIdx);
 
     static char tag[TAG_LENGTH] = "";
     ImGui::InputTextWithHint("Tag", "Enter object tag here", tag, IM_ARRAYSIZE(tag));
