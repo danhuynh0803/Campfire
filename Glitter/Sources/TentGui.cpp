@@ -30,6 +30,10 @@ void TentGui::Init(GLFWwindow* window)
     ImGui_ImplOpenGL3_Init("#version 450");
     // Setup Dear ImGui style;
     ImGui::StyleColorsDark();
+
+    // Configuration flags
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
 void TentGui::RenderStateButtons()
@@ -62,7 +66,8 @@ void TentGui::ShowRenderPasses(const std::vector<FrameBuffer>& renderPasses)
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
             if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
             {
-                ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(1600/4, 900/4), ImVec2(0,1), ImVec2(1,0));
+                // Scale texture with window
+                ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
                 ImGui::Separator();
                 ImGui::TreePop();
             }
@@ -98,7 +103,8 @@ void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
     const char* objects[] = {"Cube", "Quad", "Sphere", "Light"};
     static Geometry selectedGeom = NONE;
 
-    ImGui::Text("Generate Primitive");
+    ImGui::Begin("Generate Primitive");
+
     ImGui::Combo("Geometry", &objectIdx, objects, IM_ARRAYSIZE(objects));
     ImGui::SameLine(); HelpMarker("Select a geometry to spawn into the scene.\n");
     selectedGeom = static_cast<Geometry>(objectIdx);
@@ -123,6 +129,8 @@ void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
     {
         manager.LoadObject(selectedGeom, tagString, position, rotation, scale);
     }
+
+    ImGui::End();
 }
 
 
@@ -294,7 +302,7 @@ void TentGui::ShowInspector(GlObject* object)
             //}
 
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
+            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
 
             ImGui::TreePop();
         }
