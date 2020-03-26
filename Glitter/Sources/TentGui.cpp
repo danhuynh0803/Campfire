@@ -21,6 +21,7 @@ static void HelpMarker(const char* desc)
     }
 }
 
+
 void TentGui::Init(GLFWwindow* window)
 {
     IMGUI_CHECKVERSION();
@@ -36,22 +37,20 @@ void TentGui::Init(GLFWwindow* window)
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
-void TentGui::RenderStateButtons()
+void TentGui::RenderStateButtons(GameController& gc)
 {
     ImGui::Begin("Game State");
-    static int state = 1; // State in stop state (scene mode)
+    static int state = static_cast<int>(gc.state); // State in stop state (scene mode)
     ImGui::RadioButton("Play",  &state, 0); ImGui::SameLine();
     ImGui::RadioButton("Stop",  &state, 1); ImGui::SameLine();
     ImGui::RadioButton("Pause", &state, 2);
+    gc.state = static_cast<GameState>(state);
     ImGui::End();
 }
 
 void TentGui::RenderGUI(ObjectManager& manager)
 {
-    RenderStateButtons();
     ShowSceneHierarchy(manager);
-    ShowMetrics();
-
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -66,8 +65,20 @@ void TentGui::ShowRenderPasses(const std::vector<FrameBuffer>& renderPasses)
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
             if (ImGui::TreeNode((void*)(intptr_t)i, "%s", renderPasses[i].name))
             {
-                // Scale texture with window
-                ImGui::Image((void*)(intptr_t)renderPasses[i].texture.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
+                Texture objectTex = renderPasses[i].texture;
+                //float aspectRatio = (float)objectTex.width/objectTex.height;
+                //if (ImGui::GetWindowWidth() > ImGui::GetWindowHeight())
+                //{
+                //    // Scale texture with window
+                //    ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()/aspectRatio), ImVec2(0,1), ImVec2(1,0));
+                //}
+                //else
+                //{
+                //    ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowHeight()*aspectRatio, ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
+                //}
+
+                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2((float)1600/4, (float)900/4), ImVec2(0,1), ImVec2(1,0));
+
                 ImGui::Separator();
                 ImGui::TreePop();
             }
@@ -169,8 +180,7 @@ void TentGui::ShowObjects(ObjectManager& manager)
     }
 }
 
-
-void TentGui::ShowMetrics()
+void TentGui::ShowMetrics(double frameTime)
 {
     ImGui::Begin("Metrics");
     static bool animate = true;
@@ -184,10 +194,8 @@ void TentGui::ShowMetrics()
 
     while (refresh_time < ImGui::GetTime()) // Create dummy data at fixed 60 hz rate for the demo
     {
-        static float phase = 0.0f;
-        values[values_offset] = cosf(phase);
+        values[values_offset] = frameTime;
         values_offset = (values_offset+1) % IM_ARRAYSIZE(values);
-        phase += 0.10f*values_offset;
         refresh_time += 1.0f/60.0f;
     }
 
@@ -197,18 +205,105 @@ void TentGui::ShowMetrics()
         for (int n = 0; n < IM_ARRAYSIZE(values); n++)
             average += values[n];
         average /= (float)IM_ARRAYSIZE(values);
+
+        // Convert average frameTime to FPS
+        ImGui::Text("Average FPS: %lf", 1.0/average);
         char overlay[32];
-        sprintf(overlay, "avg %f", average);
+        sprintf(overlay, "avg: %f ms", average*1000);
         ImGui::PlotLines("Frame times", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0,80));
     }
     ImGui::End();
 }
 
 
+void EditTransform(const float *cameraView, float *cameraProjection, float* matrix)
+{
+    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+    static bool useSnap = false;
+    static float snap[3] = { 1.f, 1.f, 1.f };
+    static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+    static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+    static bool boundSizing = false;
+    static bool boundSizingSnap = false;
+
+    if (ImGui::IsKeyPressed(90))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(69))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(82)) // r Key
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+    ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+    ImGui::InputFloat3("Tr", matrixTranslation, 3);
+    ImGui::InputFloat3("Rt", matrixRotation, 3);
+    ImGui::InputFloat3("Sc", matrixScale, 3);
+    ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix);
+
+    if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    {
+        if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+            mCurrentGizmoMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+            mCurrentGizmoMode = ImGuizmo::WORLD;
+    }
+    if (ImGui::IsKeyPressed(83))
+        useSnap = !useSnap;
+    ImGui::Checkbox("", &useSnap);
+    ImGui::SameLine();
+
+    switch (mCurrentGizmoOperation)
+    {
+        case ImGuizmo::TRANSLATE:
+            ImGui::InputFloat3("Snap", &snap[0]);
+            break;
+        case ImGuizmo::ROTATE:
+            ImGui::InputFloat("Angle Snap", &snap[0]);
+            break;
+        case ImGuizmo::SCALE:
+            ImGui::InputFloat("Scale Snap", &snap[0]);
+            break;
+    }
+    ImGui::Checkbox("Bound Sizing", &boundSizing);
+    if (boundSizing)
+    {
+        ImGui::PushID(3);
+        ImGui::Checkbox("", &boundSizingSnap);
+        ImGui::SameLine();
+        ImGui::InputFloat3("Snap", boundsSnap);
+        ImGui::PopID();
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing?bounds:NULL, boundSizingSnap?boundsSnap:NULL);
+}
+
+
 void TentGui::ShowInspector(GlObject* object)
 {
+    float* mat = const_cast<float*>(glm::value_ptr(object->GetModelMatrix()));
+    float* view = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
+    float* proj = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
+
+    EditTransform(view, proj, mat);
+
+    // TODO recompose model matrix to draw
+    object->model = glm::make_mat4x4(mat);
+
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
+
+    //ShowGizmo(object);
 
     // TODO highlight the selected object in the scene
     {
@@ -302,7 +397,18 @@ void TentGui::ShowInspector(GlObject* object)
             //}
 
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
+
+            // TODO
+            float aspectRatio = (float)objectTex.width/objectTex.height;
+            if (ImGui::GetWindowWidth() > ImGui::GetWindowHeight())
+            {
+                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()/aspectRatio), ImVec2(0,1), ImVec2(1,0));
+
+            }
+            else
+            {
+                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowHeight()*aspectRatio, ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
+            }
 
             ImGui::TreePop();
         }
@@ -316,6 +422,11 @@ void TentGui::ShowInspector(GlObject* object)
     ImGui::End();
 }
 
+ImVec2 AspectRatioResize()
+{
+    // TODO
+    return ImVec2(0, 0);
+}
 
 void TentGui::ShowSceneHierarchy(ObjectManager& manager)
 {

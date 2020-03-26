@@ -16,6 +16,7 @@
 #include <vector>
 #include <random>
 #include <string>
+#include <chrono>
 
 // My headers
 #include "Shader.h"
@@ -28,6 +29,7 @@
 #include "FrameBuffer.h"
 #include "Cube.h"
 #include "Quad.h"
+#include "Game.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -67,13 +69,7 @@ ShaderController shaderController;
 
 TentGui tentGui;
 
-enum State { PLAY, STOP, PAUSE };
-struct Game
-{
-    State state = STOP;
-};
-
-Game GAME;
+GameController GAME;
 
 int main(int argc, char * argv[])
 {
@@ -103,6 +99,7 @@ int main(int argc, char * argv[])
 
     // Initialize imgui context
     tentGui.Init(mWindow);
+    tentGui.activeCamera = &camera;
 
     // use our shader program when we want to render an object
     Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
@@ -245,6 +242,7 @@ int main(int argc, char * argv[])
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false)
     {
+        std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
         // per-frame time logic
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -283,6 +281,7 @@ int main(int argc, char * argv[])
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            ImGuizmo::BeginFrame();
 
             ImGui::ShowDemoWindow();
         }
@@ -344,8 +343,12 @@ int main(int argc, char * argv[])
 
         // ===================================================================
 
+        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> timeSpan = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
         if (tentGui.isEnabled)
         {
+            tentGui.ShowMetrics(timeSpan.count());
+            tentGui.RenderStateButtons(GAME);
             tentGui.ShowCamera(camera);
             tentGui.ShowCamera(gameCamera);
             tentGui.ShowRenderPasses(renderPasses);
@@ -404,7 +407,10 @@ void processInput(GLFWwindow *window)
 
     // Quit
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        // TODO add a prompt to ask user if they really want to exit
         glfwSetWindowShouldClose(window, true);
+    }
 
     // Camera movement
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -446,10 +452,6 @@ void processInput(GLFWwindow *window)
         if (newState1 == GLFW_PRESS && oldState1 == GLFW_RELEASE)
         {
             tentGui.isEnabled ^= 1;
-            if (tentGui.isEnabled)
-                GAME.state = STOP;
-            else
-                GAME.state = PLAY;
         }
         oldState1 = newState1;
     }

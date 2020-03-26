@@ -41,7 +41,10 @@ public:
             model = glm::translate(model, position);
             model = glm::scale(model, scale);
 
+
             glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            // TODO for combining with imguizmo
+            //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(this->model));
 
             // Draw cube
             glBindVertexArray(this->VAO);

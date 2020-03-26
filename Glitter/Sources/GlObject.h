@@ -24,6 +24,15 @@ public:
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
     glm::vec3 rotation = glm::vec3(0.0f);
+    glm::mat4 model;
+
+    glm::mat4 GetModelMatrix()
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, position);
+        model = glm::scale(model, scale);
+        return model;
+    }
 
     // TODO should there be a default texture and shader?
     Texture texture;
