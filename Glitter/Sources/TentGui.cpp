@@ -194,7 +194,7 @@ void TentGui::ShowMetrics(double frameTime)
 
     while (refresh_time < ImGui::GetTime()) // Create dummy data at fixed 60 hz rate for the demo
     {
-        values[values_offset] = frameTime;
+        values[values_offset] = frameTime*1000; // convert to milliseconds;
         values_offset = (values_offset+1) % IM_ARRAYSIZE(values);
         refresh_time += 1.0f/60.0f;
     }
@@ -207,10 +207,11 @@ void TentGui::ShowMetrics(double frameTime)
         average /= (float)IM_ARRAYSIZE(values);
 
         // Convert average frameTime to FPS
-        ImGui::Text("Average FPS: %lf", 1.0/average);
+        ImGui::Text("Average FPS: %lf", 1.0/(average/1000.0f));
         char overlay[32];
-        sprintf(overlay, "avg: %f ms", average*1000);
-        ImGui::PlotLines("Frame times", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0,80));
+        sprintf(overlay, "avg: %f ms", average);
+        // TODO make the time scale adjustable? Either scale with the average or allow user to configure
+        ImGui::PlotLines("Frame times", values, IM_ARRAYSIZE(values), values_offset, overlay, 0.0f, 20.0f, ImVec2(0,80));
     }
     ImGui::End();
 }
