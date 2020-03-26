@@ -215,8 +215,7 @@ void TentGui::ShowMetrics(double frameTime)
     ImGui::End();
 }
 
-
-void EditTransform(const float *cameraView, float *cameraProjection, float* matrix)
+void EditTransform(GlObject* object, const float *cameraView, float *cameraProjection, float* matrix)
 {
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
@@ -226,6 +225,9 @@ void EditTransform(const float *cameraView, float *cameraProjection, float* matr
     static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
     static bool boundSizing = false;
     static bool boundSizingSnap = false;
+
+    // Create transform window in inspector
+    ImGui::Begin("Inspector");
 
     if (ImGui::IsKeyPressed(90))
         mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -286,19 +288,28 @@ void EditTransform(const float *cameraView, float *cameraProjection, float* matr
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing?bounds:NULL, boundSizingSnap?boundsSnap:NULL);
+
+    ImGui::Separator();
+    ImGui::End();
+
+    // Update GlObject transform
+    ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+    object->position = glm::make_vec3(matrixTranslation);
+    object->rotation = glm::make_vec3(matrixRotation);
+    object->scale    = glm::make_vec3(matrixScale);
 }
 
 
 void TentGui::ShowInspector(GlObject* object)
 {
-    float* mat = const_cast<float*>(glm::value_ptr(object->GetModelMatrix()));
+    float* matrix = const_cast<float*>(glm::value_ptr(object->GetModelMatrix()));
     float* view = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
     float* proj = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
 
-    EditTransform(view, proj, mat);
+    EditTransform(object, view, proj, matrix);
 
     // TODO recompose model matrix to draw
-    object->model = glm::make_mat4x4(mat);
+    //object->model = glm::make_mat4x4(mat);
 
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
@@ -322,39 +333,39 @@ void TentGui::ShowInspector(GlObject* object)
     ImGui::InputText("Tag", tag, IM_ARRAYSIZE(tag));
     object->name.assign(tag);
 
-    { // Transform info
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Transform"))
-        {
-            float position[3] = {
-                object->position.x,
-                object->position.y,
-                object->position.z
-            };
-            ImGui::DragFloat3("Position", position, 0.01f);
-            object->position = glm::make_vec3(position);
-            ImGui::Spacing();
-
-            float rotation[3] = {
-                object->rotation.x,
-                object->rotation.y,
-                object->rotation.z
-            };
-            ImGui::DragFloat3("Rotation", rotation, 0.1f);
-            object->rotation = glm::make_vec3(rotation);
-            ImGui::Spacing();
-
-            float scale[3] = {
-                object->scale.x,
-                object->scale.y,
-                object->scale.z
-            };
-            ImGui::DragFloat3("Scale", scale, 0.01f);
-            object->scale = glm::make_vec3(scale);
-            ImGui::TreePop();
-        }
-        ImGui::Separator();
-    }
+//    { // Transform info
+//        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+//        if (ImGui::TreeNode("Transform"))
+//        {
+//            float position[3] = {
+//                object->position.x,
+//                object->position.y,
+//                object->position.z
+//            };
+//            ImGui::DragFloat3("Position", position, 0.01f);
+//            object->position = glm::make_vec3(position);
+//            ImGui::Spacing();
+//
+//            float rotation[3] = {
+//                object->rotation.x,
+//                object->rotation.y,
+//                object->rotation.z
+//            };
+//            ImGui::DragFloat3("Rotation", rotation, 0.1f);
+//            object->rotation = glm::make_vec3(rotation);
+//            ImGui::Spacing();
+//
+//            float scale[3] = {
+//                object->scale.x,
+//                object->scale.y,
+//                object->scale.z
+//            };
+//            ImGui::DragFloat3("Scale", scale, 0.01f);
+//            object->scale = glm::make_vec3(scale);
+//            ImGui::TreePop();
+//        }
+//        ImGui::Separator();
+//    }
 
     if (object->isLight)
     { // Attenuation factors
@@ -399,16 +410,17 @@ void TentGui::ShowInspector(GlObject* object)
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
 
             // TODO
-            float aspectRatio = (float)objectTex.width/objectTex.height;
-            if (ImGui::GetWindowWidth() > ImGui::GetWindowHeight())
-            {
-                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()/aspectRatio), ImVec2(0,1), ImVec2(1,0));
-
-            }
-            else
-            {
-                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowHeight()*aspectRatio, ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
-            }
+//            float aspectRatio = (float)objectTex.width/objectTex.height;
+//            if (ImGui::GetWindowWidth() > ImGui::GetWindowHeight())
+//            {
+//                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()/aspectRatio), ImVec2(0,1), ImVec2(1,0));
+//
+//            }
+//            else
+//            {
+//                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowHeight()*aspectRatio, ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
+//            }
+            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
 
             ImGui::TreePop();
         }
