@@ -30,6 +30,7 @@
 #include "Cube.h"
 #include "Quad.h"
 #include "Game.h"
+#include "Cubemap.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -116,6 +117,21 @@ int main(int argc, char * argv[])
     //
     Texture tex1("Textures/wall.jpg");
     Texture tex2("Textures/awesomeface.png");
+
+    std::vector<std::string> faces =
+    {
+        "Textures/skybox/right.jpg",
+        "Textures/skybox/left.jpg",
+        "Textures/skybox/up.jpg",
+        "Textures/skybox/down.jpg",
+        "Textures/skybox/front.jpg",
+        "Textures/skybox/back.jpg"
+    };
+
+    Cubemap skyboxTexture(faces);
+    Shader skyboxShader("../Glitter/Shaders/skybox.vert", "../Glitter/Shaders/skybox.frag");
+    Cube skybox;
+    skybox.shader = &skyboxShader;
     // ===================================================================
 
     Quad screenQuad;
@@ -160,9 +176,11 @@ int main(int argc, char * argv[])
 
     // ===================================================================
     // Bind UBO block index to shaders
+    // TODO handle this by resource manager
     glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "Matrices"), 0);
     glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
     glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "LightBuffer"), 1);
+    glUniformBlockBinding(skyboxShader.ID   , glGetUniformBlockIndex(skyboxShader.ID, "Matrices"), 0);
 
     // Create a uniform buffer to handle viewprojection and lights
     unsigned int uboMatrices;
@@ -290,9 +308,21 @@ int main(int argc, char * argv[])
         { // First render pass
             // Getting color of the scene
             glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
-            // Background Fill Color
+
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // =====================================
+            { // Background
+                glDepthMask(GL_FALSE);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.ID);
+                skybox.shader->use();
+                glBindVertexArray(skybox.VAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+                glBindVertexArray(0);
+                glDepthMask(GL_TRUE);
+            }
+
+            // Background Fill Color
             glEnable(GL_DEPTH_TEST);
 
             // Draw scene
@@ -343,10 +373,11 @@ int main(int argc, char * argv[])
 
         // ===================================================================
 
-        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timeSpan = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
         if (tentGui.isEnabled)
         {
+            std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> timeSpan = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+
             tentGui.ShowMetrics(timeSpan.count());
             tentGui.RenderStateButtons(GAME);
             tentGui.ShowCamera(camera);

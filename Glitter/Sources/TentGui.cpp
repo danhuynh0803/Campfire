@@ -230,12 +230,12 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
     // Create transform window in inspector
     ImGui::Begin("Inspector");
 
-    if (ImGui::IsKeyPressed(90))
-        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(69))
-        mCurrentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(82)) // r Key
-        mCurrentGizmoOperation = ImGuizmo::SCALE;
+//    if (ImGui::IsKeyPressed(90))
+//        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+//    if (ImGui::IsKeyPressed(69))
+//        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+//    if (ImGui::IsKeyPressed(82)) // r Key
+//        mCurrentGizmoOperation = ImGuizmo::SCALE;
     if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
         mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
     ImGui::SameLine();
@@ -259,8 +259,9 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
         if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
             mCurrentGizmoMode = ImGuizmo::WORLD;
     }
-    if (ImGui::IsKeyPressed(83))
-        useSnap = !useSnap;
+//    if (ImGui::IsKeyPressed(83))
+//        useSnap = !useSnap;
+    // TODO broken
     ImGui::Checkbox("", &useSnap);
     ImGui::SameLine();
 
@@ -303,28 +304,11 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
 
 void TentGui::ShowInspector(GlObject* object)
 {
-    float* matrix = const_cast<float*>(glm::value_ptr(object->GetModelMatrix()));
-    float* view = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
-    float* proj = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
-
-    EditTransform(object, view, proj, matrix);
-
     // TODO recompose model matrix to draw
     //object->model = glm::make_mat4x4(mat);
 
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
-
-    //ShowGizmo(object);
-
-    // TODO highlight the selected object in the scene
-    {
-
-    }
-
-    { // TODO Draw object local coordinates to show orientation
-
-    }
 
     ImGui::Checkbox("", &object->isActive);
     ImGui::SameLine();
@@ -334,39 +318,15 @@ void TentGui::ShowInspector(GlObject* object)
     ImGui::InputText("Tag", tag, IM_ARRAYSIZE(tag));
     object->name.assign(tag);
 
-//    { // Transform info
-//        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-//        if (ImGui::TreeNode("Transform"))
-//        {
-//            float position[3] = {
-//                object->position.x,
-//                object->position.y,
-//                object->position.z
-//            };
-//            ImGui::DragFloat3("Position", position, 0.01f);
-//            object->position = glm::make_vec3(position);
-//            ImGui::Spacing();
-//
-//            float rotation[3] = {
-//                object->rotation.x,
-//                object->rotation.y,
-//                object->rotation.z
-//            };
-//            ImGui::DragFloat3("Rotation", rotation, 0.1f);
-//            object->rotation = glm::make_vec3(rotation);
-//            ImGui::Spacing();
-//
-//            float scale[3] = {
-//                object->scale.x,
-//                object->scale.y,
-//                object->scale.z
-//            };
-//            ImGui::DragFloat3("Scale", scale, 0.01f);
-//            object->scale = glm::make_vec3(scale);
-//            ImGui::TreePop();
-//        }
-//        ImGui::Separator();
-//    }
+    ImGui::Separator();
+
+    { // Transform Info
+        float* matrix = const_cast<float*>(glm::value_ptr(object->GetModelMatrix()));
+        float* view = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
+        float* proj = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
+
+        EditTransform(object, view, proj, matrix);
+    }
 
     if (object->isLight)
     { // Attenuation factors

@@ -19,8 +19,6 @@ public:
         InitRenderData();
     }
 
-    ~Cube() = delete;
-
     void Draw(glm::vec3 color = glm::vec3(1.0f))
     {
         if (isActive)
