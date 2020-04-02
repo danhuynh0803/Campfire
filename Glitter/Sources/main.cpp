@@ -230,6 +230,7 @@ int main(int argc, char * argv[])
     renderPasses.push_back(postprocessFB);
 
     // TODO: refactor later
+    // Need to figure out how to organize and save scenes
     for (int i = 0; i < 5; ++i)
     {
         std::string name = "Cube " + std::to_string(i);
@@ -249,25 +250,15 @@ int main(int argc, char * argv[])
         objectManager.Add(light);
     }
 
-    //Quad floor;
-    //floor.name = "Floor Plane";
-    //floor.shader = &genericShader;
-    //floor.texture = tex1;
-    //floor.position = glm::vec3(0.0f, -5.0f, 0.0f);
-    //objectManager.Add(&floor);
-
     // ===================================================================
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false)
     {
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
         // per-frame time logic
+        // TODO replace with high resolution clock
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
-        // TODO add an FPS counter
-        // have it render to the screen
-        // look at text rendering tutorials
-        //printf("%f ms/frame\n", 1000.0/double
         lastFrame = currentFrame;
 
         processInput(mWindow);
@@ -277,7 +268,7 @@ int main(int argc, char * argv[])
         // if GAME is playing then use game camera
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 proj = glm::mat4(1.0f);
-        if (GAME.state == PLAY)
+        if (GAME.state == PLAY || GAME.state == PAUSE)
         {
             view = gameCamera.GetViewMatrix();
             proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
@@ -304,6 +295,11 @@ int main(int argc, char * argv[])
             ImGui::ShowDemoWindow();
         }
 
+        // TODO Update physics of all rigidbodies
+
+
+        // Rendering step
+
         // ===================================================================
         { // First render pass
             // Getting color of the scene
@@ -312,15 +308,15 @@ int main(int argc, char * argv[])
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             // =====================================
-            { // Background
-                glDepthMask(GL_FALSE);
-                glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.ID);
-                skybox.shader->use();
-                glBindVertexArray(skybox.VAO);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-                glBindVertexArray(0);
-                glDepthMask(GL_TRUE);
-            }
+            //{ // Background
+            //    glDepthMask(GL_FALSE);
+            //    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.ID);
+            //    skybox.shader->use();
+            //    glBindVertexArray(skybox.VAO);
+            //    glDrawArrays(GL_TRIANGLES, 0, 36);
+            //    glBindVertexArray(0);
+            //    glDepthMask(GL_TRUE);
+            //}
 
             // Background Fill Color
             glEnable(GL_DEPTH_TEST);
@@ -405,14 +401,13 @@ int main(int argc, char * argv[])
 
     // TODO?
     // Clean up all objects in scene
-    /*
-    for (auto object : objectManager.objectList)
-    {
-        delete(object);
-        //objects = nullptr;
-    }
-    */
-
+    
+//    for (auto object : objectManager.objectList)
+//    {
+//        delete(object);
+//        //objects = nullptr;
+//    }
+    
     glfwTerminate();
     return EXIT_SUCCESS;
 }
