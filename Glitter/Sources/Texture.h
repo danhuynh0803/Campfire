@@ -7,23 +7,14 @@
 
 #include <string>
 #include <vector>
-
-const std::vector<std::string> transparentFormats =
-{
-    // TODO see why some png files cause crash
-    ".png",
-    ".gif",
-    ".tiff",
-    ".bmp",
-    ".jp2",
-    ".jpx"
-};
+#include <iostream>
 
 class Texture
 {
 public:
     unsigned int ID;
     int width, height;
+    std::string type = "N/A"; // diffuse/specular/etc (for models with multiple texture maps)
 
     Texture() {}
 
@@ -33,44 +24,35 @@ public:
     {
         texturePath = std::string(path);
 
-        // Check that the texture path is an image format with an alpha channel
-        // For now just check if its png, then use alpha
-        // all else assume nonalpha channel
-        for (std::string format : transparentFormats)
-        {
-            if (texturePath.find(format) != std::string::npos)
-            {
-                hasAlphaChannel = true;
-                break;
-            }
-        }
-
         glGenTextures(1, &ID);
-        glBindTexture(GL_TEXTURE_2D, ID);
 
-        // TODO create another constructor that allows changing these parameters
-        // Wrapping/Filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Flip texture coordinates on y-axis, since UV for most image software are inverted from how openGL UV coordinates are
-        stbi_set_flip_vertically_on_load(true);
-
-        int nrChannels;
+        //std::cout << path << std::endl;
+        int nrChannels;      
         unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data)
         {
-            if (hasAlphaChannel)
-            {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            }
-            else
-            {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            }
+            GLenum format;
+            if (nrChannels == 1)
+                format = GL_RED;
+            else if (nrChannels == 3)
+                format = GL_RGB;
+            else if (nrChannels == 4)
+                format = GL_RGBA;
+
+            glBindTexture(GL_TEXTURE_2D, ID);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
+
+            // TODO create another constructor that allows changing these parameters
+            // Wrapping/Filtering parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+            // Flip texture coordinates on y-axis, since UV for most image software are inverted from how openGL UV coordinates are
+            //stbi_set_flip_vertically_on_load(true);            
         }
         else
         {

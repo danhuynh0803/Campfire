@@ -40,4 +40,4 @@ public:
     bool isLight = false;
 };
 
-#endif
+#endif // GL_OBJECT_H

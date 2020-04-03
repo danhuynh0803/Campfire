@@ -31,6 +31,8 @@
 #include "Quad.h"
 #include "Game.h"
 #include "Cubemap.h"
+#include "SceneLoader.h"
+#include "Model.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -112,11 +114,16 @@ int main(int argc, char * argv[])
     shaderController.Add("light", &lightShader);
     shaderController.Add("screen", &screenShader);
 
+    SceneLoader loader;
+    //Testing
+    std::string path = R"(./Scenes/test.json)";
+    //loader.LoadScene(path.c_str());
+
     // ===================================================================
     // Setup for textures
     //
     Texture tex1("Textures/wall.jpg");
-    Texture tex2("Textures/awesomeface.png");
+    Texture tex2("Textures/uv.png");
 
     std::vector<std::string> faces =
     {
@@ -176,11 +183,14 @@ int main(int argc, char * argv[])
 
     // ===================================================================
     // Bind UBO block index to shaders
-    // TODO handle this by resource manager
+    // TODO handle this by ShaderController
     glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "Matrices"), 0);
-    glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
     glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "LightBuffer"), 1);
+
+    glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
+
     glUniformBlockBinding(skyboxShader.ID   , glGetUniformBlockIndex(skyboxShader.ID, "Matrices"), 0);
+
 
     // Create a uniform buffer to handle viewprojection and lights
     unsigned int uboMatrices;
@@ -249,6 +259,11 @@ int main(int argc, char * argv[])
         light->scale = glm::vec3(0.5f);
         objectManager.Add(light);
     }
+
+    Model nanosuit("Models/nanosuit/nanosuit.obj");
+    nanosuit.shader = shaderController.Get("generic");
+    nanosuit.scale = glm::vec3(0.1f);
+    objectManager.Add(&nanosuit);
 
     // ===================================================================
     // Rendering Loop

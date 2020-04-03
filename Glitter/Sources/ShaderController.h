@@ -14,6 +14,7 @@ class ShaderController
 public:
     void ReloadShaders()
     {
+        std::cout << "Reloading Shader\n";
         for (auto pair : shaderMap)
         {
             // TODO Check that there was a change made to the file before reloading it
