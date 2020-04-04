@@ -260,9 +260,14 @@ int main(int argc, char * argv[])
         objectManager.Add(light);
     }
 
+    // Testing save scene
+    loader.SaveScene(objectManager, "");
+    return 0;
+
     Model nanosuit("Models/nanosuit/nanosuit.obj");
     nanosuit.shader = shaderController.Get("generic");
-    nanosuit.scale = glm::vec3(0.1f);
+    nanosuit.name = "Nanosuit";
+    nanosuit.scale = glm::vec3(0.2f);
     objectManager.Add(&nanosuit);
 
     // ===================================================================
