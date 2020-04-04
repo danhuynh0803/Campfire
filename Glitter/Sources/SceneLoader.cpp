@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <fstream>
 
 #include "SceneLoader.h"
 
@@ -112,7 +113,9 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
     PrettyWriter<StringBuffer> writer(buffer);
     doc.Accept(writer);
 
-    std::cout << buffer.GetString() << std::endl;
+    std::ofstream out(path);
+    out << buffer.GetString();
+    out.close();
 }
 
 void SceneLoader::DeleteScene()

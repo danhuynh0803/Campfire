@@ -261,7 +261,7 @@ int main(int argc, char * argv[])
     }
 
     // Testing save scene
-    loader.SaveScene(objectManager, "");
+    loader.SaveScene(objectManager, "Scenes/main.json");
     return 0;
 
     Model nanosuit("Models/nanosuit/nanosuit.obj");
