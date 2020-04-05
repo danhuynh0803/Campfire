@@ -9,6 +9,118 @@
 
 const int TAG_LENGTH = 32;
 
+static void ShowExampleMenuFile()
+{
+    ImGui::MenuItem("(dummy menu)", NULL, false, false);
+    if (ImGui::MenuItem("New")) {}
+    if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+    if (ImGui::BeginMenu("Open Recent"))
+    {
+        ImGui::MenuItem("fish_hat.c");
+        ImGui::MenuItem("fish_hat.inl");
+        ImGui::MenuItem("fish_hat.h");
+        if (ImGui::BeginMenu("More.."))
+        {
+            ImGui::MenuItem("Hello");
+            ImGui::MenuItem("Sailor");
+            if (ImGui::BeginMenu("Recurse.."))
+            {
+                ShowExampleMenuFile();
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+    if (ImGui::MenuItem("Save As..")) {}
+    ImGui::Separator();
+    if (ImGui::BeginMenu("Options"))
+    {
+        static bool enabled = true;
+        ImGui::MenuItem("Enabled", "", &enabled);
+        ImGui::BeginChild("child", ImVec2(0, 60), true);
+        for (int i = 0; i < 10; i++)
+            ImGui::Text("Scrolling Text %d", i);
+        ImGui::EndChild();
+        static float f = 0.5f;
+        static int n = 0;
+        static bool b = true;
+        ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
+        ImGui::InputFloat("Input", &f, 0.1f);
+        ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
+        ImGui::Checkbox("Check", &b);
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Colors"))
+    {
+        float sz = ImGui::GetTextLineHeight();
+        for (int i = 0; i < ImGuiCol_COUNT; i++)
+        {
+            const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
+            ImVec2 p = ImGui::GetCursorScreenPos();
+            ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x+sz, p.y+sz), ImGui::GetColorU32((ImGuiCol)i));
+            ImGui::Dummy(ImVec2(sz, sz));
+            ImGui::SameLine();
+            ImGui::MenuItem(name);
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Disabled", false)) // Disabled
+    {
+        IM_ASSERT(0);
+    }
+    if (ImGui::MenuItem("Checked", NULL, true)) {}
+    if (ImGui::MenuItem("Quit", "Alt+F4")) {}
+}
+
+void TentGui::ShowMainMenuBar()
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ShowExampleMenuFile();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+            ImGui::Separator();
+            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Examples"))
+        {
+            //ImGui::MenuItem("Console", NULL, &show_app_console);
+            //ImGui::MenuItem("Log", NULL, &show_app_log);
+            //ImGui::MenuItem("Simple layout", NULL, &show_app_layout);
+            //ImGui::MenuItem("Property editor", NULL, &show_app_property_editor);
+            //ImGui::MenuItem("Long text display", NULL, &show_app_long_text);
+            //ImGui::MenuItem("Auto-resizing window", NULL, &show_app_auto_resize);
+            //ImGui::MenuItem("Constrained-resizing window", NULL, &show_app_constrained_resize);
+            //ImGui::MenuItem("Simple overlay", NULL, &show_app_simple_overlay);
+            //ImGui::MenuItem("Manipulating window titles", NULL, &show_app_window_titles);
+            //ImGui::MenuItem("Custom rendering", NULL, &show_app_custom_rendering);
+            //ImGui::MenuItem("Dockspace", NULL, &show_app_dockspace);
+            //ImGui::MenuItem("Documents", NULL, &show_app_documents);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Tools"))
+        {
+            ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
+            ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
+            ImGui::MenuItem("About Dear ImGui", NULL, &show_app_about);
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+}
+
 static void HelpMarker(const char* desc)
 {
     ImGui::TextDisabled("(?)");
@@ -50,6 +162,7 @@ void TentGui::RenderStateButtons(GameController& gc)
 
 void TentGui::RenderGUI(ObjectManager& manager)
 {
+    ShowMainMenuBar();
     ShowSceneHierarchy(manager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -160,16 +273,36 @@ void TentGui::ShowObjects(ObjectManager& manager)
         selected = -1;
     }
 
+    ImGui::Separator();
+
+    static ImGuiTextFilter filter;
+    const char* filterHelp(
+                "Filter usage:\n"
+                "  \"\"         display all lines\n"
+                "  \"xxx\"      display lines containing \"xxx\"\n"
+                "  \"xxx,yyy\"  display lines containing \"xxx\" or \"yyy\"\n"
+                "  \"-xxx\"     hide lines containing \"xxx\""
+            );
+
+    HelpMarker(filterHelp);
+    ImGui::SameLine(); filter.Draw();
+
+    ImGui::Separator();
+
     // TODO light inspector breaks when
     // no longer using i for index
     int i = 0;
     for (auto object : manager.objectList)
     {
-        char tag[TAG_LENGTH];
-        sprintf(tag, "Idx:%d Tag:%s", i, object->name.c_str());
-        if (ImGui::Selectable(tag, selected == i))
+        if (filter.PassFilter(object->name.c_str()))
         {
-            selected = i;
+            char tag[TAG_LENGTH];
+            //sprintf(tag, "Idx:%d Tag:%s", i, object->name.c_str());
+            sprintf(tag, "%s", object->name.c_str());
+            if (ImGui::Selectable(tag, selected == i))
+            {
+                selected = i;
+            }
         }
         ++i;
     }
@@ -182,6 +315,8 @@ void TentGui::ShowObjects(ObjectManager& manager)
 
 void TentGui::ShowMetrics(double frameTime)
 {
+    if (!show_app_metrics) { return; }
+
     ImGui::Begin("Metrics");
     static bool animate = true;
     ImGui::Checkbox("Animate", &animate);
