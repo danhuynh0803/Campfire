@@ -31,7 +31,7 @@ public:
     float Yaw = -90.0f;
     float Pitch = 0.0f;
     // Camera options
-    float maxSpeed = 10.0f;
+    float maxSpeed = 15.0f;
     float normalSpeed = 2.5f;
     float MovementSpeed = normalSpeed;
     float MouseSensitivity;

@@ -5,17 +5,40 @@
 #include "FrameBuffer.h"
 #include "SceneLoader.h"
 
+//#include "imgui/imfilebrowser.h"
+
 #include <vector>
 
 const int TAG_LENGTH = 32;
 
 static void ShowExampleMenuFile()
 {
+    static bool isFileBrowserOpen = false;
+
     ImGui::MenuItem("(dummy menu)", NULL, false, false);
-    if (ImGui::MenuItem("New")) {}
-    if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+    if (ImGui::MenuItem("New"))
+    {
+        // Prompt user if they want to save file first before creating new scene
+    }
+
+    //ImGui::FileBrowser fileDialog;
+    //fileDialog.SetTitle("Choose Scene File");
+    //fileDialog.SetTypeFilters({".json"});
+    //if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
+    //{
+    //    fileDialog.Open();
+    //}
+
+    //fileDialog.Display();
+    //if (fileDialog.HasSelected())
+    //{
+    //    std::cout << "Selected filename: " << fileDialog.GetSelected().string() << '\n';
+    //    fileDialog.ClearSelected();
+    //}
+
     if (ImGui::BeginMenu("Open Recent"))
     {
+        // TODO
         ImGui::MenuItem("fish_hat.c");
         ImGui::MenuItem("fish_hat.inl");
         ImGui::MenuItem("fish_hat.h");

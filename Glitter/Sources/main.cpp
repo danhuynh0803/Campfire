@@ -17,6 +17,7 @@
 #include <random>
 #include <string>
 #include <chrono>
+#include <algorithm>
 
 // My headers
 #include "Shader.h"
@@ -262,12 +263,11 @@ int main(int argc, char * argv[])
     //loader.SaveScene(objectManager, "Scenes/main.json");
     //return 0;
 
-    Model nanosuit("Models/nanosuit/nanosuit.obj");
-    nanosuit.shader = shaderController.Get("generic");
-    nanosuit.name = "Nanosuit";
-    nanosuit.scale = glm::vec3(0.2f);
-    objectManager.Add(&nanosuit);
-
+//    Model nanosuit("Models/nanosuit/nanosuit.obj");
+//    nanosuit.shader = shaderController.Get("generic");
+//    nanosuit.name = "Nanosuit";
+//    nanosuit.scale = glm::vec3(0.2f);
+//    objectManager.Add(&nanosuit);
 
     // ===================================================================
     // Rendering Loop
@@ -458,14 +458,18 @@ void processInput(GLFWwindow *window)
     }
 
     // Camera movement
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+    // Move camera only when clicking the right mouse button
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
 
     // Camera speed increase
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -539,7 +543,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     ImGuiIO& io = ImGui::GetIO();
-    if (!io.WantCaptureMouse)
+    if (io.WantCaptureMouse) { return; }
+
+
+    // Change camera speed
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        camera.maxSpeed = std::clamp(camera.maxSpeed += yoffset, camera.normalSpeed, 100.0f);
+    }
+    // Apply zoom
+    else
     {
         camera.ProcessMouseScroll(yoffset);
     }
