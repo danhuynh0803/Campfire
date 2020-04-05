@@ -5,14 +5,6 @@
 
 #include "GlObject.h"
 
-enum Geometry {
-    CUBE,
-    QUAD,
-    SPHERE,
-    LIGHT,
-    NONE
-};
-
 class ObjectManager
 {
 public:

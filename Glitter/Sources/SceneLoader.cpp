@@ -11,11 +11,51 @@
 #include "rapidjson/prettywriter.h"
 
 #include "GlObject.h"
+#include "Cube.h"
+#include "Quad.h"
+#include "Light.h"
 #include "ObjectManager.h"
+#include "ShaderController.h"
 
 using namespace rapidjson;
 
-extern ObjectManager* objectManagerPtr;
+extern ShaderController shaderController;
+
+bool IsValidField(std::string field)
+{
+    return true;
+}
+
+void LoadSceneObjects(Value& sceneArray)
+{
+    std::cout << "Loading Objects\n";
+}
+
+Geometry ConvertStringToType(const char* type)
+{
+    if (strcmp(type, "CUBE") == 0)
+    {
+        return CUBE;
+    }
+    else if (strcmp(type, "QUAD") == 0)
+    {
+        return QUAD;
+    }
+    else if (strcmp(type, "SPHERE") == 0)
+    {
+        return SPHERE;
+    }
+    else if (strcmp(type, "LIGHT") == 0)
+    {
+        return LIGHT;
+    }
+    else if (strcmp(type, "MODEL") == 0)
+    {
+        return MODEL;
+    }
+
+    return NONE;
+}
 
 void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 {
@@ -35,20 +75,76 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     FILE* fp = fopen(path, "r");
     if (fp == 0)
     {
-        std::cout << "Failed to load file: " << path << '\n';
+        std::cout << "ERROR: Failed to load SCENE file: " << path << '\n';
     }
+
+    std::cout << "Loading SCENE file: " << path << '\n';
     char readBuffer[65536];
     FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
     Document document;
     document.ParseStream(is);
 
+    assert(document.IsObject());
+
     fclose(fp);
 
-    //for (auto& m : document.GetObject())
-    //{
-    //    //printf("%s\n", m.name.GetString());
-    //}
+    const Value& sceneObjects = document["SceneObjects"];
+    assert(sceneObjects.IsArray());
+    // TODO Lights broken
+    for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
+    {
+        GlObject* object;
+        Geometry type = ConvertStringToType(itr->FindMember("type")->value.GetString());
+        switch (type)
+        {
+            case CUBE: object = new Cube(); break;
+            case QUAD: object = new Quad(); break;
+                        //case SPHERE: object = new Sphere(); break;
+            case LIGHT:
+                       object = new Light(); break;
+                       static_cast<Light*>(object)->color = glm::vec4(1.0);
+            case NONE:
+                        std::cout << "ERROR: Loading object with no type specified\n";
+                        break;
+            default:
+                        std::cout << "ERROR: Loading object with no type specified\n";
+                        break;
+        }
+
+        object->name = std::string(itr->FindMember("tag")->value.GetString());
+
+        {
+            const Value& a = itr->FindMember("position")->value;
+            assert(a.IsArray());
+            object->position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+        }
+
+        {
+            const Value& a = itr->FindMember("rotation")->value;
+            assert(a.IsArray());
+            object->rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+        }
+
+        {
+            const Value& a = itr->FindMember("scale")->value;
+            assert(a.IsArray());
+            object->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+        }
+
+        Texture texture(itr->FindMember("texture")->value.GetString());
+        object->texture = texture;
+
+        Shader* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
+        object->shader = shader;
+
+        object->isActive = itr->FindMember("isActive")->value.GetBool();
+
+        object->isLight = itr->FindMember("isLight")->value.GetBool();
+
+        if (!object->isLight) // dont include lights for now
+            manager.Add(object);
+    }
 }
 
 void SceneLoader::SaveScene(ObjectManager& manager, const char* path)

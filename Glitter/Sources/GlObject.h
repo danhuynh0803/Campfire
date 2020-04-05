@@ -10,6 +10,15 @@
 #include "Shader.h"
 #include "Texture.h"
 
+enum Geometry {
+    CUBE,
+    QUAD,
+    SPHERE,
+    LIGHT,
+    MODEL,
+    NONE
+};
+
 class GlObject
 {
 public:
@@ -19,6 +28,7 @@ public:
 
     GLuint VAO;
     Shader* shader;
+    Geometry type = NONE;
 
     std::string name = "unnamed";
     glm::vec3 position = glm::vec3(0.0f);

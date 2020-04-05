@@ -3,6 +3,7 @@
 #include "GlObject.h"
 #include "Light.h"
 #include "FrameBuffer.h"
+#include "SceneLoader.h"
 
 #include <vector>
 
@@ -20,7 +21,6 @@ static void HelpMarker(const char* desc)
         ImGui::EndTooltip();
     }
 }
-
 
 void TentGui::Init(GLFWwindow* window)
 {

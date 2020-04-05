@@ -22,7 +22,6 @@ void ObjectManager::RemoveObject(int index)
 
 void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
 {
-
     GlObject* object;
     switch (geom)
     {

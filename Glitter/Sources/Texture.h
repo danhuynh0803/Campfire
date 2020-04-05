@@ -27,7 +27,7 @@ public:
         glGenTextures(1, &ID);
 
         //std::cout << path << std::endl;
-        int nrChannels;      
+        int nrChannels;
         unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data)
         {

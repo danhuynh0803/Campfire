@@ -114,10 +114,6 @@ int main(int argc, char * argv[])
     shaderController.Add("light", &lightShader);
     shaderController.Add("screen", &screenShader);
 
-    SceneLoader loader;
-    //Testing
-    std::string path = R"(./Scenes/test.json)";
-    //loader.LoadScene(path.c_str());
 
     // ===================================================================
     // Setup for textures
@@ -239,17 +235,19 @@ int main(int argc, char * argv[])
     renderPasses.push_back(colorFB);
     renderPasses.push_back(postprocessFB);
 
+    SceneLoader loader;
+    loader.LoadScene(objectManager, "Scenes/main.json");
     // TODO: refactor later
     // Need to figure out how to organize and save scenes
     for (int i = 0; i < 5; ++i)
     {
-        std::string name = "Cube " + std::to_string(i);
-        Cube* cube = new Cube();
-        cube->name = name;
-        cube->shader = &genericShader;
-        cube->texture = tex2;
-        cube->position = boxPositions[i];
-        objectManager.Add(cube);
+//        std::string name = "Cube " + std::to_string(i);
+//        Cube* cube = new Cube();
+//        cube->name = name;
+//        cube->shader = &genericShader;
+//        cube->texture = tex2;
+//        cube->position = boxPositions[i];
+//        objectManager.Add(cube);
 
         Light* light = new Light();
         light->name = lightNames[i];
@@ -261,14 +259,15 @@ int main(int argc, char * argv[])
     }
 
     // Testing save scene
-    loader.SaveScene(objectManager, "Scenes/main.json");
-    return 0;
+    //loader.SaveScene(objectManager, "Scenes/main.json");
+    //return 0;
 
     Model nanosuit("Models/nanosuit/nanosuit.obj");
     nanosuit.shader = shaderController.Get("generic");
     nanosuit.name = "Nanosuit";
     nanosuit.scale = glm::vec3(0.2f);
     objectManager.Add(&nanosuit);
+
 
     // ===================================================================
     // Rendering Loop

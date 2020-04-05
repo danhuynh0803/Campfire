@@ -37,6 +37,10 @@ public:
         {
             return it->second;
         }
+        else
+        {
+            std::cout << "ERROR: " << tag << " Shader is not found\n";
+        }
     }
 
 
