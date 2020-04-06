@@ -9,7 +9,15 @@
 
 const int TAG_LENGTH = 32;
 
-static ImGui::FileBrowser fileDialog;
+static ImGui::FileBrowser fileDialog(
+    //ImGuiFileBrowserFlags_SelectDirectory  |
+    ImGuiFileBrowserFlags_EnterNewFilename |
+    //ImGuiFileBrowserFlags_NoModal          |
+    //ImGuiFileBrowserFlags_NoTitleBar       |
+    //ImGuiFileBrowserFlags_NoStatusBar      |
+    ImGuiFileBrowserFlags_CloseOnEsc       |
+    ImGuiFileBrowserFlags_CreateNewDir
+);
 
 void TentGui::ShowMenuFile()
 {
