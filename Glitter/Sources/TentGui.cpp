@@ -312,6 +312,7 @@ void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
     ImGui::Spacing();
 
     std::string tagString(tag);
+    if (tagString.empty()) { tagString = "<no tag>"; }
     if (ImGui::Button("Generate"))
     {
         manager.LoadObject(selectedGeom, tagString, position, rotation, scale);
@@ -428,12 +429,13 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
     // Create transform window in inspector
     ImGui::Begin("Inspector");
 
-//    if (ImGui::IsKeyPressed(90))
-//        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-//    if (ImGui::IsKeyPressed(69))
-//        mCurrentGizmoOperation = ImGuizmo::ROTATE;
-//    if (ImGui::IsKeyPressed(82)) // r Key
-//        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    // Note: numbers based on ascii table
+    if (ImGui::IsKeyPressed(87)) // w
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(69)) // e
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(82)) // r
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
     if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
         mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
     ImGui::SameLine();

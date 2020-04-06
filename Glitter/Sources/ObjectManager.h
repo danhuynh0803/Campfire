@@ -11,11 +11,10 @@ public:
 
     ~ObjectManager()
     {
-        // TODO crash
-        //for (auto objectPtr : objectList)
-        //{
-        //    delete(objectPtr);
-        //}
+        for (auto objectPtr : objectList)
+        {
+            delete objectPtr;
+        }
     }
 
     void Add(GlObject* object);
