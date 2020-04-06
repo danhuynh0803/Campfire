@@ -6,6 +6,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/ImGuizmo.h"
+#include "imgui/imfilebrowser.h"
 
 #include "ObjectManager.h"
 #include "Camera.h"
@@ -33,6 +34,8 @@ public:
     void ShowRenderPasses(const std::vector<FrameBuffer>&);
     // =================================
 
+    void ShowMenuFile();
+    void ShowFileBrowser();
     void ShowRenderPasses();
     void ShowMetrics(double);
 

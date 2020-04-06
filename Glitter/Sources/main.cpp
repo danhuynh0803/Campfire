@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    auto mWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL", nullptr, nullptr);
+    auto mWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Tent Engine", nullptr, nullptr);
 
     // Check for Valid Context
     if (mWindow == nullptr) {

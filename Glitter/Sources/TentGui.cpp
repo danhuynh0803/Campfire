@@ -5,36 +5,24 @@
 #include "FrameBuffer.h"
 #include "SceneLoader.h"
 
-//#include "imgui/imfilebrowser.h"
-
 #include <vector>
 
 const int TAG_LENGTH = 32;
 
-static void ShowExampleMenuFile()
-{
-    static bool isFileBrowserOpen = false;
+static ImGui::FileBrowser fileDialog;
 
+void TentGui::ShowMenuFile()
+{
     ImGui::MenuItem("(dummy menu)", NULL, false, false);
     if (ImGui::MenuItem("New"))
     {
         // Prompt user if they want to save file first before creating new scene
     }
 
-    //ImGui::FileBrowser fileDialog;
-    //fileDialog.SetTitle("Choose Scene File");
-    //fileDialog.SetTypeFilters({".json"});
-    //if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
-    //{
-    //    fileDialog.Open();
-    //}
-
-    //fileDialog.Display();
-    //if (fileDialog.HasSelected())
-    //{
-    //    std::cout << "Selected filename: " << fileDialog.GetSelected().string() << '\n';
-    //    fileDialog.ClearSelected();
-    //}
+    if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
+    {
+        fileDialog.Open();
+    }
 
     if (ImGui::BeginMenu("Open Recent"))
     {
@@ -48,7 +36,7 @@ static void ShowExampleMenuFile()
             ImGui::MenuItem("Sailor");
             if (ImGui::BeginMenu("Recurse.."))
             {
-                ShowExampleMenuFile();
+                ShowMenuFile();
                 ImGui::EndMenu();
             }
             ImGui::EndMenu();
@@ -95,6 +83,21 @@ static void ShowExampleMenuFile()
     }
     if (ImGui::MenuItem("Checked", NULL, true)) {}
     if (ImGui::MenuItem("Quit", "Alt+F4")) {}
+
+}
+
+void TentGui::ShowFileBrowser()
+{
+    fileDialog.SetTitle("Select Scene File");
+    fileDialog.SetTypeFilters({ ".json" });
+
+    fileDialog.Display();
+
+    if (fileDialog.HasSelected())
+    {
+        std::cout << "Selected filename: " << fileDialog.GetSelected().string() << '\n';
+        fileDialog.ClearSelected();
+    }
 }
 
 void TentGui::ShowMainMenuBar()
@@ -103,7 +106,7 @@ void TentGui::ShowMainMenuBar()
     {
         if (ImGui::BeginMenu("File"))
         {
-            ShowExampleMenuFile();
+            ShowMenuFile();
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit"))
@@ -142,6 +145,9 @@ void TentGui::ShowMainMenuBar()
 
         ImGui::EndMainMenuBar();
     }
+    // For showing file browser related only
+    // to options within main menu
+    ShowFileBrowser();
 }
 
 static void HelpMarker(const char* desc)
