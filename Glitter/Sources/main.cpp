@@ -34,6 +34,7 @@
 #include "Cubemap.h"
 #include "SceneLoader.h"
 #include "Model.h"
+#include "Shared.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -75,6 +76,8 @@ TentGui tentGui;
 
 GameController GAME;
 
+Shared shared;
+
 int main(int argc, char * argv[])
 {
     // Load GLFW and Create a Window
@@ -115,6 +118,9 @@ int main(int argc, char * argv[])
     shaderController.Add("light", &lightShader);
     shaderController.Add("screen", &screenShader);
 
+    shared.shaderController = &shaderController;
+    shared.objectManager = &objectManager;
+    shared.sceneLoader = new SceneLoader();
 
     // ===================================================================
     // Setup for textures
@@ -236,8 +242,7 @@ int main(int argc, char * argv[])
     renderPasses.push_back(colorFB);
     renderPasses.push_back(postprocessFB);
 
-    SceneLoader loader;
-    loader.LoadScene(objectManager, "Scenes/main.json");
+    shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
     // TODO: refactor later
     // Need to figure out how to organize and save scenes
     for (int i = 0; i < 5; ++i)

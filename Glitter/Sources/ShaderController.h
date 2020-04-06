@@ -27,7 +27,6 @@ public:
     void Add(std::string tag, Shader* shader)
     {
         shaderMap.insert(std::pair<std::string, Shader*>(tag, shader));
-        //shaderList.push_back(shader);
     }
 
     Shader* Get(std::string tag)

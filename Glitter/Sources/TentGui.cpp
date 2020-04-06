@@ -1,5 +1,6 @@
 #include "TentGui.h"
 
+#include "Shared.h"
 #include "GlObject.h"
 #include "Light.h"
 #include "FrameBuffer.h"
@@ -8,6 +9,8 @@
 #include <vector>
 
 const int TAG_LENGTH = 32;
+
+extern Shared shared;
 
 static ImGui::FileBrowser fileDialog(
     //ImGuiFileBrowserFlags_SelectDirectory  |
@@ -19,6 +22,37 @@ static ImGui::FileBrowser fileDialog(
     ImGuiFileBrowserFlags_CreateNewDir
 );
 
+static bool isOpening = false;
+
+void TentGui::ShowFileBrowser()
+{
+    fileDialog.SetTitle("Select Scene File");
+    fileDialog.SetTypeFilters({ ".json" });
+
+    fileDialog.Display();
+
+    if (fileDialog.HasSelected())
+    {
+        std::string selectedFilePath(fileDialog.GetSelected().string());
+        fileDialog.ClearSelected();
+
+        if (isOpening)
+        {
+            shared.sceneLoader->LoadScene(
+                *shared.objectManager,
+                selectedFilePath.c_str()
+            );
+        }
+        else
+        {
+            shared.sceneLoader->SaveScene(
+                *shared.objectManager,
+                selectedFilePath.c_str()
+            );
+        }
+    }
+}
+
 void TentGui::ShowMenuFile()
 {
     ImGui::MenuItem("(dummy menu)", NULL, false, false);
@@ -27,9 +61,11 @@ void TentGui::ShowMenuFile()
         // Prompt user if they want to save file first before creating new scene
     }
 
+    // TODO allow hot keys
     if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
     {
         fileDialog.Open();
+        isOpening = true;
     }
 
     if (ImGui::BeginMenu("Open Recent"))
@@ -52,7 +88,11 @@ void TentGui::ShowMenuFile()
         ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-    if (ImGui::MenuItem("Save As..")) {}
+    if (ImGui::MenuItem("Save As.."))
+    {
+        fileDialog.Open();
+        isOpening = false;
+    }
     ImGui::Separator();
     if (ImGui::BeginMenu("Options"))
     {
@@ -92,20 +132,6 @@ void TentGui::ShowMenuFile()
     if (ImGui::MenuItem("Checked", NULL, true)) {}
     if (ImGui::MenuItem("Quit", "Alt+F4")) {}
 
-}
-
-void TentGui::ShowFileBrowser()
-{
-    fileDialog.SetTitle("Select Scene File");
-    fileDialog.SetTypeFilters({ ".json" });
-
-    fileDialog.Display();
-
-    if (fileDialog.HasSelected())
-    {
-        std::cout << "Selected filename: " << fileDialog.GetSelected().string() << '\n';
-        fileDialog.ClearSelected();
-    }
 }
 
 void TentGui::ShowMainMenuBar()
@@ -200,7 +226,7 @@ void TentGui::RenderStateButtons(GameController& gc)
 void TentGui::RenderGUI(ObjectManager& manager)
 {
     ShowMainMenuBar();
-    ShowSceneHierarchy(manager);
+    ShowSceneHierarchy(*(shared.objectManager));
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -577,11 +603,11 @@ void TentGui::ShowSceneHierarchy(ObjectManager& manager)
 {
     ImGui::Begin("Scene Hierarchy");
 
-    ShowPrimitiveGenerator(manager);
+    ShowPrimitiveGenerator(*(shared.objectManager));
 
     ImGui::Separator();
 
-    ShowObjects(manager);
+    ShowObjects(*(shared.objectManager));
 
     ImGui::End();
 }

@@ -59,24 +59,18 @@ Geometry ConvertStringToType(const char* type)
 
 void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 {
-    static const char* glObjectFields[] =
-    {
-        "type"
-        "tag",
-        "position",
-        "rotation",
-        "scale",
-        "texture",
-        "Shader",
-        "isActive",
-        "isLight"
-    };
-
     FILE* fp = fopen(path, "r");
     if (fp == 0)
     {
         std::cout << "ERROR: Failed to load SCENE file: " << path << '\n';
     }
+
+    std::cout << "Clearing scene\n";
+    for (auto objectPtr : manager.objectList)
+    {
+        delete objectPtr;
+    }
+    manager.objectList.clear();
 
     std::cout << "Loading SCENE file: " << path << '\n';
     char readBuffer[65536];
