@@ -362,15 +362,6 @@ int main(int argc, char * argv[])
         glDeleteFramebuffers(1, &framebuffers.ID);
     }
 
-    // TODO?
-    // Clean up all objects in scene
-    
-//    for (auto object : objectManager.objectList)
-//    {
-//        delete(object);
-//        //objects = nullptr;
-//    }
-    
     glfwTerminate();
     return EXIT_SUCCESS;
 }

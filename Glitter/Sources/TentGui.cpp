@@ -61,9 +61,11 @@ void TentGui::ShowFileBrowser()
             break;
         case LOAD_TEXTURE:
             fileDialog.SetTitle("Select Image to Load");
+            fileDialog.SetTypeFilters({});
             break;
         case LOAD_MODEL:
             fileDialog.SetTitle("Select Model to Load");
+            fileDialog.SetTypeFilters({});
             break;
     }
 
