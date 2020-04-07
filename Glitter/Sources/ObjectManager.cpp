@@ -34,7 +34,7 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
     }
 
     // TODO get default texture
-    Texture tempTex("Textures/wall.jpg");
+    Texture tempTex("Textures/uv.png");
     object->name = name;
     object->shader = shaderController.Get("generic");
     object->texture = tempTex;

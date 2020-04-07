@@ -27,7 +27,8 @@ enum FileAction
     CLOSE,
     OPEN,
     SAVE,
-    LOAD
+    LOAD_TEXTURE,
+    LOAD_MODEL
 };
 static FileAction fileAction = CLOSE;
 
@@ -40,6 +41,9 @@ static void SetFileAction(FileAction action)
     else
         fileDialog.Open();
 }
+
+static std::string selectedFilePath;
+static GlObject* selectedObject;
 
 void TentGui::ShowFileBrowser()
 {
@@ -55,8 +59,11 @@ void TentGui::ShowFileBrowser()
             fileDialog.SetTitle("Save Scene File");
             fileDialog.SetTypeFilters({ ".json" });
             break;
-        case LOAD:
-            fileDialog.SetTitle("Select File to Load");
+        case LOAD_TEXTURE:
+            fileDialog.SetTitle("Select Image to Load");
+            break;
+        case LOAD_MODEL:
+            fileDialog.SetTitle("Select Model to Load");
             break;
     }
 
@@ -64,25 +71,33 @@ void TentGui::ShowFileBrowser()
 
     if (fileDialog.HasSelected())
     {
-        std::string selectedFilePath(fileDialog.GetSelected().string());
-        fileDialog.ClearSelected();
+        selectedFilePath.assign(fileDialog.GetSelected().string());
 
-        if (fileAction == OPEN)
+        switch (fileAction)
         {
-            shared.sceneLoader->LoadScene(
-                *shared.objectManager,
-                selectedFilePath.c_str()
-            );
-        }
-        else if (fileAction == SAVE)
-        {
-            shared.sceneLoader->SaveScene(
-                *shared.objectManager,
-                selectedFilePath.c_str()
-            );
+            case OPEN:
+                shared.sceneLoader->LoadScene(
+                    *shared.objectManager,
+                    selectedFilePath.c_str()
+                );
+                break;
+
+            case SAVE:
+                shared.sceneLoader->SaveScene(
+                    *shared.objectManager,
+                    selectedFilePath.c_str()
+                );
+                break;
+
+            case LOAD_TEXTURE: // TODO
+                std::cout << "Loading new texture " << fileDialog.GetSelected().string() << '\n';
+                Texture newTexture(fileDialog.GetSelected().string().c_str());
+                selectedObject->texture = newTexture;
+                break;
         }
 
         SetFileAction(CLOSE);
+        fileDialog.ClearSelected();
     }
 }
 
@@ -540,6 +555,7 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
 
 void TentGui::ShowInspector(GlObject* object)
 {
+    selectedObject = object;
     // TODO recompose model matrix to draw
     //object->model = glm::make_mat4x4(mat);
 
@@ -591,18 +607,13 @@ void TentGui::ShowInspector(GlObject* object)
         if (ImGui::TreeNode("Mesh Details"))
         {
             Texture objectTex = object->texture;
-            static char tex[64];
-            strcpy(tex, objectTex.GetName().c_str());
-            ImGui::InputText("Texture", tex, IM_ARRAYSIZE(tag));
+            ImGui::Text("%s", objectTex.GetName().c_str());
 
-            // TODO allow loading up new texture and shader
-            //if (strcmp(tex, objectTex.GetName().c_str()) != 0)
-            //{
-            //    std::string texPath;
-            //    texPath.assign(tex);
-            //    Texture newTexture(tex);
-            //    object->texture = newTexture;
-            //}
+            ImGui::SameLine();
+            if (ImGui::Button("Browse.."))
+            {
+                SetFileAction(LOAD_TEXTURE);
+            }
 
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
 
