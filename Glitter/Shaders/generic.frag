@@ -1,7 +1,7 @@
 #version 450 core
 
 // =========================================
-const int NUM_LIGHTS = 5;
+const int MAX_NUM_LIGHTS = 25;
 
 // =========================================
 struct Light
@@ -24,7 +24,8 @@ struct Light
 // =========================================
 layout (std140, binding = 1) uniform LightBuffer
 {
-    Light lights[NUM_LIGHTS];
+    Light lights[MAX_NUM_LIGHTS];
+    int numLights;
 };
 
 // =========================================
@@ -65,7 +66,7 @@ vec3 Phong()
     vec3 specular = vec3(0.0f);
 
     vec3 ambient = 0.1f * albedo;
-    for (int i = 0; i < lights.length(); ++i)
+    for (int i = 0; i < numLights; ++i)
     {
         vec4 attenFactor = lights[i].attenFactors;
         float distance = length(lights[i].pos.xyz - position);

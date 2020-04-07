@@ -48,11 +48,13 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
 void ObjectManager::Draw()
 {
     int i = 0; // For setting light UBO
+    GLuint numLights = 0;
     for (auto objectPtr: objectList)
     {
         if (objectPtr->isLight)
         {
             Light* light = static_cast<Light*>(objectPtr);
+            numLights++;
 
             glm::vec4 color = light->color;
             if (!light->isActive)
@@ -102,6 +104,11 @@ void ObjectManager::Draw()
 
             ++i;
         }
-        objectPtr->Draw();
+           objectPtr->Draw();
     }
+    // Send number of lights to light UBO
+    glBufferSubData(GL_UNIFORM_BUFFER,
+            maxNumLights*3*sizeof(glm::vec4),
+            sizeof(GLuint),
+            &numLights);
 }

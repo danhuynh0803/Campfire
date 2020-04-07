@@ -404,16 +404,14 @@ void TentGui::ShowObjects(ObjectManager& manager)
 
     ImGui::Separator();
 
-    // TODO light inspector breaks when
-    // no longer using i for index
     int i = 0;
     for (auto object : manager.objectList)
     {
         if (filter.PassFilter(object->name.c_str()))
         {
             char tag[TAG_LENGTH];
-            //sprintf(tag, "Idx:%d Tag:%s", i, object->name.c_str());
-            sprintf(tag, "%s", object->name.c_str());
+            sprintf(tag, "Idx:%d Tag:%s", i, object->name.c_str());
+            //sprintf(tag, "%s", object->name.c_str()); // TODO, inspector breaks when not printing index?
             if (ImGui::Selectable(tag, selected == i))
             {
                 selected = i;

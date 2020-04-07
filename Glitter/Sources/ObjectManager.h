@@ -26,6 +26,7 @@ public:
     // TODO better way to do this with UBOs?
     // Maybe inside a resource manager?
     GLuint uboLights;
+    GLuint maxNumLights = 25; // Make sure this matches with shader
 };
 
 #endif // OBJECT_MANAGER_H

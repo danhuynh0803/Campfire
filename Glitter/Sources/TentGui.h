@@ -60,7 +60,7 @@ private:
     bool show_app_window_titles = false;
     bool show_app_custom_rendering = false;
 
-    bool show_app_metrics = false;
+    bool show_app_metrics = true;
     bool show_app_style_editor = false;
     bool show_app_about = false;
 };
