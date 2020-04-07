@@ -22,12 +22,43 @@ static ImGui::FileBrowser fileDialog(
     ImGuiFileBrowserFlags_CreateNewDir
 );
 
-static bool isOpening = false;
+enum FileAction
+{
+    CLOSE,
+    OPEN,
+    SAVE,
+    LOAD
+};
+static FileAction fileAction = CLOSE;
+
+static void SetFileAction(FileAction action)
+{
+    fileAction = action;
+
+    if (action == CLOSE)
+        fileDialog.Close();
+    else
+        fileDialog.Open();
+}
 
 void TentGui::ShowFileBrowser()
 {
-    fileDialog.SetTitle("Select Scene File");
-    fileDialog.SetTypeFilters({ ".json" });
+    switch (fileAction)
+    {
+        case CLOSE: // Do nothing if file browser is suppose to close
+            return;
+        case OPEN:
+            fileDialog.SetTitle("Open Scene File");
+            fileDialog.SetTypeFilters({ ".json" });
+            break;
+        case SAVE:
+            fileDialog.SetTitle("Save Scene File");
+            fileDialog.SetTypeFilters({ ".json" });
+            break;
+        case LOAD:
+            fileDialog.SetTitle("Select File to Load");
+            break;
+    }
 
     fileDialog.Display();
 
@@ -36,20 +67,22 @@ void TentGui::ShowFileBrowser()
         std::string selectedFilePath(fileDialog.GetSelected().string());
         fileDialog.ClearSelected();
 
-        if (isOpening)
+        if (fileAction == OPEN)
         {
             shared.sceneLoader->LoadScene(
                 *shared.objectManager,
                 selectedFilePath.c_str()
             );
         }
-        else
+        else if (fileAction == SAVE)
         {
             shared.sceneLoader->SaveScene(
                 *shared.objectManager,
                 selectedFilePath.c_str()
             );
         }
+
+        SetFileAction(CLOSE);
     }
 }
 
@@ -64,8 +97,7 @@ void TentGui::ShowMenuFile()
     // TODO allow hot keys
     if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
     {
-        fileDialog.Open();
-        isOpening = true;
+        SetFileAction(OPEN);
     }
 
     if (ImGui::BeginMenu("Open Recent"))
@@ -87,11 +119,15 @@ void TentGui::ShowMenuFile()
         }
         ImGui::EndMenu();
     }
-    if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+    if (ImGui::MenuItem("Save", "Ctrl+S"))
+    {
+        // Just save the current file that's loaded
+        // no need to open a file browser for this
+        shared.sceneLoader->SaveCurrentScene(*(shared.objectManager));
+    }
     if (ImGui::MenuItem("Save As.."))
     {
-        fileDialog.Open();
-        isOpening = false;
+        SetFileAction(SAVE);
     }
     ImGui::Separator();
     if (ImGui::BeginMenu("Options"))

@@ -26,10 +26,6 @@ bool IsValidField(std::string field)
     return true;
 }
 
-void LoadSceneObjects(Value& sceneArray)
-{
-    std::cout << "Loading Objects\n";
-}
 
 Geometry ConvertStringToType(const char* type)
 {
@@ -65,6 +61,11 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
         std::cout << "ERROR: Failed to load SCENE file: " << path << '\n';
     }
 
+    currentScenePath.assign(path);
+    currentSceneFileName = currentScenePath.substr(
+            currentScenePath.find_last_of('/')+1
+    );
+
     std::cout << "Clearing scene\n";
     for (auto objectPtr : manager.objectList)
     {
@@ -72,7 +73,8 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     }
     manager.objectList.clear();
 
-    std::cout << "Loading SCENE file: " << path << '\n';
+    std::cout << "Loading SCENE file: " << currentScenePath << '\n';
+    std::cout << "Loading SCENE file: " << currentSceneFileName << '\n';
     char readBuffer[65536];
     FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
@@ -141,8 +143,14 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     }
 }
 
+void SceneLoader::SaveCurrentScene(ObjectManager& manager)
+{
+    SaveScene(manager, currentScenePath.c_str());
+}
+
 void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
 {
+    std::cout << "Saving Scene to " << path << '\n';
     Document doc;
     doc.SetObject();
     Value myArray(kArrayType);
