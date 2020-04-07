@@ -111,9 +111,14 @@ void ObjectManager::Draw()
            objectPtr->Draw();
     }
     // Send number of lights to light UBO
+    // TODO replace light UBO with SSBO, since that can store much
+    // more data than UBO
     std::cout << "Number of lights in scene " << numLights << '\n';
+    glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
     glBufferSubData(GL_UNIFORM_BUFFER,
             maxNumLights*3*sizeof(glm::vec4),
             sizeof(GLuint),
             &numLights);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 }

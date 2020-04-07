@@ -25,7 +25,7 @@ struct Light
 layout (std140, binding = 1) uniform LightBuffer
 {
     Light lights[MAX_NUM_LIGHTS];
-    int numLights;
+    uint numLights;
 };
 
 // =========================================
@@ -66,6 +66,9 @@ vec3 Phong()
     vec3 specular = vec3(0.0f);
 
     vec3 ambient = 0.1f * albedo;
+
+    vec3 totalColor = vec3(0.0f);
+
     for (int i = 0; i < numLights; ++i)
     {
         vec4 attenFactor = lights[i].attenFactors;
@@ -76,12 +79,13 @@ vec3 Phong()
 
         // Diffuse portion
         vec3 Li = normalize(lights[i].pos.xyz - position);
-        diffuse += max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
+        diffuse = max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
+
+        // TODO specular with spec maps
+
+        totalColor += ambient + (diffuse + specular) * albedo;
     }
 
-    vec3 totalColor = ambient + (diffuse + specular) * albedo;
-
-    //return vec3(lights[0].attenFactors[1]);
     return totalColor;
 }
 
