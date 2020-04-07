@@ -79,7 +79,7 @@ vec3 Phong()
         diffuse += max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
     }
 
-    vec3 totalColor = (ambient + diffuse + specular) * albedo;
+    vec3 totalColor = ambient + (diffuse + specular) * albedo;
 
     //return vec3(lights[0].attenFactors[1]);
     return totalColor;

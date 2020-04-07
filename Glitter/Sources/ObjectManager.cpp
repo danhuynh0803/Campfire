@@ -23,6 +23,7 @@ void ObjectManager::RemoveObject(int index)
 void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
 {
     GlObject* object;
+
     switch (geom)
     {
         case CUBE: object = new Cube(); break;
@@ -33,10 +34,13 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
         default: return;
     }
 
-    // TODO get default texture
     Texture tempTex("Textures/uv.png");
     object->name = name;
-    object->shader = shaderController.Get("generic");
+    // TODO : refactor somehow?
+    if (object->isLight)
+        object->shader = shaderController.Get("light");
+    else
+        object->shader = shaderController.Get("generic");
     object->texture = tempTex;
     object->position = glm::make_vec3(pos);
     object->rotation = glm::make_vec3(rot);
@@ -107,6 +111,7 @@ void ObjectManager::Draw()
            objectPtr->Draw();
     }
     // Send number of lights to light UBO
+    std::cout << "Number of lights in scene " << numLights << '\n';
     glBufferSubData(GL_UNIFORM_BUFFER,
             maxNumLights*3*sizeof(glm::vec4),
             sizeof(GLuint),

@@ -138,7 +138,9 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 
         object->isLight = itr->FindMember("isLight")->value.GetBool();
 
-        if (!object->isLight) // dont include lights for now
+        // TODO dont add lights yet since
+        // scene file does not have light information
+        if (!object->isLight)
             manager.Add(object);
     }
 }
