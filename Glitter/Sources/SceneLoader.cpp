@@ -98,8 +98,9 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             case QUAD: object = new Quad(); break;
                         //case SPHERE: object = new Sphere(); break;
             case LIGHT:
-                       object = new Light(); break;
-                       static_cast<Light*>(object)->color = glm::vec4(1.0);
+                       object = new Light();
+                       break;
+
             case NONE:
                         std::cout << "ERROR: Loading object with no type specified\n";
                         break;
@@ -137,11 +138,29 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
         object->isActive = itr->FindMember("isActive")->value.GetBool();
 
         object->isLight = itr->FindMember("isLight")->value.GetBool();
+        // TODO find a more manageable way of loading this?
+        if (object->isLight)
+        {
+            Shader* lightShader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
+            object->shader = lightShader;
+
+            {
+                const Value& a = itr->FindMember("color")->value;
+                assert(a.IsArray());
+                static_cast<Light*>(object)->color =
+                    glm::vec4(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble(), a[3].GetDouble());
+            }
+
+            static_cast<Light*>(object)->constant = itr->FindMember("constant")->value.GetDouble();
+            static_cast<Light*>(object)->linear = itr->FindMember("linear")->value.GetDouble();
+            static_cast<Light*>(object)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
+        }
+
 
         // TODO dont add lights yet since
         // scene file does not have light information
-        if (!object->isLight)
-            manager.Add(object);
+        //if (!object->isLight)
+        manager.Add(object);
     }
 }
 
@@ -164,7 +183,17 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
         objValue.SetObject();
         // Write all fields of GlObject
 
-        objValue.AddMember("type", "CUBE", allocator);
+        if (object->isLight)
+        {
+            objValue.AddMember("type", "LIGHT", allocator);
+            // Get the string associated with the shader controller map
+            objValue.AddMember("shader", "light", allocator);
+        }
+        else
+        {
+            objValue.AddMember("type", "CUBE", allocator);
+            objValue.AddMember("shader", "generic", allocator);
+        }
 
         Value tag(object->name.c_str(), allocator);
 
@@ -198,12 +227,26 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
         Value texture(object->texture.GetName().c_str(), allocator);
         objValue.AddMember("texture", texture, allocator);
 
-        objValue.AddMember("shader", "generic", allocator);
 
         objValue.AddMember("isActive", object->isActive, allocator);
 
         objValue.AddMember("isLight", object->isLight, allocator);
 
+        if (object->isLight)
+        {
+            Light* light = static_cast<Light*>(object);
+            Value color(kArrayType);
+            for (int i = 0; i < 4; ++i)
+            {
+                color.PushBack(Value().SetDouble(light->color[i]), allocator);
+            }
+            objValue.AddMember("color", color, allocator);
+            objValue.AddMember("constant" , light->constant , allocator);
+            objValue.AddMember("linear"   , light->linear   , allocator);
+            objValue.AddMember("quadratic", light->quadratic, allocator);
+            //Value lightValue;
+            //lightValue.SetObject();
+        }
         myArray.PushBack(objValue, allocator);
     }
 

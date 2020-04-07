@@ -38,6 +38,9 @@ public:
 
         glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
+        this->shader->use();
+        glUniform3fv(glGetUniformLocation(this->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(this)->color));
+
         // Draw cube
         glBindVertexArray(this->VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);

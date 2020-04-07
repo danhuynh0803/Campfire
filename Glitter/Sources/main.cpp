@@ -147,43 +147,6 @@ int main(int argc, char * argv[])
     Quad screenQuad;
     screenQuad.shader = &screenShader;
 
-    // TODO replace this into some more manageable format, like glTF
-    // ===================================================================
-    // Light information
-    //
-    std::vector<glm::vec3> lightPositions = {
-        glm::vec3( 1.0f,  0.0f,  0.0f),
-        glm::vec3(-5.0f,  2.0f,  0.0f),
-        glm::vec3( 5.0f, -3.0f, -1.0f),
-        glm::vec3( 0.0f, -2.0f,  1.0f),
-        glm::vec3( 3.0f,  1.0f,  2.0f),
-    };
-
-    std::vector<std::string> lightNames = {
-        "Red light",
-        "Green light",
-        "Blue light",
-        "Purple light",
-        "Cyan light"
-    };
-
-    std::vector<glm::vec3> lightColors = {
-        glm::vec3(1.0f, 0.0f, 0.0f), // red
-        glm::vec3(0.0f, 1.0f, 0.0f), // green
-        glm::vec3(0.0f, 0.0f, 1.0f), // blue
-        glm::vec3(1.0f, 0.0f, 1.0f), // purple
-        glm::vec3(0.0f, 1.0f, 1.0f), // cyan
-    };
-
-    // TODO move model info into GlObjects
-    std::vector<glm::vec3> boxPositions = {
-        glm::vec3( 2.0f,  0.0f,  0.0f),
-        glm::vec3(-5.0f,  3.0f,  0.0f),
-        glm::vec3( 5.0f, -3.0f, -2.0f),
-        glm::vec3( 1.0f, -2.0f,  1.0f),
-        glm::vec3( 3.0f,  2.0f,  2.0f),
-    };
-
     // ===================================================================
     // Bind UBO block index to shaders
     // TODO handle this by ShaderController
@@ -205,7 +168,7 @@ int main(int argc, char * argv[])
 
     glGenBuffers(1, &uboLights);
     glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
-    glBufferData(GL_UNIFORM_BUFFER, lightPositions.size() * sizeof(Light), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 25 * sizeof(Light), NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
@@ -243,30 +206,6 @@ int main(int argc, char * argv[])
     renderPasses.push_back(postprocessFB);
 
     shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
-    // TODO: refactor later
-    // Need to figure out how to organize and save scenes
-    for (int i = 0; i < 5; ++i)
-    {
-//        std::string name = "Cube " + std::to_string(i);
-//        Cube* cube = new Cube();
-//        cube->name = name;
-//        cube->shader = &genericShader;
-//        cube->texture = tex2;
-//        cube->position = boxPositions[i];
-//        objectManager.Add(cube);
-
-        Light* light = new Light();
-        light->name = lightNames[i];
-        light->shader = &lightShader;
-        light->color = glm::vec4(lightColors[i], 1.0f);
-        light->position = lightPositions[i];
-        light->scale = glm::vec3(0.5f);
-        objectManager.Add(light);
-    }
-
-    // Testing save scene
-    //loader.SaveScene(objectManager, "Scenes/main.json");
-    //return 0;
 
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
 //    nanosuit.shader = shaderController.Get("generic");

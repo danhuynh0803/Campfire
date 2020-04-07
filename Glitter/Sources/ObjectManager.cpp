@@ -103,17 +103,15 @@ void ObjectManager::Draw()
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
             glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboLights);
 
-            light->shader->use();
-            glUniform3fv(glGetUniformLocation(light->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(light)->color));
-
             ++i;
         }
-           objectPtr->Draw();
+
+        objectPtr->Draw();
     }
     // Send number of lights to light UBO
     // TODO replace light UBO with SSBO, since that can store much
     // more data than UBO
-    std::cout << "Number of lights in scene " << numLights << '\n';
+    //std::cout << "Number of lights in scene " << numLights << '\n';
     glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
     glBufferSubData(GL_UNIFORM_BUFFER,
             maxNumLights*3*sizeof(glm::vec4),
