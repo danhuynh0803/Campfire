@@ -105,10 +105,11 @@ void TentGui::ShowFileBrowser()
 
 void TentGui::ShowMenuFile()
 {
-    ImGui::MenuItem("(dummy menu)", NULL, false, false);
+    ImGui::MenuItem("Scene Options", NULL, false, false);
     if (ImGui::MenuItem("New"))
     {
         // Prompt user if they want to save file first before creating new scene
+        shared.sceneLoader->LoadNewScene(*(shared.objectManager));
     }
 
     // TODO allow hot keys
@@ -123,24 +124,20 @@ void TentGui::ShowMenuFile()
         ImGui::MenuItem("fish_hat.c");
         ImGui::MenuItem("fish_hat.inl");
         ImGui::MenuItem("fish_hat.h");
-        if (ImGui::BeginMenu("More.."))
-        {
-            ImGui::MenuItem("Hello");
-            ImGui::MenuItem("Sailor");
-            if (ImGui::BeginMenu("Recurse.."))
-            {
-                ShowMenuFile();
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenu();
-        }
         ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Save", "Ctrl+S"))
     {
         // Just save the current file that's loaded
         // no need to open a file browser for this
-        shared.sceneLoader->SaveCurrentScene(*(shared.objectManager));
+        if (shared.sceneLoader->HasSceneLoaded())
+        {
+            shared.sceneLoader->SaveCurrentScene(*(shared.objectManager));
+        }
+        else
+        {
+            SetFileAction(SAVE);
+        }
     }
     if (ImGui::MenuItem("Save As.."))
     {
@@ -480,13 +477,17 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
     // Create transform window in inspector
     ImGui::Begin("Inspector");
 
+    ImGuiIO& io = ImGui::GetIO();
     // Note: numbers based on ascii table
-    if (ImGui::IsKeyPressed(87)) // w
-        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(69)) // e
-        mCurrentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(82)) // r
-        mCurrentGizmoOperation = ImGuizmo::SCALE;
+    if (!io.WantCaptureKeyboard)
+    {
+        if (ImGui::IsKeyPressed(87)) // w
+            mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(69)) // e
+            mCurrentGizmoOperation = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(82)) // r
+            mCurrentGizmoOperation = ImGuizmo::SCALE;
+    }
     if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
         mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
     ImGui::SameLine();
@@ -537,8 +538,7 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
         ImGui::InputFloat3("Snap", boundsSnap);
         ImGui::PopID();
     }
-
-    ImGuiIO& io = ImGui::GetIO();
+    
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing?bounds:NULL, boundSizingSnap?boundsSnap:NULL);
 
@@ -606,17 +606,14 @@ void TentGui::ShowInspector(GlObject* object)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh Details"))
         {
-            Texture objectTex = object->texture;
-            ImGui::Text("%s", objectTex.GetName().c_str());
-
-            ImGui::SameLine();
             if (ImGui::Button("Browse.."))
             {
                 SetFileAction(LOAD_TEXTURE);
             }
+            Texture objectTex = object->texture;
+            ImGui::Text("%s", objectTex.GetName().c_str());
 
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-
             // TODO
 //            float aspectRatio = (float)objectTex.width/objectTex.height;
 //            if (ImGui::GetWindowWidth() > ImGui::GetWindowHeight())
@@ -628,7 +625,7 @@ void TentGui::ShowInspector(GlObject* object)
 //            {
 //                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowHeight()*aspectRatio, ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
 //            }
-            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0));
+            ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(256, 256), ImVec2(0,1), ImVec2(1,0));
 
             ImGui::TreePop();
         }

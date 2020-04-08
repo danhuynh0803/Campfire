@@ -53,6 +53,19 @@ Geometry ConvertStringToType(const char* type)
     return NONE;
 }
 
+void SceneLoader::LoadNewScene(ObjectManager& manager)
+{
+    std::cout << "Clearing scene\n";
+    for (auto objectPtr : manager.objectList)
+    {
+        delete objectPtr;
+    }
+    manager.objectList.clear();
+
+    currentScenePath.clear();
+    currentSceneFileName.clear();
+}
+
 void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 {
     FILE* fp = fopen(path, "r");
@@ -171,6 +184,17 @@ void SceneLoader::SaveCurrentScene(ObjectManager& manager)
 
 void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
 {
+    // If no scene was currently loaded,
+    // then designate this new path as the currently loaded scene
+    // This is for cases where users create a new scene
+    // and will save that scene
+    if (!HasSceneLoaded())
+    {
+        currentScenePath.assign(path);
+        currentSceneFileName = currentScenePath.substr(
+                currentScenePath.find_last_of('/')+1
+        );
+    }
     std::cout << "Saving Scene to " << path << '\n';
     Document doc;
     doc.SetObject();
