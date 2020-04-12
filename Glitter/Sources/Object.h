@@ -12,6 +12,10 @@ public:
 
     RigidBody* rigidBody;
     GlObject* glObject; // Contains the object's render info
+
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
+    glm::vec3 rotation = glm::vec3(0.0f);
 };
 
 #endif // OBJECT_H

@@ -8,15 +8,15 @@
 
 void ObjectManager::Add(GlObject* object)
 {
-    objectList.push_back(object);
+    glObjectList.push_back(object);
 }
 
 void ObjectManager::RemoveObject(int index)
 {
     std::cout << "Removing object at index = " << index << '\n';
-    if (!objectList.empty())
+    if (!glObjectList.empty())
     {
-        objectList.erase(objectList.begin() + index);
+        glObjectList.erase(glObjectList.begin() + index);
     }
 }
 
@@ -46,14 +46,14 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
     object->rotation = glm::make_vec3(rot);
     object->scale = glm::make_vec3(scale);
 
-    objectList.push_back(object);
+    glObjectList.push_back(object);
 }
 
 void ObjectManager::Draw()
 {
     int i = 0; // For setting light UBO
     GLuint numLights = 0;
-    for (auto objectPtr: objectList)
+    for (auto objectPtr: glObjectList)
     {
         if (objectPtr->isLight)
         {

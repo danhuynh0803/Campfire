@@ -9,6 +9,7 @@ class PhysicsManager
 public:
     void Start();
     void AddObject(Object*);
+    void AddObject(GlObject*);
     void Update();
     void Shutdown();
 

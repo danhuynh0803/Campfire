@@ -404,7 +404,7 @@ void TentGui::ShowObjects(ObjectManager& manager)
     ImGui::Separator();
 
     int i = 0;
-    for (auto object : manager.objectList)
+    for (auto object : manager.glObjectList)
     {
         if (filter.PassFilter(object->name.c_str()))
         {
@@ -421,7 +421,7 @@ void TentGui::ShowObjects(ObjectManager& manager)
 
     if (selected != -1)
     {
-        ShowInspector(manager.objectList[selected]);
+        ShowInspector(manager.glObjectList[selected]);
     }
 }
 

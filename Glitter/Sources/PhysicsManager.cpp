@@ -1,5 +1,5 @@
 #include "PhysicsManager.h"
-
+#include "Shared.h"
 
 void PhysicsManager::Start()
 {
@@ -17,19 +17,32 @@ void PhysicsManager::Start()
 
 void PhysicsManager::AddObject(Object* object)
 {
-    btCollisionShape* shape = new btBoxShape(btVector3(btScalar(1.0f), btScalar(1.0f), btScalar(1.0f)));
+
+}
+
+void PhysicsManager::AddObject(GlObject* object)
+{
+    //btCollisionShape* shape = new btBoxShape(btVector3(btScalar(1.0f), btScalar(1.0f), btScalar(1.0f)));
+    glm::vec3 scale = object->scale;
+    btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
     collisionShapes.push_back(shape);
 
     btTransform transform;
     transform.setIdentity();
-    transform.setOrigin(btVector3(0, 0, 0));
+    glm::vec3 pos = object->position;
+    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 
-    btScalar mass(0.f);
+    btScalar mass(0.0f);
+    if (object->name.compare("Floor") != 0)
+    {
+        mass = 1.0f;
+    }
 
-    object->rigidBody->isDynamic = (mass != 0.f);
+    bool isDynamic = (mass != 0.f);
+    //object->rigidBody->isDynamic = (mass != 0.f);
 
     btVector3 localInertia(0, 0, 0);
-    if (object->rigidBody->isDynamic)
+    if (isDynamic)
     {
         shape->calculateLocalInertia(mass, localInertia);
     }
@@ -60,6 +73,12 @@ void PhysicsManager::Update()
         {
             trans = obj->getWorldTransform();
         }
+
+        // Update transform
+        shared.objectManager->glObjectList[i]->position =
+            glm::vec3((float)trans.getOrigin().getX(),
+                      (float)trans.getOrigin().getY(),
+                      (float)trans.getOrigin().getZ());
     }
 }
 

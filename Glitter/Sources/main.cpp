@@ -205,6 +205,10 @@ int main(int argc, char * argv[])
     renderPasses.push_back(colorFB);
     renderPasses.push_back(postprocessFB);
 
+    PhysicsManager physicsManager;
+    physicsManager.Start();
+    shared.physicsManager = &physicsManager;
+
     shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
 
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
@@ -259,6 +263,8 @@ int main(int argc, char * argv[])
         }
 
         // TODO Update physics of all rigidbodies
+        //if (GAME.state == PLAY)
+            physicsManager.Update();
 
 
         // Rendering step
@@ -361,6 +367,8 @@ int main(int argc, char * argv[])
     {
         glDeleteFramebuffers(1, &framebuffers.ID);
     }
+
+    physicsManager.Shutdown();
 
     glfwTerminate();
     return EXIT_SUCCESS;
@@ -468,8 +476,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastY = ypos;
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-    {
-        camera.ProcessMouseMovement(xoffset, yoffset);
+    {        
+        camera.ProcessMouseMovement(xoffset, yoffset);         
     }
 }
 

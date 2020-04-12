@@ -16,6 +16,7 @@
 #include "Light.h"
 #include "ObjectManager.h"
 #include "ShaderController.h"
+#include "Shared.h"
 
 using namespace rapidjson;
 
@@ -56,11 +57,11 @@ Geometry ConvertStringToType(const char* type)
 void SceneLoader::LoadNewScene(ObjectManager& manager)
 {
     std::cout << "Clearing scene\n";
-    for (auto objectPtr : manager.objectList)
+    for (auto objectPtr : manager.glObjectList)
     {
         delete objectPtr;
     }
-    manager.objectList.clear();
+    manager.glObjectList.clear();
 
     currentScenePath.clear();
     currentSceneFileName.clear();
@@ -80,11 +81,11 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     );
 
     std::cout << "Clearing scene\n";
-    for (auto objectPtr : manager.objectList)
+    for (auto objectPtr : manager.glObjectList)
     {
         delete objectPtr;
     }
-    manager.objectList.clear();
+    manager.glObjectList.clear();
 
     std::cout << "Loading SCENE file: " << currentScenePath << '\n';
     std::cout << "Loading SCENE file: " << currentSceneFileName << '\n';
@@ -173,6 +174,7 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
         // TODO dont add lights yet since
         // scene file does not have light information
         //if (!object->isLight)
+        shared.physicsManager->AddObject(object);
         manager.Add(object);
     }
 }
@@ -201,7 +203,7 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
     Value myArray(kArrayType);
     Document::AllocatorType& allocator = doc.GetAllocator();
 
-    for (const auto object : manager.objectList)
+    for (const auto object : manager.glObjectList)
     {
         Value objValue;
         objValue.SetObject();

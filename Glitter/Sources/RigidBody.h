@@ -5,7 +5,7 @@
 
 enum ColShape
 {
-    COL_CUBE,
+    COL_BOX,
     COL_SPHERE,
     COL_CAPSULE
 };
@@ -13,8 +13,8 @@ enum ColShape
 class RigidBody
 {
 public:
-    btScalar mass;
-    btCollisionShape* colShape;
+    float mass;
+    ColShape colShape;
     bool isDynamic;
 };
 
