@@ -23,7 +23,7 @@ class Mesh
 public:
     Mesh(std::vector<Vertex>, std::vector<GLuint>, std::vector<Texture>);
 
-    void Mesh::Draw(
+    void Draw(
         Shader* shader,
         glm::vec3 position=glm::vec3(0.0f),
         glm::vec3 rotation=glm::vec3(0.0f),
