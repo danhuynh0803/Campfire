@@ -198,6 +198,8 @@ int main(int argc, char * argv[])
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Framebuffer for normal color output
     FrameBuffer colorFB("Color Pass", SCR_WIDTH, SCR_HEIGHT);
@@ -209,7 +211,8 @@ int main(int argc, char * argv[])
     physicsManager.Start();
     shared.physicsManager = &physicsManager;
 
-    shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
+    //shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
+    shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
 
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
 //    nanosuit.shader = shaderController.Get("generic");
@@ -264,7 +267,7 @@ int main(int argc, char * argv[])
 
         // TODO Update physics of all rigidbodies
         //if (GAME.state == PLAY)
-            physicsManager.Update();
+            //physicsManager.Update();
 
 
         // Rendering step

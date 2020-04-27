@@ -60,7 +60,11 @@ uniform sampler2D texIn;
 // =========================================
 vec3 Phong()
 {
-    vec3 albedo = texture(texIn, uvCoords).rgb;
+    vec4 color = texture(texIn, uvCoords);
+    if (color.a < 0.01) { discard; }
+
+    vec3 albedo = color.rgb;
+
     float specularCoeff = 0.0f;
     vec3 diffuse = vec3(0.0f);
     vec3 specular = vec3(0.0f);
@@ -92,5 +96,9 @@ vec3 Phong()
 // =========================================
 void main()
 {
-    fragColor = vec4(Phong(), 1.0f);
+    //fragColor = vec4(Phong(), 1.0f);
+    vec4 color = texture(texIn, uvCoords);
+    color.rgb = Phong();
+    if (color.a < 0.01) { discard; }
+    fragColor = color;
 }
