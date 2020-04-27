@@ -22,11 +22,34 @@ using namespace rapidjson;
 
 extern ShaderController shaderController;
 
-bool IsValidField(std::string field)
-{
-    return true;
-}
+char* ConvertTypeToString(Geometry geom);
+Geometry ConvertStringToType(const char* type);
 
+char* ConvertTypeToString(Geometry geom)
+{
+    switch (geom)
+    {
+        case CUBE:
+            return "CUBE";
+            break;
+        case QUAD:
+            return "QUAD";
+            break;
+        case SPHERE:
+            return "SPHERE";
+            break;
+        case LIGHT:
+            return "LIGHT";
+            break;
+        case MODEL:
+            return "MODEL";
+            break;
+        case NONE:
+            std::cout << "ERROR: Saving object with no type specified\n";
+            return "NONE";
+            break;
+    }
+}
 
 Geometry ConvertStringToType(const char* type)
 {
@@ -53,6 +76,12 @@ Geometry ConvertStringToType(const char* type)
 
     return NONE;
 }
+
+bool IsValidField(std::string field)
+{
+    return true;
+}
+
 
 void SceneLoader::LoadNewScene(ObjectManager& manager)
 {
@@ -116,12 +145,13 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
                        break;
 
             case NONE:
-                        std::cout << "ERROR: Loading object with no type specified\n";
-                        break;
+                       std::cout << "ERROR: Loading object with no type specified\n";
+                       break;
             default:
-                        std::cout << "ERROR: Loading object with no type specified\n";
-                        break;
+                       std::cout << "ERROR (from default): Loading object with no type specified\n";
+                       break;
         }
+        object->type = type;
 
         object->name = std::string(itr->FindMember("tag")->value.GetString());
 
@@ -207,17 +237,18 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
     {
         Value objValue;
         objValue.SetObject();
-        // Write all fields of GlObject
 
-        if (object->isLight)
+        // Write all fields of GlObject
+        Value tempValueType(ConvertTypeToString(object->type), allocator);
+        objValue.AddMember("type", tempValueType, allocator);
+
+        if (object->type == LIGHT)
         {
-            objValue.AddMember("type", "LIGHT", allocator);
             // Get the string associated with the shader controller map
             objValue.AddMember("shader", "light", allocator);
         }
         else
         {
-            objValue.AddMember("type", "CUBE", allocator);
             objValue.AddMember("shader", "generic", allocator);
         }
 

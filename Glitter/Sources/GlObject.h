@@ -19,6 +19,7 @@ enum Geometry {
     NONE
 };
 
+
 class GlObject
 {
 public:

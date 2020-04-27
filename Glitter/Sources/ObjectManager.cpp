@@ -33,6 +33,8 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
         case NONE: return;
         default: return;
     }
+    object->type = geom;
+    std::cout << object->type << '\n';
 
     Texture tempTex("Textures/uv.png");
     object->name = name;
@@ -41,6 +43,7 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
         object->shader = shaderController.Get("light");
     else
         object->shader = shaderController.Get("generic");
+
     object->texture = tempTex;
     object->position = glm::make_vec3(pos);
     object->rotation = glm::make_vec3(rot);
