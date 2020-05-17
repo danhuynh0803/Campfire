@@ -1,10 +1,10 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef GAME_OBJECT_H
+#define GAME_OBJECT_H
 
 #include "RigidBody.h"
 #include "GlObject.h"
 
-class Object
+class GameObject
 {
 public:
     // TODO think of how to make this a modular system
@@ -18,4 +18,4 @@ public:
     glm::vec3 rotation = glm::vec3(0.0f);
 };
 
-#endif // OBJECT_H
+#endif // GAME_OBJECT_H

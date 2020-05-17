@@ -483,8 +483,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastY = ypos;
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-    {        
-        camera.ProcessMouseMovement(xoffset, yoffset);         
+    {
+        camera.ProcessMouseMovement(xoffset, yoffset);
     }
 }
 

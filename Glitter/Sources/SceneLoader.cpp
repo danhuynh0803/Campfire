@@ -200,10 +200,6 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             static_cast<Light*>(object)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
         }
 
-
-        // TODO dont add lights yet since
-        // scene file does not have light information
-        //if (!object->isLight)
         shared.physicsManager->AddObject(object);
         manager.Add(object);
     }

@@ -15,9 +15,9 @@ void PhysicsManager::Start()
     dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
-void PhysicsManager::AddObject(Object* object)
+void PhysicsManager::AddObject(GameObject* object)
 {
-
+    // TODO
 }
 
 void PhysicsManager::AddObject(GlObject* object)

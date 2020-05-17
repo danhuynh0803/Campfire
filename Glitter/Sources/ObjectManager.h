@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Object.h"
+#include "GameObject.h"
 
 class ObjectManager
 {
@@ -18,12 +18,12 @@ public:
     }
 
     void Add(GlObject* object);
-    void Add(Object* object);
+    void Add(GameObject* object);
     void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3]);
     void RemoveObject(int index);
     void Draw();
 
-    std::vector<Object*> objectList;
+    std::vector<GameObject*> objectList;
     std::vector<GlObject*> glObjectList;
     // TODO better way to do this with UBOs?
     // Maybe inside a resource manager?

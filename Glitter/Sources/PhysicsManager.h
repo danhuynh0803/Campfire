@@ -2,16 +2,16 @@
 #define PHYSICS_MANAGER_H
 
 #include "btBulletDynamicsCommon.h"
-#include "Object.h"
+#include "GameObject.h"
 
 class PhysicsManager
 {
 public:
     void Start();
-    void AddObject(Object*);
-    void AddObject(GlObject*);
     void Update();
     void Shutdown();
+    void AddObject(GameObject*);
+    void AddObject(GlObject*);
 
 private:
     btDefaultCollisionConfiguration* collisionConfiguration;
