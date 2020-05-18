@@ -442,12 +442,6 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
     }
 
-    // Screen clicking
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-    {
-
-    }
-
     // Camera movement
     // Move camera only when clicking the right mouse button
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -510,6 +504,25 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    // Screen clicking
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        glm::vec3 rayOrig, rayDir;
+        ScreenToWorldRay(
+                xpos,
+                ypos,
+                SCR_WIDTH,
+                SCR_HEIGHT,
+                camera.GetViewMatrix(),
+                camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT),
+                rayOrig,
+                rayDir
+        );
+
+        GameObject* hitObject = shared.physicsManager->Raycast(rayOrig, rayDir);
+    }
+
+
     if (firstMouse)
     {
         lastX = xpos;

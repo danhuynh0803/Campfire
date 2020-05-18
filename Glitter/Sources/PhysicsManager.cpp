@@ -58,20 +58,24 @@ GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 {
     glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;
 
+    btVector3 from(rayOrigin.x, rayOrigin.y, rayOrigin.z);
+    btVector3 to(rayEnd.x, rayEnd.y, rayEnd.z);
+
     btCollisionWorld::ClosestRayResultCallback closestHit(
-        btVector3(rayOrigin.x, rayOrigin.y, rayOrigin.z),
-        btVector3(rayEnd.x, rayEnd.y, rayEnd.z)
+        from,
+        to
     );
 
     dynamicsWorld->rayTest(
-        btVector3(rayOrigin.x, rayOrigin.y, rayOrigin.z),
-        btVector3(rayEnd.x, rayEnd.y, rayEnd.z),
+        from,
+        to,
         closestHit
     );
 
     if (closestHit.hasHit())
     {
-        std::cout << closestHit.m_collisionObject << '\n';
+        std::cout << closestHit.m_collisionObject << '\n';        
+        return nullptr; // TODO
     }
     else // Not hit with any gameobjects
     {
