@@ -30,7 +30,7 @@
 #include "FrameBuffer.h"
 #include "Cube.h"
 #include "Quad.h"
-#include "Game.h"
+#include "GameManager.h"
 #include "Cubemap.h"
 #include "SceneLoader.h"
 #include "Model.h"
@@ -74,7 +74,7 @@ ShaderController shaderController;
 
 TentGui tentGui;
 
-GameController GAME;
+GameManager GAME;
 
 Shared shared;
 
@@ -381,6 +381,41 @@ int main(int argc, char * argv[])
     return EXIT_SUCCESS;
 }
 
+void ScreenToWorldRay(
+        int mouseX, int mouseY,
+        int screenWidth, int screenHeight,
+        glm::mat4 viewMatrix,
+        glm::mat4 projMatrix,
+        glm::vec3& outOrigin,
+        glm::vec3& outDirection
+)
+{
+    // Get a ray from camera but converted into NDC
+    glm::vec4 rayStartNDC(
+        ((float)mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        ((float)mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        -1.0f, // Z=-1 since near plane maps to -1 in NDC
+         1.0f
+    );
+
+    glm::vec4 rayEndNDC(
+        ((float)mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        ((float)mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        0.0f, // Z=0 for farplane in NDC
+        1.0f
+    );
+
+    glm::mat4 worldSpaceMatrix = glm::inverse(projMatrix * viewMatrix);
+
+    glm::vec4 rayStartWorld = worldSpaceMatrix * rayStartNDC;
+    rayStartWorld /= rayStartWorld.w;
+
+    glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
+    rayEndWorld /= rayEndWorld.w;
+
+    outOrigin = rayStartWorld;
+    outDirection = glm::normalize(rayEndWorld - rayStartWorld);
+}
 
 void processInputOnce(GLFWwindow *window)
 {
@@ -405,6 +440,12 @@ void processInput(GLFWwindow *window)
     {
         // TODO add a prompt to ask user if they really want to exit
         glfwSetWindowShouldClose(window, true);
+    }
+
+    // Screen clicking
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+
     }
 
     // Camera movement

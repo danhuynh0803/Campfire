@@ -11,7 +11,7 @@
 #include "ObjectManager.h"
 #include "Camera.h"
 #include "FrameBuffer.h"
-#include "Game.h"
+#include "GameManager.h"
 
 #include <vector>
 
@@ -20,7 +20,7 @@ class TentGui
 public:
     void Init(GLFWwindow*);
 
-    void RenderStateButtons(GameController&);
+    void RenderStateButtons(GameManager&);
     void RenderGUI(ObjectManager&);
 
     void ShowCamera(Camera&);

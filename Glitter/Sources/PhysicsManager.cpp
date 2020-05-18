@@ -12,7 +12,7 @@ void PhysicsManager::Start()
     solver = new btSequentialImpulseConstraintSolver();
 
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-    dynamicsWorld->setGravity(btVector3(0, -10, 0));
+    dynamicsWorld->setGravity(btVector3(0, gravity, 0));
 }
 
 void PhysicsManager::AddObject(GameObject* object)
@@ -52,6 +52,31 @@ void PhysicsManager::AddObject(GlObject* object)
     btRigidBody* body = new btRigidBody(rbInfo);
 
     dynamicsWorld->addRigidBody(body);
+}
+
+GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
+{
+    glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;
+
+    btCollisionWorld::ClosestRayResultCallback closestHit(
+        btVector3(rayOrigin.x, rayOrigin.y, rayOrigin.z),
+        btVector3(rayEnd.x, rayEnd.y, rayEnd.z)
+    );
+
+    dynamicsWorld->rayTest(
+        btVector3(rayOrigin.x, rayOrigin.y, rayOrigin.z),
+        btVector3(rayEnd.x, rayEnd.y, rayEnd.z),
+        closestHit
+    );
+
+    if (closestHit.hasHit())
+    {
+        std::cout << closestHit.m_collisionObject << '\n';
+    }
+    else // Not hit with any gameobjects
+    {
+        return nullptr;
+    }
 }
 
 void PhysicsManager::Update()

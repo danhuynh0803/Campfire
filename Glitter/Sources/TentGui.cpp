@@ -262,7 +262,7 @@ void TentGui::Init(GLFWwindow* window)
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
-void TentGui::RenderStateButtons(GameController& gc)
+void TentGui::RenderStateButtons(GameManager& gc)
 {
     ImGui::Begin("Game State");
     static int state = static_cast<int>(gc.state); // State in stop state (scene mode)
