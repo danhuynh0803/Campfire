@@ -59,6 +59,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
 
+double mouseX, mouseY; // TODO just for testing clicking
+
 // TODO: move buffers to their own classes at some point
 GLuint VAO;
 GLuint uboLights;
@@ -80,6 +82,9 @@ Shared shared;
 
 int main(int argc, char * argv[])
 {
+    // TODO for testing, move later
+    shared.renderCamera = &camera;
+
     // Load GLFW and Create a Window
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -114,11 +119,13 @@ int main(int argc, char * argv[])
     Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
     Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
     Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
+    Shader lineShader("../Glitter/Shaders/line.vert", "../Glitter/Shaders/line.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
     shaderController.Add("generic", &genericShader);
     shaderController.Add("light", &lightShader);
     shaderController.Add("screen", &screenShader);
+    shaderController.Add("line", &lineShader);
 
     shared.shaderController = &shaderController;
     shared.objectManager = &objectManager;
@@ -215,8 +222,9 @@ int main(int argc, char * argv[])
     physicsManager.Start();
     shared.physicsManager = &physicsManager;
 
-    //shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
-    shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
+    // FIXME something with physics manager is causing crash when switching scenes
+    shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
+    //shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
 
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
 //    nanosuit.shader = shaderController.Get("generic");
@@ -271,11 +279,9 @@ int main(int argc, char * argv[])
 
         // TODO Update physics of all rigidbodies
         //if (GAME.state == PLAY)
-            //physicsManager.Update();
-
+        physicsManager.Update();
 
         // Rendering step
-
         // ===================================================================
         { // First render pass
             // Getting color of the scene
@@ -300,6 +306,13 @@ int main(int argc, char * argv[])
             // Draw scene
             objectManager.Draw();
 
+            // Draw physics bounding boxes
+            // If debug enabled TODO
+            if (physicsManager.isBoundingBoxOn)
+            {
+                physicsManager.DebugDraw();
+            }
+
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
@@ -320,6 +333,7 @@ int main(int argc, char * argv[])
 //            glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //            glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 //        }
+
 
         // ===================================================================
         { // Final pass: post-process
@@ -382,7 +396,7 @@ int main(int argc, char * argv[])
 }
 
 void ScreenToWorldRay(
-        int mouseX, int mouseY,
+        double mouseX, double mouseY,
         int screenWidth, int screenHeight,
         glm::mat4 viewMatrix,
         glm::mat4 projMatrix,
@@ -392,15 +406,15 @@ void ScreenToWorldRay(
 {
     // Get a ray from camera but converted into NDC
     glm::vec4 rayStartNDC(
-        ((float)mouseX/(float)screenWidth  - 0.5f) * 2.0f,
-        ((float)mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        (mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        (mouseY/(float)screenHeight - 0.5f) * 2.0f,
         -1.0f, // Z=-1 since near plane maps to -1 in NDC
          1.0f
     );
 
     glm::vec4 rayEndNDC(
-        ((float)mouseX/(float)screenWidth  - 0.5f) * 2.0f,
-        ((float)mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        (mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        (mouseY/(float)screenHeight - 0.5f) * 2.0f,
         0.0f, // Z=0 for farplane in NDC
         1.0f
     );
@@ -433,6 +447,43 @@ void processInput(GLFWwindow *window)
     if (io.WantCaptureKeyboard)
     {
         return;
+    }
+
+    { // bounding boxes
+        static int oldStateB = GLFW_RELEASE;
+        int newStateB = glfwGetKey(window, GLFW_KEY_B);
+        if (newStateB == GLFW_PRESS && oldStateB == GLFW_RELEASE)
+        {
+            shared.physicsManager->isBoundingBoxOn ^= 1;
+        }
+        oldStateB = newStateB;
+    }
+
+    {
+        static int oldClickState = GLFW_RELEASE;
+        int newClickState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        if (newClickState == GLFW_PRESS && oldClickState == GLFW_RELEASE)
+        {
+            glm::vec3 rayOrig, rayDir;
+            ScreenToWorldRay(
+                    mouseX,
+                    mouseY,
+                    SCR_WIDTH,
+                    SCR_HEIGHT,
+                    camera.GetViewMatrix(),
+                    camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT),
+                    rayOrig,
+                    rayDir
+            );
+
+            shared.physicsManager->Raycast(rayOrig, rayDir);
+        }
+        oldClickState = newClickState;
+    }
+    // Screen cast
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
+    {
+
     }
 
     // Quit
@@ -504,24 +555,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    // Screen clicking
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-    {
-        glm::vec3 rayOrig, rayDir;
-        ScreenToWorldRay(
-                xpos,
-                ypos,
-                SCR_WIDTH,
-                SCR_HEIGHT,
-                camera.GetViewMatrix(),
-                camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT),
-                rayOrig,
-                rayDir
-        );
-
-        GameObject* hitObject = shared.physicsManager->Raycast(rayOrig, rayDir);
-    }
-
+    mouseX = xpos;
+    mouseY = ypos;
 
     if (firstMouse)
     {

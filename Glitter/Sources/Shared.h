@@ -11,12 +11,14 @@
 
 struct Shared
 {
-    ObjectManager* objectManager;
-    ShaderController* shaderController;
-    SceneLoader* sceneLoader;
-    PhysicsManager* physicsManager;
+    ObjectManager* objectManager = nullptr;
+    ShaderController* shaderController = nullptr;
+    SceneLoader* sceneLoader = nullptr;
+    PhysicsManager* physicsManager = nullptr;
 
-    std::vector<Camera> cameras;
+    // The camera used to display scene view
+    // and not game view
+    Camera* renderCamera = nullptr;
 };
 
 extern Shared shared;

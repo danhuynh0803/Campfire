@@ -24,6 +24,10 @@ public:
         }
     }
 
+    void CreateShader(const char* vertPath, const char* fragPath)
+    {
+    }
+
     void Add(std::string tag, Shader* shader)
     {
         shaderMap.insert(std::pair<std::string, Shader*>(tag, shader));

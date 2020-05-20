@@ -1,5 +1,7 @@
 #include "PhysicsManager.h"
 #include "Shared.h"
+#include <iostream>
+
 
 void PhysicsManager::Start()
 {
@@ -13,6 +15,8 @@ void PhysicsManager::Start()
 
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0, gravity, 0));
+
+    dynamicsWorld->setDebugDrawer(&mydebugdrawer);
 }
 
 void PhysicsManager::AddObject(GameObject* object)
@@ -25,6 +29,8 @@ void PhysicsManager::AddObject(GlObject* object)
     //btCollisionShape* shape = new btBoxShape(btVector3(btScalar(1.0f), btScalar(1.0f), btScalar(1.0f)));
     glm::vec3 scale = object->scale;
     btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
+    std::cout << scale.x << scale.y << scale.y << std::endl;
+
     collisionShapes.push_back(shape);
 
     btTransform transform;
@@ -79,6 +85,7 @@ GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
     }
     else // Not hit with any gameobjects
     {
+        std::cout << "No object hit from raycast\n";
         return nullptr;
     }
 }
@@ -108,7 +115,19 @@ void PhysicsManager::Update()
             glm::vec3((float)trans.getOrigin().getX(),
                       (float)trans.getOrigin().getY(),
                       (float)trans.getOrigin().getZ());
-    }
+    }    
+}
+
+void PhysicsManager::DebugDraw()
+{
+    mydebugdrawer.SetMatrices(
+        shared.renderCamera->GetViewMatrix(),
+        shared.renderCamera->GetProjMatrix(1600.0f, 900.0f)
+    );
+
+    dynamicsWorld->debugDrawWorld();
+
+    //mydebugdrawer.DebugDraw();
 }
 
 void PhysicsManager::Shutdown()
