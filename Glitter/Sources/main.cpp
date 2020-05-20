@@ -252,8 +252,8 @@ int main(int argc, char * argv[])
         glm::mat4 proj = glm::mat4(1.0f);
         if (GAME.state == PLAY || GAME.state == PAUSE)
         {
-            view = gameCamera.GetViewMatrix();
-            proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+            //view = gameCamera.GetViewMatrix();
+            //proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
         }
         else
         {
@@ -279,7 +279,7 @@ int main(int argc, char * argv[])
 
         // TODO Update physics of all rigidbodies
         //if (GAME.state == PLAY)
-        physicsManager.Update();
+            physicsManager.Update();
 
         // Rendering step
         // ===================================================================

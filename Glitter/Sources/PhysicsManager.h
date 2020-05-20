@@ -29,8 +29,8 @@ private:
 
     BulletDebugDrawer_OpenGL mydebugdrawer;
 
-    //float gravity = -9.81;
-    float gravity = 0.0f; // TODO Debug option later
+    float gravity = -9.81;
+    //float gravity = 0.0f; // TODO Debug option later
 };
 
 #endif // PHYSICS_MANAGER_H

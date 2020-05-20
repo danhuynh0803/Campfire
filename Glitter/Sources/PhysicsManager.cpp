@@ -26,8 +26,8 @@ void PhysicsManager::AddObject(GameObject* object)
 
 void PhysicsManager::AddObject(GlObject* object)
 {
-    //btCollisionShape* shape = new btBoxShape(btVector3(btScalar(1.0f), btScalar(1.0f), btScalar(1.0f)));
-    glm::vec3 scale = object->scale;
+    //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
+    glm::vec3 scale = object->scale * 0.51f; // 0.51f just to extend collider a bit outside the mesh
     btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
     std::cout << scale.x << scale.y << scale.y << std::endl;
 
@@ -39,6 +39,7 @@ void PhysicsManager::AddObject(GlObject* object)
     transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 
     btScalar mass(0.0f);
+    // TODO get rigid body info into scene files
     if (object->name.compare("Floor") != 0)
     {
         mass = 1.0f;
@@ -80,7 +81,7 @@ GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 
     if (closestHit.hasHit())
     {
-        std::cout << closestHit.m_collisionObject << '\n';        
+        std::cout << closestHit.m_collisionObject << '\n';
         return nullptr; // TODO
     }
     else // Not hit with any gameobjects
@@ -111,11 +112,10 @@ void PhysicsManager::Update()
         }
 
         // Update transform
-        shared.objectManager->glObjectList[i]->position =
-            glm::vec3((float)trans.getOrigin().getX(),
-                      (float)trans.getOrigin().getY(),
-                      (float)trans.getOrigin().getZ());
-    }    
+        btScalar m[16];
+        trans.getOpenGLMatrix(m);
+        shared.objectManager->glObjectList[i]->model = glm::make_mat4x4(m);
+    }
 }
 
 void PhysicsManager::DebugDraw()
@@ -126,7 +126,7 @@ void PhysicsManager::DebugDraw()
     );
 
     dynamicsWorld->debugDrawWorld();
-
+    // TODO make all lines into one draw call
     //mydebugdrawer.DebugDraw();
 }
 
