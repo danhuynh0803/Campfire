@@ -29,8 +29,8 @@ public:
     void ShowSceneHierarchy(ObjectManager&);
     void ShowPrimitiveGenerator(ObjectManager&);
     void ShowObjects(ObjectManager&);
-    void ShowGizmo(GlObject*);
-    void ShowInspector(GlObject*);
+    void ShowGizmo(GameObject*);
+    void ShowInspector(GameObject*);
     void ShowRenderPasses(const std::vector<FrameBuffer>&);
     // =================================
 

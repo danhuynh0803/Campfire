@@ -23,13 +23,11 @@ public:
         InitRenderData();
     }
 
-    void Draw(glm::vec3 color = glm::vec3(1.0f))
-    {
-        if (!isActive) { return; }
-
+    void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
+    {        
         for (Mesh mesh : meshes)
         {
-            mesh.Draw(this->shader, position, rotation, scale);
+            mesh.Draw(this->shader, pos, rot, scale);
         }
     }
 

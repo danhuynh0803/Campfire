@@ -6,65 +6,67 @@
 #include "Quad.h"
 #include "Light.h"
 
-void ObjectManager::Add(GlObject* object)
+void ObjectManager::Add(GameObject* object)
 {
-    glObjectList.push_back(object);
+    objectList.push_back(object);
 }
 
 void ObjectManager::RemoveObject(int index)
 {
     std::cout << "Removing object at index = " << index << '\n';
-    if (!glObjectList.empty())
+    if (!objectList.empty())
     {
-        glObjectList.erase(glObjectList.begin() + index);
+        objectList.erase(objectList.begin() + index);
     }
 }
 
 void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
 {
-    GlObject* object;
+    GameObject* gameObject;
+    GlObject* mesh;
 
     switch (geom)
     {
-        case CUBE: object = new Cube(); break;
-        case QUAD: object = new Quad(); break;
-        //case SPHERE: object = new Sphere(); break;
-        case LIGHT: object = new Light(); break;
+        case CUBE: mesh = new Cube(); break;
+        case QUAD: mesh = new Quad(); break;
+        //case SPHERE: mesh = new Sphere(); break;
+        case LIGHT: mesh = new Light(); break;
         case NONE: return;
         default: return;
     }
-    object->type = geom;
-    std::cout << object->type << '\n';
+    mesh->type = geom;
+    std::cout << mesh->type << '\n';
 
     Texture tempTex("Textures/uv.png");
-    object->name = name;
+    gameObject->name = name;
     // TODO : refactor somehow?
-    if (object->type == LIGHT)
-        object->shader = shaderController.Get("light");
+    if (mesh->type == LIGHT)
+        mesh->shader = shaderController.Get("light");
     else
-        object->shader = shaderController.Get("generic");
+        mesh->shader = shaderController.Get("generic");
 
-    object->texture = tempTex;
-    object->position = glm::make_vec3(pos);
-    object->rotation = glm::make_vec3(rot);
-    object->scale = glm::make_vec3(scale);
+    mesh->texture = tempTex;
+    gameObject->position = glm::make_vec3(pos);
+    gameObject->rotation = glm::make_vec3(rot);
+    gameObject->scale = glm::make_vec3(scale);
 
-    glObjectList.push_back(object);
+    gameObject->glObject = mesh;
+    objectList.push_back(gameObject);
 }
 
 void ObjectManager::Draw()
 {
     int i = 0; // For setting light UBO
     GLuint numLights = 0;
-    for (auto objectPtr: glObjectList)
+    for (auto objectPtr: objectList)
     {
-        if (objectPtr->type == LIGHT)
+        if (objectPtr->glObject->type == LIGHT)
         {
-            Light* light = static_cast<Light*>(objectPtr);
+            Light* light = static_cast<Light*>(objectPtr->glObject);
             numLights++;
 
             glm::vec4 color = light->color;
-            if (!light->isActive)
+            if (!objectPtr->isActive)
             {
                 // If light is inactive, set color to 0
                 // this is to overwrite old data stored
@@ -80,7 +82,7 @@ void ObjectManager::Draw()
             glBufferSubData(GL_UNIFORM_BUFFER,
                     3*sizeof(glm::vec4)*i,
                     sizeof(glm::vec4),
-                    glm::value_ptr(light->position));
+                    glm::value_ptr(objectPtr->position));
 
             // Color
             glBufferSubData(GL_UNIFORM_BUFFER,
@@ -108,8 +110,8 @@ void ObjectManager::Draw()
 
             ++i;
         }
-
-        objectPtr->Draw();
+        // TODO
+        //objectPtr->glObject->Draw();
     }
     // Send number of lights to light UBO
     // TODO replace light UBO with SSBO, since that can store much

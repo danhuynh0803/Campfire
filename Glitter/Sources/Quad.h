@@ -15,28 +15,26 @@ public:
     }
     //~Quad() = delete;
 
-    void Draw(glm::vec3 color = glm::vec3(1.0f))
+    void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
     {
-        if (isActive)
-        {
-            this->shader->use();
+        this->shader->use();
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, this->texture.ID);
-            glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, this->texture.ID);
+        glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
 
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::translate(model, this->position);
-            model = glm::scale(model, this->scale);
-            glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        // FIXME
+        //glm::mat4 model = glm::mat4(1.0f);
+        //model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        //model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        //model = glm::translate(model, this->position);
+        //model = glm::scale(model, this->scale);
+        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-            glBindVertexArray(this->VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-        }
+        glBindVertexArray(this->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
     }
 
     void InitRenderData()

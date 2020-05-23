@@ -254,6 +254,8 @@ int main(int argc, char * argv[])
         {
             //view = gameCamera.GetViewMatrix();
             //proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+            view = camera.GetViewMatrix();
+            proj = camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
         }
         else
         {
@@ -278,7 +280,7 @@ int main(int argc, char * argv[])
         }
 
         // TODO Update physics of all rigidbodies
-        //if (GAME.state == PLAY)
+        if (GAME.state == PLAY)
             physicsManager.Update();
 
         // Rendering step
@@ -336,26 +338,26 @@ int main(int argc, char * argv[])
 
 
         // ===================================================================
-        { // Final pass: post-process
-            screenQuad.texture = colorFB.texture;
-            glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
-
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            glDisable(GL_DEPTH_TEST);
-            screenQuad.Draw();
-
-            // TODO how to handle the need to
-            // still render to the default FB to
-            // show something on the screen?
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            glDisable(GL_DEPTH_TEST);
-            screenQuad.Draw();
-        }
+//        { // Final pass: post-process
+//            screenQuad.texture = colorFB.texture;
+//            glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
+//
+//            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+//            glClear(GL_COLOR_BUFFER_BIT);
+//
+//            glDisable(GL_DEPTH_TEST);
+//            screenQuad.Draw();
+//
+//            // TODO how to handle the need to
+//            // still render to the default FB to
+//            // show something on the screen?
+//            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+//            glClear(GL_COLOR_BUFFER_BIT);
+//
+//            glDisable(GL_DEPTH_TEST);
+//            screenQuad.Draw();
+//        }
 
         // ===================================================================
 

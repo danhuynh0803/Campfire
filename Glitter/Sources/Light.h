@@ -12,14 +12,12 @@ class Light : public GlObject
 public:
 
     Light()
-    {        
+    {
         InitRenderData();
     }
 
-    void Draw(glm::vec3 color = glm::vec3(1.0f))
+    void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
     {
-        if (!isActive) { return; }
-
         this->shader->use();
 
         glActiveTexture(GL_TEXTURE0);
@@ -34,9 +32,9 @@ public:
 
         //model = glm::translate(model, position);
 
-        model = glm::scale(model, scale);
+        //model = glm::scale(model, scale);
 
-        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         this->shader->use();
         glUniform3fv(glGetUniformLocation(this->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(this)->color));

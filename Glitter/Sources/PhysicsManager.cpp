@@ -19,17 +19,18 @@ void PhysicsManager::Start()
     dynamicsWorld->setDebugDrawer(&mydebugdrawer);
 }
 
-void PhysicsManager::AddObject(GameObject* object)
-{
-    // TODO
-}
+// TODO for when updating rigidbody parameters in GUI
+//void PhysicsManager::UpdateObject()
+//{
+//
+//}
 
-void PhysicsManager::AddObject(GlObject* object)
+void PhysicsManager::AddObject(GameObject* object)
 {
     //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
     glm::vec3 scale = object->scale * 0.51f; // 0.51f just to extend collider a bit outside the mesh
+    // TODO make collider shape customizable
     btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
-    std::cout << scale.x << scale.y << scale.y << std::endl;
 
     collisionShapes.push_back(shape);
 
@@ -38,18 +39,9 @@ void PhysicsManager::AddObject(GlObject* object)
     glm::vec3 pos = object->position;
     transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 
-    btScalar mass(0.0f);
-    // TODO get rigid body info into scene files
-    if (object->name.compare("Floor") != 0)
-    {
-        mass = 1.0f;
-    }
-
-    bool isDynamic = (mass != 0.f);
-    //object->rigidBody->isDynamic = (mass != 0.f);
-
+    btScalar mass = object->rigidBody->mass;
     btVector3 localInertia(0, 0, 0);
-    if (isDynamic)
+    if (object->rigidBody->isDynamic)
     {
         shape->calculateLocalInertia(mass, localInertia);
     }
@@ -60,6 +52,44 @@ void PhysicsManager::AddObject(GlObject* object)
 
     dynamicsWorld->addRigidBody(body);
 }
+
+//void PhysicsManager::AddObject(GlObject* object)
+//{
+//    //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
+//    glm::vec3 scale = object->scale * 0.51f; // 0.51f just to extend collider a bit outside the mesh
+//    btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
+//    std::cout << scale.x << scale.y << scale.y << std::endl;
+//
+//    collisionShapes.push_back(shape);
+//
+//    btTransform transform;
+//    transform.setIdentity();
+//    glm::vec3 pos = object->position;
+//    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+//
+//    btScalar mass(0.0f);
+//    // TODO get rigid body info into scene files
+//    if (object->name.compare("Floor") != 0)
+//    {
+//        mass = 1.0f;
+//    }
+//
+//    bool isDynamic = (mass != 0.f);
+//    //object->rigidBody->isDynamic = (mass != 0.f);
+//
+//    btVector3 localInertia(0, 0, 0);
+//    if (isDynamic)
+//    {
+//        shape->calculateLocalInertia(mass, localInertia);
+//    }
+//
+//    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+//    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
+//    btRigidBody* body = new btRigidBody(rbInfo);
+//
+//    dynamicsWorld->addRigidBody(body);
+//}
+
 
 GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 {
@@ -114,7 +144,7 @@ void PhysicsManager::Update()
         // Update transform
         btScalar m[16];
         trans.getOpenGLMatrix(m);
-        shared.objectManager->glObjectList[i]->model = glm::make_mat4x4(m);
+        //shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
     }
 }
 
@@ -122,6 +152,7 @@ void PhysicsManager::DebugDraw()
 {
     mydebugdrawer.SetMatrices(
         shared.renderCamera->GetViewMatrix(),
+        // TODO get resolution from camera
         shared.renderCamera->GetProjMatrix(1600.0f, 900.0f)
     );
 

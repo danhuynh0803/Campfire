@@ -43,7 +43,7 @@ static void SetFileAction(FileAction action)
 }
 
 static std::string selectedFilePath;
-static GlObject* selectedObject;
+static GameObject* selectedObject;
 
 void TentGui::ShowFileBrowser()
 {
@@ -94,7 +94,7 @@ void TentGui::ShowFileBrowser()
             case LOAD_TEXTURE: // TODO
                 std::cout << "Loading new texture " << fileDialog.GetSelected().string() << '\n';
                 Texture newTexture(fileDialog.GetSelected().string().c_str());
-                selectedObject->texture = newTexture;
+                selectedObject->glObject->texture = newTexture;
                 break;
         }
 
@@ -404,7 +404,7 @@ void TentGui::ShowObjects(ObjectManager& manager)
     ImGui::Separator();
 
     int i = 0;
-    for (auto object : manager.glObjectList)
+    for (auto object : manager.objectList)
     {
         if (filter.PassFilter(object->name.c_str()))
         {
@@ -421,7 +421,7 @@ void TentGui::ShowObjects(ObjectManager& manager)
 
     if (selected != -1)
     {
-        ShowInspector(manager.glObjectList[selected]);
+        ShowInspector(manager.objectList[selected]);
     }
 }
 
@@ -463,7 +463,7 @@ void TentGui::ShowMetrics(double frameTime)
     ImGui::End();
 }
 
-void EditTransform(GlObject* object, const float *cameraView, float *cameraProjection, float* matrix)
+void EditTransform(GameObject* object, const float *cameraView, float *cameraProjection, float* matrix)
 {
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
@@ -553,7 +553,7 @@ void EditTransform(GlObject* object, const float *cameraView, float *cameraProje
 }
 
 
-void TentGui::ShowInspector(GlObject* object)
+void TentGui::ShowInspector(GameObject* object)
 {
     selectedObject = object;
     // TODO recompose model matrix to draw
@@ -573,16 +573,17 @@ void TentGui::ShowInspector(GlObject* object)
     ImGui::Separator();
 
     { // Transform Info
-        float* matrix = const_cast<float*>(glm::value_ptr(object->GetModelMatrix()));
-        float* view = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
-        float* proj = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
+        float* model = const_cast<float*>(glm::value_ptr(object->model));
+        float* view  = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
+        float* proj  = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
 
-        EditTransform(object, view, proj, matrix);
+        EditTransform(object, view, proj, model);
     }
 
-    if (object->type == LIGHT)
+    GlObject* mesh = object->glObject;
+    if (mesh->type == LIGHT)
     { // Attenuation factors
-        Light* light = static_cast<Light*>(object);
+        Light* light = static_cast<Light*>(mesh);
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Light Settings"))
         {
@@ -610,7 +611,7 @@ void TentGui::ShowInspector(GlObject* object)
             {
                 SetFileAction(LOAD_TEXTURE);
             }
-            Texture objectTex = object->texture;
+            Texture objectTex = object->glObject->texture;
             ImGui::Text("%s", objectTex.GetName().c_str());
 
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
