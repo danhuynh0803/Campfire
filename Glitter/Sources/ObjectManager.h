@@ -19,7 +19,7 @@ public:
     }
 
     void Add(GameObject* object);
-    void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3]);
+    void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale);
     void RemoveObject(int index);
     void Draw();
 

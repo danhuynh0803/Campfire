@@ -20,7 +20,7 @@ void ObjectManager::RemoveObject(int index)
     }
 }
 
-void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
+void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 {
     GameObject* gameObject = new GameObject();
     GlObject* mesh;
@@ -46,9 +46,10 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
         mesh->shader = shaderController.Get("generic");
 
     mesh->texture = tempTex;
-    gameObject->position = glm::make_vec3(pos);
-    gameObject->rotation = glm::make_vec3(rot);
-    gameObject->scale = glm::make_vec3(scale);
+
+    gameObject->position = pos;
+    gameObject->rotation = rot;
+    gameObject->scale = scale;
 
     gameObject->glObject = mesh;
     objectList.push_back(gameObject);

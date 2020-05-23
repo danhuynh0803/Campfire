@@ -349,17 +349,9 @@ void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
     static char tag[TAG_LENGTH] = "";
     ImGui::InputTextWithHint("Tag", "Enter object tag here", tag, IM_ARRAYSIZE(tag));
 
-    static float position[3] = { 0.0f, 0.0f, 0.0f };
-    ImGui::DragFloat3("Position", position, 0.01f);
-    ImGui::Spacing();
-
-    static float rotation[3] = { 0.0f, 0.0f, 0.0f };
-    ImGui::DragFloat3("Rotation", rotation, 0.01f);
-    ImGui::Spacing();
-
-    static float scale[3] = { 1.0f, 1.0f, 1.0f };
-    ImGui::DragFloat3("Scale", scale, 0.01f);
-    ImGui::Spacing();
+    glm::vec3 position = shared.renderCamera->Position + shared.renderCamera->Front * 5.0f;
+    glm::vec3 rotation = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
 
     std::string tagString(tag);
     if (tagString.empty()) { tagString = "<no tag>"; }
