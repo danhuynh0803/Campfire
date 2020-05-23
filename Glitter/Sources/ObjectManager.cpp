@@ -39,7 +39,7 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], fl
     Texture tempTex("Textures/uv.png");
     object->name = name;
     // TODO : refactor somehow?
-    if (object->isLight)
+    if (object->type == LIGHT)
         object->shader = shaderController.Get("light");
     else
         object->shader = shaderController.Get("generic");
@@ -58,7 +58,7 @@ void ObjectManager::Draw()
     GLuint numLights = 0;
     for (auto objectPtr: glObjectList)
     {
-        if (objectPtr->isLight)
+        if (objectPtr->type == LIGHT)
         {
             Light* light = static_cast<Light*>(objectPtr);
             numLights++;

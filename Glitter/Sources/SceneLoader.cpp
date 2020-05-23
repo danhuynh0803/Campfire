@@ -82,7 +82,6 @@ bool IsValidField(std::string field)
     return true;
 }
 
-
 void SceneLoader::LoadNewScene(ObjectManager& manager)
 {
     std::cout << "Clearing scene\n";
@@ -181,9 +180,8 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 
         object->isActive = itr->FindMember("isActive")->value.GetBool();
 
-        object->isLight = itr->FindMember("isLight")->value.GetBool();
         // TODO find a more manageable way of loading this?
-        if (object->isLight)
+        if (object->type == LIGHT)
         {
             Shader* lightShader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
             object->shader = lightShader;
@@ -282,10 +280,8 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
 
 
         objValue.AddMember("isActive", object->isActive, allocator);
-
-        objValue.AddMember("isLight", object->isLight, allocator);
-
-        if (object->isLight)
+        
+        if (object->type == LIGHT)
         {
             Light* light = static_cast<Light*>(object);
             Value color(kArrayType);

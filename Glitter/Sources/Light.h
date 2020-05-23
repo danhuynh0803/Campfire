@@ -12,8 +12,7 @@ class Light : public GlObject
 public:
 
     Light()
-    {
-        isLight = true;
+    {        
         InitRenderData();
     }
 

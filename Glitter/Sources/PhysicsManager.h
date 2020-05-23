@@ -29,6 +29,7 @@ private:
 
     BulletDebugDrawer_OpenGL mydebugdrawer;
 
+    //float gravity = -1;
     float gravity = -9.81;
     //float gravity = 0.0f; // TODO Debug option later
 };

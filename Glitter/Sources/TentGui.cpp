@@ -580,7 +580,7 @@ void TentGui::ShowInspector(GlObject* object)
         EditTransform(object, view, proj, matrix);
     }
 
-    if (object->isLight)
+    if (object->type == LIGHT)
     { // Attenuation factors
         Light* light = static_cast<Light*>(object);
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);

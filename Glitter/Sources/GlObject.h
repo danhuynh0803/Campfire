@@ -52,7 +52,6 @@ public:
     Texture texture;
 
     bool isActive = true;
-    bool isLight = false;
 };
 
 #endif // GL_OBJECT_H
