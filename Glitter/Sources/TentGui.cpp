@@ -112,7 +112,7 @@ void TentGui::ShowMenuFile()
         shared.sceneLoader->LoadNewScene(*(shared.objectManager));
     }
 
-    // TODO allow hot keys
+    // TODO allow hot keys, add to input handler
     if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
     {
         SetFileAction(OPEN);

@@ -13,21 +13,21 @@ class ShaderController
 {
 public:
 
-    ShaderController()
-    {
-        // store initial test shaders here for now
-        // use our shader program when we want to render an object
-        Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
-        Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
-        Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
-        Shader lineShader("../Glitter/Shaders/line.vert", "../Glitter/Shaders/line.frag");
-        // Add shader to shaderController for hot reloading
-        // TODO handle this seamlessly so that theres no need to add shader each time to controller
-        Add("generic", &genericShader);
-        Add("light", &lightShader);
-        Add("screen", &screenShader);
-        Add("line", &lineShader);
-    }
+//    ShaderController()
+//    {
+//        // store initial test shaders here for now
+//        // use our shader program when we want to render an object
+//        Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
+//        Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
+//        Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
+//        Shader lineShader("../Glitter/Shaders/line.vert", "../Glitter/Shaders/line.frag");
+//        // Add shader to shaderController for hot reloading
+//        // TODO handle this seamlessly so that theres no need to add shader each time to controller
+//        Add("generic", &genericShader);
+//        Add("light", &lightShader);
+//        Add("screen", &screenShader);
+//        Add("line", &lineShader);
+//    }
 
     void ReloadShaders()
     {
