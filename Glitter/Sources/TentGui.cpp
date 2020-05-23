@@ -555,6 +555,9 @@ void EditTransform(GameObject* object, const float *cameraView, float *cameraPro
 
 void TentGui::ShowInspector(GameObject* object)
 {
+    // FIXME
+    return;
+
     selectedObject = object;
     // TODO recompose model matrix to draw
     //object->model = glm::make_mat4x4(mat);
@@ -611,21 +614,11 @@ void TentGui::ShowInspector(GameObject* object)
             {
                 SetFileAction(LOAD_TEXTURE);
             }
+            // TODO
             Texture objectTex = object->glObject->texture;
             ImGui::Text("%s", objectTex.GetName().c_str());
 
             ImGui::Text("Dim: %dx%d", objectTex.width, objectTex.height);
-            // TODO
-//            float aspectRatio = (float)objectTex.width/objectTex.height;
-//            if (ImGui::GetWindowWidth() > ImGui::GetWindowHeight())
-//            {
-//                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowWidth(), ImGui::GetWindowWidth()/aspectRatio), ImVec2(0,1), ImVec2(1,0));
-//
-//            }
-//            else
-//            {
-//                ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(ImGui::GetWindowHeight()*aspectRatio, ImGui::GetWindowHeight()), ImVec2(0,1), ImVec2(1,0));
-//            }
             ImGui::Image((void*)(intptr_t)objectTex.ID, ImVec2(256, 256), ImVec2(0,1), ImVec2(1,0));
 
             ImGui::TreePop();

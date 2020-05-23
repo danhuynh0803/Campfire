@@ -1,9 +1,9 @@
-#ifndef BULLET_DEBUG_DRAWER_OPENGL
-#define BULLET_DEBUG_DRAWER_OPENGL
+#ifndef BULLET_DEBUG_DRAWER_H
+#define BULLET_DEBUG_DRAWER_H
 
 #include "Shader.h"
 
-class BulletDebugDrawer_OpenGL : public btIDebugDraw {
+class BulletDebugDrawer : public btIDebugDraw {
 public:
     struct Line
     {
@@ -15,7 +15,7 @@ public:
     std::vector<Line> debugLines;
     Shader lineShader;
 
-    BulletDebugDrawer_OpenGL()
+    BulletDebugDrawer()
     {
         // TODO hardcode in for testing, should move to shadercontroller
         lineShader = Shader("../Glitter/Shaders/line.vert", "../Glitter/Shaders/line.frag");
@@ -104,4 +104,4 @@ public:
     int m;
 };
 
-#endif // BULLET_DEBUG_DRAWER_OPENGL
+#endif // BULLET_DEBUG_DRAWER_H

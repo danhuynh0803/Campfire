@@ -29,7 +29,7 @@ public:
     GLuint VAO;
     // TODO should there be a default texture and shader?
     Texture texture;
-    Shader* shader;
+    Shader* shader = nullptr;
     Geometry type = NONE;
 };
 

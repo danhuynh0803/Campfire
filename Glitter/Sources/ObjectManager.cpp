@@ -22,7 +22,7 @@ void ObjectManager::RemoveObject(int index)
 
 void ObjectManager::LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3])
 {
-    GameObject* gameObject;
+    GameObject* gameObject = new GameObject();
     GlObject* mesh;
 
     switch (geom)
@@ -111,7 +111,7 @@ void ObjectManager::Draw()
             ++i;
         }
         // TODO
-        //objectPtr->glObject->Draw();
+        objectPtr->glObject->Draw(objectPtr->position, objectPtr->rotation, objectPtr->scale);
     }
     // Send number of lights to light UBO
     // TODO replace light UBO with SSBO, since that can store much

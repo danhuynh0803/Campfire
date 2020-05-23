@@ -129,11 +129,11 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 
     const Value& sceneObjects = document["SceneObjects"];
     assert(sceneObjects.IsArray());
-    // TODO Lights broken
+
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
         GameObject* gameObject = new GameObject();
-        GlObject* mesh; 
+        GlObject* mesh;
         Geometry type = ConvertStringToType(itr->FindMember("type")->value.GetString());
         switch (type)
         {

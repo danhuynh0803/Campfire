@@ -111,12 +111,12 @@ GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 
     if (closestHit.hasHit())
     {
-        std::cout << closestHit.m_collisionObject << '\n';
+        //std::cout << closestHit.m_collisionObject << '\n';
         return nullptr; // TODO
     }
     else // Not hit with any gameobjects
     {
-        std::cout << "No object hit from raycast\n";
+        //std::cout << "No object hit from raycast\n";
         return nullptr;
     }
 }
@@ -144,7 +144,7 @@ void PhysicsManager::Update()
         // Update transform
         btScalar m[16];
         trans.getOpenGLMatrix(m);
-        //shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
+        shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
     }
 }
 

@@ -3,7 +3,7 @@
 
 #include "btBulletDynamicsCommon.h"
 #include "GameObject.h"
-#include "BulletDebugDrawer_OpenGL.h"
+#include "BulletDebugDrawer.h"
 
 class PhysicsManager
 {
@@ -26,7 +26,7 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    BulletDebugDrawer_OpenGL mydebugdrawer;
+    BulletDebugDrawer mydebugdrawer;
 
     float gravity = -9.81;
     //float gravity = 0.0f; // TODO Debug option later

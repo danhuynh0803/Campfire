@@ -137,21 +137,7 @@ int main(int argc, char * argv[])
     Texture tex1("Textures/wall.jpg");
     Texture tex2("Textures/uv.png");
 
-    std::vector<std::string> faces =
-    {
-        "Textures/skybox/right.jpg",
-        "Textures/skybox/left.jpg",
-        "Textures/skybox/up.jpg",
-        "Textures/skybox/down.jpg",
-        "Textures/skybox/front.jpg",
-        "Textures/skybox/back.jpg"
-    };
-
-    Cubemap skyboxTexture(faces);
-    Shader skyboxShader("../Glitter/Shaders/skybox.vert", "../Glitter/Shaders/skybox.frag");
-    Cube skybox;
-    skybox.shader = &skyboxShader;
-    // ===================================================================
+   // ===================================================================
 
     Quad screenQuad;
     screenQuad.shader = &screenShader;
@@ -161,10 +147,7 @@ int main(int argc, char * argv[])
     // TODO handle this by ShaderController
     glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "Matrices"), 0);
     glUniformBlockBinding(genericShader.ID   , glGetUniformBlockIndex(genericShader.ID, "LightBuffer"), 1);
-
     glUniformBlockBinding(lightShader.ID , glGetUniformBlockIndex(lightShader.ID, "Matrices"), 0);
-
-    glUniformBlockBinding(skyboxShader.ID   , glGetUniformBlockIndex(skyboxShader.ID, "Matrices"), 0);
 
 
     // Create a uniform buffer to handle viewprojection and lights
@@ -226,6 +209,14 @@ int main(int argc, char * argv[])
     shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
     //shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
 
+    //GameObject test;
+    //Cube cube;
+    //cube.texture = tex1;
+    //cube.shader = shaderController.Get("generic");
+    //cube.type = CUBE;
+    //test.glObject = &cube;
+    //objectManager.Add(&test);
+
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
 //    nanosuit.shader = shaderController.Get("generic");
 //    nanosuit.name = "Nanosuit";
@@ -252,6 +243,7 @@ int main(int argc, char * argv[])
         glm::mat4 proj = glm::mat4(1.0f);
         if (GAME.state == PLAY || GAME.state == PAUSE)
         {
+            // TODO GameSceneRender()
             //view = gameCamera.GetViewMatrix();
             //proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
             view = camera.GetViewMatrix();
@@ -259,6 +251,7 @@ int main(int argc, char * argv[])
         }
         else
         {
+            // TODO RenderEditor()
             view = camera.GetViewMatrix();
             proj = camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
         }
@@ -287,8 +280,11 @@ int main(int argc, char * argv[])
         // ===================================================================
         { // First render pass
             // Getting color of the scene
-            glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
+            //glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+            // TODO replace with atmosphere
+            // Background Fill Color
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             // =====================================
@@ -302,7 +298,6 @@ int main(int argc, char * argv[])
             //    glDepthMask(GL_TRUE);
             //}
 
-            // Background Fill Color
             glEnable(GL_DEPTH_TEST);
 
             // Draw scene
@@ -315,7 +310,7 @@ int main(int argc, char * argv[])
                 physicsManager.DebugDraw();
             }
 
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
         // ===================================================================
@@ -338,7 +333,7 @@ int main(int argc, char * argv[])
 
 
         // ===================================================================
-//        { // Final pass: post-process
+        { // Final pass: post-process
 //            screenQuad.texture = colorFB.texture;
 //            glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
 //
@@ -346,7 +341,7 @@ int main(int argc, char * argv[])
 //            glClear(GL_COLOR_BUFFER_BIT);
 //
 //            glDisable(GL_DEPTH_TEST);
-//            screenQuad.Draw();
+//            screenQuad.Draw(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
 //
 //            // TODO how to handle the need to
 //            // still render to the default FB to
@@ -356,8 +351,8 @@ int main(int argc, char * argv[])
 //            glClear(GL_COLOR_BUFFER_BIT);
 //
 //            glDisable(GL_DEPTH_TEST);
-//            screenQuad.Draw();
-//        }
+//            screenQuad.Draw(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+        }
 
         // ===================================================================
 

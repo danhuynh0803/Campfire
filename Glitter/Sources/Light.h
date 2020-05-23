@@ -23,20 +23,16 @@ public:
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.ID);
 
-        //glm::mat4 model = glm::mat4(1.0f);
-
+        glm::mat4 model = glm::mat4(1.0f);
         // TODO translate object back to origin before rotating
         //model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
         //model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
         //model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, pos);
+        model = glm::scale(model, scale);
 
-        //model = glm::translate(model, position);
+        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-        //model = glm::scale(model, scale);
-
-        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-        this->shader->use();
         glUniform3fv(glGetUniformLocation(this->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(this)->color));
 
         // Draw cube
