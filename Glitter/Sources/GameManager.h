@@ -5,7 +5,7 @@
 
 #include "Camera.h"
 
-enum GameState { PLAY, STOP, PAUSE };
+enum GameState { STOP, PLAY, PAUSE };
 
 struct GameManager
 {

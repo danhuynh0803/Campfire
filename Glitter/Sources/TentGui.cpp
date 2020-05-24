@@ -266,8 +266,8 @@ void TentGui::RenderStateButtons(GameManager& gc)
 {
     ImGui::Begin("Game State");
     static int state = static_cast<int>(gc.state); // State in stop state (scene mode)
-    ImGui::RadioButton("Play",  &state, 0); ImGui::SameLine();
-    ImGui::RadioButton("Stop",  &state, 1); ImGui::SameLine();
+    ImGui::RadioButton("Stop",  &state, 0); ImGui::SameLine();
+    ImGui::RadioButton("Play",  &state, 1); ImGui::SameLine();
     ImGui::RadioButton("Pause", &state, 2);
     gc.state = static_cast<GameState>(state);
     ImGui::End();
