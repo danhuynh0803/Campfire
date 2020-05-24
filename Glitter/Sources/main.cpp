@@ -244,10 +244,8 @@ int main(int argc, char * argv[])
         if (GAME.state == PLAY || GAME.state == PAUSE)
         {
             // TODO GameSceneRender()
-            //view = gameCamera.GetViewMatrix();
-            //proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
-            view = camera.GetViewMatrix();
-            proj = camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+            view = gameCamera.GetViewMatrix();
+            proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
         }
         else
         {
@@ -280,8 +278,8 @@ int main(int argc, char * argv[])
         // ===================================================================
         { // First render pass
             // Getting color of the scene
-            //glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, colorFB.ID);
+            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
             // TODO replace with atmosphere
             // Background Fill Color
@@ -310,7 +308,7 @@ int main(int argc, char * argv[])
                 physicsManager.DebugDraw();
             }
 
-            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
         // ===================================================================
@@ -334,24 +332,24 @@ int main(int argc, char * argv[])
 
         // ===================================================================
         { // Final pass: post-process
-//            screenQuad.texture = colorFB.texture;
-//            glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
-//
-//            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-//            glClear(GL_COLOR_BUFFER_BIT);
-//
-//            glDisable(GL_DEPTH_TEST);
-//            screenQuad.Draw(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
-//
-//            // TODO how to handle the need to
-//            // still render to the default FB to
-//            // show something on the screen?
-//            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-//            glClear(GL_COLOR_BUFFER_BIT);
-//
-//            glDisable(GL_DEPTH_TEST);
-//            screenQuad.Draw(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+            screenQuad.texture = colorFB.texture;
+            glBindFramebuffer(GL_FRAMEBUFFER, postprocessFB.ID);
+
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glDisable(GL_DEPTH_TEST);
+            screenQuad.Draw(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+
+            // TODO how to handle the need to
+            // still render to the default FB to
+            // show something on the screen?
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glDisable(GL_DEPTH_TEST);
+            screenQuad.Draw(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
         }
 
         // ===================================================================

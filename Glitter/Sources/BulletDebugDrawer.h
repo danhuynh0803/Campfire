@@ -3,7 +3,8 @@
 
 #include "Shader.h"
 
-class BulletDebugDrawer : public btIDebugDraw {
+class BulletDebugDrawer : public btIDebugDraw
+{
 public:
     struct Line
     {

@@ -197,6 +197,12 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             static_cast<Light*>(mesh)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
         }
 
+        // Save RigidBody
+        {
+
+
+        }
+
         gameObject->glObject = mesh;
 
         manager.Add(gameObject);

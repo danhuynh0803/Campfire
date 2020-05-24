@@ -9,6 +9,8 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include "Component.h"
+#include "GameObject.h"
 
 enum Geometry {
     CUBE,
@@ -20,7 +22,7 @@ enum Geometry {
 };
 
 
-class GlObject
+class GlObject : public Component
 {
 public:
     virtual void InitRenderData() = 0;

@@ -27,70 +27,18 @@ void PhysicsManager::Start()
 
 void PhysicsManager::AddObject(GameObject* object)
 {
-    //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
-    glm::vec3 scale = object->scale * 0.51f; // 0.51f just to extend collider a bit outside the mesh
-    // TODO make collider shape customizable
-    btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
-
-    collisionShapes.push_back(shape);
-
-    btTransform transform;
-    transform.setIdentity();
-    glm::vec3 pos = object->position;
-    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
-
-    btScalar mass = object->rigidBody->mass;
-    btVector3 localInertia(0, 0, 0);
-    if (object->rigidBody->isDynamic)
-    {
-        shape->calculateLocalInertia(mass, localInertia);
-    }
-
-    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-    btRigidBody* body = new btRigidBody(rbInfo);
-
-    dynamicsWorld->addRigidBody(body);
+    collisionShapes.push_back(object->rigidBody->shape);
+    dynamicsWorld->addRigidBody(object->rigidBody->body);
 }
 
-//void PhysicsManager::AddObject(GlObject* object)
+//void PhysicsManager::RemoveObject(GameObject* object)
 //{
-//    //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
-//    glm::vec3 scale = object->scale * 0.51f; // 0.51f just to extend collider a bit outside the mesh
-//    btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
-//    std::cout << scale.x << scale.y << scale.y << std::endl;
-//
-//    collisionShapes.push_back(shape);
-//
-//    btTransform transform;
-//    transform.setIdentity();
-//    glm::vec3 pos = object->position;
-//    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
-//
-//    btScalar mass(0.0f);
-//    // TODO get rigid body info into scene files
-//    if (object->name.compare("Floor") != 0)
-//    {
-//        mass = 1.0f;
-//    }
-//
-//    bool isDynamic = (mass != 0.f);
-//    //object->rigidBody->isDynamic = (mass != 0.f);
-//
-//    btVector3 localInertia(0, 0, 0);
-//    if (isDynamic)
-//    {
-//        shape->calculateLocalInertia(mass, localInertia);
-//    }
-//
-//    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-//    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-//    btRigidBody* body = new btRigidBody(rbInfo);
-//
-//    dynamicsWorld->addRigidBody(body);
+//    dynamicsWorld->removeRigidBody(object->rigidBody->body);
 //}
 
-
+// ==============================================================
+// Primarily for picking objects in the scene with mouse click
+// ==============================================================
 GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 {
     glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;

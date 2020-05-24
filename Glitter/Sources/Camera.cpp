@@ -25,7 +25,7 @@ glm::mat4 Camera::GetProjMatrix(float width, float height)
     glm::mat4 proj  = glm::mat4(1.0f);
     if (isPerspective)
         proj = glm::perspective(glm::radians(Zoom), width/height, nearPlane, farPlane);
-    else // TODO
+    else // FIXME
         proj = glm::ortho(0.0f, width, height, 0.0f, nearPlane, farPlane);
     return proj;
 }
