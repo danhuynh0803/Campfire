@@ -114,6 +114,9 @@ bool IsValidField(std::string field)
 void SceneLoader::LoadNewScene(ObjectManager& manager)
 {
     std::cout << "Clearing scene\n";
+
+    shared.physicsManager->ClearLists();
+
     for (auto objectPtr : manager.objectList)
     {
         delete objectPtr;
