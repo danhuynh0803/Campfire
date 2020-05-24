@@ -15,6 +15,22 @@ public:
     }
     //~Quad() = delete;
 
+    // TODO
+    void DrawSim(glm::mat4 model)
+    {
+        this->shader->use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, this->texture.ID);
+        glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
+
+        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+        glBindVertexArray(this->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    }
+
     void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
     {
         this->shader->use();

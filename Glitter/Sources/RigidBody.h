@@ -24,8 +24,7 @@ public:
     {
         //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
         scale *= 0.51f; // 0.51f just to extend collider a bit outside the mesh
-        // TODO make collider shape customizable
-        btCollisionShape* shape;
+        // TODO make collider shape customizable     
         switch (colShape)
         {
             case COL_BOX:
@@ -51,7 +50,7 @@ public:
 
         btDefaultMotionState* motionState = new btDefaultMotionState(transform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-        btRigidBody* body = new btRigidBody(rbInfo);
+        this->body = new btRigidBody(rbInfo);
     }
 
     void Update()

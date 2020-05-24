@@ -10,6 +10,7 @@
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/prettywriter.h"
 
+#include "RigidBody.h"
 #include "GlObject.h"
 #include "Cube.h"
 #include "Quad.h"
@@ -22,10 +23,24 @@ using namespace rapidjson;
 
 extern ShaderController shaderController;
 
-char* ConvertTypeToString(Geometry geom);
-Geometry ConvertStringToType(const char* type);
 
-char* ConvertTypeToString(Geometry geom)
+char* ConvertColShapeToString(ColShape shape);
+char* ConvertGeometryToString(Geometry geom);
+ColShape ConvertStringToColShape(const char* type);
+Geometry ConvertStringToGeometry(const char* type);
+
+
+char* ConvertColShapeToString(ColShape shape)
+{
+    switch (shape)
+    {
+        case COL_BOX:
+            return "COL_BOX";
+            break;   
+    }
+}
+
+char* ConvertGeometryToString(Geometry geom)
 {
     switch (geom)
     {
@@ -51,7 +66,21 @@ char* ConvertTypeToString(Geometry geom)
     }
 }
 
-Geometry ConvertStringToType(const char* type)
+// TODO
+ColShape ConvertStringToColShape(const char* type)
+{
+    if (strcmp(type, "COL_BOX") == 0)
+    {
+        return COL_BOX;
+    }
+    else if (strcmp(type, "COL_SPHERE") == 0)
+    {
+        return COL_SPHERE;
+    }
+    return COL_BOX;
+}
+
+Geometry ConvertStringToGeometry(const char* type)
 {
     if (strcmp(type, "CUBE") == 0)
     {
@@ -73,9 +102,9 @@ Geometry ConvertStringToType(const char* type)
     {
         return MODEL;
     }
-
     return NONE;
 }
+
 
 bool IsValidField(std::string field)
 {
@@ -133,8 +162,13 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
         GameObject* gameObject = new GameObject();
+        gameObject->isActive = itr->FindMember("isActive")->value.GetBool();
+        gameObject->name = std::string(itr->FindMember("tag")->value.GetString());
+
+        //===============================================================================
+        // Load mesh
         GlObject* mesh;
-        Geometry type = ConvertStringToType(itr->FindMember("type")->value.GetString());
+        Geometry type = ConvertStringToGeometry(itr->FindMember("type")->value.GetString());
         switch (type)
         {
             case CUBE: mesh = new Cube(); break;
@@ -150,9 +184,7 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
                        break;
         }
         mesh->type = type;
-
-        gameObject->name = std::string(itr->FindMember("tag")->value.GetString());
-
+      
         {
             const Value& a = itr->FindMember("position")->value;
             assert(a.IsArray());
@@ -177,8 +209,6 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
         Shader* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
         mesh->shader = shader;
 
-        gameObject->isActive = itr->FindMember("isActive")->value.GetBool();
-
         // TODO find a more manageable way of loading this?
         if (mesh->type == LIGHT)
         {
@@ -196,13 +226,18 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             static_cast<Light*>(mesh)->linear = itr->FindMember("linear")->value.GetDouble();
             static_cast<Light*>(mesh)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
         }
+        //===============================================================================
 
-        // Save RigidBody
-        {
+        //===============================================================================
+        // Load rigidBody
+        RigidBody* rb = new RigidBody();
+        rb->mass = itr->FindMember("mass")->value.GetFloat();
+        rb->isDynamic = itr->FindMember("isDynamic")->value.GetBool();
+        rb->colShape = ConvertStringToColShape(itr->FindMember("shape")->value.GetString());
+        rb->InitTransform(gameObject->position, gameObject->rotation, gameObject->scale);
+        //===============================================================================
 
-
-        }
-
+        gameObject->rigidBody = rb;
         gameObject->glObject = mesh;
 
         manager.Add(gameObject);
@@ -240,7 +275,7 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
 
         // Write all fields of GlObject
         GlObject* mesh = object->glObject;
-        Value tempValueType(ConvertTypeToString(mesh->type), allocator);
+        Value tempValueType(ConvertGeometryToString(mesh->type), allocator);
         objValue.AddMember("type", tempValueType, allocator);
 
         if (mesh->type == LIGHT)

@@ -209,6 +209,12 @@ int main(int argc, char * argv[])
     shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
     //shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
 
+    // Load physics manager
+    for (auto objectPtr : objectManager.objectList)
+    {
+        physicsManager.AddObject(objectPtr);
+    }
+
     //GameObject test;
     //Cube cube;
     //cube.texture = tex1;
@@ -244,8 +250,10 @@ int main(int argc, char * argv[])
         if (GAME.state == PLAY || GAME.state == PAUSE)
         {
             // TODO GameSceneRender()
-            view = gameCamera.GetViewMatrix();
-            proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+            //view = gameCamera.GetViewMatrix();
+            //proj = gameCamera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
+            view = camera.GetViewMatrix();
+            proj = camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT);
         }
         else
         {
@@ -299,7 +307,7 @@ int main(int argc, char * argv[])
             glEnable(GL_DEPTH_TEST);
 
             // Draw scene
-            objectManager.Draw();
+            objectManager.Draw(GAME.state == STOP);
 
             // Draw physics bounding boxes
             // If debug enabled TODO

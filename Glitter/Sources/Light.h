@@ -16,6 +16,27 @@ public:
         InitRenderData();
     }
 
+    void DrawSim(glm::mat4 model)
+    {
+        this->shader->use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.ID);
+        glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
+
+        // TODO: allow user to modify the scene objects when game stopped/paused
+        // When game is played, user should not be able to modify anymore
+        // Physics doesnt affect scale so apply this manually
+        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        // TODO for combining with imguizmo
+        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(this->model));
+
+        // Draw cube
+        glBindVertexArray(this->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+    }
+
     void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
     {
         this->shader->use();

@@ -24,6 +24,11 @@ class GlObject
 {
 public:
     virtual void InitRenderData() = 0;
+    // Ran when game state set to PLAY/PAUSE
+    // transform is provided from bullet
+    virtual void DrawSim(glm::mat4 model) = 0;
+    // Ran when game state set to STOP
+    // this is the original transform prior to the simulation
     virtual void Draw(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) = 0;
 
     GLuint VAO;

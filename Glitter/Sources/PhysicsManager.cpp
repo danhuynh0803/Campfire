@@ -27,7 +27,8 @@ void PhysicsManager::Start()
 
 void PhysicsManager::AddObject(GameObject* object)
 {
-    collisionShapes.push_back(object->rigidBody->shape);
+    // TODO is this needed?
+    //collisionShapes.push_back(object->rigidBody->shape);    
     dynamicsWorld->addRigidBody(object->rigidBody->body);
 }
 
@@ -75,24 +76,30 @@ void PhysicsManager::Update()
 
     // Fixed update at 60fps
     dynamicsWorld->stepSimulation(1.0f/60.0f, 10);
-    for (int i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
+    //for (int i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
+    for (auto objectPtr : shared.objectManager->objectList)
     {
-        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
+        //btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+        //btRigidBody* body = btRigidBody::upcast(obj);
+
+        btRigidBody* body = objectPtr->rigidBody->body;
         btTransform trans;
         if (body && body->getMotionState())
         {
             body->getMotionState()->getWorldTransform(trans);
         }
+        /*
         else
         {
             trans = obj->getWorldTransform();
         }
+        */
 
         // Update transform
         btScalar m[16];
         trans.getOpenGLMatrix(m);
-        shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
+        //shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
+        objectPtr->model = glm::make_mat4x4(m);
     }
 }
 
