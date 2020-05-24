@@ -460,27 +460,36 @@ void processInput(GLFWwindow *window)
         oldStateB = newStateB;
     }
 
-    {
-        static int oldClickState = GLFW_RELEASE;
-        int newClickState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-        if (newClickState == GLFW_PRESS && oldClickState == GLFW_RELEASE)
-        {
-            glm::vec3 rayOrig, rayDir;
-            ScreenToWorldRay(
-                    mouseX,
-                    mouseY,
-                    SCR_WIDTH,
-                    SCR_HEIGHT,
-                    camera.GetViewMatrix(),
-                    camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT),
-                    rayOrig,
-                    rayDir
-            );
-
-            shared.physicsManager->Raycast(rayOrig, rayDir);
-        }
-        oldClickState = newClickState;
-    }
+    // FIXME:
+    // Interferes with imguizmo transforms
+    // Disable for now
+//    {
+//        if (!io.WantCaptureMouse)
+//        {
+//            static int oldClickState = GLFW_RELEASE;
+//            int newClickState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+//            if (newClickState == GLFW_PRESS && oldClickState == GLFW_RELEASE)
+//            {
+//                glm::vec3 rayOrig, rayDir;
+//                ScreenToWorldRay(
+//                    mouseX,
+//                    mouseY,
+//                    SCR_WIDTH,
+//                    SCR_HEIGHT,
+//                    camera.GetViewMatrix(),
+//                    camera.GetProjMatrix((float)SCR_WIDTH, (float)SCR_HEIGHT),
+//                    rayOrig,
+//                    rayDir
+//                );
+//
+//                if (!shared.physicsManager->Raycast(rayOrig, rayDir, tentGui.selected))
+//                {
+//                    tentGui.selected = -1;
+//                }
+//            }
+//            oldClickState = newClickState;
+//        }
+//    }
     // Screen cast
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
     {

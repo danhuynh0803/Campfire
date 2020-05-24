@@ -45,6 +45,8 @@ public:
 
     Camera* activeCamera;
 
+    int selected = -1; // index of selected object for inspector
+
 private:
     bool show_app_dockspace = false;
     bool show_app_documents = false;

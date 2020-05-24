@@ -366,7 +366,7 @@ void TentGui::ShowPrimitiveGenerator(ObjectManager& manager)
 
 void TentGui::ShowObjects(ObjectManager& manager)
 {
-    static int selected = -1;
+    //static int selected = -1;
 
     ImGui::Text("Scene Objects");
 

@@ -18,7 +18,7 @@ public:
 
     void DebugDraw();
 
-    GameObject* Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir);
+    bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
 
     bool isBoundingBoxOn = false;
 

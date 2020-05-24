@@ -39,13 +39,18 @@ void PhysicsManager::UpdateColliders()
     // First clear lists of old data
     ClearLists();
 
-    for (auto objectPtr : shared.objectManager->objectList)
+    //for (auto objectPtr : shared.objectManager->objectList)
+    for (int i = 0; i < shared.objectManager->objectList.size(); ++i)
     {
+        GameObject* objectPtr = shared.objectManager->objectList[i];
         // FIXME: objects should be able to not have a rb
         if (objectPtr->rigidBody)
         {
             // Reinitialize the transforms for all objects in list
             objectPtr->rigidBody->InitTransform(objectPtr->position, objectPtr->rotation, objectPtr->scale);
+            // hacky way for now by storing index and later retrieving
+            // picked gameObject based on that index
+            objectPtr->rigidBody->body->setUserPointer((void*)i);
             AddObject(objectPtr);
         }
     }
@@ -56,12 +61,25 @@ void PhysicsManager::UpdateColliders()
 //    dynamicsWorld->removeRigidBody(object->rigidBody->body);
 //}
 
+GameObject* FindObjectFromShape(btCollisionObject* colObject)
+{
+    for (auto objectPtr : shared.objectManager->objectList)
+    {
+        if (objectPtr->rigidBody->shape->getUserPointer() == colObject)
+        {
+            std::cout << "Found matching gameObject\n";
+            return objectPtr;
+        }
+    }
+    return nullptr;
+}
+
 // ==============================================================
 // Primarily for picking objects in the scene with mouse click
 // ==============================================================
-GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
+bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
 {
-    glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;
+    glm::vec3 rayEnd = rayOrigin + rayDir * 10000.0f;
 
     btVector3 from(rayOrigin.x, rayOrigin.y, rayOrigin.z);
     btVector3 to(rayEnd.x, rayEnd.y, rayEnd.z);
@@ -79,14 +97,11 @@ GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 
     if (closestHit.hasHit())
     {
-        //std::cout << closestHit.m_collisionObject << '\n';
-        return nullptr; // TODO
+        index = (int)closestHit.m_collisionObject->getUserPointer();
+        return true;
     }
-    else // Not hit with any gameobjects
-    {
-        //std::cout << "No object hit from raycast\n";
-        return nullptr;
-    }
+
+    return false;
 }
 
 void PhysicsManager::Update()

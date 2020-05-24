@@ -23,7 +23,7 @@ public:
     void InitTransform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
     {
         //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
-        scale *= 0.51f; // 0.51f just to extend collider a bit outside the mesh
+        scale *= 0.501f; // to extend collider a bit outside the mesh
         // TODO make collider shape customizable
         switch (colShape)
         {
@@ -53,10 +53,6 @@ public:
         this->body = new btRigidBody(rbInfo);
     }
 
-    void Update()
-    {
-
-    }
 
     float mass = 0.0f;
     ColShape colShape = COL_BOX;

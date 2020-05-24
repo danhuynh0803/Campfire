@@ -368,6 +368,8 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
     std::ofstream out(path);
     out << buffer.GetString();
     out.close();
+
+    std::cout << "Scene successfully saved!\n";
 }
 
 void SceneLoader::DeleteScene()
