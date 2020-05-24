@@ -11,20 +11,20 @@ public:
 
     ~ObjectManager()
     {
-        for (auto objectPtr : glObjectList)
+        for (auto objectPtr : objectList)
         {
             delete objectPtr;
         }
+        objectList.clear();
     }
 
-    void Add(GlObject* object);
     void Add(GameObject* object);
-    void LoadObject(Geometry geom, std::string name, float pos[3], float rot[3], float scale[3]);
+    void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale);
     void RemoveObject(int index);
-    void Draw();
+    void Draw(bool isEditor);
 
     std::vector<GameObject*> objectList;
-    std::vector<GlObject*> glObjectList;
+
     // TODO better way to do this with UBOs?
     // Maybe inside a resource manager?
     GLuint uboLights;

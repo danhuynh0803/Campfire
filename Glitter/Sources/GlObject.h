@@ -23,36 +23,19 @@ enum Geometry {
 class GlObject
 {
 public:
-    virtual void Draw(glm::vec3 color = glm::vec3(1.0f)) = 0;
-
     virtual void InitRenderData() = 0;
+    // Ran when game state set to PLAY/PAUSE
+    // transform is provided from bullet
+    virtual void DrawSim(glm::mat4 model) = 0;
+    // Ran when game state set to STOP
+    // this is the original transform prior to the simulation
+    virtual void Draw(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) = 0;
 
     GLuint VAO;
-    Shader* shader;
-    Geometry type = NONE;
-
-    std::string name = "unnamed";
-    glm::vec3 position = glm::vec3(0.0f);
-    glm::vec3 scale = glm::vec3(1.0f);
-    glm::vec3 rotation = glm::vec3(0.0f);
-
-    glm::mat4 model = glm::mat4(1.0f);
-
-    // TODO
-    glm::mat4 GetModelMatrix()
-    {
-        //glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::translate(model, position);
-        //model = glm::scale(model, scale);
-        //return model;
-        return model;
-    }
-
     // TODO should there be a default texture and shader?
     Texture texture;
-
-    bool isActive = true;
-    bool isLight = false;
+    Shader* shader = nullptr;
+    Geometry type = NONE;
 };
 
 #endif // GL_OBJECT_H

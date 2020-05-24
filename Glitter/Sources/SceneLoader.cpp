@@ -10,6 +10,7 @@
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/prettywriter.h"
 
+#include "RigidBody.h"
 #include "GlObject.h"
 #include "Cube.h"
 #include "Quad.h"
@@ -22,10 +23,24 @@ using namespace rapidjson;
 
 extern ShaderController shaderController;
 
-char* ConvertTypeToString(Geometry geom);
-Geometry ConvertStringToType(const char* type);
 
-char* ConvertTypeToString(Geometry geom)
+char* ConvertColShapeToString(ColShape shape);
+char* ConvertGeometryToString(Geometry geom);
+ColShape ConvertStringToColShape(const char* type);
+Geometry ConvertStringToGeometry(const char* type);
+
+
+char* ConvertColShapeToString(ColShape shape)
+{
+    switch (shape)
+    {
+        case COL_BOX:
+            return "COL_BOX";
+            break;   
+    }
+}
+
+char* ConvertGeometryToString(Geometry geom)
 {
     switch (geom)
     {
@@ -51,7 +66,21 @@ char* ConvertTypeToString(Geometry geom)
     }
 }
 
-Geometry ConvertStringToType(const char* type)
+// TODO
+ColShape ConvertStringToColShape(const char* type)
+{
+    if (strcmp(type, "COL_BOX") == 0)
+    {
+        return COL_BOX;
+    }
+    else if (strcmp(type, "COL_SPHERE") == 0)
+    {
+        return COL_SPHERE;
+    }
+    return COL_BOX;
+}
+
+Geometry ConvertStringToGeometry(const char* type)
 {
     if (strcmp(type, "CUBE") == 0)
     {
@@ -73,24 +102,23 @@ Geometry ConvertStringToType(const char* type)
     {
         return MODEL;
     }
-
     return NONE;
 }
+
 
 bool IsValidField(std::string field)
 {
     return true;
 }
 
-
 void SceneLoader::LoadNewScene(ObjectManager& manager)
 {
     std::cout << "Clearing scene\n";
-    for (auto objectPtr : manager.glObjectList)
+    for (auto objectPtr : manager.objectList)
     {
         delete objectPtr;
     }
-    manager.glObjectList.clear();
+    manager.objectList.clear();
 
     currentScenePath.clear();
     currentSceneFileName.clear();
@@ -110,11 +138,11 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     );
 
     std::cout << "Clearing scene\n";
-    for (auto objectPtr : manager.glObjectList)
+    for (auto objectPtr : manager.objectList)
     {
         delete objectPtr;
     }
-    manager.glObjectList.clear();
+    manager.objectList.clear();
 
     std::cout << "Loading SCENE file: " << currentScenePath << '\n';
     std::cout << "Loading SCENE file: " << currentSceneFileName << '\n';
@@ -130,20 +158,24 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 
     const Value& sceneObjects = document["SceneObjects"];
     assert(sceneObjects.IsArray());
-    // TODO Lights broken
+
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
-        GlObject* object;
-        Geometry type = ConvertStringToType(itr->FindMember("type")->value.GetString());
+        GameObject* gameObject = new GameObject();
+        gameObject->isActive = itr->FindMember("isActive")->value.GetBool();
+        gameObject->name = std::string(itr->FindMember("tag")->value.GetString());
+
+        //===============================================================================
+        // Load mesh
+        GlObject* mesh;
+        Geometry type = ConvertStringToGeometry(itr->FindMember("type")->value.GetString());
         switch (type)
         {
-            case CUBE: object = new Cube(); break;
-            case QUAD: object = new Quad(); break;
-                        //case SPHERE: object = new Sphere(); break;
+            case CUBE: mesh = new Cube(); break;
+            case QUAD: mesh = new Quad(); break;
+            //case SPHERE: object = new Sphere(); break;
             case LIGHT:
-                       object = new Light();
-                       break;
-
+                       mesh = new Light(); break;
             case NONE:
                        std::cout << "ERROR: Loading object with no type specified\n";
                        break;
@@ -151,57 +183,64 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
                        std::cout << "ERROR (from default): Loading object with no type specified\n";
                        break;
         }
-        object->type = type;
-
-        object->name = std::string(itr->FindMember("tag")->value.GetString());
-
+        mesh->type = type;
+      
         {
             const Value& a = itr->FindMember("position")->value;
             assert(a.IsArray());
-            object->position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            gameObject->position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
 
         {
             const Value& a = itr->FindMember("rotation")->value;
             assert(a.IsArray());
-            object->rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            gameObject->rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
 
         {
             const Value& a = itr->FindMember("scale")->value;
             assert(a.IsArray());
-            object->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            gameObject->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
 
         Texture texture(itr->FindMember("texture")->value.GetString());
-        object->texture = texture;
+        mesh->texture = texture;
 
         Shader* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
-        object->shader = shader;
+        mesh->shader = shader;
 
-        object->isActive = itr->FindMember("isActive")->value.GetBool();
-
-        object->isLight = itr->FindMember("isLight")->value.GetBool();
         // TODO find a more manageable way of loading this?
-        if (object->isLight)
+        if (mesh->type == LIGHT)
         {
             Shader* lightShader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
-            object->shader = lightShader;
+            mesh->shader = lightShader;
 
             {
                 const Value& a = itr->FindMember("color")->value;
                 assert(a.IsArray());
-                static_cast<Light*>(object)->color =
+                static_cast<Light*>(mesh)->color =
                     glm::vec4(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble(), a[3].GetDouble());
             }
 
-            static_cast<Light*>(object)->constant = itr->FindMember("constant")->value.GetDouble();
-            static_cast<Light*>(object)->linear = itr->FindMember("linear")->value.GetDouble();
-            static_cast<Light*>(object)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
+            static_cast<Light*>(mesh)->constant = itr->FindMember("constant")->value.GetDouble();
+            static_cast<Light*>(mesh)->linear = itr->FindMember("linear")->value.GetDouble();
+            static_cast<Light*>(mesh)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
         }
+        //===============================================================================
 
-        shared.physicsManager->AddObject(object);
-        manager.Add(object);
+        //===============================================================================
+        // Load rigidBody
+        RigidBody* rb = new RigidBody();
+        rb->mass = itr->FindMember("mass")->value.GetFloat();
+        rb->isDynamic = itr->FindMember("isDynamic")->value.GetBool();
+        rb->colShape = ConvertStringToColShape(itr->FindMember("shape")->value.GetString());
+        rb->InitTransform(gameObject->position, gameObject->rotation, gameObject->scale);
+        //===============================================================================
+
+        gameObject->rigidBody = rb;
+        gameObject->glObject = mesh;
+
+        manager.Add(gameObject);
     }
 }
 
@@ -229,16 +268,17 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
     Value myArray(kArrayType);
     Document::AllocatorType& allocator = doc.GetAllocator();
 
-    for (const auto object : manager.glObjectList)
+    for (const auto object : manager.objectList)
     {
         Value objValue;
         objValue.SetObject();
 
         // Write all fields of GlObject
-        Value tempValueType(ConvertTypeToString(object->type), allocator);
+        GlObject* mesh = object->glObject;
+        Value tempValueType(ConvertGeometryToString(mesh->type), allocator);
         objValue.AddMember("type", tempValueType, allocator);
 
-        if (object->type == LIGHT)
+        if (mesh->type == LIGHT)
         {
             // Get the string associated with the shader controller map
             objValue.AddMember("shader", "light", allocator);
@@ -277,17 +317,15 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
         objValue.AddMember("scale", scale, allocator);
 
 
-        Value texture(object->texture.GetName().c_str(), allocator);
+        Value texture(mesh->texture.GetName().c_str(), allocator);
         objValue.AddMember("texture", texture, allocator);
 
 
         objValue.AddMember("isActive", object->isActive, allocator);
-
-        objValue.AddMember("isLight", object->isLight, allocator);
-
-        if (object->isLight)
+        
+        if (mesh->type == LIGHT)
         {
-            Light* light = static_cast<Light*>(object);
+            Light* light = static_cast<Light*>(mesh);
             Value color(kArrayType);
             for (int i = 0; i < 4; ++i)
             {

@@ -19,48 +19,27 @@ void PhysicsManager::Start()
     dynamicsWorld->setDebugDrawer(&mydebugdrawer);
 }
 
+// TODO for when updating rigidbody parameters in GUI
+//void PhysicsManager::UpdateObject()
+//{
+//
+//}
+
 void PhysicsManager::AddObject(GameObject* object)
 {
-    // TODO
+    // TODO is this needed?
+    //collisionShapes.push_back(object->rigidBody->shape);    
+    dynamicsWorld->addRigidBody(object->rigidBody->body);
 }
 
-void PhysicsManager::AddObject(GlObject* object)
-{
-    //NOTE: BtColliders seems to be 2x larger than their openGL scale counterpart
-    glm::vec3 scale = object->scale * 0.51f; // 0.51f just to extend collider a bit outside the mesh
-    btCollisionShape* shape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
-    std::cout << scale.x << scale.y << scale.y << std::endl;
+//void PhysicsManager::RemoveObject(GameObject* object)
+//{
+//    dynamicsWorld->removeRigidBody(object->rigidBody->body);
+//}
 
-    collisionShapes.push_back(shape);
-
-    btTransform transform;
-    transform.setIdentity();
-    glm::vec3 pos = object->position;
-    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
-
-    btScalar mass(0.0f);
-    // TODO get rigid body info into scene files
-    if (object->name.compare("Floor") != 0)
-    {
-        mass = 1.0f;
-    }
-
-    bool isDynamic = (mass != 0.f);
-    //object->rigidBody->isDynamic = (mass != 0.f);
-
-    btVector3 localInertia(0, 0, 0);
-    if (isDynamic)
-    {
-        shape->calculateLocalInertia(mass, localInertia);
-    }
-
-    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-    btRigidBody* body = new btRigidBody(rbInfo);
-
-    dynamicsWorld->addRigidBody(body);
-}
-
+// ==============================================================
+// Primarily for picking objects in the scene with mouse click
+// ==============================================================
 GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 {
     glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;
@@ -81,12 +60,12 @@ GameObject* PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir)
 
     if (closestHit.hasHit())
     {
-        std::cout << closestHit.m_collisionObject << '\n';
+        //std::cout << closestHit.m_collisionObject << '\n';
         return nullptr; // TODO
     }
     else // Not hit with any gameobjects
     {
-        std::cout << "No object hit from raycast\n";
+        //std::cout << "No object hit from raycast\n";
         return nullptr;
     }
 }
@@ -97,24 +76,30 @@ void PhysicsManager::Update()
 
     // Fixed update at 60fps
     dynamicsWorld->stepSimulation(1.0f/60.0f, 10);
-    for (int i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
+    //for (int i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
+    for (auto objectPtr : shared.objectManager->objectList)
     {
-        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
+        //btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+        //btRigidBody* body = btRigidBody::upcast(obj);
+
+        btRigidBody* body = objectPtr->rigidBody->body;
         btTransform trans;
         if (body && body->getMotionState())
         {
             body->getMotionState()->getWorldTransform(trans);
         }
+        /*
         else
         {
             trans = obj->getWorldTransform();
         }
+        */
 
         // Update transform
         btScalar m[16];
         trans.getOpenGLMatrix(m);
-        shared.objectManager->glObjectList[i]->model = glm::make_mat4x4(m);
+        //shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
+        objectPtr->model = glm::make_mat4x4(m);
     }
 }
 
@@ -122,6 +107,7 @@ void PhysicsManager::DebugDraw()
 {
     mydebugdrawer.SetMatrices(
         shared.renderCamera->GetViewMatrix(),
+        // TODO get resolution from camera
         shared.renderCamera->GetProjMatrix(1600.0f, 900.0f)
     );
 
