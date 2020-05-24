@@ -422,7 +422,8 @@ void TentGui::ShowObjects(ObjectManager& manager)
 
     if (selected != -1)
     {
-        ShowInspector(manager.objectList[selected]);
+        selectedObject = manager.objectList[selected];
+        ShowInspector(selectedObject);
     }
 }
 
