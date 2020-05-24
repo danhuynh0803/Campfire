@@ -36,7 +36,7 @@ char* ConvertColShapeToString(ColShape shape)
     {
         case COL_BOX:
             return "COL_BOX";
-            break;   
+            break;
     }
 }
 
@@ -273,10 +273,14 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
         Value objValue;
         objValue.SetObject();
 
+        // Mesh details
         // Write all fields of GlObject
         GlObject* mesh = object->glObject;
-        Value tempValueType(ConvertGeometryToString(mesh->type), allocator);
-        objValue.AddMember("type", tempValueType, allocator);
+
+        {
+            Value tempValueType(ConvertGeometryToString(mesh->type), allocator);
+            objValue.AddMember("type", tempValueType, allocator);
+        }
 
         if (mesh->type == LIGHT)
         {
@@ -322,7 +326,7 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
 
 
         objValue.AddMember("isActive", object->isActive, allocator);
-        
+
         if (mesh->type == LIGHT)
         {
             Light* light = static_cast<Light*>(mesh);
@@ -338,6 +342,17 @@ void SceneLoader::SaveScene(ObjectManager& manager, const char* path)
             //Value lightValue;
             //lightValue.SetObject();
         }
+
+        // RigidBody details
+        RigidBody* rb = object->rigidBody;
+        if (rb != nullptr)
+        {
+            objValue.AddMember("mass", rb->mass, allocator);
+            objValue.AddMember("isDynamic", rb->isDynamic, allocator);
+            Value tempValueType(ConvertColShapeToString(rb->colShape), allocator);
+            objValue.AddMember("shape", tempValueType, allocator);
+        }
+
         myArray.PushBack(objValue, allocator);
     }
 
