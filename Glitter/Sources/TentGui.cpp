@@ -598,14 +598,14 @@ void TentGui::ShowInspector(GameObject* object)
         if (ImGui::TreeNode("RigidBody Details"))
         {
             const char* objects[] = {"Box", "Sphere", "Plane", "Capsule"}; // TODO refactor this to auto update based on total enums
-            static float mass = rb->mass;
+            float mass = rb->mass;
             ImGui::InputFloat("Mass", &mass, 0.0f, 10.0f, "%.2f");
             rb->mass = mass;
 
             ImGui::Checkbox("Is Dynamic", &rb->isDynamic);
 
             // TODO
-            static int objectIdx = 0;
+            int objectIdx = 0;
             ImGui::Combo("Collider Shape", &objectIdx, objects, IM_ARRAYSIZE(objects));
 
             ImGui::TreePop();
