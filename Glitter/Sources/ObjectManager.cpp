@@ -1,5 +1,7 @@
 #include <string>
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include "ObjectManager.h"
 #include "ShaderController.h"
 #include "Cube.h"
@@ -85,11 +87,27 @@ void ObjectManager::Draw(bool isEditor)
             // =======================================
             // Send in light info to light UBO
             // Position
+            glm::vec3 pos;
+            // TODO: reorganize how we can send in updated transform to light UBO
+            // For now just check what the state of the game is in
+            // Use physics position if game state is PLAY
+            if (isEditor)
+            {
+                pos = objectPtr->position;
+            }
+            else
+            {
+                // decompose matrix and get translation
+                glm::vec3 scale, trans, skew;
+                glm::vec4 perspective;
+                glm::quat rotation;
+                glm::decompose(objectPtr->model, scale, rotation, trans, skew, perspective);
+                pos = trans;
+            }
             glBufferSubData(GL_UNIFORM_BUFFER,
                     3*sizeof(glm::vec4)*i,
                     sizeof(glm::vec4),
-                    glm::value_ptr(objectPtr->position));
-
+                    glm::value_ptr(pos));
             // Color
             glBufferSubData(GL_UNIFORM_BUFFER,
                     3*sizeof(glm::vec4)*i + sizeof(glm::vec4),

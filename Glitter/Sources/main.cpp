@@ -84,6 +84,7 @@ int main(int argc, char * argv[])
 {
     // TODO for testing, move later
     shared.renderCamera = &camera;
+    shared.gameManager = &GAME;
 
     // Load GLFW and Create a Window
     glfwInit();

@@ -578,8 +578,8 @@ void TentGui::ShowInspector(GameObject* object)
     //if (ImGui::TreeNode("Transform"))
     { // Transform Info
         float* m = const_cast<float*>(glm::value_ptr(model));
-        float* v  = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
-        float* p  = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
+        float* v = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
+        float* p = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
 
         EditTransform(object, m, v, p);
 

@@ -27,7 +27,7 @@ public:
         // TODO: allow user to modify the scene objects when game stopped/paused
         // When game is played, user should not be able to modify anymore
         // Physics doesnt affect scale so apply this manually
-        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));                
+        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform3fv(glGetUniformLocation(this->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(this)->color));
 
         // Draw cube
