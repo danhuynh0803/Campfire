@@ -52,6 +52,11 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, g
     gameObject->scale = scale;
 
     gameObject->glObject = mesh;
+
+    // Set up RB
+    RigidBody* rb = new RigidBody();
+    gameObject->rigidBody = rb;
+
     objectList.push_back(gameObject);
 }
 
@@ -112,10 +117,13 @@ void ObjectManager::Draw(bool isEditor)
             ++i;
         }
         // TODO
-        if (isEditor)
-            objectPtr->glObject->Draw(objectPtr->position, objectPtr->rotation, objectPtr->scale);
-        else
-            objectPtr->glObject->DrawSim(objectPtr->model);
+        if (objectPtr->isActive)
+        {
+            if (isEditor)
+                objectPtr->glObject->Draw(objectPtr->position, objectPtr->rotation, objectPtr->scale);
+            else
+                objectPtr->glObject->DrawSim(objectPtr->model);
+        }
     }
     // Send number of lights to light UBO
     // TODO replace light UBO with SSBO, since that can store much

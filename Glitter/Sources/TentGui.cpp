@@ -559,7 +559,7 @@ void TentGui::ShowInspector(GameObject* object)
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
 
-    ImGui::Checkbox("", &object->isActive);
+    ImGui::Checkbox(" ", &object->isActive); //needs a space char to work
     ImGui::SameLine();
     // TODO: cleaner way of doing this somehow?
     char tag[TAG_LENGTH];
@@ -574,6 +574,8 @@ void TentGui::ShowInspector(GameObject* object)
     model = glm::translate(model, object->position);
     model = glm::scale(model, object->scale);
 
+    //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    //if (ImGui::TreeNode("Transform"))
     { // Transform Info
         float* m = const_cast<float*>(glm::value_ptr(model));
         float* v  = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
@@ -583,7 +585,34 @@ void TentGui::ShowInspector(GameObject* object)
 
         // FIXME: update only the object being changed
         //shared.physicsManager->UpdateColliders();
+        //ImGui::TreePop();
     }
+
+    ImGui::Separator();
+
+    // rigid body info
+    RigidBody* rb = object->rigidBody;
+    if (rb)
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("RigidBody Details"))
+        {
+            const char* objects[] = {"Box", "Sphere", "Plane", "Capsule"}; // TODO refactor this to auto update based on total enums
+            static float mass = rb->mass;
+            ImGui::InputFloat("Mass", &mass, 0.0f, 10.0f, "%.2f");
+            rb->mass = mass;
+
+            ImGui::Checkbox("Is Dynamic", &rb->isDynamic);
+
+            // TODO
+            static int objectIdx = 0;
+            ImGui::Combo("Collider Shape", &objectIdx, objects, IM_ARRAYSIZE(objects));
+
+            ImGui::TreePop();
+        }
+    }
+
+    ImGui::Separator();
 
     GlObject* mesh = object->glObject;
     if (mesh->type == LIGHT)

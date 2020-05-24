@@ -41,9 +41,13 @@ void PhysicsManager::UpdateColliders()
 
     for (auto objectPtr : shared.objectManager->objectList)
     {
-        // Reinitialize the transforms for all objects in list
-        objectPtr->rigidBody->InitTransform(objectPtr->position, objectPtr->rotation, objectPtr->scale);
-        AddObject(objectPtr);
+        // FIXME: objects should be able to not have a rb
+        if (objectPtr->rigidBody)
+        {
+            // Reinitialize the transforms for all objects in list
+            objectPtr->rigidBody->InitTransform(objectPtr->position, objectPtr->rotation, objectPtr->scale);
+            AddObject(objectPtr);
+        }
     }
 }
 
