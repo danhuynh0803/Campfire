@@ -11,8 +11,11 @@ public:
     void Start();
     void Update();
     void Shutdown();
+
     void AddObject(GameObject*);
+    void UpdateColliders();
     void ClearLists();
+
     void DebugDraw();
 
     GameObject* Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir);

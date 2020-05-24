@@ -369,10 +369,19 @@ void TentGui::ShowObjects(ObjectManager& manager)
     static int selected = -1;
 
     ImGui::Text("Scene Objects");
+
+    ImGui::SameLine();
+    // ascii 99 = c
+    if (ImGui::IsKeyPressed(67) || ImGui::Button("Update Colliders"))
+    {
+        shared.physicsManager->UpdateColliders();
+    }
+
     // TODO
     // Note: the number 105 was just chosen by eye
     // Eventually figure out a way that takes into account the button's width
-    ImGui::SameLine(ImGui::GetWindowWidth()-105);
+    //ImGui::SameLine(ImGui::GetWindowWidth()-105);
+    ImGui::SameLine();
     if (ImGui::Button("Remove Object") && selected != -1)
     {
         manager.RemoveObject(selected);
@@ -455,7 +464,7 @@ void TentGui::ShowMetrics(double frameTime)
     ImGui::End();
 }
 
-void EditTransform(GameObject* object, const float *cameraView, float *cameraProjection, float* matrix)
+void EditTransform(GameObject* object, float* matrix, const float *cameraView, float *cameraProjection)
 {
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
@@ -547,13 +556,6 @@ void EditTransform(GameObject* object, const float *cameraView, float *cameraPro
 
 void TentGui::ShowInspector(GameObject* object)
 {
-    // FIXME
-    return;
-
-    selectedObject = object;
-    // TODO recompose model matrix to draw
-    //object->model = glm::make_mat4x4(mat);
-
     // Show and be able to modify information on selected object
     ImGui::Begin("Inspector");
 
@@ -567,12 +569,20 @@ void TentGui::ShowInspector(GameObject* object)
 
     ImGui::Separator();
 
-    { // Transform Info
-        float* model = const_cast<float*>(glm::value_ptr(object->model));
-        float* view  = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
-        float* proj  = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
+    glm::mat4 model = glm::mat4(1.0f);
+    //model = glm::rotate(model, glm::rotate); // FIXME
+    model = glm::translate(model, object->position);
+    model = glm::scale(model, object->scale);
 
-        EditTransform(object, view, proj, model);
+    { // Transform Info
+        float* m = const_cast<float*>(glm::value_ptr(model));
+        float* v  = const_cast<float*>(glm::value_ptr(activeCamera->GetViewMatrix()));
+        float* p  = const_cast<float*>(glm::value_ptr(activeCamera->GetProjMatrix(1600, 900)));
+
+        EditTransform(object, m, v, p);
+
+        // FIXME: update only the object being changed
+        //shared.physicsManager->UpdateColliders();
     }
 
     GlObject* mesh = object->glObject;

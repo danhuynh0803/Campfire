@@ -32,6 +32,21 @@ void PhysicsManager::AddObject(GameObject* object)
     dynamicsWorld->addRigidBody(object->rigidBody->body);
 }
 
+void PhysicsManager::UpdateColliders()
+{
+    // FIXME: reorganize somehow
+
+    // First clear lists of old data
+    ClearLists();
+
+    for (auto objectPtr : shared.objectManager->objectList)
+    {
+        // Reinitialize the transforms for all objects in list
+        objectPtr->rigidBody->InitTransform(objectPtr->position, objectPtr->rotation, objectPtr->scale);
+        AddObject(objectPtr);
+    }
+}
+
 //void PhysicsManager::RemoveObject(GameObject* object)
 //{
 //    dynamicsWorld->removeRigidBody(object->rigidBody->body);
@@ -133,7 +148,7 @@ void PhysicsManager::ClearLists()
     }
 
     // Delete collision shapes
-    for (int i = 0; collisionShapes.size(); ++i)
+    for (int i = 0; i < collisionShapes.size(); ++i)
     {
         btCollisionShape* shape = collisionShapes[i];
         collisionShapes[i] = 0;

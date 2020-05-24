@@ -210,10 +210,7 @@ int main(int argc, char * argv[])
     //shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
 
     // Load physics manager
-    for (auto objectPtr : objectManager.objectList)
-    {
-        physicsManager.AddObject(objectPtr);
-    }
+    physicsManager.UpdateColliders();    
 
     //GameObject test;
     //Cube cube;
