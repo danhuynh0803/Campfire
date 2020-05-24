@@ -4,9 +4,6 @@
 #include "RigidBody.h"
 #include "GlObject.h"
 
-class RigidBody;
-class GlObject;
-
 class GameObject
 {
 public:
@@ -23,7 +20,7 @@ public:
     std::string name = "unnamed";
     bool isActive = true;
 
-    std::vector<Component> components;
+    //std::vector<Component> components;
 };
 
 #endif // GAME_OBJECT_H

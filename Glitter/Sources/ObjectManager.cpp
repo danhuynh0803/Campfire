@@ -1,6 +1,6 @@
-#include "ObjectManager.h"
-
 #include <string>
+
+#include "ObjectManager.h"
 #include "ShaderController.h"
 #include "Cube.h"
 #include "Quad.h"
