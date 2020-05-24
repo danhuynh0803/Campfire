@@ -27,9 +27,8 @@ public:
         // TODO: allow user to modify the scene objects when game stopped/paused
         // When game is played, user should not be able to modify anymore
         // Physics doesnt affect scale so apply this manually
-        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        // TODO for combining with imguizmo
-        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(this->model));
+        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));                
+        glUniform3fv(glGetUniformLocation(this->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(this)->color));
 
         // Draw cube
         glBindVertexArray(this->VAO);
@@ -53,7 +52,6 @@ public:
         model = glm::scale(model, scale);
 
         glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
         glUniform3fv(glGetUniformLocation(this->shader->ID, "lightColor"), 1, glm::value_ptr(static_cast<Light*>(this)->color));
 
         // Draw cube
