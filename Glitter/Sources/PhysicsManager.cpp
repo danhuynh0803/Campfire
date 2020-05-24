@@ -28,7 +28,7 @@ void PhysicsManager::Start()
 void PhysicsManager::AddObject(GameObject* object)
 {
     // TODO is this needed?
-    //collisionShapes.push_back(object->rigidBody->shape);    
+    collisionShapes.push_back(object->rigidBody->shape);
     dynamicsWorld->addRigidBody(object->rigidBody->body);
 }
 
@@ -88,18 +88,19 @@ void PhysicsManager::Update()
         {
             body->getMotionState()->getWorldTransform(trans);
         }
-        /*
         else
         {
-            trans = obj->getWorldTransform();
+            //trans = objectPtr->rigidBody->shape->getWorldTransform();
+            std::cout << "Warning: Object missing motion state\n";
         }
-        */
 
         // Update transform
         btScalar m[16];
         trans.getOpenGLMatrix(m);
-        //shared.objectManager->objectList[i]->model = glm::make_mat4x4(m);
-        objectPtr->model = glm::make_mat4x4(m);
+        // Apply scale separately since bullet doesn't convey that info
+        glm::mat4 model = glm::make_mat4x4(m);
+        model = glm::scale(model, objectPtr->scale);
+        objectPtr->model = model;
     }
 }
 
@@ -116,7 +117,7 @@ void PhysicsManager::DebugDraw()
     //mydebugdrawer.DebugDraw();
 }
 
-void PhysicsManager::Shutdown()
+void PhysicsManager::ClearLists()
 {
     // remove the rigidbodies from the dynamics world and delete them
     for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; --i)
@@ -138,7 +139,11 @@ void PhysicsManager::Shutdown()
         collisionShapes[i] = 0;
         delete shape;
     }
+}
 
+void PhysicsManager::Shutdown()
+{
+    ClearLists();
     delete dynamicsWorld;
     delete solver;
     delete overlappingPairCache;
