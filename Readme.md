@@ -1,5 +1,5 @@
 # Campfire
-![Screenshot](https://imgur.com/a/jRsU3Tu)
+![Screenshot](https://i.imgur.com/Efqq0P2.png)
 
 ## Summary
 Campfire is an in-progress game engine intended for use in small gamejam projects. Not currently usable other than for myself due to a lot of hardcoded file paths for testing purposes. Campfire uses [Glitter](https://github.com/Polytonic/Glitter) as the starting template but requires at least C++17 due to certain imgui widgets.
