@@ -36,6 +36,7 @@
 #include "Model.h"
 #include "Shared.h"
 #include "Log.h"
+#include "ResourceManager.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -84,6 +85,7 @@ Shared shared;
 int main(int argc, char * argv[])
 {
     Log::Start();
+
     // TODO for testing, move later
     shared.renderCamera = &camera;
     shared.gameManager = &GAME;
@@ -137,9 +139,9 @@ int main(int argc, char * argv[])
     // ===================================================================
     // Setup for textures
     //
-    // TODO move to textureManager
-    Texture tex1("Assets/Textures/wall.jpg");
-    Texture tex2("Assets/Textures/uv.png");
+    // TODO move to textureManager    
+    Texture tex1((ASSETS() + "/Textures/wall.jpg").c_str());
+    Texture tex2((ASSETS() + "/Textures/uv.png").c_str());
 
    // ===================================================================
 
@@ -209,7 +211,7 @@ int main(int argc, char * argv[])
     physicsManager.Start();
     shared.physicsManager = &physicsManager;
     
-    shared.sceneLoader->LoadScene(objectManager, "Assets/Scenes/main.json");    
+    shared.sceneLoader->LoadScene(objectManager, (ASSETS() + "/Scenes/main.json").c_str());    
 
     // Load physics manager
     physicsManager.UpdateColliders();    

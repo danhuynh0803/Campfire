@@ -5,6 +5,8 @@
 #include "Light.h"
 #include "FrameBuffer.h"
 #include "SceneLoader.h"
+#include "Log.h"
+#include "ResourceManager.h"
 
 #include <vector>
 
@@ -34,6 +36,15 @@ static FileAction fileAction = CLOSE;
 
 static void SetFileAction(FileAction action)
 {
+    static bool isOpenedFirstTime = true;
+    
+    if (isOpenedFirstTime)
+    {
+        std::filesystem::path assetsPath(ASSETS());
+        fileDialog.SetPwd(assetsPath);
+        isOpenedFirstTime = false;
+    }
+
     fileAction = action;
 
     if (action == CLOSE)
@@ -47,6 +58,7 @@ static GameObject* selectedObject;
 
 void TentGui::ShowFileBrowser()
 {
+
     switch (fileAction)
     {
         case CLOSE: // Do nothing if file browser is suppose to close
@@ -75,6 +87,9 @@ void TentGui::ShowFileBrowser()
     {
         selectedFilePath.assign(fileDialog.GetSelected().string());
 
+        // TODO Refactor: set relative path here instead and not in the subfunctions below
+        //
+
         switch (fileAction)
         {
             case OPEN:
@@ -91,10 +106,22 @@ void TentGui::ShowFileBrowser()
                 );
                 break;
 
-            case LOAD_TEXTURE: // TODO
-                std::cout << "Loading new texture " << fileDialog.GetSelected().string() << '\n';
-                Texture newTexture(fileDialog.GetSelected().string().c_str());
-                selectedObject->glObject->texture = newTexture;
+            case LOAD_TEXTURE: // TODO grab from textureMaster
+                std::string fullPath = fileDialog.GetSelected().string();
+                std::size_t pos = fullPath.rfind("Assets");
+                if (pos != std::string::npos)
+                {
+                    // FIXME?
+                    // hacky way of getting path beyond "Assets/"
+                    std::string relPath = ASSETS() + '/' + fullPath.substr(pos+7);
+                    LOG_INFO("Loading new texture {0}", relPath);
+                    Texture newTexture(relPath.c_str());
+                    selectedObject->glObject->texture = newTexture;
+                }
+                else
+                {
+                    LOG_WARN("Please include the file into the Assets directory: {0}", fullPath);
+                }
                 break;
         }
 
