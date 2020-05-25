@@ -24,7 +24,7 @@ public:
     }
 
     void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
-    {        
+    {
         for (Mesh mesh : meshes)
         {
             mesh.Draw(this->shader, pos, rot, scale);

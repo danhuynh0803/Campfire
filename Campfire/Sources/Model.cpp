@@ -1,6 +1,7 @@
 #include "Model.h"
 
 #include <iostream>
+#include "Log.h"
 
 void Model::LoadModel(std::string path)
 {

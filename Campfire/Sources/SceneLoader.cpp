@@ -19,6 +19,7 @@
 #include "ShaderController.h"
 #include "Shared.h"
 #include "Log.h"
+#include "ResourceManager.h"
 
 using namespace rapidjson;
 
@@ -187,7 +188,7 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
                        break;
         }
         mesh->type = type;
-      
+
         {
             const Value& a = itr->FindMember("position")->value;
             assert(a.IsArray());
@@ -206,7 +207,8 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             gameObject->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
 
-        Texture texture(itr->FindMember("texture")->value.GetString());
+        std::string path(itr->FindMember("texture")->value.GetString());
+        Texture texture(path.c_str());
         mesh->texture = texture;
 
         Shader* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));

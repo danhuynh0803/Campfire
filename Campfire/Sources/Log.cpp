@@ -12,5 +12,4 @@ void Log::Start()
 
     clientLogger = spdlog::stdout_color_mt("App");
     clientLogger->set_level(spdlog::level::trace);
-
 }
