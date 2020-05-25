@@ -97,7 +97,7 @@ int main(int argc, char * argv[])
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_SAMPLES, 16);
 
-    auto mWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Tent Engine", nullptr, nullptr);
+    auto mWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Campfire", nullptr, nullptr);
 
     // Check for Valid Context
     if (mWindow == nullptr) {
@@ -137,8 +137,9 @@ int main(int argc, char * argv[])
     // ===================================================================
     // Setup for textures
     //
-    Texture tex1("Textures/wall.jpg");
-    Texture tex2("Textures/uv.png");
+    // TODO move to textureManager
+    Texture tex1("Assets/Textures/wall.jpg");
+    Texture tex2("Assets/Textures/uv.png");
 
    // ===================================================================
 
@@ -208,7 +209,7 @@ int main(int argc, char * argv[])
     physicsManager.Start();
     shared.physicsManager = &physicsManager;
     
-    shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");    
+    shared.sceneLoader->LoadScene(objectManager, "Assets/Scenes/main.json");    
 
     // Load physics manager
     physicsManager.UpdateColliders();    

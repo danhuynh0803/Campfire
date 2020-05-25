@@ -19,7 +19,7 @@ option(BUILD_UNIT_TESTS OFF)
 add_subdirectory(Glitter/Vendor/bullet)
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /W4")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17")
     if(NOT WIN32)
