@@ -1,0 +1,383 @@
+{
+    "SceneObjects": [
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "floor",
+            "position": [
+                0.0,
+                -3.0517618656158449,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                10.0,
+                1.0,
+                10.0
+            ],
+            "texture": "../Assets/Textures/wall.jpg",
+            "isActive": true,
+            "mass": 0.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "mass1",
+            "position": [
+                -3.2860000133514406,
+                3.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "texture": "../Assets/Textures\\blending_transparent_window.png",
+            "isActive": true,
+            "mass": 1.0,
+            "isDynamic": true,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "LIGHT",
+            "shader": "light",
+            "tag": "red",
+            "position": [
+                -3.3762593269348146,
+                0.2830527722835541,
+                -4.485061168670654
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "color": [
+                1.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "mass": 1.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "LIGHT",
+            "shader": "light",
+            "tag": "white",
+            "position": [
+                0.05130821466445923,
+                10.299323081970215,
+                -0.14157462120056153
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "mass": 1.0,
+            "isDynamic": true,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "LIGHT",
+            "shader": "light",
+            "tag": "blue",
+            "position": [
+                3.508620262145996,
+                -1.631837248802185,
+                2.9927353858947756
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "color": [
+                0.0,
+                0.1488199234008789,
+                1.0,
+                1.0
+            ],
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "mass": 1.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "LIGHT",
+            "shader": "light",
+            "tag": "green",
+            "position": [
+                3.5516765117645265,
+                -0.07190465927124024,
+                -3.44206166267395
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "color": [
+                0.0,
+                0.7941176295280457,
+                0.14180675148963929,
+                1.0
+            ],
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "mass": 1.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "LIGHT",
+            "shader": "light",
+            "tag": "pink",
+            "position": [
+                -0.0875781774520874,
+                -0.6456316709518433,
+                4.691704273223877
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "color": [
+                1.0,
+                0.7058819532394409,
+                0.0,
+                1.0
+            ],
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "mass": 1.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "LIGHT",
+            "shader": "light",
+            "tag": "cyan",
+            "position": [
+                -4.599218368530273,
+                -0.560117781162262,
+                3.139505386352539
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "color": [
+                0.0,
+                0.9117729663848877,
+                1.0,
+                1.0
+            ],
+            "constant": 1.0,
+            "linear": 0.09000000357627869,
+            "quadratic": 0.03200000151991844,
+            "mass": 1.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "m2",
+            "position": [
+                -1.6941523551940919,
+                3.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "texture": "../Assets/Textures/Skybox/front.jpg",
+            "isActive": true,
+            "mass": 2.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "m3",
+            "position": [
+                0.0,
+                3.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "texture": "../Assets/Textures/awesomeface.png",
+            "isActive": true,
+            "mass": 3.0,
+            "isDynamic": true,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "m5",
+            "position": [
+                1.5,
+                3.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "texture": "../Assets/Textures\\flowmap.png",
+            "isActive": true,
+            "mass": 5.0,
+            "isDynamic": true,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "m10",
+            "position": [
+                3.0,
+                3.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "texture": "../Assets/Textures\\container.jpg",
+            "isActive": true,
+            "mass": 10.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        },
+        {
+            "type": "CUBE",
+            "shader": "generic",
+            "tag": "blocker",
+            "position": [
+                0.6588853001594544,
+                0.9542177319526672,
+                0.022136211395263673
+            ],
+            "rotation": [
+                0.0,
+                -0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "texture": "../Assets/Textures/uv.png",
+            "isActive": true,
+            "mass": 0.0,
+            "isDynamic": false,
+            "shape": "COL_BOX"
+        }
+    ]
+}
