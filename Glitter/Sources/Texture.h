@@ -1,13 +1,13 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "stb_image.h"
-
-#include <glad/glad.h>
-
 #include <string>
 #include <vector>
 #include <iostream>
+#include <glad/glad.h>
+
+#include "stb_image.h"
+#include "Log.h"
 
 class Texture
 {
@@ -26,7 +26,6 @@ public:
 
         glGenTextures(1, &ID);
 
-        //std::cout << path << std::endl;
         int nrChannels;
         unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data)
@@ -51,12 +50,13 @@ public:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             glBindTexture(GL_TEXTURE_2D, 0);
+            // TODO
             // Flip texture coordinates on y-axis, since UV for most image software are inverted from how openGL UV coordinates are
-            //stbi_set_flip_vertically_on_load(true);            
+            //stbi_set_flip_vertically_on_load(true);
         }
         else
         {
-            std::cout << "ERROR: Failed to load " << path << std::endl;
+            LOG_WARN("Failed to load: {0}", path);
         }
 
         stbi_image_free(data);

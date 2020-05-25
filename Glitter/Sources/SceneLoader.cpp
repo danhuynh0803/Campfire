@@ -18,6 +18,7 @@
 #include "ObjectManager.h"
 #include "ShaderController.h"
 #include "Shared.h"
+#include "Log.h"
 
 using namespace rapidjson;
 
@@ -132,7 +133,7 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
     FILE* fp = fopen(path, "r");
     if (fp == 0)
     {
-        std::cout << "ERROR: Failed to load SCENE file: " << path << '\n';
+        LOG_ERROR("Failed to load SCENE file : {0}", path);
     }
 
     currentScenePath.assign(path);
@@ -140,15 +141,16 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             currentScenePath.find_last_of('/')+1
     );
 
-    std::cout << "Clearing scene\n";
+    LOG_TRACE("Clearing scene");
     for (auto objectPtr : manager.objectList)
     {
         delete objectPtr;
     }
     manager.objectList.clear();
 
-    std::cout << "Loading SCENE file: " << currentScenePath << '\n';
-    std::cout << "Loading SCENE file: " << currentSceneFileName << '\n';
+
+    LOG_TRACE("Loading SCENE file: {0}", currentScenePath);
+    LOG_TRACE("Loading SCENE file: {0}", currentSceneFileName);    
     char readBuffer[65536];
     FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
@@ -180,10 +182,8 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
             case LIGHT:
                        mesh = new Light(); break;
             case NONE:
-                       std::cout << "ERROR: Loading object with no type specified\n";
-                       break;
             default:
-                       std::cout << "ERROR (from default): Loading object with no type specified\n";
+                       LOG_ERROR("Loading object with no type specified from scene file");
                        break;
         }
         mesh->type = type;

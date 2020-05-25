@@ -35,6 +35,7 @@
 #include "SceneLoader.h"
 #include "Model.h"
 #include "Shared.h"
+#include "Log.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -82,6 +83,7 @@ Shared shared;
 
 int main(int argc, char * argv[])
 {
+    Log::Start();
     // TODO for testing, move later
     shared.renderCamera = &camera;
     shared.gameManager = &GAME;
@@ -205,21 +207,11 @@ int main(int argc, char * argv[])
     PhysicsManager physicsManager;
     physicsManager.Start();
     shared.physicsManager = &physicsManager;
-
-    // FIXME something with physics manager is causing crash when switching scenes
-    shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");
-    //shared.sceneLoader->LoadScene(objectManager, "Scenes/blending.json");
+    
+    shared.sceneLoader->LoadScene(objectManager, "Scenes/main.json");    
 
     // Load physics manager
     physicsManager.UpdateColliders();    
-
-    //GameObject test;
-    //Cube cube;
-    //cube.texture = tex1;
-    //cube.shader = shaderController.Get("generic");
-    //cube.type = CUBE;
-    //test.glObject = &cube;
-    //objectManager.Add(&test);
 
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
 //    nanosuit.shader = shaderController.Get("generic");
@@ -464,7 +456,7 @@ void processInput(GLFWwindow *window)
     // Interferes with imguizmo transforms
     // Disable for now
 //    {
-//        if (!io.WantCaptureMouse)
+//        if (!io.WantCaptureMouse) 
 //        {
 //            static int oldClickState = GLFW_RELEASE;
 //            int newClickState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);

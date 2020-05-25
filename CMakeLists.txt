@@ -28,13 +28,14 @@ else()
 endif()
 
 include_directories(Glitter/Sources/
-                    Glitter/Sources/rapidjson/
                     Glitter/Vendor/assimp/include/
                     Glitter/Vendor/bullet/src/
                     Glitter/Vendor/glad/include/
                     Glitter/Vendor/glfw/include/
                     Glitter/Vendor/glm/
-                    Glitter/Vendor/stb/)
+                    Glitter/Vendor/stb/
+                    Glitter/Vendor/spdlog/include/
+                    Glitter/Vendor/rapidjson/include)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
 

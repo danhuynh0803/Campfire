@@ -22,3 +22,9 @@
     path = Glitter/Vendor/bullet
     url = https://github.com/bulletphysics/bullet3.git
     branch = master
+[submodule "Glitter/Vendor/spdlog"]
+	path = Glitter/Vendor/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "Glitter/Vendor/rapidjson"]
+	path = Glitter/Vendor/rapidjson
+	url = https://github.com/Tencent/rapidjson/
