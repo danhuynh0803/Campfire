@@ -19,7 +19,7 @@ public:
     BulletDebugDrawer()
     {
         // TODO hardcode in for testing, should move to shadercontroller
-        lineShader = Shader("../Glitter/Shaders/line.vert", "../Glitter/Shaders/line.frag");
+        lineShader = Shader("../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
     }
 
     void SetMatrices(glm::mat4 pViewMatrix, glm::mat4 pProjectionMatrix)

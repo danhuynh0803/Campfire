@@ -119,10 +119,10 @@ int main(int argc, char * argv[])
     tentGui.activeCamera = &camera;
 
     // use our shader program when we want to render an object
-    Shader genericShader("../Glitter/Shaders/generic.vert", "../Glitter/Shaders/generic.frag");
-    Shader lightShader("../Glitter/Shaders/light.vert", "../Glitter/Shaders/light.frag");
-    Shader screenShader("../Glitter/Shaders/postProcess.vert", "../Glitter/Shaders/kernel.frag");
-    Shader lineShader("../Glitter/Shaders/line.vert", "../Glitter/Shaders/line.frag");
+    Shader genericShader("../Campfire/Shaders/generic.vert", "../Campfire/Shaders/generic.frag");
+    Shader lightShader("../Campfire/Shaders/light.vert", "../Campfire/Shaders/light.frag");
+    Shader screenShader("../Campfire/Shaders/postProcess.vert", "../Campfire/Shaders/kernel.frag");
+    Shader lineShader("../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
     shaderController.Add("generic", &genericShader);

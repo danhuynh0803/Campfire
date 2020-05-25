@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
-project(Glitter)
+project(Campfire)
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
-add_subdirectory(Glitter/Vendor/glfw)
+add_subdirectory(Campfire/Vendor/glfw)
 
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
-add_subdirectory(Glitter/Vendor/assimp)
+add_subdirectory(Campfire/Vendor/assimp)
 
 option(BUILD_BULLET2_DEMOS OFF)
 option(BUILD_CPU_DEMOS OFF)
 option(BUILD_EXTRAS OFF)
 option(BUILD_OPENGL3_DEMOS OFF)
 option(BUILD_UNIT_TESTS OFF)
-add_subdirectory(Glitter/Vendor/bullet)
+add_subdirectory(Campfire/Vendor/bullet)
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /W4")
@@ -27,27 +27,27 @@ else()
     endif()
 endif()
 
-include_directories(Glitter/Sources/
-                    Glitter/Vendor/assimp/include/
-                    Glitter/Vendor/bullet/src/
-                    Glitter/Vendor/glad/include/
-                    Glitter/Vendor/glfw/include/
-                    Glitter/Vendor/glm/
-                    Glitter/Vendor/stb/
-                    Glitter/Vendor/spdlog/include/
-                    Glitter/Vendor/rapidjson/include)
+include_directories(Campfire/Sources/
+                    Campfire/Vendor/assimp/include/
+                    Campfire/Vendor/bullet/src/
+                    Campfire/Vendor/glad/include/
+                    Campfire/Vendor/glfw/include/
+                    Campfire/Vendor/glm/
+                    Campfire/Vendor/stb/
+                    Campfire/Vendor/spdlog/include/
+                    Campfire/Vendor/rapidjson/include)
 
-file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
+file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c)
 
-file(GLOB PROJECT_HEADERS Glitter/Headers/*.hpp)
+file(GLOB PROJECT_HEADERS Campfire/Headers/*.hpp)
 
-file(GLOB PROJECT_SOURCES Glitter/Sources/*.cpp
-                          Glitter/Sources/imgui/*.cpp)
+file(GLOB PROJECT_SOURCES Campfire/Sources/*.cpp
+                          Campfire/Sources/imgui/*.cpp)
 
-file(GLOB PROJECT_SHADERS Glitter/Shaders/*.comp
-                          Glitter/Shaders/*.frag
-                          Glitter/Shaders/*.geom
-                          Glitter/Shaders/*.vert)
+file(GLOB PROJECT_SHADERS Campfire/Shaders/*.comp
+                          Campfire/Shaders/*.frag
+                          Campfire/Shaders/*.geom
+                          Campfire/Shaders/*.vert)
 
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md

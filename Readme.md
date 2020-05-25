@@ -7,7 +7,7 @@ Campfire is an in-progress game engine intended for use in small gamejam project
 ## Build Instructions
 ```bash
 git clone --recursive https://github.com/danhuynh0803/Campfire
-cd Glitter
+cd Campfire
 cd Build
 ```
 

@@ -1,30 +1,30 @@
 [submodule "Glitter/Vendor/assimp"]
-    path = Glitter/Vendor/assimp
+	path = Campfire/Vendor/assimp
     url = https://github.com/assimp/assimp.git
     branch = master
 [submodule "Glitter/Vendor/glad"]
-    path = Glitter/Vendor/glad
+	path = Campfire/Vendor/glad
     url = https://github.com/Dav1dde/glad.git
     branch = c
 [submodule "Glitter/Vendor/glfw"]
-    path = Glitter/Vendor/glfw
+	path = Campfire/Vendor/glfw
     url = https://github.com/glfw/glfw.git
     branch = master
 [submodule "Glitter/Vendor/glm"]
-    path = Glitter/Vendor/glm
+	path = Campfire/Vendor/glm
     url = https://github.com/g-truc/glm.git
     branch = master
 [submodule "Glitter/Vendor/stb"]
-    path = Glitter/Vendor/stb
+	path = Campfire/Vendor/stb
     url = https://github.com/nothings/stb.git
     branch = master
 [submodule "Glitter/Vendor/bullet"]
-    path = Glitter/Vendor/bullet
+	path = Campfire/Vendor/bullet
     url = https://github.com/bulletphysics/bullet3.git
     branch = master
 [submodule "Glitter/Vendor/spdlog"]
-	path = Glitter/Vendor/spdlog
+	path = Campfire/Vendor/spdlog
 	url = https://github.com/gabime/spdlog
 [submodule "Glitter/Vendor/rapidjson"]
-	path = Glitter/Vendor/rapidjson
+	path = Campfire/Vendor/rapidjson
 	url = https://github.com/Tencent/rapidjson/
