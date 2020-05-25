@@ -7,6 +7,7 @@
 #include "Cube.h"
 #include "Quad.h"
 #include "Light.h"
+#include "Log.h"
 
 void ObjectManager::Add(GameObject* object)
 {
@@ -15,7 +16,7 @@ void ObjectManager::Add(GameObject* object)
 
 void ObjectManager::RemoveObject(int index)
 {
-    std::cout << "Removing object at index = " << index << '\n';
+    LOG_INFO("Removing object at index = {0}", index);
     if (!objectList.empty())
     {
         objectList.erase(objectList.begin() + index);

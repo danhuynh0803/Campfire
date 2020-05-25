@@ -34,7 +34,8 @@ include_directories(Glitter/Sources/
                     Glitter/Vendor/glad/include/
                     Glitter/Vendor/glfw/include/
                     Glitter/Vendor/glm/
-                    Glitter/Vendor/stb/)
+                    Glitter/Vendor/stb/
+                    Glitter/Vendor/spdlog/include/)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
 
