@@ -36,6 +36,15 @@ static FileAction fileAction = CLOSE;
 
 static void SetFileAction(FileAction action)
 {
+    static bool isOpenedFirstTime = true;
+    
+    if (isOpenedFirstTime)
+    {
+        std::filesystem::path assetsPath(ASSETS());
+        fileDialog.SetPwd(assetsPath);
+        isOpenedFirstTime = false;
+    }
+
     fileAction = action;
 
     if (action == CLOSE)
@@ -49,6 +58,7 @@ static GameObject* selectedObject;
 
 void TentGui::ShowFileBrowser()
 {
+
     switch (fileAction)
     {
         case CLOSE: // Do nothing if file browser is suppose to close
@@ -76,6 +86,9 @@ void TentGui::ShowFileBrowser()
     if (fileDialog.HasSelected())
     {
         selectedFilePath.assign(fileDialog.GetSelected().string());
+
+        // TODO Refactor: set relative path here instead and not in the subfunctions below
+        //
 
         switch (fileAction)
         {
