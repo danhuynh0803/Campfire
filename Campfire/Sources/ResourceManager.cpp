@@ -1,9 +1,9 @@
 #include "ResourceManager.h"
 
 
-#ifdef _WIN32
+#ifdef _WIN32 || _WIN64
 std::string ResourceManager::assetPath = "../Assets/";
-std::string ResourceManager::corePath = "../../Campfire/";
+std::string ResourceManager::corePath = "../Campfire/";
 #else
 std::string ResourceManager::assetPath = "../../Assets/";
 std::string ResourceManager::corePath = "../../Campfire/";
