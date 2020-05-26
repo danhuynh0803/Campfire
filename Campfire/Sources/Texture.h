@@ -25,20 +25,20 @@ public:
 
     Texture(const char* path)
     {
-        std::string fullPath = std::string(path);
-        std::size_t pos = fullPath.rfind("Assets");
-        if (pos == std::string::npos)
-        {
-            LOG_WARN("Please include the file into the Assets directory: {0}", path);
-            return;
-        }
+        //std::size_t pos = fullPath.rfind("Assets");
+        //if (pos == std::string::npos)
+        //{
+        //    LOG_WARN("Please include the file into the Assets directory: {0}", path);
+        //    return;
+        //}
         // FIXME?
         // hacky way of getting path beyond "Assets/"
         // Only save the location within the Assets dir
         // Since the relative position of Assets dir varies by platform
 
-        texturePath = fullPath.substr(pos+7); // Save off everything after ASSETS for storing in scenes
+        //texturePath = fullPath.substr(pos+7); // Save off everything after ASSETS for storing in scenes
         // Replace '\' from windows filesystems with '/', which works on all platforms
+        texturePath = std::string(path);
         std::replace(texturePath.begin(), texturePath.end(), '\\', '/');
         std::string relPath = ASSETS + texturePath;
 
