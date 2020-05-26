@@ -28,3 +28,6 @@
 [submodule "Glitter/Vendor/rapidjson"]
 	path = Campfire/Vendor/rapidjson
 	url = https://github.com/Tencent/rapidjson/
+[submodule "Campfire/Vendor/openal-soft"]
+	path = Campfire/Vendor/openal-soft
+	url = https://github.com/kcat/openal-soft
