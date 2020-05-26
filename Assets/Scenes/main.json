@@ -44,7 +44,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures\\blending_transparent_window.png",
+            "texture": "../Assets/Textures/blending_transparent_window.png",
             "isActive": true,
             "mass": 1.0,
             "isDynamic": true,
@@ -323,7 +323,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures\\flowmap.png",
+            "texture": "../Assets/Textures/flowmap.png",
             "isActive": true,
             "mass": 5.0,
             "isDynamic": true,
@@ -348,7 +348,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures\\container.jpg",
+            "texture": "../Assets/Textures/container.jpg",
             "isActive": true,
             "mass": 10.0,
             "isDynamic": false,

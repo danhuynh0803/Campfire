@@ -151,7 +151,7 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
 
 
     LOG_TRACE("Loading SCENE file: {0}", currentScenePath);
-    LOG_TRACE("Loading SCENE file: {0}", currentSceneFileName);    
+    LOG_TRACE("Loading SCENE file: {0}", currentSceneFileName);
     char readBuffer[65536];
     FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 

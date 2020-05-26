@@ -37,10 +37,10 @@ static FileAction fileAction = CLOSE;
 static void SetFileAction(FileAction action)
 {
     static bool isOpenedFirstTime = true;
-    
+
     if (isOpenedFirstTime)
     {
-        std::filesystem::path assetsPath(ASSETS());
+        std::filesystem::path assetsPath(ASSETS);
         fileDialog.SetPwd(assetsPath);
         isOpenedFirstTime = false;
     }
@@ -108,20 +108,8 @@ void TentGui::ShowFileBrowser()
 
             case LOAD_TEXTURE: // TODO grab from textureMaster
                 std::string fullPath = fileDialog.GetSelected().string();
-                std::size_t pos = fullPath.rfind("Assets");
-                if (pos != std::string::npos)
-                {
-                    // FIXME?
-                    // hacky way of getting path beyond "Assets/"
-                    std::string relPath = ASSETS() + '/' + fullPath.substr(pos+7);
-                    LOG_INFO("Loading new texture {0}", relPath);
-                    Texture newTexture(relPath.c_str());
-                    selectedObject->glObject->texture = newTexture;
-                }
-                else
-                {
-                    LOG_WARN("Please include the file into the Assets directory: {0}", fullPath);
-                }
+                Texture newTexture(fullPath.c_str());
+                selectedObject->glObject->texture = newTexture;
                 break;
         }
 

@@ -2,6 +2,7 @@
 #define BULLET_DEBUG_DRAWER_H
 
 #include "Shader.h"
+#include "ResourceManager.h"
 
 class BulletDebugDrawer : public btIDebugDraw
 {
@@ -18,8 +19,11 @@ public:
 
     BulletDebugDrawer()
     {
-        // TODO hardcode in for testing, should move to shadercontroller
-        lineShader = Shader("../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
+        lineShader =
+            Shader(
+                (CORE + "Shaders/line.vert").c_str(),
+                (CORE + "Shaders/line.frag").c_str()
+            );
     }
 
     void SetMatrices(glm::mat4 pViewMatrix, glm::mat4 pProjectionMatrix)

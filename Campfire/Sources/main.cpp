@@ -121,10 +121,10 @@ int main(int argc, char * argv[])
     tentGui.activeCamera = &camera;
 
     // use our shader program when we want to render an object
-    Shader genericShader("../Campfire/Shaders/generic.vert", "../Campfire/Shaders/generic.frag");
-    Shader lightShader("../Campfire/Shaders/light.vert", "../Campfire/Shaders/light.frag");
-    Shader screenShader("../Campfire/Shaders/postProcess.vert", "../Campfire/Shaders/kernel.frag");
-    Shader lineShader("../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
+    Shader genericShader( (CORE + "Shaders/generic.vert"    ).c_str(), (CORE + "Shaders/generic.frag").c_str() );
+    Shader lightShader  ( (CORE + "Shaders/light.vert"      ).c_str(), (CORE + "Shaders/light.frag"  ).c_str() );
+    Shader screenShader ( (CORE + "Shaders/postProcess.vert").c_str(), (CORE + "Shaders/kernel.frag" ).c_str() );
+    Shader lineShader   ( (CORE + "Shaders/line.vert"       ).c_str(), (CORE + "Shaders/line.frag"   ).c_str() );
     // Add shader to shaderController for hot reloading
     // TODO handle this seamlessly so that theres no need to add shader each time to controller
     shaderController.Add("generic", &genericShader);
@@ -135,13 +135,6 @@ int main(int argc, char * argv[])
     shared.shaderController = &shaderController;
     shared.objectManager = &objectManager;
     shared.sceneLoader = new SceneLoader();
-
-    // ===================================================================
-    // Setup for textures
-    //
-    // TODO move to textureManager    
-    Texture tex1((ASSETS() + "/Textures/wall.jpg").c_str());
-    Texture tex2((ASSETS() + "/Textures/uv.png").c_str());
 
    // ===================================================================
 
@@ -210,11 +203,11 @@ int main(int argc, char * argv[])
     PhysicsManager physicsManager;
     physicsManager.Start();
     shared.physicsManager = &physicsManager;
-    
-    shared.sceneLoader->LoadScene(objectManager, (ASSETS() + "/Scenes/main.json").c_str());    
+
+    shared.sceneLoader->LoadScene(objectManager, (ASSETS + "Scenes/main.json").c_str());
 
     // Load physics manager
-    physicsManager.UpdateColliders();    
+    physicsManager.UpdateColliders();
 
 //    Model nanosuit("Models/nanosuit/nanosuit.obj");
 //    nanosuit.shader = shaderController.Get("generic");

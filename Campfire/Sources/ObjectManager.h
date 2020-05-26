@@ -19,7 +19,7 @@ public:
     }
 
     void Add(GameObject* object);
-    void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale);
+    void LoadObject(Geometry geom, std::string name, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale);
     void RemoveObject(int index);
     void Draw(bool isEditor);
 

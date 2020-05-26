@@ -16,13 +16,16 @@ public:
     // Textures
 
     // Etc
+    inline static std::string GetCorePath() { return corePath; }
     inline static std::string GetAssetPath() { return assetPath; }
 
 private:
     static std::string assetPath;
+    static std::string corePath;
 };
 
-#define ASSETS()  ResourceManager::GetAssetPath()
+#define CORE  ResourceManager::GetCorePath()
+#define ASSETS  ResourceManager::GetAssetPath()
 
 #endif // RESOURCE_MANAGER_H
 

@@ -97,7 +97,8 @@ bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
 
     if (closestHit.hasHit())
     {
-        index = (int)closestHit.m_collisionObject->getUserPointer();
+        // FIXME
+        //index = static_cast<int>(closestHit.m_collisionObject->getUserPointer());
         return true;
     }
 

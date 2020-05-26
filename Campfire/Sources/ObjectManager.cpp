@@ -40,7 +40,7 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, g
     mesh->type = geom;
     std::cout << mesh->type << '\n';
 
-    Texture tempTex("Textures/uv.png");
+    Texture tempTex((ASSETS + "Textures/uv.png").c_str());
     gameObject->name = name;
     // TODO : refactor somehow?
     if (mesh->type == LIGHT)

@@ -6,8 +6,11 @@
 #include <iostream>
 #include <glad/glad.h>
 
+#include <algorithm>
+
 #include "stb_image.h"
 #include "Log.h"
+#include "ResourceManager.h"
 
 class Texture
 {
@@ -22,12 +25,27 @@ public:
 
     Texture(const char* path)
     {
-        texturePath = std::string(path);
+        std::string fullPath = std::string(path);
+        std::size_t pos = fullPath.rfind("Assets");
+        if (pos == std::string::npos)
+        {
+            LOG_WARN("Please include the file into the Assets directory: {0}", path);
+            return;
+        }
+        // FIXME?
+        // hacky way of getting path beyond "Assets/"
+        // Only save the location within the Assets dir
+        // Since the relative position of Assets dir varies by platform
+
+        texturePath = fullPath.substr(pos+7); // Save off everything after ASSETS for storing in scenes
+        // Replace '\' from windows filesystems with '/', which works on all platforms
+        std::replace(texturePath.begin(), texturePath.end(), '\\', '/');
+        std::string relPath = ASSETS + texturePath;
 
         glGenTextures(1, &ID);
 
         int nrChannels;
-        unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+        unsigned char *data = stbi_load(relPath.c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
             GLenum format;
@@ -52,11 +70,11 @@ public:
             glBindTexture(GL_TEXTURE_2D, 0);
             // TODO
             // Flip texture coordinates on y-axis, since UV for most image software are inverted from how openGL UV coordinates are
-            //stbi_set_flip_vertically_on_load(true);
+            stbi_set_flip_vertically_on_load(true);
         }
         else
         {
-            LOG_WARN("Failed to load: {0}", path);
+            LOG_WARN("Failed to load: {0}", relPath);
         }
 
         stbi_image_free(data);
@@ -65,7 +83,7 @@ public:
     std::string GetName() { return texturePath; }
 
 private:
-    std::string texturePath;
+    std::string texturePath; // The relative path within assets folder, excluding "../Assets/"
     bool hasAlphaChannel = false;
 };
 
