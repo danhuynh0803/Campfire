@@ -39,6 +39,13 @@
 #include "ResourceManager.h"
 #include "Timer.h"
 
+#include "Events/ApplicationEvent.h"
+#include "Events/KeyEvent.h"
+#include "Events/MouseEvent.h"
+
+#include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/Windows/WindowsWindow.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -91,6 +98,9 @@ int main(int argc, char * argv[])
     shared.renderCamera = &camera;
     shared.gameManager = &GAME;
 
+
+    /*
+    // TODO handled by abstracted OpenGLContext and Window
     // Load GLFW and Create a Window
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -110,16 +120,30 @@ int main(int argc, char * argv[])
 
     // Create Context and Load OpenGL Functions
     glfwMakeContextCurrent(mWindow);
+
+
+
+    // Move to event system
     glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
-    glfwSetCursorPosCallback(mWindow, mouse_callback);
+    //glfwSetCursorPosCallback(mWindow, [](double x, double y)
+
     glfwSetScrollCallback(mWindow, scroll_callback);
 
     gladLoadGL();
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
+    // =========================================================
+    */
+    WindowProps props;
+    std::unique_ptr<WindowsWindow> windowsWindow = std::make_unique<WindowsWindow>(props);
+    windowsWindow->Create();
+
+    // Test with abstracted contexts
+
+
     // Initialize imgui context
-    tentGui.Init(mWindow);
-    tentGui.activeCamera = &camera;
+    //tentGui.Init(mWindow); // Move tentgui into an imgui layer
+    //tentGui.activeCamera = &camera;
 
     // use our shader program when we want to render an object
     Shader genericShader( (CORE + "Shaders/generic.vert"    ).c_str(), (CORE + "Shaders/generic.frag").c_str() );
@@ -218,6 +242,8 @@ int main(int argc, char * argv[])
 
     // ===================================================================
     // Rendering Loop
+    //while (glfwWindowShouldClose(mWindow) == false)
+    GLFWwindow* mWindow = static_cast<GLFWwindow*>(windowsWindow->GetNativeWindow());
     while (glfwWindowShouldClose(mWindow) == false)
     {
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();

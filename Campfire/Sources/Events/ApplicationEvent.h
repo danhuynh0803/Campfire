@@ -7,7 +7,7 @@ class WindowResizeEvent : public Event
 {
 public:
     WindowResizeEvent(unsigned int w, unsigned int h)
-        : width(w), height(h);
+        : width(w), height(h) {}
 
     unsigned int GetWidth() const { return width; }
     unsigned int GetHeight() const { return height; }
@@ -24,7 +24,7 @@ public:
 
 private:
     unsigned int width, height;
-}
+};
 
 class WindowCloseEvent : public Event
 {
@@ -60,6 +60,6 @@ public:
 
     EVENT_CLASS_TYPE(AppRender)
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
-}
+};
 
 #endif // APPLICATION_EVENT_H

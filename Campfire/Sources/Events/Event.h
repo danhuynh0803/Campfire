@@ -2,6 +2,7 @@
 #define EVENT_H
 
 #include <string>
+#include <sstream>
 
 #define BIT(x) (1 << x)
 
