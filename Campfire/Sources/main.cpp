@@ -37,7 +37,6 @@
 #include "Shared.h"
 #include "Log.h"
 #include "ResourceManager.h"
-#include "Timer.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/KeyEvent.h"
@@ -90,15 +89,29 @@ GameManager GAME;
 
 Shared shared;
 
+#include "Core/Application.h"
+
+
 int main(int argc, char * argv[])
 {
     Log::Start();
 
     // TODO for testing, move later
-    shared.renderCamera = &camera;
-    shared.gameManager = &GAME;
+    //shared.renderCamera = &camera;
+    //shared.gameManager = &GAME;
 
+    Application app;
 
+    app.Run();
+
+    //app->Shutdown(); // TODO just make the destructor shutdown
+
+    return 0;
+}
+
+//    WindowProps props;
+//    std::unique_ptr<WindowsWindow> windowsWindow = std::make_unique<WindowsWindow>(props);
+//
     /*
     // TODO handled by abstracted OpenGLContext and Window
     // Load GLFW and Create a Window
@@ -133,10 +146,6 @@ int main(int argc, char * argv[])
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
     // =========================================================
-    */
-    WindowProps props;
-    std::unique_ptr<WindowsWindow> windowsWindow = std::make_unique<WindowsWindow>(props);
-    windowsWindow->Create();
 
     // Test with abstracted contexts
 
@@ -407,9 +416,11 @@ int main(int argc, char * argv[])
 
     physicsManager.Shutdown();
 
-    glfwTerminate();
-    return EXIT_SUCCESS;
+    
+    //glfwTerminate();
+    //return EXIT_SUCCESS;
 }
+*/
 
 void ScreenToWorldRay(
         double mouseX, double mouseY,

@@ -144,7 +144,7 @@ void WindowsWindow::Init(const WindowProps& props)
     glfwSetCursorPosCallback(window,
         [](GLFWwindow* _window, double x, double y)
         {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(_window);            
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(_window);
             MouseMovedEvent moveEvent((float)x, (float)y);
             data.EventCallback(moveEvent);
         });
@@ -152,7 +152,7 @@ void WindowsWindow::Init(const WindowProps& props)
     glfwSetScrollCallback(window,
         [](GLFWwindow* _window, double xOffset, double yOffset)
         {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(_window);            
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(_window);
             MouseScrolledEvent scrollEvent((float)xOffset, (float)yOffset);
             data.EventCallback(scrollEvent);
         });

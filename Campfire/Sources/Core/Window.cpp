@@ -8,7 +8,7 @@
 std::unique_ptr<Window> Window::Create(const WindowProps& props)
 {
     #ifdef PLATFORM_WINDOWS
-        return CreateScope<WindowsWindow>(props);    
+        return CreateScope<WindowsWindow>(props);
     #else
         return nullptr;
     #endif
