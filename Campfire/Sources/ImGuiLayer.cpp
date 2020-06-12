@@ -50,9 +50,9 @@ void ImGuiLayer::Begin()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    //ImGuizmo::BeginFrame(); // TODO move to vendor
+    //ImGuizmo::BeginFrame();
 
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 }
 
 // End of frame
