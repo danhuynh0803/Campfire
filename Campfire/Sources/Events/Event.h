@@ -60,7 +60,7 @@ public:
     {
         if (event.GetEventType() == T::GetStaticType())
         {
-            event.Handled = func(static_cast<T&>(event));
+            event.handled = func(static_cast<T&>(event));
             return true;
         }
         return false;

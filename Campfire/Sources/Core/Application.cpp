@@ -3,6 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <iostream>
+
 Application* Application::instance = nullptr;
 
 Application::Application()
@@ -46,7 +48,7 @@ void Application::Shutdown()
 }
 
 void Application::OnEvent(Event& e)
-{
+{    
     // TODO
     //EventDispatcher dispatcher(e);
 }
