@@ -1,5 +1,6 @@
 #include "Core/Application.h"
 #include "Core/Timer.h"
+#include "ImGuiLayer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -16,6 +17,10 @@ Application::Application()
     // Init renderer
 
     // Create any necessary layers
+    imguiLayer = new ImGuiLayer();
+    PushOverlay(imguiLayer);
+    // TODO just for testing
+    
 }
 
 Application::~Application()
@@ -38,6 +43,19 @@ void Application::Run()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        for (Layer* layer : layerStack)
+        {
+            layer->OnUpdate();
+        }
+
+        imguiLayer->Begin();
+        // update layers in reverse
+        for (Layer* layer : layerStack)
+        {
+            layer->OnImGuiRender();
+        }
+        imguiLayer->End();
+
         window->OnUpdate();
     }
 }
@@ -45,6 +63,18 @@ void Application::Run()
 void Application::Shutdown()
 {
 
+}
+
+void Application::PushLayer(Layer* layer)
+{
+    layerStack.PushLayer(layer);
+    layer->OnAttach();
+}
+
+void Application::PushOverlay(Layer* overlay)
+{
+    layerStack.PushOverlay(overlay);
+    overlay->OnAttach();
 }
 
 void Application::OnEvent(Event& e)
