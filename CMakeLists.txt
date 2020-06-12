@@ -43,13 +43,26 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/stb/
                     Campfire/Vendor/spdlog/include/
                     Campfire/Vendor/rapidjson/include)
+		    #Campfire/Vendor/imgui/)
 
 file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c)
 
 file(GLOB PROJECT_HEADERS Campfire/Headers/*.hpp)
 
-file(GLOB PROJECT_SOURCES Campfire/Sources/*.cpp
-                          Campfire/Sources/imgui/*.cpp)
+file(GLOB PROJECT_SOURCES Campfire/Sources/Core/*.h
+                          Campfire/Sources/Core/*.cpp
+                          Campfire/Sources/Events/*.h
+                          Campfire/Sources/Events/*.cpp
+                          Campfire/Sources/Platform/OpenGL/*.h
+                          Campfire/Sources/Platform/OpenGL/*.cpp
+                          Campfire/Sources/Platform/Windows/*.h
+                          Campfire/Sources/Platform/Windows/*.cpp
+                          Campfire/Sources/Renderer/*.h
+                          Campfire/Sources/Renderer/*.cpp
+                          Campfire/Sources/imgui/*.h
+                          Campfire/Sources/imgui/*.cpp
+                          Campfire/Sources/*.h
+                          Campfire/Sources/*.cpp)
 
 file(GLOB PROJECT_SHADERS Campfire/Shaders/*.comp
                           Campfire/Shaders/*.frag
