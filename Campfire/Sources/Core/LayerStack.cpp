@@ -21,7 +21,7 @@ void LayerStack::PopLayer(Layer* layer)
     if (it != layers.begin() + layerIndex)
     {
         layer->OnDetach();
-        layers.erate(it);
+        layers.erase(it);
         layerIndex--;
     }
 }
@@ -37,6 +37,6 @@ void LayerStack::PopOverlay(Layer* overlay)
     if (it != layers.end())
     {
         overlay->OnDetach();
-        layers.erate(it);
+        layers.erase(it);
     }
 }

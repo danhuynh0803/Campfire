@@ -2,6 +2,7 @@
 #define APPLICATION_H
 
 #include "Core/Window.h"
+#include "Core/LayerStack.h"
 #include "Events/Event.h"
 
 class Application
@@ -19,7 +20,8 @@ public:
 
 private:
     static Application* instance;
-    bool isRunning;
+    bool isRunning = true;
+    LayerStack layerStack;
 };
 
 static Application* CreateApplication();

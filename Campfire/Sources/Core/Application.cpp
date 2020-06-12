@@ -48,7 +48,16 @@ void Application::Shutdown()
 }
 
 void Application::OnEvent(Event& e)
-{    
-    // TODO
-    //EventDispatcher dispatcher(e);
+{
+    EventDispatcher dispatcher(e);
+
+    for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
+    {
+        if (e.handled)
+        {
+            // If event is handled by this layer then dont propogate event down layerstack
+            break;
+        }
+        (*revIt)->OnEvent(e);
+    }
 }

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "Events/Event.h"
+
 struct Layer
 {
     Layer(const std::string& _name = "Layer");
@@ -12,7 +14,7 @@ struct Layer
     virtual void OnDetach() {}
     virtual void OnUpdate() {}
     virtual void OnImGuiRender() {}
-    virtual void OnEvent() {}
+    virtual void OnEvent(Event& event) {}
 
     std::string name;
 };

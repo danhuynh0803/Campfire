@@ -26,7 +26,6 @@
 #include "Light.h"
 #include "Texture.h"
 #include "ObjectManager.h"
-#include "LightManager.h"
 #include "FrameBuffer.h"
 #include "Cube.h"
 #include "Quad.h"
