@@ -6,7 +6,7 @@ OpenGLContext::OpenGLContext(GLFWwindow* window)
     : windowHandle(window)
 {
     if (windowHandle == nullptr) {
-        LOG_ERROR("Failed to create OpenGL Context");        
+        LOG_ERROR("Failed to create OpenGL Context");
     }
 }
 

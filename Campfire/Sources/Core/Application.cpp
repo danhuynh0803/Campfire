@@ -2,6 +2,7 @@
 #include "Core/Timer.h"
 #include "ImGuiLayer.h"
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -20,7 +21,7 @@ Application::Application()
     imguiLayer = new ImGuiLayer();
     PushOverlay(imguiLayer);
     // TODO just for testing
-    
+
 }
 
 Application::~Application()
@@ -37,6 +38,9 @@ void Application::Run()
     {
         // TODO refactor profile data to display on screen
         //Timer frameTimer("Time per frame");
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // per-frame time logic
         float currentFrame = glfwGetTime();
