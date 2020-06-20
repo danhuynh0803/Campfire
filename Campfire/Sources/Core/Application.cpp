@@ -1,11 +1,14 @@
 #include "Core/Application.h"
 #include "Core/Timer.h"
 #include "ImGuiLayer.h"
+#include "RenderLayer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+
+#include "Cube.h"
 
 Application* Application::instance = nullptr;
 
@@ -15,12 +18,13 @@ Application::Application()
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    // Init renderer
-
     // Create any necessary layers
+    // Init renderer
+    RenderLayer* renderLayer = new RenderLayer();
+    PushLayer(renderLayer);
+    // Imgui overlay
     imguiLayer = new ImGuiLayer();
     PushOverlay(imguiLayer);
-    // TODO just for testing
 
 }
 
@@ -34,6 +38,7 @@ void Application::Run()
 {
     float deltaTime = 0;
     float lastFrame = 0;
+
     while (isRunning)
     {
         // TODO refactor profile data to display on screen
@@ -53,6 +58,7 @@ void Application::Run()
         }
 
         imguiLayer->Begin();
+
         // update layers in reverse
         for (Layer* layer : layerStack)
         {
