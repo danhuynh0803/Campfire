@@ -3,6 +3,16 @@
 
 #include <memory>
 
+// TODO where to put so all files have access? Maybe a default header to be added to all other header files?
+//typedef uint_8t  UINT8
+//typedef uint_16t UINT16
+//typedef uint_32t UINT32
+//typedef int_8t   INT8
+//typedef int_16t  INT16
+//typedef int_32t  INT32
+// etc
+
+
 // Platform information:
 // TODO APPLE requires fallback conditions since only openGL 4.1 supported
 // TODO check if win32 is supported
