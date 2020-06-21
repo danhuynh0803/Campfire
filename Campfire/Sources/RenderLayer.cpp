@@ -1,5 +1,5 @@
 #include "RenderLayer.h"
-
+#include "Renderer/Renderer.h"
 #include "JobSystem/JobSystem.h"
 
 #include <glm/glm.hpp>
@@ -7,6 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Core/Timer.h"
+
+#include "Renderer/Buffer.h"
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
@@ -23,6 +25,8 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
+    Renderer::SetAPI(RendererAPI::OpenGL);
+
     shader = Shader("../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
     GLfloat vertices[] =
     {
@@ -32,16 +36,16 @@ void RenderLayer::OnAttach()
         0.1f, -0.1f,  0.0f,
     };
 
-    GLuint VBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);   
+    std::unique_ptr<VertexBuffer> buffer;
+    buffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     glBindVertexArray(0);
 }
 
@@ -68,7 +72,7 @@ void RenderLayer::DrawTriangles()
 }
 
 void RenderLayer::OnUpdate()
-{  
+{
 #define S
 #ifdef S
     // Standard way
