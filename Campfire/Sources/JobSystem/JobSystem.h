@@ -26,13 +26,14 @@ public:
         typedef typename std::result_of<FunctionType()>::type result_type;
         std::packaged_task<result_type()> task(std::move(f));
         std::future<result_type> res(task.get_future());
-        jobQueue.push(std::move(task));
+        jobQueue.Push(std::move(task));
         return res;
     }
 
 private:
     std::atomic_bool done;
     ThreadSafeQueue<Job> jobQueue;
+    std::vector<std::thread> threadPool;
 };
 
 #endif // JOB_SYSTEM_H

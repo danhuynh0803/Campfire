@@ -14,9 +14,17 @@ void JobSystem::Init()
 {
     auto numThreads = std::thread::hardware_concurrency();
 
-    for (int i = 0; i < numThreads; ++i)
+    try
     {
-        std::thread worker([this] {this->Run(); });        
+        for (int i = 0; i < numThreads; ++i)
+        {
+            threadPool.push_back(std::thread(&JobSystem::Run, this));
+        }
+    }
+    catch (...)
+    {
+        done = true;
+        throw;
     }
 }
 
@@ -34,7 +42,7 @@ bool JobSystem::HasWork()
 void JobSystem::Run()
 {
     while (!done)
-    {        
+    {
         Job job;
         if (jobQueue.TryPop(job))
         {
@@ -48,11 +56,20 @@ void JobSystem::Run()
     }
 }
 
+//template <typename FunctionType>
+//std::future<typename std::result_of<FunctionType()>::type>
+//    JobSystem::Submit(FunctionType f)
+//{
+//
+//}
+
 void JobSystem::Wait()
 {
-//    for (int i = 0; i < threadPool.size(); ++i)
-//    {
-//        if (threadPool[i].joinable)
-//            threadPool[i].join;
-//    }
+    // Wait until all tasks are complete
+    //while (!jobQueue.Empty()) {}
+    //for (int i = 0; i < threadPool.size(); ++i)
+    //{
+    //    if (threadPool[i].joinable)
+    //        threadPool[i].join;
+    //}
 }
