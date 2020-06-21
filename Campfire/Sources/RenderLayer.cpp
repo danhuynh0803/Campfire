@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Core/Timer.h"
+
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
 float red, green;
@@ -51,7 +53,7 @@ void RenderLayer::DrawTriangles()
 {
     shader.use();
     glm::mat4 model = glm::mat4(1.0f);
-    glm::vec3 scale = glm::vec3(0.1f);
+    glm::vec3 scale = glm::vec3(0.05f);
 
     model = glm::translate(model, pos);
     model = glm::scale(model, scale);
@@ -70,6 +72,7 @@ void RenderLayer::OnUpdate()
 #define S
 #ifdef S
     // Standard way
+    Timer timer("Standard triangle draw");
     for (int i = 0; i < triangleHeight; ++i)
     {
         for (int j = 0; j < triangleWidth; ++j)
@@ -84,7 +87,8 @@ void RenderLayer::OnUpdate()
         }
     }
 #else
-    // Standard way
+    // Jobsystem way
+    Timer timer("Jobsystem triangle draw");
     for (int i = 0; i < triangleHeight; ++i)
     {
         for (int j = 0; j < triangleWidth; ++j)
