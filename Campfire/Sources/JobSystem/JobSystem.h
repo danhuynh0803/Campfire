@@ -34,6 +34,7 @@ private:
     std::atomic_bool done;
     ThreadSafeQueue<Job> jobQueue;
     std::vector<std::thread> threadPool;
+    JobThreadsJoiner joiner;
 };
 
 #endif // JOB_SYSTEM_H

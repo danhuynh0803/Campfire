@@ -1,7 +1,8 @@
 #include "JobSystem.h"
+#include "JobThreadsJoiner.h"
 
 JobSystem::JobSystem()
-    : done(false)
+    : done(false), joiner(threadPool)
 {
 }
 
