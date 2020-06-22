@@ -4,9 +4,9 @@
 
 #include "ObjectManager.h"
 #include "ShaderController.h"
+#include "Light.h"
 #include "Cube.h"
 #include "Quad.h"
-#include "Light.h"
 #include "Log.h"
 
 void ObjectManager::Add(GameObject* object)

@@ -18,8 +18,15 @@ VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size)
     return nullptr;
 }
 
-IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t size)
+IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t count)
 {
-    //TODO
+    switch (Renderer::GetAPI())
+    {
+        case RendererAPI::None:
+            return nullptr;
+        case RendererAPI::OpenGL:
+            return new OpenGLIndexBuffer(indices, count);
+    }
+
     return nullptr;
 }

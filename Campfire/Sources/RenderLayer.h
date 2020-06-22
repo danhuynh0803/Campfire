@@ -7,6 +7,8 @@
 
 #include "Shader.h"
 
+#include "Renderer/Buffer.h"
+
 class RenderLayer : public Layer
 {
 public:
@@ -23,6 +25,7 @@ public:
 
     GLuint VAO;
     Shader shader;
+    std::unique_ptr<IndexBuffer> indexBuffer;
 };
 
 #endif // RENDER_LAYER_H

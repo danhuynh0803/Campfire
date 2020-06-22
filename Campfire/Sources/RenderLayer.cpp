@@ -41,11 +41,21 @@ void RenderLayer::OnAttach()
 
     std::unique_ptr<VertexBuffer> buffer;
     buffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+    buffer->Bind();
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    GLuint indices[] =
+    {
+        0, 1, 2
+    };
+
+    indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    glEnableVertexAttribArray(0);
+
+    buffer->Unbind();
     glBindVertexArray(0);
 }
 
@@ -67,14 +77,12 @@ void RenderLayer::DrawTriangles()
 
     // Create test triangle
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
 }
 
 void RenderLayer::OnUpdate()
 {
-#define S
-#ifdef S
     // Standard way
     Timer timer("Standard triangle draw");
     for (int i = 0; i < triangleHeight; ++i)
@@ -90,23 +98,6 @@ void RenderLayer::OnUpdate()
             DrawTriangles();
         }
     }
-#else
-    // Jobsystem way
-    Timer timer("Jobsystem triangle draw");
-    for (int i = 0; i < triangleHeight; ++i)
-    {
-        for (int j = 0; j < triangleWidth; ++j)
-        {
-            float u = (float)j / triangleWidth;
-            float v = (float)i / triangleHeight;
-            float x = u * 2.0f - 1.0f;
-            float y = v * 2.0f - 1.0f;
-            pos = glm::vec3(x, y, 0.0f);
-            color = glm::vec4(u, v, 0.0f, 1.0f);
-            DrawTriangles();
-        }
-    }
-#endif
 }
 
 
