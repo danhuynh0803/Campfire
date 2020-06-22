@@ -67,7 +67,9 @@ void JobSystem::Run()
 void JobSystem::Wait()
 {
     // Wait until all tasks are complete
-    //while (!jobQueue.Empty()) {}
+    while (!jobQueue.Empty()) {}
+
+    //Moved to JobThreadsJoiner
     //for (int i = 0; i < threadPool.size(); ++i)
     //{
     //    if (threadPool[i].joinable)
