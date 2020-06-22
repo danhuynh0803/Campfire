@@ -51,7 +51,17 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         if (data.empty()) { return false; }
         value = std::move(data.front());
-        data.pop();
+        data.pop_front;
+
+        return true;
+    }
+
+    bool TrySteal(T& value)
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (data.empty()) { return false; }
+        value = std::move(data.back());
+        data.pop_back;
 
         return true;
     }
@@ -63,7 +73,7 @@ public:
     }
 
 private:
-    std::queue<T> data;
+    std::deque<T> data;
     mutable std::mutex mutex;
     std::condition_variable dataCond;
 };
