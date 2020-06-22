@@ -31,9 +31,24 @@ void RenderLayer::OnAttach()
     GLfloat vertices[] =
     {
         // Position
-        0.0f,  0.1f,  0.0f,
-       -0.1f, -0.1f,  0.0f,
-        0.1f, -0.1f,  0.0f,
+        /*
+                |
+            0-------3
+            |   |   |
+          -------------
+            |   |   |
+            1-------2
+                |
+        */
+
+       //-0.1f,  0.1f,  0.0f,
+       //-0.1f, -0.1f,  0.0f,
+       // 0.1f, -0.1f,  0.0f,
+       // 0.1f,  0.1f,  0.0f,
+       -1.0f,  1.0f,  0.0f,
+       -1.0f, -1.0f,  0.0f,
+        1.0f, -1.0f,  0.0f,
+        1.0f,  1.0f,  0.0f,
     };
 
     glGenVertexArrays(1, &VAO);
@@ -46,7 +61,8 @@ void RenderLayer::OnAttach()
 
     GLuint indices[] =
     {
-        0, 1, 2
+        0, 1, 2,
+        2, 3, 0
     };
 
     indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
@@ -67,11 +83,12 @@ void RenderLayer::DrawTriangles()
 {
     shader.use();
     glm::mat4 model = glm::mat4(1.0f);
-    glm::vec3 scale = glm::vec3(0.05f);
+    //glm::vec3 scale = glm::vec3(0.1f);
 
     model = glm::translate(model, pos);
-    model = glm::scale(model, scale);
+    //model = glm::scale(model, scale);
 
+    glUniform1f(glGetUniformLocation(shader.ID, "time"), static_cast<float>(glfwGetTime()));
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
     glUniform4f(glGetUniformLocation(shader.ID, "color"), color.r, color.g, color.b, color.a);
 
@@ -85,6 +102,11 @@ void RenderLayer::OnUpdate()
 {
     // Standard way
     Timer timer("Standard triangle draw");
+    pos = glm::vec3(0.0);
+    color = glm::vec4(1.0f);
+    DrawTriangles();
+    return;
+
     for (int i = 0; i < triangleHeight; ++i)
     {
         for (int j = 0; j < triangleWidth; ++j)
