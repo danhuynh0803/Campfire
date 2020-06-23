@@ -51,7 +51,7 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         if (data.empty()) { return false; }
         value = std::move(data.front());
-        data.pop_front;
+        data.pop_front();
 
         return true;
     }

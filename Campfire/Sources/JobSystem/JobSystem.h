@@ -7,6 +7,7 @@
 
 #include "ThreadSafeQueue.h"
 #include "Job.h"
+#include "JobThreadsJoiner.h"
 
 class JobSystem
 {
