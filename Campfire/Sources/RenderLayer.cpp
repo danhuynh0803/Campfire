@@ -91,7 +91,7 @@ void RenderLayer::DrawTriangles()
 
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
     shader->SetMat4("model", model);
-    shader->SetFloat4("color", color);    
+    shader->SetFloat4("color", color);
 
     // Create test triangle
     glBindVertexArray(VAO);

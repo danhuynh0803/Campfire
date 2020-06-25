@@ -21,7 +21,7 @@ public:
     virtual void SetFloat3(const std::string& name, const glm::vec3& value) override;
     virtual void SetFloat4(const std::string& name, const glm::vec4& value) override;
 
-    virtual void SetMat4(const std::string& name, const glm::mat4& value) override;    
+    virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 
     virtual void Bind() override;
     virtual void Unbind() override;
@@ -30,6 +30,7 @@ public:
 
 private:
     void Compile(const std::string& vertexSrc, const std::string& fragSrc);
+    void CheckCompileErrors(uint32_t id, const std::string& type);
 private:
     uint32_t renderID;
     std::string name;
