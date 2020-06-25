@@ -1,9 +1,9 @@
 #ifndef SHADER_CONTROLLER_H
 #define SHADER_CONTROLLER_H
 
-#include <map>
+#include <unordered_map>
 
-#include "Shader.h"
+#include "ShaderOld.h"
 
 class ShaderController;
 
@@ -29,14 +29,15 @@ public:
 //        Add("line", &lineShader);
 //    }
 
+    /*
     void ReloadShaders()
     {
         std::cout << "Reloading Shader\n";
         for (auto pair : shaderMap)
         {
             // TODO Check that there was a change made to the file before reloading it
-            Shader* shader = pair.second;
-            Shader newShader(shader->vertexName.c_str(), shader->fragName.c_str());
+            ShaderOld* shader = pair.second;
+            ShaderOld newShader(shader->vertexName.c_str(), shader->fragName.c_str());
             pair.second->ID = newShader.ID;
         }
     }
@@ -45,12 +46,12 @@ public:
     {
     }
 
-    void Add(std::string tag, Shader* shader)
+    void Add(std::string tag, ShaderOld* shader)
     {
-        shaderMap.insert(std::pair<std::string, Shader*>(tag, shader));
+        shaderMap.insert(std::pair<std::string, ShaderOld*>(tag, shader));
     }
 
-    Shader* Get(std::string tag)
+    ShaderOld* Get(std::string tag)
     {
         auto it = shaderMap.find(tag);
         if (it != shaderMap.end())
@@ -63,9 +64,9 @@ public:
         }
     }
 
-
 private:
-    std::map<std::string, Shader*> shaderMap;
+    std::unordered_map<std::string, ShaderOld*> shaderMap;
+    */
 };
 
 #endif // SHADER_CONTROLLER_H

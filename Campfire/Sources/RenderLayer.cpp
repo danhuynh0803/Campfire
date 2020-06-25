@@ -9,6 +9,7 @@
 #include "Core/Timer.h"
 
 #include "Renderer/Buffer.h"
+#include "Renderer/Shader.h"
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
@@ -27,7 +28,7 @@ void RenderLayer::OnAttach()
 {
     Renderer::SetAPI(RendererAPI::OpenGL);
 
-    shader = Shader("../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
+    shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
     GLfloat vertices[] =
     {
         // Position
@@ -81,16 +82,16 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::DrawTriangles()
 {
-    shader.use();
+    shader->Bind();
     glm::mat4 model = glm::mat4(1.0f);
     //glm::vec3 scale = glm::vec3(0.1f);
 
     model = glm::translate(model, pos);
     //model = glm::scale(model, scale);
 
-    glUniform1f(glGetUniformLocation(shader.ID, "time"), static_cast<float>(glfwGetTime()));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniform4f(glGetUniformLocation(shader.ID, "color"), color.r, color.g, color.b, color.a);
+    shader->SetFloat("time", static_cast<float>(glfwGetTime()));
+    shader->SetMat4("model", model);
+    shader->SetFloat4("color", color);    
 
     // Create test triangle
     glBindVertexArray(VAO);

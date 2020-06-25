@@ -1,5 +1,5 @@
-#ifndef OPEN_GL_BUFFER_H
-#define OPEN_GL_BUFFER_H
+#ifndef OPENGL_BUFFER_H
+#define OPENGL_BUFFER_H
 
 #include <stdint.h>
 #include "Renderer/Buffer.h"
@@ -31,4 +31,4 @@ private:
     uint32_t count;
 };
 
-#endif // OPEN_GL_BUFFER_H
+#endif // OPENGL_BUFFER_H

@@ -43,10 +43,10 @@ void ObjectManager::LoadObject(Geometry geom, std::string name, glm::vec3 pos, g
     Texture tempTex((ASSETS + "Textures/uv.png").c_str());
     gameObject->name = name;
     // TODO : refactor somehow?
-    if (mesh->type == LIGHT)
-        mesh->shader = shaderController.Get("light");
-    else
-        mesh->shader = shaderController.Get("generic");
+    if (mesh->type == LIGHT) {}
+        //mesh->shader = shaderController.Get("light");
+    else {}
+        //mesh->shader = shaderController.Get("generic");
 
     mesh->texture = tempTex;
 

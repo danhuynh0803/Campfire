@@ -34,7 +34,7 @@ void main()
 
     vec2 fpos = fract(uv * grid);
 
-    float shiftFactor = time * 20.0f * Random(floor(ipos.y))*0.5f + 0.5f;
+    float shiftFactor = time * 10.0f * (Random(floor(ipos.y+1))*0.5f + 0.5f);
 
     ipos.x -= shiftFactor;
 

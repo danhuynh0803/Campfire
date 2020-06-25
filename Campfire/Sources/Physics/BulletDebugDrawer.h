@@ -1,7 +1,7 @@
 #ifndef BULLET_DEBUG_DRAWER_H
 #define BULLET_DEBUG_DRAWER_H
 
-#include "Shader.h"
+#include "ShaderOld.h"
 #include "ResourceManager.h"
 
 class BulletDebugDrawer : public btIDebugDraw
@@ -15,12 +15,12 @@ public:
 
     GLuint VBO, VAO;
     std::vector<Line> debugLines;
-    Shader lineShader;
+    ShaderOld lineShader;
 
     BulletDebugDrawer()
     {
         lineShader =
-            Shader(
+            ShaderOld(
                 (CORE + "Shaders/line.vert").c_str(),
                 (CORE + "Shaders/line.frag").c_str()
             );

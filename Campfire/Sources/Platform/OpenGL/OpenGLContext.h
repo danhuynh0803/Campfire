@@ -1,5 +1,5 @@
-#ifndef OPEN_GL_CONTEXT_H
-#define OPEN_GL_CONTEXT_H
+#ifndef OPENGL_CONTEXT_H
+#define OPENGL_CONTEXT_H
 
 #include "Renderer/GraphicsContext.h"
 #include "GLFW/glfw3.h"
@@ -16,4 +16,4 @@ private:
     GLFWwindow* windowHandle;
 };
 
-#endif // OPEN_GL_CONTEXT_H
+#endif // OPENGL_CONTEXT_H

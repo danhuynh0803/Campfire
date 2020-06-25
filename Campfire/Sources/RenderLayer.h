@@ -5,9 +5,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Shader.h"
-
 #include "Renderer/Buffer.h"
+#include "Renderer/Shader.h"
 
 class RenderLayer : public Layer
 {
@@ -24,7 +23,7 @@ public:
     virtual void OnEvent(Event& event) override;
 
     GLuint VAO;
-    Shader shader;
+    Shader* shader;
     std::unique_ptr<IndexBuffer> indexBuffer;
 };
 

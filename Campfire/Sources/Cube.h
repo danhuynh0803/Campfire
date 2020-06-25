@@ -8,7 +8,7 @@
 #include <string>
 
 #include "GlObject.h"
-#include "Shader.h"
+#include "ShaderOld.h"
 
 class Cube : public GlObject
 {
@@ -22,16 +22,16 @@ public:
     // For simulation
     void DrawSim(glm::mat4 model)
     {
-        this->shader->use();
+        //this->shader->use();
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.ID);
-        glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
+        //glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
 
         // TODO: allow user to modify the scene objects when game stopped/paused
         // When game is played, user should not be able to modify anymore
         // Physics doesnt affect scale so apply this manually  
-        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         // TODO for combining with imguizmo
         //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(this->model));
 
@@ -44,11 +44,11 @@ public:
     // For editor
     void Draw(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
     {
-        this->shader->use();
+        //this->shader->use();
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.ID);
-        glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
+        //glUniform1i(glGetUniformLocation(this->shader->ID, "texIn"), 0);
 
         // TODO: allow user to modify the scene objects when game stopped/paused
         // When game is played, user should not be able to modify anymore
@@ -57,7 +57,7 @@ public:
         model = glm::translate(model, pos);
         model = glm::scale(model, scale);
 
-        glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         // TODO for combining with imguizmo
         //glUniformMatrix4fv(glGetUniformLocation(this->shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(this->model));
 
@@ -134,9 +134,18 @@ public:
         // 4. Do we want data to be normalized?
         // 5. Stride of data: the space between consecutive vertex attribs
         // 6. Offset of the attrib data. Needs to be casted to void*
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);   // position
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // texture
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // normals
+
+        /*
+        Layout
+        {
+            { FLOAT, 3, "aPos"},            
+            { FLOAT, 3, "normalsIn"},
+            { FLOAT, 2, "uvIn"},
+        }
+        
+        VertexBuffer->SetLayout(Layout);
+        */
+
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);

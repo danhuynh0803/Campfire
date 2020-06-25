@@ -9,7 +9,7 @@ Mesh::Mesh (std::vector<Vertex> v, std::vector<GLuint> i, std::vector<Texture> t
     InitRenderData();
 }
 
-void Mesh::Draw(Shader* shader, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+void Mesh::Draw(ShaderOld* shader, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 {
     shader->use();
 

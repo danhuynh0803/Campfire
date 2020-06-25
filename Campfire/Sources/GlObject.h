@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "Shader.h"
+#include "ShaderOld.h"
 #include "Texture.h"
 
 enum Geometry {
@@ -34,7 +34,7 @@ public:
     GLuint VAO;
     // TODO should there be a default texture and shader?
     Texture texture;
-    Shader* shader = nullptr;
+    ShaderOld* shader;
     Geometry type = NONE;
 };
 

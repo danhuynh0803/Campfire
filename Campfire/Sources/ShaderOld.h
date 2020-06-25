@@ -1,5 +1,5 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef SHADER_OLD_H
+#define SHADER_OLD_H
 
 #include <glad/glad.h>
 
@@ -8,16 +8,16 @@
 #include <sstream>
 #include <iostream>
 
-class Shader
+class ShaderOld
 {
 public:
     unsigned int ID;
 
-    Shader() {};
-    ~Shader() {};
+    ShaderOld() {};
+    ~ShaderOld() {};
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-    Shader(const char* vertexPath, const char* fragmentPath)
+    ShaderOld(const char* vertexPath, const char* fragmentPath)
     {
         vertexName = std::string(vertexPath);
         fragName = std::string(fragmentPath);
