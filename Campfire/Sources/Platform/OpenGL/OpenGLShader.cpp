@@ -60,28 +60,36 @@ void OpenGLShader::Compile(const std::string& vertexSrc, const std::string& frag
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertSrc, NULL);
     glCompileShader(vertex);
-    CheckCompileErrors(vertex, "VERTEX");
+    CheckCompileErrors(vertex, ShaderType::VERTEX);
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragSrc, NULL);
     glCompileShader(fragment);
-    CheckCompileErrors(fragment, "FRAGMENT");
+    CheckCompileErrors(fragment, ShaderType::FRAGMENT);
     // shader Program
     renderID = glCreateProgram();
     glAttachShader(renderID, vertex);
     glAttachShader(renderID, fragment);
     glLinkProgram(renderID);
-    CheckCompileErrors(renderID, "PROGRAM");
+    //CheckCompileErrors(renderID, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
 // TODO use enums for shader types
-void OpenGLShader::CheckCompileErrors(uint32_t id, const std::string& type)
+void OpenGLShader::CheckCompileErrors(uint32_t id, const ShaderType& type)
 {
     int success;
     char infoLog[1024];
+
+    glGetProgramiv(id, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(id, 1024, NULL, infoLog);
+        //std::cout << "(" << vertexName << ", " << fragName << "): " << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+    }
+/*
     if (type != "PROGRAM")
     {
         glGetShaderiv(id, GL_COMPILE_STATUS, &success);
@@ -93,13 +101,9 @@ void OpenGLShader::CheckCompileErrors(uint32_t id, const std::string& type)
     }
     else
     {
-        glGetProgramiv(id, GL_LINK_STATUS, &success);
-        if (!success)
-        {
-            glGetProgramInfoLog(id, 1024, NULL, infoLog);
-            //std::cout << "(" << vertexName << ", " << fragName << "): " << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-        }
+
     }
+*/
 }
 
 

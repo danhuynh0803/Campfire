@@ -31,21 +31,6 @@ void RenderLayer::OnAttach()
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
     GLfloat vertices[] =
     {
-        // Position
-        /*
-                |
-            0-------3
-            |   |   |
-          -------------
-            |   |   |
-            1-------2
-                |
-        */
-
-       //-0.1f,  0.1f,  0.0f,
-       //-0.1f, -0.1f,  0.0f,
-       // 0.1f, -0.1f,  0.0f,
-       // 0.1f,  0.1f,  0.0f,
        -1.0f,  1.0f,  0.0f,
        -1.0f, -1.0f,  0.0f,
         1.0f, -1.0f,  0.0f,
@@ -58,7 +43,13 @@ void RenderLayer::OnAttach()
     std::unique_ptr<VertexBuffer> buffer;
     buffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
     buffer->Bind();
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    BufferLayout layout =
+    {
+        { ShaderDataType::FLOAT3, "inPos" }
+    };
+
+    buffer->SetLayout(layout);
 
     GLuint indices[] =
     {
@@ -68,10 +59,7 @@ void RenderLayer::OnAttach()
 
     indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
     glEnableVertexAttribArray(0);
-
     buffer->Unbind();
     glBindVertexArray(0);
 }
@@ -82,13 +70,12 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::DrawTriangles()
 {
-    shader->Bind();
     glm::mat4 model = glm::mat4(1.0f);
-    //glm::vec3 scale = glm::vec3(0.1f);
-
     model = glm::translate(model, pos);
+    //glm::vec3 scale = glm::vec3(0.1f);
     //model = glm::scale(model, scale);
 
+    shader->Bind();
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
     shader->SetMat4("model", model);
     shader->SetFloat4("color", color);
@@ -122,7 +109,6 @@ void RenderLayer::OnUpdate()
         }
     }
 }
-
 
 void RenderLayer::OnImGuiRender()
 {

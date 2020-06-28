@@ -105,25 +105,6 @@ int main(int argc, char * argv[])
     //shared.renderCamera = &camera;
     //shared.gameManager = &GAME;
 
-    /*
-    Timer timer("Timer");
-#define S
-#ifdef S
-    for (int i = 0; i <= 100; ++i)
-    {
-        Call(i);
-    }
-#else
-    JobSystem jobSystem;
-    jobSystem.Init();
-    for (int i = 0; i <= 100; ++i)
-    {
-        jobSystem.Submit(std::bind(Call, i));
-        jobSystem.Submit(Call, i);
-    }
-    jobSystem.Wait();
-#endif
-    */
     Application app;
 
     app.Run();

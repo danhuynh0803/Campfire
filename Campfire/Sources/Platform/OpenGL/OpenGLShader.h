@@ -3,6 +3,14 @@
 
 #include "Renderer/Shader.h"
 
+enum class ShaderType
+{
+    VERTEX = 0,
+    FRAGMENT,
+    GEOMETRY,
+    TESSELATION,
+};
+
 class OpenGLShader : public Shader
 {
 public:
@@ -30,7 +38,7 @@ public:
 
 private:
     void Compile(const std::string& vertexSrc, const std::string& fragSrc);
-    void CheckCompileErrors(uint32_t id, const std::string& type);
+    void CheckCompileErrors(uint32_t id, const ShaderType& type);
 private:
     uint32_t renderID;
     std::string name;
