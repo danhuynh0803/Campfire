@@ -46,14 +46,18 @@
 
 #define BIT(x) (1 << x)
 
+template<typename T>
+using UniquePtr = std::unique_ptr<T>;
 template<typename T, typename ... Args>
-constexpr std::unique_ptr<T> CreateScope(Args&& ... args)
+constexpr std::unique_ptr<T> CreateUniquePtr(Args&& ... args)
 {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
+template<typename T>
+using SharedPtr = std::shared_ptr<T>;
 template<typename T, typename ... Args>
-constexpr std::shared_ptr<T> CreateRef(Args&& ... args)
+constexpr std::shared_ptr<T> CreateSharedPtr(Args&& ... args)
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }

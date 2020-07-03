@@ -37,18 +37,14 @@ void RenderLayer::OnAttach()
         1.0f,  1.0f,  0.0f,
     };
 
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    vertexArray = VertexArray::Create();
+    vertexArray->Bind();
 
-    std::unique_ptr<VertexBuffer> buffer;
-    buffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-    buffer->Bind();
-
+    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
     BufferLayout layout =
     {
-        { ShaderDataType::FLOAT3, "inPos" }
+        { ShaderDataType::FLOAT3, "inPos"}
     };
-
     buffer->SetLayout(layout);
 
     GLuint indices[] =
@@ -57,11 +53,13 @@ void RenderLayer::OnAttach()
         2, 3, 0
     };
 
-    indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+    indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 
-    glEnableVertexAttribArray(0);
+    vertexArray->AddVertexBuffer(buffer);
+    vertexArray->SetIndexBuffer(indexBuffer);
+
     buffer->Unbind();
-    glBindVertexArray(0);
+    vertexArray->Unbind();
 }
 
 void RenderLayer::OnDetach()
@@ -81,7 +79,7 @@ void RenderLayer::DrawTriangles()
     shader->SetFloat4("color", color);
 
     // Create test triangle
-    glBindVertexArray(VAO);
+    vertexArray->Bind();
     glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
 }

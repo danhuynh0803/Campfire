@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 //================================================
 //----------------Buffer Layout-------------------
@@ -95,6 +96,11 @@ public:
 
     const std::vector<BufferElement>& GetElements() const { return elements; }
 
+    std::vector<BufferElement>::iterator begin() { return elements.begin(); }
+    std::vector<BufferElement>::iterator end()   { return elements.end(); }
+    std::vector<BufferElement>::const_iterator begin() const { return elements.begin(); }
+    std::vector<BufferElement>::const_iterator end()   const { return elements.end(); }
+
 private:
     void CalculateOffsetAndStride()
     {
@@ -123,7 +129,7 @@ struct VertexBuffer
     virtual void SetLayout(const BufferLayout& layout) = 0;
     virtual const BufferLayout& GetLayout() const = 0;
 
-    static VertexBuffer* Create(float* vertices, uint32_t size);
+    static std::shared_ptr<VertexBuffer> Create(float* vertices, uint32_t size);
 };
 
 struct IndexBuffer
@@ -133,7 +139,7 @@ struct IndexBuffer
     virtual void Unbind() const = 0;
     virtual uint32_t GetCount() const = 0;
 
-    static IndexBuffer* Create(uint32_t* indices, uint32_t _count);
+    static std::shared_ptr<IndexBuffer> Create(uint32_t* indices, uint32_t _count);
 };
 
 #endif // BUFFER_H

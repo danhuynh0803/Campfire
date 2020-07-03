@@ -27,50 +27,6 @@ void OpenGLVertexBuffer::Unbind() const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-static GLenum ConvertShaderDataTypeToGLenum(ShaderDataType type)
-{
-    switch (type)
-    {
-        case ShaderDataType::INT:       return GL_INT;
-        case ShaderDataType::INT2:      return GL_INT;
-        case ShaderDataType::INT3:      return GL_INT;
-        case ShaderDataType::INT4:      return GL_INT;
-
-        case ShaderDataType::FLOAT:     return GL_FLOAT;
-        case ShaderDataType::FLOAT2:    return GL_FLOAT;
-        case ShaderDataType::FLOAT3:    return GL_FLOAT;
-        case ShaderDataType::FLOAT4:    return GL_FLOAT;
-
-        case ShaderDataType::MAT3:      return GL_FLOAT;
-        case ShaderDataType::MAT4:      return GL_FLOAT;
-
-        case ShaderDataType::BOOL:      return GL_INT;
-    }
-}
-
-void OpenGLVertexBuffer::SetLayout(const BufferLayout& _layout)
-{
-    layout = _layout;
-
-    // Set up glVertrixAttributes
-    int index = 0;
-    for (const auto& element : layout.GetElements())
-    {
-        glVertexAttribPointer(
-            index,
-            element.componentCount,
-            ConvertShaderDataTypeToGLenum(element.type),
-            element.normalized,
-            layout.GetStride(),
-            (const void*) element.offset
-        );
-        glEnableVertexAttribArray(index);
-
-        index++;
-    }
-}
-
-
 //=====================================================================
 //------------------------- Index Buffers -----------------------------
 //=====================================================================

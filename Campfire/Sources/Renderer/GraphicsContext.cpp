@@ -12,5 +12,5 @@ std::unique_ptr<GraphicsContext> GraphicsContext::Create(void* window)
     //    case RendererAPI::API::OpenGL: return CreateScope<OpenGLContext>(static_cast<GLFWwindow*>(window));
     //}
 
-    return CreateScope<OpenGLContext>(static_cast<GLFWwindow*>(window));
+    return CreateUniquePtr<OpenGLContext>(static_cast<GLFWwindow*>(window));
 }
