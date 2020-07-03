@@ -20,7 +20,7 @@
 #include <algorithm>
 
 // My headers
-#include "Shader.h"
+#include "ShaderOld.h"
 #include "ShaderController.h"
 #include "Camera.h"
 #include "Light.h"
@@ -89,7 +89,13 @@ GameManager GAME;
 Shared shared;
 
 #include "Core/Application.h"
+#include "JobSystem/JobSystem.h"
+#include "Core/Timer.h"
 
+void Call(int i)
+{
+    std::cout << i << '\n';
+}
 
 int main(int argc, char * argv[])
 {
@@ -560,7 +566,7 @@ void processInput(GLFWwindow *window)
         int newState = glfwGetKey(window, GLFW_KEY_R);
         if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
         {
-            shaderController.ReloadShaders();
+            //shaderController.ReloadShaders();
         }
         oldState = newState;
     }

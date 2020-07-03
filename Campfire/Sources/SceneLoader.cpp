@@ -211,14 +211,14 @@ void SceneLoader::LoadScene(ObjectManager& manager, const char* path)
         Texture texture(path.c_str());
         mesh->texture = texture;
 
-        Shader* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
-        mesh->shader = shader;
+        //ShaderOld* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
+        //mesh->shader = shader;
 
         // TODO find a more manageable way of loading this?
         if (mesh->type == LIGHT)
         {
-            Shader* lightShader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
-            mesh->shader = lightShader;
+            //ShaderOld* lightShader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
+            //mesh->shader = lightShader;
 
             {
                 const Value& a = itr->FindMember("color")->value;

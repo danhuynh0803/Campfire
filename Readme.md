@@ -22,9 +22,7 @@ make -j4
 cmake -G "Xcode" ..
 
 # Microsoft Windows
-cmake -G "Visual Studio 17" ..
-cmake -G "Visual Studio 17 Win64" ..
-...
+cmake -G "Visual Studio 16 2019" ..
 ```
 
 Functionality           | Library
