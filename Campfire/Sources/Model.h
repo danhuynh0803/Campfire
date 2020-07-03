@@ -11,7 +11,7 @@
 
 #include "GlObject.h"
 #include "Texture.h"
-#include "Shader.h"
+#include "ShaderOld.h"
 #include "Mesh.h"
 
 class Model : public GlObject

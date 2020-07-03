@@ -21,6 +21,8 @@ add_subdirectory(Campfire/Vendor/bullet)
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 elseif(APPLE)
@@ -42,14 +44,54 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/glm/
                     Campfire/Vendor/stb/
                     Campfire/Vendor/spdlog/include/
-                    Campfire/Vendor/rapidjson/include)
+                    Campfire/Vendor/rapidjson/include
+                    #Campfire/Vendor/imgui/)
+)
 
 file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c)
 
 file(GLOB PROJECT_HEADERS Campfire/Headers/*.hpp)
 
-file(GLOB PROJECT_SOURCES Campfire/Sources/*.cpp
-                          Campfire/Sources/imgui/*.cpp)
+file(GLOB PROJECT_SOURCES Campfire/Sources/Core/*.h
+                          Campfire/Sources/Core/*.cpp
+                          Campfire/Sources/Events/*.h
+                          Campfire/Sources/Events/*.cpp
+                          Campfire/Sources/Platform/OpenGL/*.h
+                          Campfire/Sources/Platform/OpenGL/*.cpp
+                          Campfire/Sources/Platform/Windows/*.h
+                          Campfire/Sources/Platform/Windows/*.cpp
+                          Campfire/Sources/Renderer/*.h
+                          Campfire/Sources/Renderer/*.cpp
+                          Campfire/Sources/Physics/*.h
+                          Campfire/Sources/Physics/*.cpp
+                          Campfire/Sources/JobSystem/*.h
+                          Campfire/Sources/JobSystem/*.cpp
+                          Campfire/Sources/imgui/*.h
+                          Campfire/Sources/imgui/*.cpp
+                          Campfire/Sources/*.h
+                          Campfire/Sources/*.cpp
+)
+
+#file(GLOB PROJECT_SOURCES Campfire/Sources/*.h
+#                          Campfire/Sources/*.cpp
+#                          Campfire/Sources/imgui/*.h
+#                          Campfire/Sources/imgui/*.cpp
+#)
+#file(GLOB SRC_CORE Campfire/Sources/Core/*.h
+#                   Campfire/Sources/Core/*.cpp
+#)
+#file(GLOB SRC_EVENTS Campfire/Sources/Events/*.h
+#                     Campfire/Sources/Events/*.cpp
+#)
+#file(GLOB SRC_PLATFORM_OPENGL Campfire/Sources/Platform/OpenGL/*.h
+#                              Campfire/Sources/Platform/OpenGL/*.cpp
+#)
+#file(GLOB SRC_PLATFORM_WINDOWS Campfire/Sources/Platform/Windows/*.h
+#                               Campfire/Sources/Platform/Windows/*.cpp
+#)
+#file(GLOB SRC_RENDERER Campfire/Sources/Renderer/*.h
+#                       Campfire/Sources/Renderer/*.cpp
+#)
 
 file(GLOB PROJECT_SHADERS Campfire/Shaders/*.comp
                           Campfire/Shaders/*.frag
@@ -64,7 +106,14 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
 
 source_group("Headers" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
-source_group("Sources" FILES ${PROJECT_SOURCES})
+
+source_group("Sources"                      FILES ${PROJECT_SOURCES})
+source_group("Sources\\Core"                FILES ${SRC_CORE})
+source_group("Sources\\Events"              FILES ${SRC_EVENTS})
+source_group("Sources\\Platform\\OpenGL"    FILES ${SRC_PLATFORM_OPENGL})
+source_group("Sources\\Platform\\Windows"   FILES ${SRC_PLATFORM_WINDOWS})
+source_group("Sources\\Renderer"            FILES ${SRC_RENDERER})
+
 source_group("Vendors" FILES ${VENDORS_SOURCES})
 
 add_definitions(-DGLFW_INCLUDE_NONE

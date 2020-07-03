@@ -20,13 +20,12 @@
 #include <algorithm>
 
 // My headers
-#include "Shader.h"
+#include "ShaderOld.h"
 #include "ShaderController.h"
 #include "Camera.h"
 #include "Light.h"
 #include "Texture.h"
 #include "ObjectManager.h"
-#include "LightManager.h"
 #include "FrameBuffer.h"
 #include "Cube.h"
 #include "Quad.h"
@@ -37,6 +36,13 @@
 #include "Shared.h"
 #include "Log.h"
 #include "ResourceManager.h"
+
+#include "Events/ApplicationEvent.h"
+#include "Events/KeyEvent.h"
+#include "Events/MouseEvent.h"
+
+#include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/Windows/WindowsWindow.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -82,14 +88,37 @@ GameManager GAME;
 
 Shared shared;
 
+#include "Core/Application.h"
+#include "JobSystem/JobSystem.h"
+#include "Core/Timer.h"
+
+void Call(int i)
+{
+    std::cout << i << '\n';
+}
+
 int main(int argc, char * argv[])
 {
     Log::Start();
 
     // TODO for testing, move later
-    shared.renderCamera = &camera;
-    shared.gameManager = &GAME;
+    //shared.renderCamera = &camera;
+    //shared.gameManager = &GAME;
 
+    Application app;
+
+    app.Run();
+
+    //app->Shutdown(); // TODO just make the destructor shutdown
+
+    return 0;
+}
+
+//    WindowProps props;
+//    std::unique_ptr<WindowsWindow> windowsWindow = std::make_unique<WindowsWindow>(props);
+//
+    /*
+    // TODO handled by abstracted OpenGLContext and Window
     // Load GLFW and Create a Window
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -109,16 +138,26 @@ int main(int argc, char * argv[])
 
     // Create Context and Load OpenGL Functions
     glfwMakeContextCurrent(mWindow);
+
+
+
+    // Move to event system
     glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
-    glfwSetCursorPosCallback(mWindow, mouse_callback);
+    //glfwSetCursorPosCallback(mWindow, [](double x, double y)
+
     glfwSetScrollCallback(mWindow, scroll_callback);
 
     gladLoadGL();
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
+    // =========================================================
+
+    // Test with abstracted contexts
+
+
     // Initialize imgui context
-    tentGui.Init(mWindow);
-    tentGui.activeCamera = &camera;
+    //tentGui.Init(mWindow); // Move tentgui into an imgui layer
+    //tentGui.activeCamera = &camera;
 
     // use our shader program when we want to render an object
     Shader genericShader( (CORE + "Shaders/generic.vert"    ).c_str(), (CORE + "Shaders/generic.frag").c_str() );
@@ -217,6 +256,8 @@ int main(int argc, char * argv[])
 
     // ===================================================================
     // Rendering Loop
+    //while (glfwWindowShouldClose(mWindow) == false)
+    GLFWwindow* mWindow = static_cast<GLFWwindow*>(windowsWindow->GetNativeWindow());
     while (glfwWindowShouldClose(mWindow) == false)
     {
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
@@ -380,9 +421,11 @@ int main(int argc, char * argv[])
 
     physicsManager.Shutdown();
 
-    glfwTerminate();
-    return EXIT_SUCCESS;
+    
+    //glfwTerminate();
+    //return EXIT_SUCCESS;
 }
+*/
 
 void ScreenToWorldRay(
         double mouseX, double mouseY,
@@ -523,7 +566,7 @@ void processInput(GLFWwindow *window)
         int newState = glfwGetKey(window, GLFW_KEY_R);
         if (newState == GLFW_PRESS && oldState == GLFW_RELEASE)
         {
-            shaderController.ReloadShaders();
+            //shaderController.ReloadShaders();
         }
         oldState = newState;
     }

@@ -6,7 +6,7 @@
 #include "ShaderController.h"
 #include "SceneLoader.h"
 #include "Camera.h"
-#include "PhysicsManager.h"
+#include "Physics/PhysicsManager.h"
 
 #include <vector>
 
