@@ -1,10 +1,13 @@
 #version 460
 
+layout (location = 0) in vec2 inUV;
+
 out vec4 fragColor;
 
 uniform vec4 color;
-
 uniform float time;
+
+uniform sampler2D texIn;
 
 float Random(float t)
 {
@@ -44,5 +47,7 @@ void main()
     col = vec3(Threshold(col, 0.3f));
     col *= step(0.25f, fpos.y);
 
-    fragColor = vec4(col*vec3(uv, 1.0f), 1.0f);
+    vec3 texColor = texture(texIn, inUV).rgb;
+
+    fragColor = vec4(texColor * col, 1.0f);
 }
