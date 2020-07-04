@@ -86,7 +86,7 @@ void RenderLayer::DrawTriangles()
 void RenderLayer::OnUpdate()
 {
     // Standard way
-    Timer timer("Standard triangle draw");
+    //Timer timer("Standard triangle draw");
     pos = glm::vec3(0.0);
     color = glm::vec4(1.0f);
     DrawTriangles();
