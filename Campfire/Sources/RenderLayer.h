@@ -1,13 +1,15 @@
 #ifndef RENDER_LAYER_H
 #define RENDER_LAYER_H
 
-#include "Core/Layer.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Core/Base.h"
+#include "Core/Layer.h"
 #include "Renderer/Buffer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Texture.h"
 
 class RenderLayer : public Layer
 {
@@ -24,9 +26,9 @@ public:
     virtual void OnEvent(Event& event) override;
 
     Shader* shader;
-    std::shared_ptr<IndexBuffer> indexBuffer;
-    std::shared_ptr<VertexArray> vertexArray;
-    uint32_t VAO;
+    SharedPtr<IndexBuffer> indexBuffer;
+    SharedPtr<VertexArray> vertexArray;
+    SharedPtr<Texture> texture;
 };
 
 #endif // RENDER_LAYER_H

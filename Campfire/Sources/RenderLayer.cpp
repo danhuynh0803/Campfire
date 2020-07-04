@@ -1,21 +1,16 @@
-#include "RenderLayer.h"
-#include "Renderer/Renderer.h"
-#include "JobSystem/JobSystem.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Core/Timer.h"
-
-#include "Renderer/Buffer.h"
+#include "RenderLayer.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
 float red, green;
 
-JobSystem jobSystem;
 glm::vec3 pos;
 glm::vec4 color;
 
@@ -31,10 +26,10 @@ void RenderLayer::OnAttach()
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
     GLfloat vertices[] =
     {
-       -1.0f,  1.0f,  0.0f,
-       -1.0f, -1.0f,  0.0f,
-        1.0f, -1.0f,  0.0f,
-        1.0f,  1.0f,  0.0f,
+       -1.0f,  1.0f,  0.0f,     0.0f, 1.0f,
+       -1.0f, -1.0f,  0.0f,     0.0f, 0.0f,
+        1.0f, -1.0f,  0.0f,     1.0f, 0.0f,
+        1.0f,  1.0f,  0.0f,     1.0f, 1.0f
     };
 
     vertexArray = VertexArray::Create();
@@ -43,7 +38,8 @@ void RenderLayer::OnAttach()
     SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
     BufferLayout layout =
     {
-        { ShaderDataType::FLOAT3, "inPos"}
+        { ShaderDataType::FLOAT3, "inPos"},
+        { ShaderDataType::FLOAT2, "inUV"}
     };
     buffer->SetLayout(layout);
 
@@ -60,6 +56,8 @@ void RenderLayer::OnAttach()
 
     buffer->Unbind();
     vertexArray->Unbind();
+
+    texture = Texture::Create("../Assets/Textures/uv.png");
 }
 
 void RenderLayer::OnDetach()
@@ -80,6 +78,7 @@ void RenderLayer::DrawTriangles()
 
     // Create test triangle
     vertexArray->Bind();
+    texture->Bind();
     glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
 }

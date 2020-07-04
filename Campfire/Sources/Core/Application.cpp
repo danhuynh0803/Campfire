@@ -5,10 +5,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <iostream>
-
-#include "Cube.h"
 
 Application* Application::instance = nullptr;
 

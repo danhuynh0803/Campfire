@@ -1,6 +1,6 @@
 #include "Platform/Windows/WindowsWindow.h"
 #include "Renderer/GraphicsContext.h"
-#include "Log.h"
+#include "Core/Log.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/MouseEvent.h"
