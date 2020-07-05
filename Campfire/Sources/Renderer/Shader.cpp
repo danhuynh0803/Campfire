@@ -1,15 +1,15 @@
-#include "Renderer/Renderer.h"
+#include "Renderer/RendererAPI.h"
 #include "Renderer/Shader.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
 Shader* Shader::Create(const std::string& filepath)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case RendererAPI::None:
+        case RendererAPI::API::None:
             return nullptr;
-        case RendererAPI::OpenGL:
+        case RendererAPI::API::OpenGL:
             return new OpenGLShader(filepath);
     }
 
@@ -18,11 +18,11 @@ Shader* Shader::Create(const std::string& filepath)
 
 Shader* Shader::Create(const std::string& name, const std::string& vertPath, const std::string& fragPath)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case RendererAPI::None:
+        case RendererAPI::API::None:
             return nullptr;
-        case RendererAPI::OpenGL:
+        case RendererAPI::API::OpenGL:
             return new OpenGLShader(name, vertPath, fragPath);
     }
 

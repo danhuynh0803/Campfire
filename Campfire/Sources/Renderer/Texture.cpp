@@ -1,14 +1,14 @@
 #include "Texture.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/RendererAPI.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 SharedPtr<Texture> Texture::Create(const std::string& path)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case RendererAPI::None:
+        case RendererAPI::API::None:
             return nullptr;
-        case RendererAPI::OpenGL:
+        case RendererAPI::API::OpenGL:
             return CreateSharedPtr<OpenGLTexture>(path);
     }
 

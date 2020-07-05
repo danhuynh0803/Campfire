@@ -29,12 +29,8 @@ Camera camera(1600, 900, 0.1f, 100.0f);
 
 void RenderLayer::OnAttach()
 {
-    glEnable(GL_DEPTH_TEST);
-
     pos = glm::vec3(0.0);
     color = glm::vec4(1.0f);
-
-    Renderer::SetAPI(RendererAPI::OpenGL);
 
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
 //    GLfloat vertices[] =
@@ -136,12 +132,8 @@ void RenderLayer::DrawTriangles()
     shader->SetFloat4("color", color);
     shader->SetMat4("viewProjMatrix", camera.GetViewProjMatrix());
 
-    // Create test triangle
-    vertexArray->Bind();
     texture->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
-    glBindVertexArray(0);
+    RenderCommand::DrawIndexed(vertexArray);
 }
 
 void RenderLayer::OnUpdate()
@@ -153,18 +145,9 @@ void RenderLayer::OnUpdate()
     {
         pos.y += 0.1f;
     }
-    else if (Input::GetKeyDown(KEY_DOWN))
+    if (Input::GetKeyUp(KEY_DOWN))
     {
         pos.y -= 0.1f;
-    }
-
-    if (Input::GetKeyDown(KEY_RIGHT))
-    {
-        pos.x += 0.1f;
-    }
-    else if (Input::GetKeyDown(KEY_LEFT))
-    {
-        pos.x -= 0.1f;
     }
 
     DrawTriangles();

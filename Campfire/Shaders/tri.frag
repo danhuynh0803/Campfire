@@ -33,7 +33,7 @@ void main()
 //    vec2 uv = gl_FragCoord.xy / vec2(1600.0f, 900.0f);
 //
     vec2 uv = inUV;
-    vec2 grid = vec2(100.0f, 100.0f);
+    vec2 grid = vec2(10.0f, 10.0f);
     vec2 ipos = uv * grid;
 
     vec2 fpos = fract(uv * grid);
