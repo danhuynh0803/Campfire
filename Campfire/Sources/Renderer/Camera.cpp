@@ -3,7 +3,15 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Core/Base.h"
 #include "Core/Time.h"
+#include <functional>
+
+void Camera::OnEvent(Event& e)
+{
+    EventDispatcher dispatcher(e);
+    dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Camera::OnMouseScrolled));
+}
 
 void Camera::OnUpdate()
 {
@@ -39,8 +47,20 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 }
 
 
-bool OnMouseScrolled(MouseScrolledEvent& e);
-bool OnWindowResized(WindowResizeEvent& e);
+bool Camera::OnMouseScrolled(MouseScrolledEvent& e)
+{
+    if (zoom >= 1.0f && zoom <= 45.0f)
+        zoom -= e.GetYOffset();
+    if (zoom <= 1.0f)
+        zoom = 1.0f;
+    if (zoom >= 45.0f)
+        zoom = 45.0f;
+
+    SetPerspectiveProjection(1600, 900, 0.1f, 100.0f);
+
+    return false;
+}
+
 
 Camera::Camera(float width, float height, float nearPlane, float farPlane)
 {

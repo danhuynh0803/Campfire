@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Core/Base.h"
 #include "Core/Timer.h"
 #include "RenderLayer.h"
 #include "Renderer/Renderer.h"
@@ -176,5 +177,5 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
-
+    camera.OnEvent(event);
 }

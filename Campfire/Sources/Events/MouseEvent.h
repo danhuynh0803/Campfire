@@ -44,6 +44,9 @@ public:
     EVENT_CLASS_TYPE(MouseScrolled)
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
+    float GetXOffset() const { return xOffset; }
+    float GetYOffset() const { return yOffset; }
+
 private:
     float xOffset, yOffset;
 };
