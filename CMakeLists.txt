@@ -62,8 +62,8 @@ file(GLOB PROJECT_SOURCES Campfire/Sources/Core/*.h
                           Campfire/Sources/Platform/Windows/*.cpp
                           Campfire/Sources/Renderer/*.h
                           Campfire/Sources/Renderer/*.cpp
-                          Campfire/Sources/Physics/*.h
-                          Campfire/Sources/Physics/*.cpp
+                          #Campfire/Sources/Physics/*.h
+                          #Campfire/Sources/Physics/*.cpp
                           Campfire/Sources/JobSystem/*.h
                           Campfire/Sources/JobSystem/*.cpp
                           Campfire/Sources/imgui/*.h
