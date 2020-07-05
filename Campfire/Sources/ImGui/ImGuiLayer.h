@@ -4,11 +4,11 @@
 #include "Core/Layer.h"
 
 // ImGui headers
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/ImGuizmo.h"
-#include "imgui/imfilebrowser.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+//#include "ImGuizmo.h"
+//#include "imfilebrowser.h"
 
 class ImGuiLayer : public Layer
 {

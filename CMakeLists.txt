@@ -45,10 +45,12 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/stb/
                     Campfire/Vendor/spdlog/include/
                     Campfire/Vendor/rapidjson/include
-                    #Campfire/Vendor/imgui/)
+                    Campfire/Vendor/imgui
 )
 
-file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c)
+file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c
+                          Campfire/Vendor/imgui/*.cpp
+)
 
 file(GLOB PROJECT_HEADERS Campfire/Headers/*.hpp)
 
