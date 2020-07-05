@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include "Platform/OpenGL/OpenGLContext.h"
-#include "Log.h"
+#include "Core/Log.h"
 
 OpenGLContext::OpenGLContext(GLFWwindow* window)
     : windowHandle(window)

@@ -5,15 +5,17 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <iostream>
-
-#include "Cube.h"
+#include "Core/Log.h"
+#include "Core/Time.h"
 
 Application* Application::instance = nullptr;
 
 Application::Application()
 {
+    Log::Start();
+    Time::Start();
+
     instance = this;
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
@@ -36,21 +38,12 @@ Application::~Application()
 
 void Application::Run()
 {
-    float deltaTime = 0;
-    float lastFrame = 0;
-
     while (isRunning)
     {
-        // TODO refactor profile data to display on screen
-        //Timer frameTimer("Time per frame");
+        Time::Update();
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // per-frame time logic
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
 
         for (Layer* layer : layerStack)
         {

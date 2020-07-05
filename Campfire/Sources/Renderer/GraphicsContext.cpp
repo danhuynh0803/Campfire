@@ -2,7 +2,7 @@
 
 #include "Renderer/GraphicsContext.h"
 #include "Platform/OpenGL/OpenGLContext.h"
-#include "Log.h"
+#include "Core/Log.h"
 
 std::unique_ptr<GraphicsContext> GraphicsContext::Create(void* window)
 {
