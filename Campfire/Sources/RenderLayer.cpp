@@ -11,7 +11,6 @@
 #include "Core/Input.h"
 #include "Core/Time.h"
 
-#include "Renderer/Camera.h"
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
@@ -24,8 +23,6 @@ RenderLayer::RenderLayer()
     : Layer("RenderLayer")
 {
 }
-
-Camera camera(1600, 900, 0.1f, 100.0f);
 
 void RenderLayer::OnAttach()
 {
@@ -121,25 +118,18 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::DrawTriangles()
 {
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, pos);
     //glm::vec3 scale = glm::vec3(0.1f);
     //model = glm::scale(model, scale);
 
     shader->Bind();
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
-    shader->SetMat4("model", model);
-    shader->SetFloat4("color", color);
-    shader->SetMat4("viewProjMatrix", camera.GetViewProjMatrix());
 
     texture->Bind();
-    RenderCommand::DrawIndexed(vertexArray);
+    Renderer::Draw(shader, vertexArray);
 }
 
 void RenderLayer::OnUpdate()
 {
-    camera.OnUpdate();
-
     // Testing input controller
     if (Input::GetKeyDown(KEY_UP))
     {
@@ -160,5 +150,4 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
-    camera.OnEvent(event);
 }

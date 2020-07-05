@@ -11,6 +11,10 @@
 
 #include "Renderer/Renderer.h"
 
+#include "Renderer/Camera.h"
+
+Camera camera(1600, 900, 0.1f, 100.0f);
+
 Application* Application::instance = nullptr;
 
 Application::Application()
@@ -45,9 +49,9 @@ void Application::Run()
     while (isRunning)
     {
         Time::Update();
+        camera.OnUpdate();
 
-        RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-        RenderCommand::Clear();
+        Renderer::BeginScene(camera);
 
         for (Layer* layer : layerStack)
         {
@@ -62,6 +66,8 @@ void Application::Run()
             layer->OnImGuiRender();
         }
         imguiLayer->End();
+
+        Renderer::EndScene();
 
         window->OnUpdate();
     }
@@ -96,5 +102,6 @@ void Application::OnEvent(Event& e)
             break;
         }
         (*revIt)->OnEvent(e);
+        camera.OnEvent(e);
     }
 }

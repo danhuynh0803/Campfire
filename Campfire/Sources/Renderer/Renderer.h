@@ -22,7 +22,11 @@ public:
     static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
 private:
-
+    static glm::mat4 viewProjMatrix;
+    //struct SceneData
+    //{
+    //    glm::mat4 viewProjMatrix;
+    //};
 };
 
 #endif // RENDERER_H

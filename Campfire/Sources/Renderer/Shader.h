@@ -2,14 +2,15 @@
 #define SHADER_H
 
 #include <string>
-
 #include <glm/glm.hpp>
+
+#include "Core/Base.h"
 
 class Shader
 {
 public:
-    static Shader* Create(const std::string& filepath);
-    static Shader* Create(const std::string& name, const std::string& vertPath, const std::string& fragPath);
+    static SharedPtr<Shader> Create(const std::string& filepath);
+    static SharedPtr<Shader> Create(const std::string& name, const std::string& vertPath, const std::string& fragPath);
 
     virtual void SetBool(const std::string& name, bool value) = 0;
 
