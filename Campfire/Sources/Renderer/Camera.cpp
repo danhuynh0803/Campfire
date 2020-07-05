@@ -11,6 +11,49 @@ void Camera::OnEvent(Event& e)
 {
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Camera::OnMouseScrolled));
+    dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(Camera::OnMouseMoved));
+}
+
+bool Camera::OnMouseMoved(MouseMovedEvent& e)
+{
+    static bool constrainPitch = true;
+    static bool firstMouse = true;
+    static float lastX, lastY;
+
+    if (firstMouse)
+    {
+        lastX = e.GetX();
+        lastY = e.GetY();
+        firstMouse = false;
+    }
+
+    float xOffset = e.GetX() - lastX;
+    float yOffset = e.GetY() - lastY;
+
+    lastX = e.GetX();
+    lastY = e.GetY();
+
+    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    {
+        xOffset *= mouseSensitivity;
+        yOffset *= mouseSensitivity;
+
+        yaw += xOffset;
+        pitch -= yOffset;
+
+        // Make sure that when pitch is out of bounds, screen doesn't get flipped
+        if (constrainPitch)
+        {
+            if (pitch > 89.0f)
+                pitch = 89.0f;
+            if (pitch < -89.0f)
+                pitch = -89.0f;
+        }
+
+        UpdateCameraVectors();
+        RecalculateViewMatrix();
+    }
+    return false;
 }
 
 void Camera::OnUpdate()

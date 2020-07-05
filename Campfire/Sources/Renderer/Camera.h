@@ -15,6 +15,7 @@ public:
     bool OnMouseScrolled(MouseScrolledEvent& e);
     bool OnWindowResized(WindowResizeEvent& e);
     bool OnMouseButton(MouseButtonEvent& e);
+    bool OnMouseMoved(MouseMovedEvent& e);
 
 public:
     Camera(float width, float height, float near, float far);
@@ -66,7 +67,7 @@ private:
     float maxSpeed = 15.0f;
     float normalSpeed = 2.5f;
     float movementSpeed = normalSpeed;
-    float mouseSensitivity;
+    float mouseSensitivity = 0.1f;
 
 private: // movement-related
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f);
