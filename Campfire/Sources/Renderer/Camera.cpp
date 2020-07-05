@@ -60,6 +60,15 @@ void Camera::OnUpdate()
 {
     float deltaTime = static_cast<float>(Time::deltaTime);
 
+    if (Input::GetKey(KEY_LEFT_SHIFT))
+    {
+        movementSpeed = maxSpeed;
+    }
+    else
+    {
+        movementSpeed = normalSpeed;
+    }
+
     if (Input::GetKey(KEY_W))
         ProcessKeyboard(FORWARD, deltaTime);
     if (Input::GetKey(KEY_A))
@@ -127,13 +136,6 @@ void Camera::SetPerspectiveProjection(float width, float height, float nearPlane
 
 void Camera::RecalculateViewMatrix()
 {
-    //glm::mat4 transform =
-    //    glm::translate(glm::mat4(1.0f), position)
-    //    * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0, 0, 1))
-    //;
-
-    //viewMatrix = glm::inverse(transform);
-    //viewProjMatrix = projMatrix * viewMatrix;
     viewMatrix = glm::lookAt(position, position + front, up);
 }
 
