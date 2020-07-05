@@ -30,8 +30,9 @@ float Threshold(vec3 col, float threshold)
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / vec2(1600.0f, 900.0f);
-
+//    vec2 uv = gl_FragCoord.xy / vec2(1600.0f, 900.0f);
+//
+    vec2 uv = inUV;
     vec2 grid = vec2(100.0f, 100.0f);
     vec2 ipos = uv * grid;
 
@@ -48,6 +49,7 @@ void main()
     col *= step(0.25f, fpos.y);
 
     vec3 texColor = texture(texIn, inUV).rgb;
+    fragColor = vec4(texColor * col * vec3(uv, 0.0f), 1.0f);
 
-    fragColor = vec4(texColor * col, 1.0f);
+    //fragColor = texture(texIn, inUV);
 }

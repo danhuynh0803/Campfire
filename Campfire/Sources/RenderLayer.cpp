@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Core/Base.h"
 #include "Core/Timer.h"
 #include "RenderLayer.h"
 #include "Renderer/Renderer.h"
@@ -9,6 +10,8 @@
 
 #include "Core/Input.h"
 #include "Core/Time.h"
+
+#include "Renderer/Camera.h"
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
@@ -22,21 +25,70 @@ RenderLayer::RenderLayer()
 {
 }
 
+Camera camera(1600, 900, 0.1f, 100.0f);
+
 void RenderLayer::OnAttach()
 {
+    glEnable(GL_DEPTH_TEST);
+
     pos = glm::vec3(0.0);
     color = glm::vec4(1.0f);
 
     Renderer::SetAPI(RendererAPI::OpenGL);
 
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
-    GLfloat vertices[] =
-    {
-       -0.5f,  0.5f,  0.0f,     0.0f, 1.0f,
-       -0.5f, -0.5f,  0.0f,     0.0f, 0.0f,
-        0.5f, -0.5f,  0.0f,     1.0f, 0.0f,
-        0.5f,  0.5f,  0.0f,     1.0f, 1.0f
-    };
+//    GLfloat vertices[] =
+//    {
+//       -1.0f,  1.0f,  0.0f,     0.0f, 1.0f,
+//       -1.0f, -1.0f,  0.0f,     0.0f, 0.0f,
+//        1.0f, -1.0f,  0.0f,     1.0f, 0.0f,
+//        1.0f,  1.0f,  0.0f,     1.0f, 1.0f
+//    };
+
+        GLfloat vertices[] = {
+            // Position           // UV         // Normals
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,   0, 0, -1,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 0, -1,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, 0, 1,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   0, 0, 1,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1, 0, 0,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1, 0, 0,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
+
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   1, 0, 0,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   1, 0, 0,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,   0, -1, 0,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, -1, 0,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 1, 0,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,   0, 1, 0,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0
+        };
 
     vertexArray = VertexArray::Create();
     vertexArray->Bind();
@@ -45,7 +97,8 @@ void RenderLayer::OnAttach()
     BufferLayout layout =
     {
         { ShaderDataType::FLOAT3, "inPos"},
-        { ShaderDataType::FLOAT2, "inUV"}
+        { ShaderDataType::FLOAT2, "inUV"},
+        { ShaderDataType::FLOAT3, "inNormal"}
     };
     buffer->SetLayout(layout);
 
@@ -81,16 +134,20 @@ void RenderLayer::DrawTriangles()
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
     shader->SetMat4("model", model);
     shader->SetFloat4("color", color);
+    shader->SetMat4("viewProjMatrix", camera.GetViewProjMatrix());
 
     // Create test triangle
     vertexArray->Bind();
     texture->Bind();
-    glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
 }
 
 void RenderLayer::OnUpdate()
 {
+    camera.OnUpdate();
+
     // Testing input controller
     if (Input::GetKeyDown(KEY_UP))
     {
@@ -120,5 +177,5 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
-
+    camera.OnEvent(event);
 }
