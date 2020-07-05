@@ -7,6 +7,9 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 
+#include "Core/Input.h"
+#include "Core/Time.h"
+
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
 float red, green;
@@ -21,15 +24,18 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
+    pos = glm::vec3(0.0);
+    color = glm::vec4(1.0f);
+
     Renderer::SetAPI(RendererAPI::OpenGL);
 
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
     GLfloat vertices[] =
     {
-       -1.0f,  1.0f,  0.0f,     0.0f, 1.0f,
-       -1.0f, -1.0f,  0.0f,     0.0f, 0.0f,
-        1.0f, -1.0f,  0.0f,     1.0f, 0.0f,
-        1.0f,  1.0f,  0.0f,     1.0f, 1.0f
+       -0.5f,  0.5f,  0.0f,     0.0f, 1.0f,
+       -0.5f, -0.5f,  0.0f,     0.0f, 0.0f,
+        0.5f, -0.5f,  0.0f,     1.0f, 0.0f,
+        0.5f,  0.5f,  0.0f,     1.0f, 1.0f
     };
 
     vertexArray = VertexArray::Create();
@@ -85,26 +91,26 @@ void RenderLayer::DrawTriangles()
 
 void RenderLayer::OnUpdate()
 {
-    // Standard way
-    //Timer timer("Standard triangle draw");
-    pos = glm::vec3(0.0);
-    color = glm::vec4(1.0f);
-    DrawTriangles();
-    return;
-
-    for (int i = 0; i < triangleHeight; ++i)
+    // Testing input controller
+    if (Input::GetKeyDown(KEY_UP))
     {
-        for (int j = 0; j < triangleWidth; ++j)
-        {
-            float u = (float)j / triangleWidth;
-            float v = (float)i / triangleHeight;
-            float x = u * 2.0f - 1.0f;
-            float y = v * 2.0f - 1.0f;
-            pos = glm::vec3(x, y, 0.0f);
-            color = glm::vec4(u, v, 1.0f, 1.0f);
-            DrawTriangles();
-        }
+        pos.y += 0.1f;
     }
+    else if (Input::GetKeyDown(KEY_DOWN))
+    {
+        pos.y -= 0.1f;
+    }
+
+    if (Input::GetKeyDown(KEY_RIGHT))
+    {
+        pos.x += 0.1f;
+    }
+    else if (Input::GetKeyDown(KEY_LEFT))
+    {
+        pos.x -= 0.1f;
+    }
+
+    DrawTriangles();
 }
 
 void RenderLayer::OnImGuiRender()

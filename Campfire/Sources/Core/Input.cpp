@@ -3,6 +3,10 @@
 
 #include <glfw/glfw3.h>
 
+//=====================================================
+//----------------------Buttons------------------------
+//=====================================================
+
 //bool Input::GetButton(const std::string& code)
 //{
 //
@@ -18,6 +22,10 @@
 //
 //}
 
+
+//=====================================================
+//------------------------Keys-------------------------
+//=====================================================
 bool Input::GetKey(KeyCode key)
 {
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
@@ -26,12 +34,16 @@ bool Input::GetKey(KeyCode key)
     return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
+// Process input only once
 bool Input::GetKeyDown(KeyCode key)
 {
+    auto oldState = GetKeyState(static_cast<uint32_t>(key));
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
     auto state = glfwGetKey(window, static_cast<uint32_t>(key));
 
-    return state == GLFW_PRESS;
+    SetKeyState(static_cast<uint32_t>(key), state);
+
+    return state == GLFW_PRESS && oldState == GLFW_RELEASE;
 }
 
 bool Input::GetKeyUp(KeyCode key)
@@ -42,6 +54,10 @@ bool Input::GetKeyUp(KeyCode key)
     return state == GLFW_RELEASE;
 }
 
+
+//=====================================================
+//----------------------Mouse--------------------------
+//=====================================================
 bool Input::GetMouseButton(MouseCode button)
 {
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
@@ -52,8 +68,11 @@ bool Input::GetMouseButton(MouseCode button)
 
 bool Input::GetMouseButtonDown(MouseCode button)
 {
+    auto oldState = GetKeyState(static_cast<uint32_t>(button));
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
     auto state = glfwGetMouseButton(window, static_cast<uint32_t>(button));
+
+    SetKeyState(static_cast<uint32_t>(button), state);
 
     return state == GLFW_PRESS;
 }
@@ -85,4 +104,38 @@ float Input::GetMouseY()
 {
     auto[x, y] = GetMousePosition();
     return y;
+}
+
+
+//=====================================================
+//--------------------Helpers--------------------------
+//=====================================================
+std::unordered_map<uint32_t, uint8_t> Input::stateMap;
+
+uint32_t Input::GetKeyState(uint32_t key)
+{
+    auto it = stateMap.find(key);
+    if (it != stateMap.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        stateMap.emplace(key, 0);
+    }
+    return 0;
+}
+
+// Only used for making sure button pressed once
+void Input::SetKeyState(uint32_t key, uint8_t oldState)
+{
+    auto it = stateMap.find(key);
+    if (it != stateMap.end())
+    {
+        it->second = oldState;
+    }
+    else
+    {
+        stateMap.emplace(key, 0);
+    }
 }

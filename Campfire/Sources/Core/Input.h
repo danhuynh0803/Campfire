@@ -2,6 +2,7 @@
 #define INPUT_H
 
 #include <string>
+#include <unordered_map>
 
 #include "KeyCodes.h"
 #include "MouseCodes.h"
@@ -27,6 +28,18 @@ public:
     static std::pair<float, float> GetMousePosition();
     static float GetMouseX();
     static float GetMouseY();
+
+private:
+    // Using GLFW defines
+    // RELEASE = 0
+    // PRESS   = 1
+    // REPEAT  = 2
+
+    // The following are only used for checking ButtonDown to prevent
+    // multiple presses per frame
+    static uint32_t GetKeyState(uint32_t key);
+    static void SetKeyState(uint32_t key, uint8_t oldState);
+    static std::unordered_map<uint32_t, uint8_t> stateMap;
 };
 
 #endif // INPUT_H
