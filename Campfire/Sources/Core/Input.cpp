@@ -48,10 +48,13 @@ bool Input::GetKeyDown(KeyCode key)
 
 bool Input::GetKeyUp(KeyCode key)
 {
+    auto oldState = GetKeyState(static_cast<uint32_t>(key));
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
     auto state = glfwGetKey(window, static_cast<uint32_t>(key));
 
-    return state == GLFW_RELEASE;
+    SetKeyState(static_cast<uint32_t>(key), state);
+
+    return state == GLFW_RELEASE && oldState == GLFW_PRESS;
 }
 
 
@@ -79,10 +82,13 @@ bool Input::GetMouseButtonDown(MouseCode button)
 
 bool Input::GetMouseButtonUp(MouseCode button)
 {
+    auto oldState = GetKeyState(static_cast<uint32_t>(button));
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
     auto state = glfwGetMouseButton(window, static_cast<uint32_t>(button));
 
-    return state == GLFW_RELEASE;
+    SetKeyState(static_cast<uint32_t>(button), state);
+
+    return state == GLFW_RELEASE && oldState == GLFW_PRESS;
 }
 
 std::pair<float, float> Input::GetMousePosition()
