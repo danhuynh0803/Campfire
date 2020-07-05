@@ -26,6 +26,10 @@ public:
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
     virtual const std::string& GetName() const = 0;
+
+    //==============================
+    // in other APIs?
+    virtual void SetUniformBlock(const std::string& name, uint32_t blockIndex) = 0;
 };
 
 #endif // SHADER_H

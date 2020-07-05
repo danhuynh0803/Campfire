@@ -11,10 +11,6 @@
 
 #include "Renderer/Renderer.h"
 
-#include "Renderer/Camera.h"
-
-Camera camera(1600, 900, 0.1f, 100.0f);
-
 Application* Application::instance = nullptr;
 
 Application::Application()
@@ -49,9 +45,10 @@ void Application::Run()
     while (isRunning)
     {
         Time::Update();
-        camera.OnUpdate();
 
-        Renderer::BeginScene(camera);
+        //Renderer::BeginScene(camera);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         for (Layer* layer : layerStack)
         {
@@ -102,6 +99,5 @@ void Application::OnEvent(Event& e)
             break;
         }
         (*revIt)->OnEvent(e);
-        camera.OnEvent(e);
     }
 }

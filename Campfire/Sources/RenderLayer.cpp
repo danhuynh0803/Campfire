@@ -11,6 +11,8 @@
 #include "Core/Input.h"
 #include "Core/Time.h"
 
+#include "Renderer/Camera.h"
+Camera camera(1600, 900, 0.1f, 100.0f);
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
@@ -86,6 +88,15 @@ void RenderLayer::OnAttach()
     vertexArray = VertexArray::Create();
     vertexArray->Bind();
 
+    ubo = UniformBuffer::Create();
+    BufferLayout uboLayout =
+    {
+        { ShaderDataType::MAT4, "viewProjMatrix"}
+    };
+    ubo->SetLayout(uboLayout, 0);
+    shader->SetUniformBlock("Matrices", 0);
+
+
     SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
     BufferLayout layout =
     {
@@ -121,6 +132,10 @@ void RenderLayer::DrawTriangles()
     //glm::vec3 scale = glm::vec3(0.1f);
     //model = glm::scale(model, scale);
 
+    ubo->Bind();
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
+    ubo->Unbind();
+
     shader->Bind();
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
 
@@ -130,6 +145,7 @@ void RenderLayer::DrawTriangles()
 
 void RenderLayer::OnUpdate()
 {
+    camera.OnUpdate();
     // Testing input controller
     if (Input::GetKeyDown(KEY_UP))
     {
@@ -150,4 +166,5 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
+    camera.OnEvent(event);
 }

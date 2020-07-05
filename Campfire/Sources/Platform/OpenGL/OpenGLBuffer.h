@@ -34,4 +34,20 @@ private:
     uint32_t count;
 };
 
+class OpenGLUniformBuffer : public UniformBuffer
+{
+public:
+    OpenGLUniformBuffer();
+
+    virtual ~OpenGLUniformBuffer();
+    virtual void Bind() const override;
+    virtual void Unbind() const override;
+
+    virtual void SetLayout(const BufferLayout& _layout, uint32_t blockIndex) override;
+
+private:
+    uint32_t renderID;
+    BufferLayout layout;
+};
+
 #endif // OPENGL_BUFFER_H

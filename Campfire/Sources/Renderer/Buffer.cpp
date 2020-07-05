@@ -30,3 +30,16 @@ SharedPtr<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
 
     return nullptr;
 }
+
+SharedPtr<UniformBuffer> UniformBuffer::Create()
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            return nullptr;
+        case RendererAPI::API::OpenGL:
+            return CreateSharedPtr<OpenGLUniformBuffer>();
+    }
+
+    return nullptr;
+}

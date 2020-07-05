@@ -1,6 +1,7 @@
 #include "OpenGLBuffer.h"
 
 #include <glad/glad.h>
+#include "Renderer/Shader.h"
 
 //=====================================================================
 //------------------------- Vertex Buffers ----------------------------
@@ -57,3 +58,61 @@ uint32_t OpenGLIndexBuffer::GetCount() const
 {
     return count;
 }
+
+//=====================================================================
+//------------------------ Uniform Buffers ----------------------------
+//=====================================================================
+OpenGLUniformBuffer::OpenGLUniformBuffer()
+{
+    glCreateBuffers(1, &renderID);
+    glBindBuffer(GL_UNIFORM_BUFFER, renderID);
+    //glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+}
+
+OpenGLUniformBuffer::~OpenGLUniformBuffer()
+{
+    glDeleteBuffers(1, &renderID);
+}
+
+void OpenGLUniformBuffer::Bind() const
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, renderID);
+}
+
+void OpenGLUniformBuffer::Unbind() const
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockIndex)
+{
+    layout = _layout;
+
+    uint32_t size = 0;
+    for (const auto& element : layout)
+    {
+        size += ConvertShaderDataTypeToSize(element.type);
+    }
+
+    // Allocate buffer based on attached elements
+    glBindBuffer(GL_UNIFORM_BUFFER, renderID);
+    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, renderID);
+
+    // TODO check BufferRange vs base
+    //if (layout.size() > 1)
+    //{
+    //    glBindBufferRange(GL_UNIFORM_BUFFER, blockIndex, renderID, 0, size);
+    //}
+    //else
+    //{
+    //    glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, renderID);
+    //}
+}
+
+//void OpenGLUniformBuffer::SubmitData()
+//{
+//    glBindBuffer(GL_UNIFORM_BUFFER, renderID);
+//    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(view));
+//}
