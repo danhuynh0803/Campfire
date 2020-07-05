@@ -30,24 +30,26 @@ float Threshold(vec3 col, float threshold)
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / vec2(1600.0f, 900.0f);
+//    vec2 uv = gl_FragCoord.xy / vec2(1600.0f, 900.0f);
+//
+//    vec2 grid = vec2(100.0f, 100.0f);
+//    vec2 ipos = uv * grid;
+//
+//    vec2 fpos = fract(uv * grid);
+//
+//    float shiftFactor = time * 10.0f * (Random(floor(ipos.y+1))*0.5f + 0.5f);
+//
+//    ipos.x -= shiftFactor;
+//
+//    ipos = floor(ipos);
+//
+//    vec3 col = vec3(Random(ipos));
+//    col = vec3(Threshold(col, 0.3f));
+//    col *= step(0.25f, fpos.y);
+//
+    //vec3 texColor = texture(texIn, inUV).rgb;
 
-    vec2 grid = vec2(100.0f, 100.0f);
-    vec2 ipos = uv * grid;
+    //fragColor = vec4(texColor * col, 1.0f);
 
-    vec2 fpos = fract(uv * grid);
-
-    float shiftFactor = time * 10.0f * (Random(floor(ipos.y+1))*0.5f + 0.5f);
-
-    ipos.x -= shiftFactor;
-
-    ipos = floor(ipos);
-
-    vec3 col = vec3(Random(ipos));
-    col = vec3(Threshold(col, 0.3f));
-    col *= step(0.25f, fpos.y);
-
-    vec3 texColor = texture(texIn, inUV).rgb;
-
-    fragColor = vec4(texColor * col, 1.0f);
+    fragColor = texture(texIn, inUV);
 }
