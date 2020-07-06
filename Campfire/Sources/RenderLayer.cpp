@@ -91,7 +91,9 @@ void RenderLayer::OnAttach()
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
-        { ShaderDataType::MAT4, "viewProjMatrix"}
+        { ShaderDataType::MAT4, "view"},
+        { ShaderDataType::MAT4, "proj"},
+        { ShaderDataType::MAT4, "viewProj"}
     };
     ubo->SetLayout(uboLayout, 0);
     shader->SetUniformBlock("Matrices", 0);
@@ -133,7 +135,12 @@ void RenderLayer::DrawTriangles()
     //model = glm::scale(model, scale);
 
     ubo->Bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
+    uint32_t index = 0;
+    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewMatrix()));
+    index++;
+    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetProjMatrix()));
+    index++;
+    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
     ubo->Unbind();
 
     shader->Bind();
