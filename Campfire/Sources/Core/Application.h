@@ -13,7 +13,6 @@ public:
     ~Application();
 
     static Application& Get() { return *instance; }
-    //virtual void Start(); // Just do in constructor
     virtual void Run();
     virtual void Shutdown();
 
