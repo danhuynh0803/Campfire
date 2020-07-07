@@ -25,7 +25,8 @@ public:
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
 
-    Shader* shader;
+    SharedPtr<UniformBuffer> ubo;
+    SharedPtr<Shader> shader;
     SharedPtr<IndexBuffer> indexBuffer;
     SharedPtr<VertexArray> vertexArray;
     SharedPtr<Texture> texture;

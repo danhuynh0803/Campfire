@@ -6,7 +6,7 @@
 class Time
 {
 public:
-    static void Start();
+    static void Init();
     static void Update();
     static double deltaTime;
     static float timeScale;

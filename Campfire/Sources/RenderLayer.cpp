@@ -12,6 +12,7 @@
 #include "Core/Time.h"
 
 #include "Renderer/Camera.h"
+Camera camera(1600, 900, 0.1f, 100.0f);
 
 unsigned int triangleWidth = 100;
 unsigned int triangleHeight = 100;
@@ -25,16 +26,10 @@ RenderLayer::RenderLayer()
 {
 }
 
-Camera camera(1600, 900, 0.1f, 100.0f);
-
 void RenderLayer::OnAttach()
 {
-    glEnable(GL_DEPTH_TEST);
-
     pos = glm::vec3(0.0);
     color = glm::vec4(1.0f);
-
-    Renderer::SetAPI(RendererAPI::OpenGL);
 
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
 //    GLfloat vertices[] =
@@ -93,6 +88,17 @@ void RenderLayer::OnAttach()
     vertexArray = VertexArray::Create();
     vertexArray->Bind();
 
+    ubo = UniformBuffer::Create();
+    BufferLayout uboLayout =
+    {
+        { ShaderDataType::MAT4, "view"},
+        { ShaderDataType::MAT4, "proj"},
+        { ShaderDataType::MAT4, "viewProj"}
+    };
+    ubo->SetLayout(uboLayout, 0);
+    shader->SetUniformBlock("Matrices", 0);
+
+
     SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
     BufferLayout layout =
     {
@@ -125,46 +131,36 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::DrawTriangles()
 {
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, pos);
     //glm::vec3 scale = glm::vec3(0.1f);
     //model = glm::scale(model, scale);
 
+    ubo->Bind();
+    uint32_t index = 0;
+    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewMatrix()));
+    index++;
+    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetProjMatrix()));
+    index++;
+    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
+    ubo->Unbind();
+
     shader->Bind();
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
-    shader->SetMat4("model", model);
-    shader->SetFloat4("color", color);
-    shader->SetMat4("viewProjMatrix", camera.GetViewProjMatrix());
 
-    // Create test triangle
-    vertexArray->Bind();
     texture->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
-    glBindVertexArray(0);
+    Renderer::Draw(shader, vertexArray);
 }
 
 void RenderLayer::OnUpdate()
 {
     camera.OnUpdate();
-
     // Testing input controller
     if (Input::GetKeyDown(KEY_UP))
     {
         pos.y += 0.1f;
     }
-    else if (Input::GetKeyDown(KEY_DOWN))
+    if (Input::GetKeyUp(KEY_DOWN))
     {
         pos.y -= 0.1f;
-    }
-
-    if (Input::GetKeyDown(KEY_RIGHT))
-    {
-        pos.x += 0.1f;
-    }
-    else if (Input::GetKeyDown(KEY_LEFT))
-    {
-        pos.x -= 0.1f;
     }
 
     DrawTriangles();

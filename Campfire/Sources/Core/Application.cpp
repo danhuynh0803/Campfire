@@ -9,21 +9,24 @@
 #include "Core/Log.h"
 #include "Core/Time.h"
 
+#include "Renderer/Renderer.h"
+
 Application* Application::instance = nullptr;
 
 Application::Application()
 {
-    Log::Start();
-    Time::Start();
+    Log::Init();
+    Time::Init();
 
     instance = this;
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    // Create any necessary layers
     // Init renderer
+    Renderer::Init();
     RenderLayer* renderLayer = new RenderLayer();
     PushLayer(renderLayer);
+
     // Imgui overlay
     imguiLayer = new ImGuiLayer();
     PushOverlay(imguiLayer);
@@ -34,6 +37,7 @@ Application::~Application()
 {
     // TODO Shutdown any subsystems in the reverse order
     // of dependencies
+    Renderer::Shutdown();
 }
 
 void Application::Run()
@@ -42,6 +46,7 @@ void Application::Run()
     {
         Time::Update();
 
+        //Renderer::BeginScene(camera);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -58,6 +63,8 @@ void Application::Run()
             layer->OnImGuiRender();
         }
         imguiLayer->End();
+
+        Renderer::EndScene();
 
         window->OnUpdate();
     }

@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <memory>
+
+#include "Core/Base.h"
 
 //================================================
 //----------------Buffer Layout-------------------
@@ -129,7 +130,7 @@ struct VertexBuffer
     virtual void SetLayout(const BufferLayout& layout) = 0;
     virtual const BufferLayout& GetLayout() const = 0;
 
-    static std::shared_ptr<VertexBuffer> Create(float* vertices, uint32_t size);
+    static SharedPtr<VertexBuffer> Create(float* vertices, uint32_t size);
 };
 
 struct IndexBuffer
@@ -139,7 +140,30 @@ struct IndexBuffer
     virtual void Unbind() const = 0;
     virtual uint32_t GetCount() const = 0;
 
-    static std::shared_ptr<IndexBuffer> Create(uint32_t* indices, uint32_t _count);
+    static SharedPtr<IndexBuffer> Create(uint32_t* indices, uint32_t _count);
 };
+
+struct UniformBuffer
+{
+    virtual ~UniformBuffer() {}
+    virtual void Bind() const = 0;
+    virtual void Unbind() const = 0;
+    virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex) = 0;
+
+    //virtual void SubmitData() = 0;
+
+    static SharedPtr<UniformBuffer> Create();
+};
+
+struct FrameBuffer
+{
+    virtual ~FrameBuffer() {}
+    virtual void Bind() const = 0;
+    virtual void Unbind() const = 0;
+
+    static SharedPtr<FrameBuffer> Create(uint32_t width, uint32_t height);
+};
+
+
 
 #endif // BUFFER_H
