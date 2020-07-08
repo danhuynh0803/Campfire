@@ -11,6 +11,8 @@
 OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     : filepath(path)
 {
+    stbi_set_flip_vertically_on_load(true);
+
     // TODO move this out into some resource manager to rewrite slashes for windows
     //std::replace(texturePath.begin(), texturePath.end(), '\\', '/');
 
@@ -20,10 +22,6 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     this->width = width;
     this->height = height;
-
-    // TODO some textures don't need to be flipped
-    // Figure out a way to handle this
-    stbi_set_flip_vertically_on_load(true);
 
     if (data)
     {

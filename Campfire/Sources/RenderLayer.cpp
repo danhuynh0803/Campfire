@@ -124,7 +124,7 @@ void RenderLayer::OnAttach()
     buffer->Unbind();
     vertexArray->Unbind();
 
-    texture = Texture2D::Create("../Assets/Textures/uv.png");
+    texture = Texture2D::Create("../Assets/Textures/awesomeface.png");
     std::vector<std::string> faces =
     {
         "../Assets/Textures/skybox/right.jpg",
