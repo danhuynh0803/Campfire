@@ -133,7 +133,6 @@ void RenderLayer::DrawTriangles()
 {
     //glm::vec3 scale = glm::vec3(0.1f);
     //model = glm::scale(model, scale);
-
     ubo->Bind();
     uint32_t index = 0;
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewMatrix()));
@@ -150,9 +149,9 @@ void RenderLayer::DrawTriangles()
     Renderer::Draw(shader, vertexArray);
 }
 
-void RenderLayer::OnUpdate()
+void RenderLayer::OnUpdate(float timestep)
 {
-    camera.OnUpdate();
+    camera.OnUpdate(timestep);
     // Testing input controller
     if (Input::GetKeyDown(KEY_UP))
     {
