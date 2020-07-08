@@ -122,7 +122,7 @@ void RenderLayer::OnAttach()
     buffer->Unbind();
     vertexArray->Unbind();
 
-    texture = Texture::Create("../Assets/Textures/uv.png");
+    texture = Texture2D::Create("../Assets/Textures/uv.png");
 }
 
 void RenderLayer::OnDetach()
