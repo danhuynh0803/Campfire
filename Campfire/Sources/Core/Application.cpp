@@ -52,7 +52,7 @@ void Application::Run()
 
         for (Layer* layer : layerStack)
         {
-            layer->OnUpdate();
+            layer->OnUpdate(static_cast<float>(Time::deltaTime));
         }
 
         imguiLayer->Begin();

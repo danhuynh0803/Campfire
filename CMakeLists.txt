@@ -46,6 +46,7 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/spdlog/include/
                     Campfire/Vendor/rapidjson/include
                     Campfire/Vendor/imgui
+                    Campfire/Vendor/entt
 )
 
 file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c

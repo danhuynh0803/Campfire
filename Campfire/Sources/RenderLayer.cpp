@@ -32,6 +32,7 @@ void RenderLayer::OnAttach()
     color = glm::vec4(1.0f);
 
     shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
+    skyboxShader = Shader::Create("skybox", "../Campfire/Shaders/skybox.vert", "../Campfire/Shaders/skybox.frag");
 //    GLfloat vertices[] =
 //    {
 //       -1.0f,  1.0f,  0.0f,     0.0f, 1.0f,
@@ -42,47 +43,47 @@ void RenderLayer::OnAttach()
 
         GLfloat vertices[] = {
             // Position           // UV         // Normals
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,   0, 0, -1,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 0, -1,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 0, -1,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0, 0, -1,
+            -1.0f, -1.0f, -1.0f,  0.0f, 0.0f,   0, 0, -1,
+             1.0f, -1.0f, -1.0f,  1.0f, 0.0f,   0, 0, -1,
+             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   0, 0, -1,
+             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   0, 0, -1,
+            -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,   0, 0, -1,
+            -1.0f, -1.0f, -1.0f,  0.0f, 0.0f,   0, 0, -1,
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, 0, 1,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0, 0, 1,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   0, 0, 1,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, 0, 1,
+            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   0, 0, 1,
+             1.0f, -1.0f,  1.0f,  1.0f, 0.0f,   0, 0, 1,
+             1.0f,  1.0f,  1.0f,  1.0f, 1.0f,   0, 0, 1,
+             1.0f,  1.0f,  1.0f,  1.0f, 1.0f,   0, 0, 1,
+            -1.0f,  1.0f,  1.0f,  0.0f, 1.0f,   0, 0, 1,
+            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   0, 0, 1,
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1, 0, 0,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1, 0, 0,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1, 0, 0,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1, 0, 0,
+            -1.0f,  1.0f,  1.0f,  1.0f, 0.0f,  -1, 0, 0,
+            -1.0f,  1.0f, -1.0f,  1.0f, 1.0f,  -1, 0, 0,
+            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,  -1, 0, 0,
+            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,  -1, 0, 0,
+            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,  -1, 0, 0,
+            -1.0f,  1.0f,  1.0f,  1.0f, 0.0f,  -1, 0, 0,
 
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   1, 0, 0,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   1, 0, 0,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   1, 0, 0,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   1, 0, 0,
+             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   1, 0, 0,
+             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   1, 0, 0,
+             1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   1, 0, 0,
+             1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   1, 0, 0,
+             1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   1, 0, 0,
+             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   1, 0, 0,
 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,   0, -1, 0,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0, -1, 0,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0, -1, 0,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0, -1, 0,
+            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   0, -1, 0,
+             1.0f, -1.0f, -1.0f,  1.0f, 1.0f,   0, -1, 0,
+             1.0f, -1.0f,  1.0f,  1.0f, 0.0f,   0, -1, 0,
+             1.0f, -1.0f,  1.0f,  1.0f, 0.0f,   0, -1, 0,
+            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   0, -1, 0,
+            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   0, -1, 0,
 
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0, 1, 0,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0, 1, 0,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,   0, 1, 0,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0, 1, 0
+            -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,   0, 1, 0,
+             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   0, 1, 0,
+             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   0, 1, 0,
+             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   0, 1, 0,
+            -1.0f,  1.0f,  1.0f,  0.0f, 0.0f,   0, 1, 0,
+            -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,   0, 1, 0
         };
 
     vertexArray = VertexArray::Create();
@@ -97,6 +98,7 @@ void RenderLayer::OnAttach()
     };
     ubo->SetLayout(uboLayout, 0);
     shader->SetUniformBlock("Matrices", 0);
+    skyboxShader->SetUniformBlock("Matrices", 0);
 
 
     SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
@@ -122,7 +124,17 @@ void RenderLayer::OnAttach()
     buffer->Unbind();
     vertexArray->Unbind();
 
-    texture = Texture::Create("../Assets/Textures/uv.png");
+    texture = Texture2D::Create("../Assets/Textures/uv.png");
+    std::vector<std::string> faces =
+    {
+        "../Assets/Textures/skybox/right.jpg",
+        "../Assets/Textures/skybox/left.jpg",
+        "../Assets/Textures/skybox/top.jpg",
+        "../Assets/Textures/skybox/bottom.jpg",
+        "../Assets/Textures/skybox/front.jpg",
+        "../Assets/Textures/skybox/back.jpg"
+    };
+    skyboxTexture = TextureCube::Create(faces);
 }
 
 void RenderLayer::OnDetach()
@@ -133,7 +145,6 @@ void RenderLayer::DrawTriangles()
 {
     //glm::vec3 scale = glm::vec3(0.1f);
     //model = glm::scale(model, scale);
-
     ubo->Bind();
     uint32_t index = 0;
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewMatrix()));
@@ -143,16 +154,27 @@ void RenderLayer::DrawTriangles()
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
     ubo->Unbind();
 
+
+    // test draw skybox
+    glDepthMask(GL_FALSE);
+    skyboxShader->Bind();
+    skyboxTexture->Bind();
+    vertexArray->Bind();
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    vertexArray->Unbind();
+    glDepthMask(GL_TRUE);
+
     shader->Bind();
     shader->SetFloat("time", static_cast<float>(glfwGetTime()));
 
     texture->Bind();
     Renderer::Draw(shader, vertexArray);
+
 }
 
-void RenderLayer::OnUpdate()
+void RenderLayer::OnUpdate(float timestep)
 {
-    camera.OnUpdate();
+    camera.OnUpdate(timestep);
     // Testing input controller
     if (Input::GetKeyDown(KEY_UP))
     {
