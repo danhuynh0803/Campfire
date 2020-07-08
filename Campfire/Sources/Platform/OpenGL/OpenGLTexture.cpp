@@ -70,6 +70,8 @@ void OpenGLTexture2D::Bind(uint32_t unit) const
 OpenGLTextureCube::OpenGLTextureCube(const std::vector<std::string>& pathList)
     : filepathList(pathList)
 {
+    stbi_set_flip_vertically_on_load(false);
+
     glGenTextures(1, &renderID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, renderID);
 

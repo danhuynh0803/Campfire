@@ -27,7 +27,7 @@ SharedPtr<Texture2D> Texture2D::Create(const std::string& path)
 //    return nullptr;
 //}
 
-SharedPtr<TextureCube> Create(const std::vector<std::string>& pathList)
+SharedPtr<TextureCube> TextureCube::Create(const std::vector<std::string>& pathList)
 {
     switch (RendererAPI::GetAPI())
     {

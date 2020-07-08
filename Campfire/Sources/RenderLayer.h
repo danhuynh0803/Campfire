@@ -25,11 +25,16 @@ public:
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
 
+    // TODO just for testing
     SharedPtr<UniformBuffer> ubo;
-    SharedPtr<Shader> shader;
     SharedPtr<IndexBuffer> indexBuffer;
     SharedPtr<VertexArray> vertexArray;
+
+    SharedPtr<Shader> shader;
     SharedPtr<Texture> texture;
+
+    SharedPtr<Texture> skyboxTexture;
+    SharedPtr<Shader> skyboxShader;
 };
 
 #endif // RENDER_LAYER_H
