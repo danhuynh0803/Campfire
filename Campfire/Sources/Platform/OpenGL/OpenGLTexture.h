@@ -3,11 +3,11 @@
 
 #include "Renderer/Texture.h"
 
-class OpenGLTexture : public Texture
+class OpenGLTexture2D : public Texture2D
 {
 public:
-    OpenGLTexture(const std::string& path);
-    virtual ~OpenGLTexture();
+    OpenGLTexture2D(const std::string& path);
+    virtual ~OpenGLTexture2D();
 
     virtual uint32_t GetWidth() const override { return width; }
     virtual uint32_t GetHeight() const override { return height; }
@@ -17,6 +17,29 @@ private:
     uint32_t renderID;
     uint32_t width, height;
     std::string filepath;
+};
+
+//class OpenGLTexture3D : public Texture3D
+//{
+//public:
+//};
+
+
+class OpenGLTextureCube : public TextureCube
+{
+public:
+    //OpenGLTextureCube(const std::string& path);
+    OpenGLTextureCube(const std::vector<std::string>& pathList);
+    virtual ~OpenGLTextureCube();
+
+    virtual uint32_t GetWidth() const override { return width; }
+    virtual uint32_t GetHeight() const override { return height; }
+    virtual void Bind(uint32_t unit = 0) const override;
+
+private:
+    uint32_t renderID;
+    uint32_t width, height;
+    std::vector<std::string> filepathList;
 };
 
 #endif // OPENGL_TEXTURE_H

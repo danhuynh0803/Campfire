@@ -5,7 +5,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-OpenGLTexture::OpenGLTexture(const std::string& path)
+//=====================================================
+//------------------ Texture2D ------------------------
+//=====================================================
+OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     : filepath(path)
 {
     // TODO move this out into some resource manager to rewrite slashes for windows
@@ -51,12 +54,66 @@ OpenGLTexture::OpenGLTexture(const std::string& path)
     stbi_image_free(data);
 }
 
-OpenGLTexture::~OpenGLTexture()
+OpenGLTexture2D::~OpenGLTexture2D()
 {
     glDeleteTextures(1, &renderID);
 }
 
-void OpenGLTexture::Bind(uint32_t unit) const
+void OpenGLTexture2D::Bind(uint32_t unit) const
 {
     glBindTextureUnit(unit, renderID);
+}
+
+//=====================================================
+//------------------ Texture Cube ---------------------
+//=====================================================
+OpenGLTextureCube::OpenGLTextureCube(const std::vector<std::string>& pathList)
+    : filepathList(pathList)
+{
+    stbi_set_flip_vertically_on_load(false);
+
+    glGenTextures(1, &renderID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, renderID);
+
+    int width, height, nrChannels;
+    unsigned char* data;
+    for (GLuint i = 0; i < filepathList.size(); ++i)
+    {
+        data = stbi_load(filepathList[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGB, width, height, 0,
+                GL_RGB, GL_UNSIGNED_BYTE, data
+            );
+        }
+        else
+        {
+            LOG_ERROR("Cubemap texture failed to load: {0}", filepathList[i]);
+        }
+        stbi_image_free(data);
+    }
+
+    // Store dimensions of final face,
+    // since they should all be the same dimensionsi anyway
+    this->width = width;
+    this->height = height;
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+}
+
+OpenGLTextureCube::~OpenGLTextureCube()
+{
+    glDeleteTextures(1, &renderID);
+}
+
+void OpenGLTextureCube::Bind(uint32_t unit) const
+{
+    glBindTexture(GL_TEXTURE_CUBE_MAP, renderID);
 }

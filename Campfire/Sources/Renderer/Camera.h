@@ -11,7 +11,7 @@ class Camera
 {
 public:
     void OnEvent(Event& e);
-    void OnUpdate();
+    void OnUpdate(float timestep);
     bool OnMouseScrolled(MouseScrolledEvent& e);
     bool OnWindowResized(WindowResizeEvent& e);
     bool OnMouseButton(MouseButtonEvent& e);
