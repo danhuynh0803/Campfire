@@ -4,7 +4,7 @@
 std::shared_ptr<spdlog::logger> Log::coreLogger;
 std::shared_ptr<spdlog::logger> Log::clientLogger;
 
-void Log::Start()
+void Log::Init()
 {
     spdlog::set_pattern("%^[%T] %n: %v%$");
     coreLogger = spdlog::stdout_color_mt("Campfire");

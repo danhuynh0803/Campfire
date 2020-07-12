@@ -56,10 +56,8 @@ bool Camera::OnMouseMoved(MouseMovedEvent& e)
     return false;
 }
 
-void Camera::OnUpdate()
+void Camera::OnUpdate(float timestep)
 {
-    float deltaTime = static_cast<float>(Time::deltaTime);
-
     if (Input::GetKey(KEY_LEFT_SHIFT))
     {
         movementSpeed = maxSpeed;
@@ -70,13 +68,13 @@ void Camera::OnUpdate()
     }
 
     if (Input::GetKey(KEY_W))
-        ProcessKeyboard(FORWARD, deltaTime);
+        ProcessKeyboard(FORWARD, timestep);
     if (Input::GetKey(KEY_A))
-        ProcessKeyboard(LEFT, deltaTime);
+        ProcessKeyboard(LEFT, timestep);
     if (Input::GetKey(KEY_S))
-        ProcessKeyboard(BACKWARD, deltaTime);
+        ProcessKeyboard(BACKWARD, timestep);
     if (Input::GetKey(KEY_D))
-        ProcessKeyboard(RIGHT, deltaTime);
+        ProcessKeyboard(RIGHT, timestep);
 
     UpdateCameraVectors();
     RecalculateViewMatrix();

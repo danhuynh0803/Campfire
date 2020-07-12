@@ -46,6 +46,7 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/spdlog/include/
                     Campfire/Vendor/rapidjson/include
                     Campfire/Vendor/imgui
+                    Campfire/Vendor/entt
 )
 
 file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c
@@ -68,8 +69,10 @@ file(GLOB PROJECT_SOURCES Campfire/Sources/Core/*.h
                           #Campfire/Sources/Physics/*.cpp
                           Campfire/Sources/JobSystem/*.h
                           Campfire/Sources/JobSystem/*.cpp
-                          Campfire/Sources/imgui/*.h
-                          Campfire/Sources/imgui/*.cpp
+                          Campfire/Sources/ImGui/*.h
+                          Campfire/Sources/ImGui/*.cpp
+                          Campfire/Sources/Scene/*.h
+                          Campfire/Sources/Scene/*.cpp
                           Campfire/Sources/*.h
                           Campfire/Sources/*.cpp
 )

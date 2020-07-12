@@ -16,6 +16,11 @@ public:
     virtual void AddVertexBuffer(const SharedPtr<VertexBuffer>& vertexBuffer) override;
     virtual void SetIndexBuffer(const SharedPtr<IndexBuffer>& indexBuffer) override;
 
+    virtual const SharedPtr<IndexBuffer>& GetIndexBuffer() const override
+    {
+        return indexBuffer;
+    }
+
 private:
     uint32_t renderID;
     std::vector<std::shared_ptr<VertexBuffer>> vertexBuffers;

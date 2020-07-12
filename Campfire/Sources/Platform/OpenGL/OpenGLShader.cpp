@@ -151,4 +151,8 @@ void OpenGLShader::Unbind()
 {
 }
 
+void OpenGLShader::SetUniformBlock(const std::string& name, uint32_t blockIndex)
+{
+    glUniformBlockBinding(renderID, glGetUniformBlockIndex(renderID, name.c_str()), blockIndex);
+}
 

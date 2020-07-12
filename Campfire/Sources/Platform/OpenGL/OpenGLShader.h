@@ -36,6 +36,8 @@ public:
 
     virtual const std::string& GetName() const override { return name; }
 
+    virtual void SetUniformBlock(const std::string& name, uint32_t blockIndex) override;
+
 private:
     void Compile(const std::string& vertexSrc, const std::string& fragSrc);
     void CheckCompileErrors(uint32_t id, const ShaderType& type);

@@ -1,17 +1,17 @@
 #include "Buffer.h"
 
-#include "Renderer.h"
+#include "Renderer/RendererAPI.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
 #include "Core/Base.h"
 #include <stdint.h>
 
 SharedPtr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case RendererAPI::None:
+        case RendererAPI::API::None:
             return nullptr;
-        case RendererAPI::OpenGL:
+        case RendererAPI::API::OpenGL:
             return CreateSharedPtr<OpenGLVertexBuffer>(vertices, size);
     }
 
@@ -20,12 +20,38 @@ SharedPtr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
 
 SharedPtr<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
 {
-    switch (Renderer::GetAPI())
+    switch (RendererAPI::GetAPI())
     {
-        case RendererAPI::None:
+        case RendererAPI::API::None:
             return nullptr;
-        case RendererAPI::OpenGL:
+        case RendererAPI::API::OpenGL:
             return CreateSharedPtr<OpenGLIndexBuffer>(indices, count);
+    }
+
+    return nullptr;
+}
+
+SharedPtr<UniformBuffer> UniformBuffer::Create()
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            return nullptr;
+        case RendererAPI::API::OpenGL:
+            return CreateSharedPtr<OpenGLUniformBuffer>();
+    }
+
+    return nullptr;
+}
+
+SharedPtr<FrameBuffer> FrameBuffer::Create(uint32_t width, uint32_t height)
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            return nullptr;
+        case RendererAPI::API::OpenGL:
+            return CreateSharedPtr<OpenGLFrameBuffer>(width, height);
     }
 
     return nullptr;

@@ -8,7 +8,7 @@ float Time::timeScale = 1.0f;
 std::chrono::high_resolution_clock::time_point Time::start;
 std::chrono::high_resolution_clock::time_point Time::last;
 
-void Time::Start()
+void Time::Init()
 {
     start = std::chrono::high_resolution_clock::now();
     last  = std::chrono::high_resolution_clock::now();

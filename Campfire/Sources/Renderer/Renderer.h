@@ -1,26 +1,37 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-enum class RendererAPI
-{
-    None = 0,
-    OpenGL
-};
+#include "Renderer/RenderCommand.h"
+#include "Renderer/RendererAPI.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Camera.h"
+#include "Renderer/Texture.h"
 
 class Renderer
 {
 public:
-    inline static RendererAPI GetAPI()
-    {
-        return rendererAPI;
-    }
-    inline static RendererAPI SetAPI(RendererAPI api)
-    {
-        return rendererAPI = api;
-    }
+    static void Init();
+    static void Shutdown();
+
+    static void BeginScene(Camera& camera);
+    static void EndScene();
+
+
+public:
+    static void Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
+
+    static void OnWindowResize(uint32_t width, uint32_t height);
+
+    static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
 
 private:
-    static RendererAPI rendererAPI;
+    static glm::mat4 viewProjMatrix;
+
+    //struct SceneData
+    //{
+    //    glm::mat4 viewProjMatrix;
+    //};
 };
 
 #endif // RENDERER_H
