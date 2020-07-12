@@ -29,8 +29,7 @@ void OpenGLRendererAPI::Clear()
 void OpenGLRendererAPI::DrawIndexed(const SharedPtr<VertexArray>& vertexArray)
 {
     vertexArray->Bind();
-    //glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, (void*)0);
     vertexArray->Unbind();
 }
 
