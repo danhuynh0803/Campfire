@@ -41,9 +41,9 @@ void RenderLayer::OnDetach()
 {
 }
 
-void RenderLayer::OnUpdate(float timestep)
+void RenderLayer::OnUpdate(float dt)
 {
-    camera.OnUpdate(timestep);
+    camera.OnUpdate(dt);
 
     // Set UBO data
     ubo->Bind();
@@ -55,9 +55,23 @@ void RenderLayer::OnUpdate(float timestep)
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
     ubo->Unbind();
 
-    glm::mat4 transform = glm::mat4(1.0f);
 
-    Renderer2D::DrawQuad(transform, texture2D, glm::vec4(1.0f));
+
+    glm::vec3 scale = glm::vec3(0.5f);
+    int x = 10;
+    int y = 10;
+    Timer timer("Quad draw calls");
+    for (int i = 0; i < x; ++i)
+    {
+        for (int j = 0; j < y; ++j)
+        {
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::translate(transform, glm::vec3(i, j, 0.0f));
+            transform = glm::scale(transform, scale);
+            glm::vec3 tint = glm::vec3((float)i/x, (float)j/y, 1.0f);
+            Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
+        }
+    }
 }
 
 void RenderLayer::OnImGuiRender()
