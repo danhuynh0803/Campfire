@@ -58,15 +58,15 @@ void RenderLayer::OnUpdate(float dt)
 
 
     glm::vec3 scale = glm::vec3(0.5f);
-    int x = 10;
-    int y = 10;
+    int x = 50;
+    int y = 50;
     Timer timer("Quad draw calls");
     for (int i = 0; i < x; ++i)
     {
         for (int j = 0; j < y; ++j)
         {
             glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(i, j, 0.0f));
+            transform = glm::translate(transform, glm::vec3(i-x/2, j-x/2, -50.0f));
             transform = glm::scale(transform, scale);
             glm::vec3 tint = glm::vec3((float)i/x, (float)j/y, 1.0f);
             Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
