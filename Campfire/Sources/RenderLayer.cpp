@@ -4,22 +4,19 @@
 
 #include "Core/Base.h"
 #include "Core/Timer.h"
-#include "RenderLayer.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/Shader.h"
-
 #include "Core/Input.h"
 #include "Core/Time.h"
 
+#include "Renderer/Renderer.h"
+#include "Renderer/Shader.h"
 #include "Renderer/Camera.h"
+#include "Renderer/Renderer2D.h"
+
+#include "Scene/Scene.h"
+
+#include "RenderLayer.h"
+
 Camera camera(1600, 900, 0.1f, 100.0f);
-
-unsigned int triangleWidth = 100;
-unsigned int triangleHeight = 100;
-float red, green;
-
-glm::vec3 pos;
-glm::vec4 color;
 
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
@@ -28,66 +25,7 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
-    pos = glm::vec3(0.0);
-    color = glm::vec4(1.0f);
-
-    shader = Shader::Create("triangle", "../Campfire/Shaders/tri.vert", "../Campfire/Shaders/tri.frag");
-    skyboxShader = Shader::Create("skybox", "../Campfire/Shaders/skybox.vert", "../Campfire/Shaders/skybox.frag");
-//    GLfloat vertices[] =
-//    {
-//       -1.0f,  1.0f,  0.0f,     0.0f, 1.0f,
-//       -1.0f, -1.0f,  0.0f,     0.0f, 0.0f,
-//        1.0f, -1.0f,  0.0f,     1.0f, 0.0f,
-//        1.0f,  1.0f,  0.0f,     1.0f, 1.0f
-//    };
-
-        GLfloat vertices[] = {
-            // Position           // UV         // Normals
-            -1.0f, -1.0f, -1.0f,  0.0f, 0.0f,   0, 0, -1,
-             1.0f, -1.0f, -1.0f,  1.0f, 0.0f,   0, 0, -1,
-             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   0, 0, -1,
-             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   0, 0, -1,
-            -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,   0, 0, -1,
-            -1.0f, -1.0f, -1.0f,  0.0f, 0.0f,   0, 0, -1,
-
-            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   0, 0, 1,
-             1.0f, -1.0f,  1.0f,  1.0f, 0.0f,   0, 0, 1,
-             1.0f,  1.0f,  1.0f,  1.0f, 1.0f,   0, 0, 1,
-             1.0f,  1.0f,  1.0f,  1.0f, 1.0f,   0, 0, 1,
-            -1.0f,  1.0f,  1.0f,  0.0f, 1.0f,   0, 0, 1,
-            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   0, 0, 1,
-
-            -1.0f,  1.0f,  1.0f,  1.0f, 0.0f,  -1, 0, 0,
-            -1.0f,  1.0f, -1.0f,  1.0f, 1.0f,  -1, 0, 0,
-            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,  -1, 0, 0,
-            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,  -1, 0, 0,
-            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,  -1, 0, 0,
-            -1.0f,  1.0f,  1.0f,  1.0f, 0.0f,  -1, 0, 0,
-
-             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   1, 0, 0,
-             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   1, 0, 0,
-             1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   1, 0, 0,
-             1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   1, 0, 0,
-             1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   1, 0, 0,
-             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   1, 0, 0,
-
-            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   0, -1, 0,
-             1.0f, -1.0f, -1.0f,  1.0f, 1.0f,   0, -1, 0,
-             1.0f, -1.0f,  1.0f,  1.0f, 0.0f,   0, -1, 0,
-             1.0f, -1.0f,  1.0f,  1.0f, 0.0f,   0, -1, 0,
-            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,   0, -1, 0,
-            -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,   0, -1, 0,
-
-            -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,   0, 1, 0,
-             1.0f,  1.0f, -1.0f,  1.0f, 1.0f,   0, 1, 0,
-             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   0, 1, 0,
-             1.0f,  1.0f,  1.0f,  1.0f, 0.0f,   0, 1, 0,
-            -1.0f,  1.0f,  1.0f,  0.0f, 0.0f,   0, 1, 0,
-            -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,   0, 1, 0
-        };
-
-    vertexArray = VertexArray::Create();
-    vertexArray->Bind();
+    texture2D = Texture2D::Create("../Assets/Textures/awesomeface.png");
 
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
@@ -97,54 +35,17 @@ void RenderLayer::OnAttach()
         { ShaderDataType::MAT4, "viewProj"}
     };
     ubo->SetLayout(uboLayout, 0);
-    shader->SetUniformBlock("Matrices", 0);
-    skyboxShader->SetUniformBlock("Matrices", 0);
-
-
-    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
-    BufferLayout layout =
-    {
-        { ShaderDataType::FLOAT3, "inPos"},
-        { ShaderDataType::FLOAT2, "inUV"},
-        { ShaderDataType::FLOAT3, "inNormal"}
-    };
-    buffer->SetLayout(layout);
-
-    GLuint indices[] =
-    {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-    indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-
-    vertexArray->AddVertexBuffer(buffer);
-    vertexArray->SetIndexBuffer(indexBuffer);
-
-    buffer->Unbind();
-    vertexArray->Unbind();
-
-    texture = Texture2D::Create("../Assets/Textures/uv.png");
-    std::vector<std::string> faces =
-    {
-        "../Assets/Textures/skybox/right.jpg",
-        "../Assets/Textures/skybox/left.jpg",
-        "../Assets/Textures/skybox/top.jpg",
-        "../Assets/Textures/skybox/bottom.jpg",
-        "../Assets/Textures/skybox/front.jpg",
-        "../Assets/Textures/skybox/back.jpg"
-    };
-    skyboxTexture = TextureCube::Create(faces);
 }
 
 void RenderLayer::OnDetach()
 {
 }
 
-void RenderLayer::DrawTriangles()
+void RenderLayer::OnUpdate(float dt)
 {
-    //glm::vec3 scale = glm::vec3(0.1f);
-    //model = glm::scale(model, scale);
+    camera.OnUpdate(dt);
+
+    // Set UBO data
     ubo->Bind();
     uint32_t index = 0;
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewMatrix()));
@@ -155,42 +56,26 @@ void RenderLayer::DrawTriangles()
     ubo->Unbind();
 
 
-    // test draw skybox
-    glDepthMask(GL_FALSE);
-    skyboxShader->Bind();
-    skyboxTexture->Bind();
-    vertexArray->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    vertexArray->Unbind();
-    glDepthMask(GL_TRUE);
 
-    shader->Bind();
-    shader->SetFloat("time", static_cast<float>(glfwGetTime()));
-
-    texture->Bind();
-    Renderer::Draw(shader, vertexArray);
-
-}
-
-void RenderLayer::OnUpdate(float timestep)
-{
-    camera.OnUpdate(timestep);
-    // Testing input controller
-    if (Input::GetKeyDown(KEY_UP))
+    glm::vec3 scale = glm::vec3(0.5f);
+    int x = 50;
+    int y = 50;
+    Timer timer("Quad draw calls");
+    for (int i = 0; i < x; ++i)
     {
-        pos.y += 0.1f;
+        for (int j = 0; j < y; ++j)
+        {
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::translate(transform, glm::vec3(i-x/2, j-x/2, -50.0f));
+            transform = glm::scale(transform, scale);
+            glm::vec3 tint = glm::vec3((float)i/x, (float)j/y, 1.0f);
+            Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
+        }
     }
-    if (Input::GetKeyUp(KEY_DOWN))
-    {
-        pos.y -= 0.1f;
-    }
-
-    DrawTriangles();
 }
 
 void RenderLayer::OnImGuiRender()
 {
-
 }
 
 void RenderLayer::OnEvent(Event& event)

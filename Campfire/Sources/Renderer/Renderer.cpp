@@ -1,15 +1,17 @@
 #include "Renderer/Renderer.h"
+#include "Renderer/Renderer2D.h"
 
 glm::mat4 Renderer::viewProjMatrix = glm::mat4(1.0f);
 
 void Renderer::Init()
 {
     RenderCommand::Init();
+    Renderer2D::Init();
 }
 
 void Renderer::Shutdown()
 {
-
+    Renderer2D::Shutdown();
 }
 
 void Renderer::BeginScene(Camera& camera)
@@ -29,7 +31,6 @@ void Renderer::Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray
 {
     shader->Bind();
     shader->SetMat4("model", transform);
-    shader->SetMat4("viewProjMatrix", viewProjMatrix);
     RenderCommand::DrawIndexed(vertexArray);
 }
 

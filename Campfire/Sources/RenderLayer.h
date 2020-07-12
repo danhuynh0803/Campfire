@@ -17,24 +17,15 @@ public:
     RenderLayer();
     ~RenderLayer() = default;
 
-    void RenderLayer::DrawTriangles();
-
     virtual void OnAttach() override;
     virtual void OnDetach() override;
-    virtual void OnUpdate(float timestep) override;
+    virtual void OnUpdate(float dt) override;
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
 
-    // TODO just for testing
+private:
     SharedPtr<UniformBuffer> ubo;
-    SharedPtr<IndexBuffer> indexBuffer;
-    SharedPtr<VertexArray> vertexArray;
-
-    SharedPtr<Shader> shader;
-    SharedPtr<Texture> texture;
-
-    SharedPtr<Texture> skyboxTexture;
-    SharedPtr<Shader> skyboxShader;
+    SharedPtr<Texture2D> texture2D;
 };
 
 #endif // RENDER_LAYER_H
