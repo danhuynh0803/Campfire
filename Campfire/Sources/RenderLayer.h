@@ -32,9 +32,6 @@ public:
 
     SharedPtr<Shader> shader;
     SharedPtr<Texture> texture;
-
-    SharedPtr<Texture> skyboxTexture;
-    SharedPtr<Shader> skyboxShader;
 };
 
 #endif // RENDER_LAYER_H
