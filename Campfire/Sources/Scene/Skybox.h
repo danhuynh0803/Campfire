@@ -20,18 +20,18 @@ public:
         BACK
     };
 
-    static void OnUpdate(float dt);
+    void OnUpdate(float dt);
 
-    static void Load(Face face, const std::string& filepath);
-    static void Load(const std::vector<std::string>& filepaths);
+    void Load(Face face, const std::string& filepath);
+    void Load(const std::vector<std::string>& filepaths);
 
-    static void DrawSkybox();
+    void DrawSkybox();
 
 private:
-    static SharedPtr<TextureCube> textureCube;
-    static SharedPtr<Shader> shader;
+    SharedPtr<TextureCube> textureCube;
+    SharedPtr<Shader> shader;
 
-    static std::vector<std::string> faces;
+    std::vector<std::string> faces;
 };
 
 #endif // SKYBOX_H

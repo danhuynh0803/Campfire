@@ -1,8 +1,5 @@
 #include "Scene/Skybox.h"
 
-std::vector<std::string> Skybox::faces;
-SharedPtr<TextureCube> Skybox::textureCube;
-SharedPtr<Shader> Skybox::shader;
 
 void Skybox::OnUpdate(float dt)
 {
