@@ -111,22 +111,41 @@ void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockI
 //=====================================================================
 //------------------------ Frame Buffers ------------------------------
 //=====================================================================
-OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height)
+OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height, uint32_t samples)
 {
+    // TODO make resizing
+
+
+    glGenTextures(1, &colorAttachmentID);
+
     glCreateFramebuffers(1, &renderID);
     glBindFramebuffer(GL_FRAMEBUFFER, renderID);
 
-    // Attach a texture to fbo
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    // Texture will be filled when we render to framebuffer
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    // Multisample texture for FBO
+    if (samples > 1)
+    {
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, false);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, colorAttachmentID);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Attach texture to framebuffer
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
+
+    if (samples > 1)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID, 0);
+    }
+    else
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachmentID, 0);
+    }
 
     // TODO add option for specifying type of frame buffer
     //// Create rbo for depth and stencil
@@ -148,14 +167,14 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height)
 
 OpenGLFrameBuffer::~OpenGLFrameBuffer()
 {
-    glDeleteTextures(1, &textureID);
+    glDeleteTextures(1, &colorAttachmentID);
+    glDeleteTextures(1, &depthAttachmentID);
     glDeleteFramebuffers(1, &renderID);
 }
 
 void OpenGLFrameBuffer::Bind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, renderID);
-    glBindTextureUnit(GL_TEXTURE_2D, textureID);
 }
 
 void OpenGLFrameBuffer::Unbind() const

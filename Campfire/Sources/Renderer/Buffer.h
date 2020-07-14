@@ -160,8 +160,9 @@ struct FrameBuffer
     virtual ~FrameBuffer() {}
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
+    virtual uint32_t GetColorAttachment() const = 0;
 
-    static SharedPtr<FrameBuffer> Create(uint32_t width, uint32_t height);
+    static SharedPtr<FrameBuffer> Create(uint32_t width, uint32_t height, uint32_t samples = 1);
 };
 
 

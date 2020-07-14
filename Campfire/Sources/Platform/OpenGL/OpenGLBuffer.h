@@ -54,16 +54,17 @@ private:
 class OpenGLFrameBuffer : public FrameBuffer
 {
 public:
-    OpenGLFrameBuffer(uint32_t width, uint32_t height);
+    OpenGLFrameBuffer(uint32_t width, uint32_t height, uint32_t samples);
     virtual ~OpenGLFrameBuffer();
 
     virtual void Bind() const override;
     virtual void Unbind() const override;
+    virtual uint32_t GetColorAttachment() const override { return colorAttachmentID; }
 
 private:
     uint32_t renderID;
-    uint32_t textureID;
-    //SharedPtr<Texture> texture;
+    uint32_t colorAttachmentID;
+    uint32_t depthAttachmentID;
 };
 
 #endif // OPENGL_BUFFER_H
