@@ -18,6 +18,8 @@
 
 Camera camera(1600, 900, 0.1f, 100.0f);
 
+SharedPtr<Shader> postprocessShader;
+
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
 {
@@ -35,6 +37,9 @@ void RenderLayer::OnAttach()
         { ShaderDataType::MAT4, "viewProj"}
     };
     ubo->SetLayout(uboLayout, 0);
+
+    colorFB = FrameBuffer::Create(1600, 900, 16);
+    postprocessShader = Shader::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 }
 
 void RenderLayer::OnDetach()
@@ -56,11 +61,13 @@ void RenderLayer::OnUpdate(float dt)
     ubo->Unbind();
 
 
-
+    colorFB->Bind();
+    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glm::vec3 scale = glm::vec3(0.5f);
     int x = 50;
     int y = 50;
-    Timer timer("Quad draw calls");
+    //Timer timer("Quad draw calls");
     for (int i = 0; i < x; ++i)
     {
         for (int j = 0; j < y; ++j)
@@ -72,6 +79,17 @@ void RenderLayer::OnUpdate(float dt)
             Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
         }
     }
+    colorFB->Unbind();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    Renderer2D::DrawPostProcessQuad(postprocessShader, colorFB->GetColorAttachmentID());
+
+    //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    //glBindFramebuffer(GL_READ_FRAMEBUFFER, colorFB->GetRenderID());
+    //glDrawBuffer(GL_BACK);
+    //glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 void RenderLayer::OnImGuiRender()

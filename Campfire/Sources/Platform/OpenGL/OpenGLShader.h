@@ -44,6 +44,8 @@ private:
 private:
     uint32_t renderID;
     std::string name;
+    std::string vertexName;
+    std::string fragName;
 };
 
 #endif // OPENGL_SHADER_H
