@@ -35,6 +35,8 @@ void RenderLayer::OnAttach()
         { ShaderDataType::MAT4, "viewProj"}
     };
     ubo->SetLayout(uboLayout, 0);
+
+    colorFB = FrameBuffer::Create(1600, 900, 16);
 }
 
 void RenderLayer::OnDetach()
@@ -56,7 +58,9 @@ void RenderLayer::OnUpdate(float dt)
     ubo->Unbind();
 
 
-
+    colorFB->Bind();
+    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glm::vec3 scale = glm::vec3(0.5f);
     int x = 50;
     int y = 50;
@@ -72,6 +76,12 @@ void RenderLayer::OnUpdate(float dt)
             Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
         }
     }
+    colorFB->Unbind();
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, colorFB->GetRenderID());
+    glDrawBuffer(GL_BACK);
+    glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 void RenderLayer::OnImGuiRender()

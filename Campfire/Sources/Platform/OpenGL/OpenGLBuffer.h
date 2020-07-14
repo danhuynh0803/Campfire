@@ -59,7 +59,8 @@ public:
 
     virtual void Bind() const override;
     virtual void Unbind() const override;
-    virtual uint32_t GetColorAttachment() const override { return colorAttachmentID; }
+    virtual uint32_t GetRenderID() const override { return renderID; }
+    virtual uint32_t GetColorAttachmentID() const override { return colorAttachmentID; }
 
 private:
     uint32_t renderID;
