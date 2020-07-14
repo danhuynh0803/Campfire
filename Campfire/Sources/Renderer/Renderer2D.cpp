@@ -48,6 +48,25 @@ void Renderer2D::Shutdown()
 {
 }
 
+void Renderer2D::DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t colorAttachmentID)
+{
+    shader->Bind();
+    glBindTextureUnit(0, colorAttachmentID);
+
+    glDisable(GL_DEPTH_TEST);
+    quadVertexArray->Bind();
+    Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const SharedPtr<Shader>& shader)
+{
+    shader->Bind();
+    texture->Bind();
+    Renderer::Draw(shader, quadVertexArray, transform);
+}
+
+
 void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& tintColor)
 {
     shader->Bind();

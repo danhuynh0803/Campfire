@@ -21,6 +21,10 @@ public:
     static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
 public:
+    static void DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t colorAttachmentID);
+
+    static void DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const SharedPtr<Shader>& shader);
+
     static void DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& tintColor = glm::vec4(1.0f));
     static void DrawQuad(const glm::mat4& transform, float tilingFactor = 1, const glm::vec4& tintColor = glm::vec4(1.0f));
 
