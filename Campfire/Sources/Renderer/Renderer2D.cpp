@@ -8,7 +8,7 @@ SharedPtr<Shader>  Renderer2D::shader;
 
 void Renderer2D::Init()
 {
-    shader = Shader::Create("triangle", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
+    shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
     shader->SetUniformBlock("Matrices", 0);
 
     float vertices[] =
