@@ -137,11 +137,22 @@ typedef enum class KeyCode : uint16_t
     Menu = 348
 } Key;
 
+inline uint32_t operator&(KeyCode lhs, KeyCode rhs)
+{
+    return ( static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs) );
+}
+
+inline uint32_t operator|(KeyCode lhs, KeyCode rhs)
+{
+    return ( static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs) );
+}
+
 inline std::ostream& operator<<(std::ostream& os, KeyCode keyCode)
 {
     os << static_cast<int32_t>(keyCode);
     return os;
 }
+
 
 // From glfw3.h
 #define KEY_SPACE           Key::Space

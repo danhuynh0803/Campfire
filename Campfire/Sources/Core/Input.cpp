@@ -24,6 +24,41 @@
 
 
 //=====================================================
+//----------------------- UINT ------------------------
+//=====================================================
+bool Input::GetKey(uint32_t key)
+{
+    auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+    auto state = glfwGetKey(window, key);
+
+    return state == GLFW_PRESS || state == GLFW_REPEAT;
+}
+
+// Process input only once
+bool Input::GetKeyDown(uint32_t key)
+{
+    auto oldState = GetKeyState(key);
+    auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+    auto state = glfwGetKey(window, key);
+
+    SetKeyState(key, state);
+
+    return state == GLFW_PRESS && oldState == GLFW_RELEASE;
+}
+
+bool Input::GetKeyUp(uint32_t key)
+{
+    auto oldState = GetKeyState(key);
+    auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+    auto state = glfwGetKey(window, key);
+
+    SetKeyState(key, state);
+
+    return state == GLFW_RELEASE && oldState == GLFW_PRESS;
+}
+
+
+//=====================================================
 //------------------------Keys-------------------------
 //=====================================================
 bool Input::GetKey(KeyCode key)

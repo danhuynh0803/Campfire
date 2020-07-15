@@ -10,6 +10,10 @@
 class Input
 {
 public:
+    static bool GetKey(uint32_t key);
+    static bool GetKeyDown(uint32_t key);
+    static bool GetKeyUp(uint32_t key);
+
     static bool GetKey(KeyCode key);
     static bool GetKeyDown(KeyCode key);
     static bool GetKeyUp(KeyCode key);
