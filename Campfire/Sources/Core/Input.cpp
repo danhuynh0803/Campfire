@@ -3,6 +3,40 @@
 
 #include <glfw/glfw3.h>
 
+
+//=====================================================
+//--------------------- Modifiers ---------------------
+//=====================================================
+uint8_t Input::mod;
+
+bool Input::GetMod(ModKeyCode modKey, bool isExact)
+{
+    // Check for the exact key combination
+    // For example, if Shift+Ctrl pressed down
+    // and we're looking only for Shift being pressed
+    // then this returns false when isExact is true
+    if (isExact)
+    {
+        return (mod == static_cast<uint8_t>(modKey));
+    }
+    else
+    {
+        return (mod & static_cast<uint8_t>(modKey));
+    }
+}
+
+// Handles combination modifiers like
+// Ctrl + Shift, etc
+bool Input::GetMod(uint8_t comboModKey)
+{
+    return (mod == comboModKey);
+}
+
+void Input::SetMod(int modKey)
+{
+    mod = static_cast<uint8_t>(modKey);
+}
+
 //=====================================================
 //----------------------Buttons------------------------
 //=====================================================

@@ -4,8 +4,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "KeyCodes.h"
-#include "MouseCodes.h"
+#include "Core/KeyCodes.h"
+#include "Core/MouseCodes.h"
 
 class Input
 {
@@ -33,6 +33,10 @@ public:
     static float GetMouseX();
     static float GetMouseY();
 
+    static bool GetMod(ModKeyCode modKey, bool isExact = false);
+    static bool GetMod(uint8_t comboModKey);
+    static void SetMod(int mod);
+
 private:
     // Using GLFW defines
     // RELEASE = 0
@@ -44,6 +48,17 @@ private:
     static uint32_t GetKeyState(uint32_t key);
     static void SetKeyState(uint32_t key, uint8_t oldState);
     static std::unordered_map<uint32_t, uint8_t> stateMap;
+
+    /*
+    // modifier key(s) -- bitfield
+    ModShift    = 0x0001,
+    ModControl  = 0x0002,
+    ModAlt      = 0x0004,
+    ModSuper    = 0x0008,
+    ModCapsLock = 0x0010,
+    ModNumLock  = 0x0020
+    */
+    static uint8_t mod;
 };
 
 #endif // INPUT_H

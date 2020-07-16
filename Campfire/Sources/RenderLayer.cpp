@@ -49,8 +49,7 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
-    //if (Input::GetKey(KEY_LEFT_SHIFT & KEY_R))
-    if (Input::GetKeyDown(KEY_R))
+    if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
     {
         ShaderManager::ReloadShaders();
     }
