@@ -8,7 +8,7 @@ SharedPtr<Shader>  Renderer2D::shader;
 
 void Renderer2D::Init()
 {
-    shader = Shader::Create("triangle", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
+    shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
     shader->SetUniformBlock("Matrices", 0);
 
     float vertices[] =
@@ -54,7 +54,6 @@ void Renderer2D::DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t c
     glBindTextureUnit(0, colorAttachmentID);
 
     glDisable(GL_DEPTH_TEST);
-    quadVertexArray->Bind();
     Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
     glEnable(GL_DEPTH_TEST);
 }

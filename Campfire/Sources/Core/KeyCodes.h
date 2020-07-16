@@ -134,14 +134,42 @@ typedef enum class KeyCode : uint16_t
     RightControl = 345,
     RightAlt = 346,
     RightSuper = 347,
-    Menu = 348
+    Menu = 348,
+
 } Key;
+
+
+/* Modifier keys */
+typedef enum class ModKeyCode : uint8_t
+{
+    ModShift    = 0x0001,
+    ModControl  = 0x0002,
+    ModAlt      = 0x0004,
+    ModSuper    = 0x0008,
+    ModCapsLock = 0x0010,
+    ModNumLock  = 0x0020
+
+} Mod;
+
+inline uint8_t operator|(ModKeyCode lhs, ModKeyCode rhs)
+{
+    return ( static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs) );
+}
 
 inline std::ostream& operator<<(std::ostream& os, KeyCode keyCode)
 {
     os << static_cast<int32_t>(keyCode);
     return os;
 }
+
+
+// Modifier macros
+#define MOD_SHIFT           Mod::ModShift
+#define MOD_CONTROL         Mod::ModControl
+#define MOD_ALT             Mod::ModAlt
+#define MOD_SUPER           Mod::ModSuper
+#define MOD_CAPSLOCK        Mod::ModCapsLock
+#define MOD_NUMLOCK         Mod::ModNumLock
 
 // From glfw3.h
 #define KEY_SPACE           Key::Space

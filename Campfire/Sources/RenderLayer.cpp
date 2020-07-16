@@ -39,7 +39,8 @@ void RenderLayer::OnAttach()
     ubo->SetLayout(uboLayout, 0);
 
     colorFB = FrameBuffer::Create(1600, 900, 16);
-    postprocessShader = Shader::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
+
+    postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 }
 
 void RenderLayer::OnDetach()
@@ -48,6 +49,11 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
+    if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
+    {
+        ShaderManager::ReloadShaders();
+    }
+
     camera.OnUpdate(dt);
 
     // Set UBO data
