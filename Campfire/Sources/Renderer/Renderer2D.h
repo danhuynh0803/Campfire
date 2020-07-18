@@ -8,6 +8,8 @@
 #include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
 
+#include <array>
+
 class Renderer2D
 {
 public:
@@ -32,10 +34,24 @@ public:
 
     static void Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 
+
+public:
+    struct QuadData
+    {
+        std::array<glm::vec4, 4> vertices;
+        glm::vec4 tintColor;
+        uint8_t textureID;
+    };
+
+    static void SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& tintColor = glm::vec4(1.0f));
+
+    static void DrawBatch();
+
 private:
     static SharedPtr<VertexArray> quadVertexArray;
     static SharedPtr<IndexBuffer> quadIndexBuffer;
     static SharedPtr<Shader> shader;
+    static std::vector<QuadData> quadList;
 };
 
 #endif // RENDERER_2D_H

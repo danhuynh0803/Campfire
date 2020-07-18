@@ -66,31 +66,33 @@ void RenderLayer::OnUpdate(float dt)
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
     ubo->Unbind();
 
-
-    colorFB->Bind();
+    //colorFB->Bind();
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glm::vec3 scale = glm::vec3(0.5f);
     int x = 50;
     int y = 50;
-    //Timer timer("Quad draw calls");
+    Timer timer("Quad draw calls");
     for (int i = 0; i < x; ++i)
     {
         for (int j = 0; j < y; ++j)
         {
             glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(i-x/2, j-x/2, -50.0f));
+            transform = glm::translate(transform, glm::vec3(i-x/2, j-x/2, -5.0f));
             transform = glm::scale(transform, scale);
             glm::vec3 tint = glm::vec3((float)i/x, (float)j/y, 1.0f);
-            Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
+            //Renderer2D::DrawQuad(transform, texture2D, glm::vec4(tint, 1.0f));
+            Renderer2D::SubmitQuad(transform, texture2D, glm::vec4(tint, 1.0f));
         }
     }
-    colorFB->Unbind();
+    Renderer2D::DrawBatch();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    Renderer2D::DrawPostProcessQuad(postprocessShader, colorFB->GetColorAttachmentID());
+    //colorFB->Unbind();
+
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    //glClear(GL_COLOR_BUFFER_BIT);
+    //Renderer2D::DrawPostProcessQuad(postprocessShader, colorFB->GetColorAttachmentID());
 
     //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     //glBindFramebuffer(GL_READ_FRAMEBUFFER, colorFB->GetRenderID());

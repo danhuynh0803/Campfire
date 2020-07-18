@@ -122,7 +122,7 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height, uint32_t s
     glBindFramebuffer(GL_FRAMEBUFFER, renderID);
 
     // Multisample texture for FBO
-    if (samples > 1)
+    if (samples > 0)
     {
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID);
         glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, false);
@@ -138,7 +138,7 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height, uint32_t s
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
-    if (samples > 1)
+    if (samples > 0)
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID, 0);
     }
