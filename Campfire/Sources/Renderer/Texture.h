@@ -22,6 +22,7 @@ public:
     virtual ~Texture2D() = default;
 
     static SharedPtr<Texture2D> Create(const std::string& path);
+    static SharedPtr<Texture2D> Create(uint32_t width, uint32_t height);
 };
 
 class Texture3D : public Texture

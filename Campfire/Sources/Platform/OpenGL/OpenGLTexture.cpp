@@ -8,6 +8,19 @@
 //=====================================================
 //------------------ Texture2D ------------------------
 //=====================================================
+OpenGLTexture2D::OpenGLTexture2D(uint32_t _width, uint32_t _height)
+    : width(_width), height(_height)
+{
+    glCreateTextures(GL_TEXTURE_2D, 1, &renderID);
+    glTextureStorage2D(renderID, 1, GL_RGBA8, width, height);
+
+    glTexParameteri(renderID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(renderID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(renderID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(renderID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+
 OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     : filepath(path)
 {
@@ -60,6 +73,11 @@ OpenGLTexture2D::~OpenGLTexture2D()
 void OpenGLTexture2D::Bind(uint32_t unit) const
 {
     glBindTextureUnit(unit, renderID);
+}
+
+void OpenGLTexture2D::SetData(void* data, uint32_t size)
+{
+    glTextureSubImage2D(renderID, 0, 0, 0, width, height, GL_RGBA8, GL_UNSIGNED_BYTE, data);
 }
 
 //=====================================================

@@ -12,7 +12,7 @@ struct QuadVertexData
     glm::vec3 position;
     glm::vec4 color;
     glm::vec2 uvCoords;
-    uint8_t textureID;
+    float textureID;
 };
 
 struct BatchData
@@ -34,8 +34,6 @@ struct BatchData
 
     uint32_t textureSlotIndex = 1; // reserve 0 for default white texture
     std::array<SharedPtr<Texture2D>, maxTextureSlots> textureSlots;
-
-    //std::array<glm::vec4, 4> quadVertexPositions;
 };
 
 static BatchData batch;
@@ -62,6 +60,21 @@ void Renderer2D::Init()
     batch.quadVertexBufferPtr  = batch.quadVertexBufferBase;
 
     batch.vertexBuffer = VertexBuffer::Create(batch.maxVertices * sizeof(QuadVertexData));
+
+    batch.whiteTexture = Texture2D::Create(1, 1);
+    uint32_t whiteTextureData = 0xffffffff;
+    batch.whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+
+    int32_t samplers[batch.maxTextureSlots];
+    for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
+    {
+        samplers[i] = i;
+    }
+    shader->Bind();
+    shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
+
+    // Default-white texture at slot 0
+    batch.textureSlots[0] = batch.whiteTexture;
 
     BufferLayout layout =
     {
@@ -136,13 +149,32 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
         transform * glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f),
     };
 
+    // Check if texture is present in list
+    uint32_t textureIndex = 0;
+    for (int i = 0; i < batch.maxTextureSlots; ++i)
+    {
+        if (batch.textureSlots[i].get() == texture.get())
+        {
+            textureIndex = (float)i;
+            break;
+        }
+    }
+
+    // This is a new texture
+    if (textureIndex == 0)
+    {
+        textureIndex = (float)batch.textureSlotIndex;
+        batch.textureSlots[batch.textureSlotIndex] = texture;
+        batch.textureSlotIndex++;
+    }
+
     // Process new data
     for (int i = 0; i < 4; ++i)
     {
         batch.quadVertexBufferPtr->position = glm::vec3(pos[i].x, pos[i].y, pos[i].z);
         batch.quadVertexBufferPtr->color = color;
         batch.quadVertexBufferPtr->uvCoords = uv[i];
-        batch.quadVertexBufferPtr->textureID = 0;
+        batch.quadVertexBufferPtr->textureID = textureIndex;
 
         batch.quadVertexBufferPtr++;
     }
@@ -161,7 +193,7 @@ void Renderer2D::DrawBatch()
     // Bind all submitted textures
     for (uint32_t i = 0; i < batch.textureSlotIndex; ++i)
     {
-        //batch.textureSlots[i]->Bind();
+        batch.textureSlots[i]->Bind();
     }
 
     batch.vertexArray->Bind();
