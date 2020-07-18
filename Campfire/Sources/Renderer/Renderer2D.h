@@ -12,7 +12,7 @@
 
 struct BatchSpecification
 {
-    uint32_t maxQuads = 1000;
+    uint32_t maxQuads = 10000;
     uint32_t indexCount = 0;
     uint32_t quadCount = 0;
 };
@@ -56,6 +56,7 @@ public:
 
 private:
     static SharedPtr<VertexArray> quadVertexArray;
+    static SharedPtr<VertexBuffer> buffer;
     static SharedPtr<IndexBuffer> quadIndexBuffer;
     static SharedPtr<Shader> shader;
     static std::vector<QuadData> quadList;

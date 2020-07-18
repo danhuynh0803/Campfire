@@ -5,6 +5,7 @@
 
 // TODO add tiling factor
 SharedPtr<VertexArray> Renderer2D::quadVertexArray;
+SharedPtr<VertexBuffer> Renderer2D::buffer;
 SharedPtr<IndexBuffer> Renderer2D::quadIndexBuffer;
 SharedPtr<Shader>  Renderer2D::shader;
 
@@ -19,14 +20,6 @@ void Renderer2D::Init()
     shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
     shader->SetUniformBlock("Matrices", 0);
 
-    float vertices[] =
-    {
-       -1.0f,  1.0f,  0.0f,   0.0f, 1.0f,
-       -1.0f, -1.0f,  0.0f,   0.0f, 0.0f,
-        1.0f, -1.0f,  0.0f,   1.0f, 0.0f,
-        1.0f,  1.0f,  0.0f,   1.0f, 1.0f
-    };
-
     std::vector<uint32_t> indices;
     for (uint32_t count = 0; count < batch.maxQuads; ++count)
     {
@@ -40,7 +33,8 @@ void Renderer2D::Init()
 
     quadVertexArray = VertexArray::Create();
 
-    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
+    buffer = VertexBuffer::Create(batch.maxQuads * sizeof(Renderer2D::QuadData));
+
     BufferLayout layout =
     {
         { ShaderDataType::FLOAT3, "aPos" },
@@ -49,9 +43,7 @@ void Renderer2D::Init()
     };
     buffer->SetLayout(layout);
 
-    //SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
     quadIndexBuffer = IndexBuffer::Create(indices.data(), indices.size());
-
     quadVertexArray->AddVertexBuffer(buffer);
     quadVertexArray->SetIndexBuffer(quadIndexBuffer);
 
@@ -118,13 +110,7 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
 
 void Renderer2D::DrawBatch()
 {
-    // Create new VAO to house all quad data
-    quadVertexArray = VertexArray::Create();
-
     std::vector<float> vertexData;
-    //std::vector<uint32_t> indices;
-
-    uint32_t count = 0;
     for (const auto& quad : quadList)
     {
         for (int i = 0; i < 4; ++i)
@@ -139,30 +125,9 @@ void Renderer2D::DrawBatch()
                 }
             );
         }
-
-//        indices.insert(indices.end(),
-//            {
-//                0 + (4 * count), 1 + (4 * count), 2 + (4 * count),
-//                2 + (4 * count), 3 + (4 * count), 0 + (4 * count)
-//            }
-//        );
-//
-//        count++;
     }
-
-    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertexData.data(), vertexData.size() * sizeof(float));
-    BufferLayout layout =
-    {
-        { ShaderDataType::FLOAT3, "aPos" },
-        { ShaderDataType::FLOAT4, "aColor" },
-        { ShaderDataType::FLOAT2, "aUV" },
-    };
-    buffer->SetLayout(layout);
-
-    //SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
-
-    quadVertexArray->AddVertexBuffer(buffer);
-    quadVertexArray->SetIndexBuffer(quadIndexBuffer);
+    // Set new data
+    buffer->SetData(vertexData.data(), vertexData.size() * sizeof(float));
 
     shader->Bind();
     shader->SetMat4("model", glm::mat4(1.0f));
@@ -170,8 +135,6 @@ void Renderer2D::DrawBatch()
     quadVertexArray->Bind();
     glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_INT, (void*)0);
     quadVertexArray->Unbind();
-
-    //Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
 
     // Clear out quadList for next frame
     quadList.clear();
