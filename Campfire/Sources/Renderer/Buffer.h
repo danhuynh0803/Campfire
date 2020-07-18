@@ -150,6 +150,7 @@ struct UniformBuffer
     virtual ~UniformBuffer() {}
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
+    virtual void SetData(void* data, uint32_t offset, uint32_t size) = 0;
     virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex) = 0;
 
     //virtual void SubmitData() = 0;

@@ -46,6 +46,7 @@ public:
     virtual void Bind() const override;
     virtual void Unbind() const override;
 
+    virtual void SetData(void* data, uint32_t offset, uint32_t size) override;
     virtual void SetLayout(const BufferLayout& _layout, uint32_t blockIndex) override;
 
 private:

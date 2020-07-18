@@ -13,6 +13,9 @@
 struct BatchSpecification
 {
     uint32_t maxQuads = 10000;
+    uint32_t maxIndices = maxQuads * 6;
+    uint32_t maxVertices = maxQuads * 4;
+
     uint32_t indexCount = 0;
     uint32_t quadCount = 0;
 };

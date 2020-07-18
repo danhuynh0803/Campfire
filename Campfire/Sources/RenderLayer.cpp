@@ -58,12 +58,9 @@ void RenderLayer::OnUpdate(float dt)
 
     // Set UBO data
     ubo->Bind();
-    uint32_t index = 0;
-    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewMatrix()));
-    index++;
-    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetProjMatrix()));
-    index++;
-    glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
+    ubo->SetData((void*)glm::value_ptr(camera.GetViewMatrix()), 0, sizeof(glm::mat4));
+    ubo->SetData((void*)glm::value_ptr(camera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+    ubo->SetData((void*)glm::value_ptr(camera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
     ubo->Unbind();
 
     Renderer::BeginScene(camera);
@@ -93,4 +90,5 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
+    camera.OnEvent(event);
 }
