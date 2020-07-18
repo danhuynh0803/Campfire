@@ -11,6 +11,9 @@ SharedPtr<Shader>  Renderer2D::shader;
 // TODO set a max amount of batched quads
 // need to do so in order to have a large enough buffer
 // that can later swap data from without the need to rebuild the buffer
+
+BatchSpecification batch;
+
 void Renderer2D::Init()
 {
     shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
@@ -24,11 +27,16 @@ void Renderer2D::Init()
         1.0f,  1.0f,  0.0f,   1.0f, 1.0f
     };
 
-    uint32_t indices[] =
+    std::vector<uint32_t> indices;
+    for (uint32_t count = 0; count < batch.maxQuads; ++count)
     {
-        0, 1, 2,
-        2, 3, 0
-    };
+        indices.insert(indices.end(),
+            {
+                0 + (4 * count), 1 + (4 * count), 2 + (4 * count),
+                2 + (4 * count), 3 + (4 * count), 0 + (4 * count)
+            }
+        );
+    }
 
     quadVertexArray = VertexArray::Create();
 
@@ -41,10 +49,11 @@ void Renderer2D::Init()
     };
     buffer->SetLayout(layout);
 
-    SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+    //SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+    quadIndexBuffer = IndexBuffer::Create(indices.data(), indices.size());
 
     quadVertexArray->AddVertexBuffer(buffer);
-    quadVertexArray->SetIndexBuffer(indexBuffer);
+    quadVertexArray->SetIndexBuffer(quadIndexBuffer);
 
     buffer->Unbind();
     quadVertexArray->Unbind();
@@ -101,6 +110,9 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
         0 // TODO
     };
 
+    batch.quadCount++;
+    batch.indexCount += 6;
+
     quadList.push_back(quadData);
 }
 
@@ -110,8 +122,7 @@ void Renderer2D::DrawBatch()
     quadVertexArray = VertexArray::Create();
 
     std::vector<float> vertexData;
-    std::vector<uint32_t> indices;
-
+    //std::vector<uint32_t> indices;
 
     uint32_t count = 0;
     for (const auto& quad : quadList)
@@ -129,14 +140,14 @@ void Renderer2D::DrawBatch()
             );
         }
 
-        indices.insert(indices.end(),
-            {
-                0 + (4 * count), 1 + (4 * count), 2 + (4 * count),
-                2 + (4 * count), 3 + (4 * count), 0 + (4 * count)
-            }
-        );
-
-        count++;
+//        indices.insert(indices.end(),
+//            {
+//                0 + (4 * count), 1 + (4 * count), 2 + (4 * count),
+//                2 + (4 * count), 3 + (4 * count), 0 + (4 * count)
+//            }
+//        );
+//
+//        count++;
     }
 
     SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertexData.data(), vertexData.size() * sizeof(float));
@@ -148,15 +159,24 @@ void Renderer2D::DrawBatch()
     };
     buffer->SetLayout(layout);
 
-    SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
+    //SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
 
     quadVertexArray->AddVertexBuffer(buffer);
-    quadVertexArray->SetIndexBuffer(indexBuffer);
+    quadVertexArray->SetIndexBuffer(quadIndexBuffer);
+
+    shader->Bind();
+    shader->SetMat4("model", glm::mat4(1.0f));
+
+    quadVertexArray->Bind();
+    glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_INT, (void*)0);
+    quadVertexArray->Unbind();
+
+    //Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
 
     // Clear out quadList for next frame
     quadList.clear();
-
-    Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
+    batch.indexCount = 0;
+    batch.quadCount = 0;
 }
 
 

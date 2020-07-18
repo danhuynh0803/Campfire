@@ -70,8 +70,8 @@ void RenderLayer::OnUpdate(float dt)
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glm::vec3 scale = glm::vec3(0.5f);
-    int x = 50;
-    int y = 50;
+    int x = 5;
+    int y = 5;
     Timer timer("Quad draw calls");
     for (int i = 0; i < x; ++i)
     {

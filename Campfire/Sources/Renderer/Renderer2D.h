@@ -10,6 +10,13 @@
 
 #include <array>
 
+struct BatchSpecification
+{
+    uint32_t maxQuads = 1000;
+    uint32_t indexCount = 0;
+    uint32_t quadCount = 0;
+};
+
 class Renderer2D
 {
 public:
