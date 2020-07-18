@@ -12,6 +12,8 @@ public:
     virtual uint32_t GetWidth() const override { return width; }
     virtual uint32_t GetHeight() const override { return height; }
     virtual void Bind(uint32_t unit = 0) const override;
+    // TODO
+    virtual void SetData(void* data, uint32_t size) {}
 
 private:
     uint32_t renderID;
@@ -19,6 +21,7 @@ private:
     std::string filepath;
 };
 
+// TODO
 //class OpenGLTexture3D : public Texture3D
 //{
 //public:
@@ -35,6 +38,8 @@ public:
     virtual uint32_t GetWidth() const override { return width; }
     virtual uint32_t GetHeight() const override { return height; }
     virtual void Bind(uint32_t unit = 0) const override;
+    // TODO
+    virtual void SetData(void* data, uint32_t size) {}
 
 private:
     uint32_t renderID;
