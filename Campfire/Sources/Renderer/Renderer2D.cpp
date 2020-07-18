@@ -2,18 +2,43 @@
 #include "Renderer/Renderer2D.h"
 
 #include <iostream>
+#include <array>
 
 // TODO add tiling factor
-SharedPtr<VertexArray> Renderer2D::quadVertexArray;
-SharedPtr<VertexBuffer> Renderer2D::buffer;
-SharedPtr<IndexBuffer> Renderer2D::quadIndexBuffer;
-SharedPtr<Shader>  Renderer2D::shader;
+SharedPtr<Shader> Renderer2D::shader;
 
-// TODO set a max amount of batched quads
-// need to do so in order to have a large enough buffer
-// that can later swap data from without the need to rebuild the buffer
+struct QuadVertexData
+{
+    glm::vec3 position;
+    glm::vec4 color;
+    glm::vec2 uvCoords;
+    uint8_t textureID;
+};
 
-BatchSpecification batch;
+struct BatchData
+{
+    static const uint32_t maxQuads = 10000;
+    static const uint32_t maxVertices = maxQuads * 4;
+    static const uint32_t maxIndices = maxQuads * 6;
+    static const uint32_t maxTextureSlots = 32;
+
+    uint32_t indexCount = 0;
+    uint32_t quadCount = 0;
+
+    QuadVertexData* quadVertexBufferBase = nullptr;
+    QuadVertexData* quadVertexBufferPtr = nullptr;
+
+    SharedPtr<VertexArray> vertexArray;
+    SharedPtr<VertexBuffer> vertexBuffer;
+    SharedPtr<Texture2D> whiteTexture;
+
+    uint32_t textureSlotIndex = 1; // reserve 0 for default white texture
+    std::array<SharedPtr<Texture2D>, maxTextureSlots> textureSlots;
+
+    //std::array<glm::vec4, 4> quadVertexPositions;
+};
+
+static BatchData batch;
 
 void Renderer2D::Init()
 {
@@ -31,24 +56,28 @@ void Renderer2D::Init()
         );
     }
 
-    quadVertexArray = VertexArray::Create();
+    batch.vertexArray = VertexArray::Create();
 
-    buffer = VertexBuffer::Create(batch.maxQuads * sizeof(Renderer2D::QuadData));
+    batch.quadVertexBufferBase = new QuadVertexData[batch.maxVertices];
+    batch.quadVertexBufferPtr  = batch.quadVertexBufferBase;
+
+    batch.vertexBuffer = VertexBuffer::Create(batch.maxVertices * sizeof(QuadVertexData));
 
     BufferLayout layout =
     {
         { ShaderDataType::FLOAT3, "aPos" },
         { ShaderDataType::FLOAT4, "aColor" },
-        { ShaderDataType::FLOAT2, "aUV" }
+        { ShaderDataType::FLOAT2, "aUV" },
+        { ShaderDataType::FLOAT , "aTexIndex" }
     };
-    buffer->SetLayout(layout);
+    batch.vertexBuffer->SetLayout(layout);
 
-    quadIndexBuffer = IndexBuffer::Create(indices.data(), indices.size());
-    quadVertexArray->AddVertexBuffer(buffer);
-    quadVertexArray->SetIndexBuffer(quadIndexBuffer);
+    SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
+    batch.vertexArray->AddVertexBuffer(batch.vertexBuffer);
+    batch.vertexArray->SetIndexBuffer(indexBuffer);
 
-    buffer->Unbind();
-    quadVertexArray->Unbind();
+    batch.vertexBuffer->Unbind();
+    batch.vertexArray->Unbind();
 }
 
 void Renderer2D::Shutdown()
@@ -57,11 +86,13 @@ void Renderer2D::Shutdown()
 
 void Renderer2D::DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t colorAttachmentID)
 {
+    // TODO need to draw this last and not part of batch
+    // or make sure its the last object within the batch
     shader->Bind();
     glBindTextureUnit(0, colorAttachmentID);
 
     glDisable(GL_DEPTH_TEST);
-    Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
+    //Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -69,7 +100,7 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>
 {
     shader->Bind();
     texture->Bind();
-    Renderer::Draw(shader, quadVertexArray, transform);
+    //Renderer::Draw(shader, quadVertexArray, transform);
 }
 
 
@@ -80,18 +111,24 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>
 
     texture->Bind();
 
-    Renderer::Draw(shader, quadVertexArray, transform);
+    //Renderer::Draw(shader, quadVertexArray, transform);
 }
 
 //=========================================
 //--------------Batching-------------------
 //=========================================
-std::vector<Renderer2D::QuadData> Renderer2D::quadList;
-
-void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& tintColor)
+void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& color)
 {
+    glm::vec2 uv[4] =
+    {
+        glm::vec2(0.0f, 1.0f),
+        glm::vec2(0.0f, 0.0f),
+        glm::vec2(1.0f, 0.0f),
+        glm::vec2(1.0f, 1.0f)
+    };
+
     // Default quad vertices
-    std::array<glm::vec4, 4> transformedVerts =
+    std::array<glm::vec4, 4> pos =
     {
         transform * glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f),
         transform * glm::vec4(-1.0f,-1.0f, 0.0f, 1.0f),
@@ -99,51 +136,43 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
         transform * glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f),
     };
 
-    Renderer2D::QuadData quadData =
+    // Process new data
+    for (int i = 0; i < 4; ++i)
     {
-        transformedVerts,
-        tintColor,
-        0 // TODO
-    };
+        batch.quadVertexBufferPtr->position = glm::vec3(pos[i].x, pos[i].y, pos[i].z);
+        batch.quadVertexBufferPtr->color = color;
+        batch.quadVertexBufferPtr->uvCoords = uv[i];
+        batch.quadVertexBufferPtr->textureID = 0;
+
+        batch.quadVertexBufferPtr++;
+    }
 
     batch.quadCount++;
     batch.indexCount += 6;
-
-    quadList.push_back(quadData);
 }
 
 void Renderer2D::DrawBatch()
 {
-    std::vector<float> vertexData;
-    for (const auto& quad : quadList)
-    {
-        for (int i = 0; i < 4; ++i)
-        {
-            glm::vec4 pos = quad.vertices[i];
-            glm::vec4 color = quad.tintColor;
-            vertexData.insert(vertexData.end(),
-                {
-                    pos.x, pos.y, pos.z,
-                    color.r, color.g, color.b, color.a,
-                    0.0f, 1.0f
-                }
-            );
-        }
-    }
-    // Set new data
-    buffer->SetData(vertexData.data(), vertexData.size() * sizeof(float));
+    if (batch.indexCount == 0) { return; } // No quads submitted to draw
 
     shader->Bind();
     shader->SetMat4("model", glm::mat4(1.0f));
 
-    quadVertexArray->Bind();
+    // Bind all submitted textures
+    for (uint32_t i = 0; i < batch.textureSlotIndex; ++i)
+    {
+        //batch.textureSlots[i]->Bind();
+    }
+
+    batch.vertexArray->Bind();
     glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_INT, (void*)0);
-    quadVertexArray->Unbind();
+    batch.vertexArray->Unbind();
 
     // Clear out quadList for next frame
-    quadList.clear();
+    //quadList.clear();
     batch.indexCount = 0;
     batch.quadCount = 0;
+    batch.quadVertexBufferPtr = batch.quadVertexBufferBase; // reset
 }
 
 
@@ -153,6 +182,10 @@ void Renderer2D::BeginScene(Camera& camera)
 
 void Renderer2D::EndScene()
 {
+    // Set new data
+    uint32_t dataSize = (uint32_t)((uint8_t*)batch.quadVertexBufferPtr - (uint8_t*)batch.quadVertexBufferBase);
+    batch.vertexBuffer->SetData(batch.quadVertexBufferBase, dataSize);
+
     Renderer2D::DrawBatch();
 }
 

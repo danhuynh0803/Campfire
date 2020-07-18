@@ -116,9 +116,7 @@ void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockI
 
 void OpenGLUniformBuffer::SetData(void* data, uint32_t offset, uint32_t size)
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, renderID);
     glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 //void OpenGLUniformBuffer::SubmitData()
