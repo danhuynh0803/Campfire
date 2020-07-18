@@ -20,11 +20,13 @@ void Renderer::BeginScene(Camera& camera)
     RenderCommand::Clear();
 
     viewProjMatrix = camera.GetViewProjMatrix();
+
+    Renderer2D::BeginScene(camera);
 }
 
 void Renderer::EndScene()
 {
-    // Rendering should be done last
+    Renderer2D::EndScene();
 }
 
 void Renderer::Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform)

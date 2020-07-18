@@ -9,8 +9,8 @@
 
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
-#include "Renderer/Camera.h"
 #include "Renderer/Renderer2D.h"
+#include "Renderer/Camera.h"
 
 #include "Scene/Scene.h"
 
@@ -49,12 +49,12 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
+    camera.OnUpdate(dt);
+
     if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
     {
         ShaderManager::ReloadShaders();
     }
-
-    camera.OnUpdate(dt);
 
     // Set UBO data
     ubo->Bind();
@@ -66,9 +66,8 @@ void RenderLayer::OnUpdate(float dt)
     glBufferSubData(GL_UNIFORM_BUFFER, index * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetViewProjMatrix()));
     ubo->Unbind();
 
-    //colorFB->Bind();
-    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Renderer::BeginScene(camera);
+
     glm::vec3 scale = glm::vec3(0.5f);
     int x = 50;
     int y = 50;
@@ -84,19 +83,8 @@ void RenderLayer::OnUpdate(float dt)
             Renderer2D::SubmitQuad(transform, texture2D, glm::vec4(tint, 1.0f));
         }
     }
-    Renderer2D::DrawBatch();
 
-    //colorFB->Unbind();
-
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-    //glClear(GL_COLOR_BUFFER_BIT);
-    //Renderer2D::DrawPostProcessQuad(postprocessShader, colorFB->GetColorAttachmentID());
-
-    //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    //glBindFramebuffer(GL_READ_FRAMEBUFFER, colorFB->GetRenderID());
-    //glDrawBuffer(GL_BACK);
-    //glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    Renderer::EndScene();
 }
 
 void RenderLayer::OnImGuiRender()
@@ -105,5 +93,4 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
-    camera.OnEvent(event);
 }

@@ -46,10 +46,6 @@ void Application::Run()
     {
         Time::Update();
 
-        //Renderer::BeginScene(camera);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         for (Layer* layer : layerStack)
         {
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
@@ -63,8 +59,6 @@ void Application::Run()
             layer->OnImGuiRender();
         }
         imguiLayer->End();
-
-        Renderer::EndScene();
 
         window->OnUpdate();
     }

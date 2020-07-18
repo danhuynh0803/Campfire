@@ -83,7 +83,11 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>
     Renderer::Draw(shader, quadVertexArray, transform);
 }
 
+//=========================================
+//--------------Batching-------------------
+//=========================================
 std::vector<Renderer2D::QuadData> Renderer2D::quadList;
+
 void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& tintColor)
 {
     // Default quad vertices
@@ -149,6 +153,7 @@ void Renderer2D::BeginScene(Camera& camera)
 
 void Renderer2D::EndScene()
 {
+    Renderer2D::DrawBatch();
 }
 
 
