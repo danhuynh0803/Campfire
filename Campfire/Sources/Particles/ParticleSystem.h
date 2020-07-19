@@ -24,18 +24,26 @@ public:
 
     void GenerateParticles(uint32_t numParticles);
     void OnUpdate(float dt);
+    void OnImGuiRender();
     void Draw();
 
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 velocity = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 scale = glm::vec3(0.5f);
+
+    glm::vec2 velocityX = glm::vec2(-1.0f, 1.0f);
+    glm::vec2 velocityY = glm::vec2(-1.0f, 1.0f);
+    glm::vec2 velocityZ = glm::vec2(-1.0f, 1.0f);
+
+    glm::vec3 scale = glm::vec3(0.1f);
 
     glm::vec4 color = glm::vec4(1.0f);
     glm::vec4 colorScaleStart = glm::vec4(0.1f);
     glm::vec4 colorScaleEnd = glm::vec4(1.0f);
 
-    float lifetime = 5.0f;
+    float lifetime = 10.0f;
     int numParticles = 1000;
+
+    float gravity = -9.81;
 
     GenerationPattern pGeneration = GenerationPattern::SEQUENCE;
     VelocityPattern pVelocity = VelocityPattern::RANDOM;

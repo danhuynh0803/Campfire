@@ -103,31 +103,7 @@ void RenderLayer::OnUpdate(float dt)
 
 void RenderLayer::OnImGuiRender()
 {
-    ImGui::Begin("Particles");
-    ImGui::InputInt("Number of particles", &ps.numParticles);
-    ImGui::InputFloat("Particle Lifetime", &ps.lifetime);
-
-    ImGui::Spacing();
-
-    ImGui::SliderFloat3("Position", (float*)&ps.position, -10.0f, 10.0f);
-    ImGui::SliderFloat3("Velocity", (float*)&ps.velocity, -10.0f, 10.0f);
-    ImGui::SliderFloat3("Scale", (float*)&ps.scale, 0.0f, 1.0f);
-
-    ImGui::Spacing();
-
-    //ImGui::ColorEdit4("Single Color", (float*)&ps.color);
-
-    ImGui::ColorEdit4("Start", (float*)&ps.colorScaleStart);
-    ImGui::ColorEdit4("End", (float*)&ps.colorScaleEnd);
-
-    ImGui::Spacing();
-
-    if (ImGui::Button("Generate"))
-    {
-        ps.GenerateParticles(ps.numParticles);
-    }
-
-    ImGui::End();
+    ps.OnImGuiRender();
 }
 
 void RenderLayer::OnEvent(Event& event)

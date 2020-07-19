@@ -3,6 +3,10 @@
 #include "Particles/ParticleSystem.h"
 #include "Renderer/Renderer2D.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #define PI 3.14159265
 #define RADIAN(x) (x * PI/180.0f)
 
@@ -35,11 +39,15 @@ void ParticleSystem::GenerateParticles(uint32_t numParticles)
             }
             case (VelocityPattern::RANDOM):
             {
+                float randX = ((float) std::rand() / (RAND_MAX));
+                float randY = ((float) std::rand() / (RAND_MAX));
+                float randZ = ((float) std::rand() / (RAND_MAX));
+
                 particle.velocity =
                     glm::vec3(
-                        velocity.x * ((float) std::rand() / (RAND_MAX)),
-                        velocity.y * ((float) std::rand() / (RAND_MAX)),
-                        velocity.z * ((float) std::rand() / (RAND_MAX))
+                        velocityX[0]*randX + velocityX[1]*(1-randX),
+                        velocityY[0]*randY + velocityY[1]*(1-randY),
+                        velocityZ[0]*randZ + velocityZ[1]*(1-randZ)
                     );
                 break;
             }
@@ -65,8 +73,6 @@ void ParticleSystem::GenerateParticles(uint32_t numParticles)
 void ParticleSystem::OnUpdate(float dt)
 {
     // Update each particle position
-    float gravity = -9.81f;
-
     size_t count = 0;
     for (auto& particle : particles)
     {
@@ -103,4 +109,43 @@ void ParticleSystem::Draw()
         transform = glm::scale(transform, particle.scale);
         Renderer2D::SubmitQuad(transform, particle.color);
     }
+}
+
+void ParticleSystem::OnImGuiRender()
+{
+    ImGui::Begin("Particles");
+    ImGui::Text("Global Settings");
+    ImGui::InputInt("Number of particles", &numParticles);
+    ImGui::InputFloat("Particle Lifetime", &lifetime);
+    ImGui::InputFloat("Gravity", &gravity);
+
+    ImGui::Separator();
+
+    ImGui::Text("Positional Settings");
+    ImGui::SliderFloat3("Position", (float*)&position, -10.0f, 10.0f);
+    //ImGui::SliderFloat3("Velocity", (float*)&velocity, -10.0f, 10.0f);
+    ImGui::SliderFloat("minX", (float*)&velocityX[0], 0.0f,-10.0f);
+    ImGui::SliderFloat("maxX", (float*)&velocityX[1], 0.0f, 10.0f);
+    ImGui::SliderFloat("minY", (float*)&velocityY[0], 0.0f,-10.0f);
+    ImGui::SliderFloat("maxY", (float*)&velocityY[1], 0.0f, 10.0f);
+    ImGui::SliderFloat("minZ", (float*)&velocityZ[0], 0.0f,-10.0f);
+    ImGui::SliderFloat("maxZ", (float*)&velocityZ[1], 0.0f, 10.0f);
+    ImGui::SliderFloat3("Scale", (float*)&scale, 0.0f, 1.0f);
+
+    ImGui::Separator();
+
+    ImGui::Text("Color Settings");
+    //ImGui::ColorEdit4("Single Color", (float*)&color);
+    ImGui::ColorEdit4("Start", (float*)&colorScaleStart);
+    ImGui::ColorEdit4("End", (float*)&colorScaleEnd);
+
+    ImGui::Separator();
+
+    if (ImGui::Button("Generate"))
+    {
+        GenerateParticles(numParticles);
+    }
+
+    ImGui::End();
+
 }
