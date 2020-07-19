@@ -7,6 +7,13 @@
 //=====================================================================
 //------------------------- Vertex Buffers ----------------------------
 //=====================================================================
+OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
+{
+    glCreateBuffers(1, &renderID);
+    glBindBuffer(GL_ARRAY_BUFFER, renderID);
+    glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+}
+
 OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 {
     glCreateBuffers(1, &renderID);
@@ -27,6 +34,12 @@ void OpenGLVertexBuffer::Bind() const
 void OpenGLVertexBuffer::Unbind() const
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void OpenGLVertexBuffer::SetData(void* data, uint32_t size)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, renderID);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 
 //=====================================================================
@@ -101,6 +114,11 @@ void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockI
     glBindBufferRange(GL_UNIFORM_BUFFER, blockIndex, renderID, 0, size);
 }
 
+void OpenGLUniformBuffer::SetData(void* data, uint32_t offset, uint32_t size)
+{
+    glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+}
+
 //void OpenGLUniformBuffer::SubmitData()
 //{
 //    int offset = 0;
@@ -122,7 +140,7 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height, uint32_t s
     glBindFramebuffer(GL_FRAMEBUFFER, renderID);
 
     // Multisample texture for FBO
-    if (samples > 1)
+    if (samples > 0)
     {
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID);
         glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, false);
@@ -138,7 +156,7 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t width, uint32_t height, uint32_t s
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
-    if (samples > 1)
+    if (samples > 0)
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID, 0);
     }

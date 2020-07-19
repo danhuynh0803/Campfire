@@ -5,6 +5,19 @@
 #include "Core/Base.h"
 #include <stdint.h>
 
+SharedPtr<VertexBuffer> VertexBuffer::Create(uint32_t size)
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            return nullptr;
+        case RendererAPI::API::OpenGL:
+            return CreateSharedPtr<OpenGLVertexBuffer>(size);
+    }
+
+    return nullptr;
+}
+
 SharedPtr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
 {
     switch (RendererAPI::GetAPI())
