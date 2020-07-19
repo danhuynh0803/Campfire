@@ -1,39 +1,37 @@
 #ifndef PHYSICS_MANAGER_H
 #define PHYSICS_MANAGER_H
 
-#include "btBulletDynamicsCommon.h"
-#include "GameObject.h"
-#include "BulletDebugDrawer.h"
+#include <btBulletDynamicsCommon.h>
+#include "Physics/BulletDebugDrawer.h"
+//#include "GameObject.h"
 
 class PhysicsManager
 {
 public:
-    void Start();
-    void Update();
-    void Shutdown();
+    static void Start();
+    static void Update();
+    static void Shutdown();
 
-    void AddObject(GameObject*);
-    void UpdateColliders();
-    void ClearLists();
+    static void AddObject(GameObject*);
+    static void UpdateColliders();
+    static void ClearLists();
 
-    void DebugDraw();
+    static void DebugDraw();
 
-    bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
+    static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
 
-    bool isBoundingBoxOn = false;
+public:
+    static bool isBoundingBoxOn = false;
+    static float gravity = -9.81;
 
 private:
-    btDefaultCollisionConfiguration* collisionConfiguration;
-    btCollisionDispatcher* dispatcher;
-    btBroadphaseInterface* overlappingPairCache;
-    btSequentialImpulseConstraintSolver* solver;
-    btDiscreteDynamicsWorld* dynamicsWorld;
-    btAlignedObjectArray<btCollisionShape*> collisionShapes;
-
-    BulletDebugDrawer mydebugdrawer;
-
-    float gravity = -9.81;
-    //float gravity = 0.0f; // TODO Debug option later
+    static btDefaultCollisionConfiguration* collisionConfiguration;
+    static btCollisionDispatcher* dispatcher;
+    static btBroadphaseInterface* overlappingPairCache;
+    static btSequentialImpulseConstraintSolver* solver;
+    static btDiscreteDynamicsWorld* dynamicsWorld;
+    static btAlignedObjectArray<btCollisionShape*> collisionShapes;
+    static BulletDebugDrawer mydebugdrawer;
 };
 
 #endif // PHYSICS_MANAGER_H
