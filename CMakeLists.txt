@@ -73,6 +73,8 @@ file(GLOB PROJECT_SOURCES Campfire/Sources/Core/*.h
                           Campfire/Sources/ImGui/*.cpp
                           Campfire/Sources/Scene/*.h
                           Campfire/Sources/Scene/*.cpp
+                          Campfire/Sources/Particles/*.h
+                          Campfire/Sources/Particles/*.cpp
                           Campfire/Sources/*.h
                           Campfire/Sources/*.cpp
 )

@@ -206,14 +206,14 @@ void Renderer2D::DrawBatch()
 
 void Renderer2D::BeginScene(Camera& camera)
 {
-    int32_t samplers[batch.maxTextureSlots];
-    for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
-    {
-        samplers[i] = i;
-    }
+    //int32_t samplers[batch.maxTextureSlots];
+    //for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
+    //{
+    //    samplers[i] = i;
+    //}
     shader->Bind();
     shader->SetMat4("model", glm::mat4(1.0f));
-    shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
+    //shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
 
     batch.indexCount = 0;
     batch.quadCount = 0;

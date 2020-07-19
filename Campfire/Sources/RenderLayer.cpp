@@ -11,10 +11,15 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Camera.h"
-
 #include "Scene/Scene.h"
 
+#include "Particles/ParticleSystem.h"
+
 #include "RenderLayer.h"
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 Camera camera(1600, 900, 0.1f, 100.0f);
 
@@ -26,6 +31,8 @@ SharedPtr<Texture2D> tex1;
 SharedPtr<Texture2D> tex2;
 SharedPtr<Texture2D> tex3;
 SharedPtr<Texture2D> tex4;
+
+ParticleSystem ps;
 
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
@@ -52,6 +59,7 @@ void RenderLayer::OnAttach()
     colorFB = FrameBuffer::Create(1600, 900, 16);
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
+
 }
 
 void RenderLayer::OnDetach()
@@ -61,6 +69,8 @@ void RenderLayer::OnDetach()
 void RenderLayer::OnUpdate(float dt)
 {
     camera.OnUpdate(dt);
+
+    ps.OnUpdate(dt);
 
     if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
     {
@@ -76,48 +86,24 @@ void RenderLayer::OnUpdate(float dt)
 
     Renderer::BeginScene(camera);
 
-    glm::vec3 scale = glm::vec3(0.5f);
-    int x = 50;
-    int y = 50;
-    Timer timer("Quad draw calls");
-    for (int i = 0; i < x; ++i)
-    {
-        for (int j = 0; j < y; ++j)
-        {
-            glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(i-x/2, j-x/2, -5.0f));
-            transform = glm::scale(transform, scale);
-            glm::vec3 tint = glm::vec3((float)i/x, (float)j/y, 1.0f);
+    colorFB->Bind();
 
-            switch (j%10)
-            {
-                case 0:
-                    Renderer2D::SubmitQuad(transform, tex0, glm::vec4(tint, 1.0f));
-                    break;
-                case 1:
-                    Renderer2D::SubmitQuad(transform, tex1, glm::vec4(tint, 1.0f));
-                    break;
-                case 2:
-                    Renderer2D::SubmitQuad(transform, tex2, glm::vec4(tint, 1.0f));
-                    break;
-                case 3:
-                    Renderer2D::SubmitQuad(transform, tex3, glm::vec4(tint, 1.0f));
-                    break;
-                case 4:
-                    Renderer2D::SubmitQuad(transform, tex4, glm::vec4(tint, 1.0f));
-                    break;
-                default:
-                    Renderer2D::SubmitQuad(transform, glm::vec4(tint, 1.0f));
-                    break;
-            }
-        }
-    }
+    Timer timer("Particle draw");
+    ps.Draw();
+
+    colorFB->Bind();
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, colorFB->GetRenderID());
+    glDrawBuffer(GL_BACK);
+    glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     Renderer::EndScene();
 }
 
 void RenderLayer::OnImGuiRender()
 {
+    ps.OnImGuiRender();
 }
 
 void RenderLayer::OnEvent(Event& event)
