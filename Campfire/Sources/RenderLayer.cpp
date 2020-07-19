@@ -77,9 +77,9 @@ void RenderLayer::OnUpdate(float dt)
     Renderer::BeginScene(camera);
 
     glm::vec3 scale = glm::vec3(0.5f);
-    int x = 5;
-    int y = 2;
-    //Timer timer("Quad draw calls");
+    int x = 50;
+    int y = 50;
+    Timer timer("Quad draw calls");
     for (int i = 0; i < x; ++i)
     {
         for (int j = 0; j < y; ++j)
@@ -89,8 +89,7 @@ void RenderLayer::OnUpdate(float dt)
             transform = glm::scale(transform, scale);
             glm::vec3 tint = glm::vec3((float)i/x, (float)j/y, 1.0f);
 
-            //Renderer2D::SubmitQuad(transform, glm::vec4(tint, 1.0f));
-            switch (j)
+            switch (j%10)
             {
                 case 0:
                     Renderer2D::SubmitQuad(transform, tex0, glm::vec4(tint, 1.0f));
@@ -104,12 +103,12 @@ void RenderLayer::OnUpdate(float dt)
                 case 3:
                     Renderer2D::SubmitQuad(transform, tex3, glm::vec4(tint, 1.0f));
                     break;
-                //case 4:
-                //    Renderer2D::SubmitQuad(transform, tex4, glm::vec4(tint, 1.0f));
-                //    break;
-                //default:
-                //    Renderer2D::SubmitQuad(transform, glm::vec4(tint, 1.0f));
-                //    break;
+                case 4:
+                    Renderer2D::SubmitQuad(transform, tex4, glm::vec4(tint, 1.0f));
+                    break;
+                default:
+                    Renderer2D::SubmitQuad(transform, glm::vec4(tint, 1.0f));
+                    break;
             }
         }
     }

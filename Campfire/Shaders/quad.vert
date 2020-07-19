@@ -8,9 +8,9 @@ layout (location = 3) in float aTexIndex;
 
 
 // =========================================
-layout (location = 1) out vec4 outColor;
-layout (location = 2) out vec2 outUV;
-layout (location = 3) out float outTexIndex;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec2 outUV;
+layout (location = 2) out float outTexIndex;
 
 // =========================================
 layout (std140, binding = 0) uniform Camera
@@ -26,12 +26,12 @@ uniform mat4 model;
 // =========================================
 void main()
 {
+    outColor = aColor;
+    outUV = aUV;
+    outTexIndex = aTexIndex;
+
     gl_Position =
         viewProj
         * model
         * vec4(aPos, 1.0f);
-
-    outColor = aColor;
-    outUV = aUV;
-    outTexIndex = aTexIndex;
 }

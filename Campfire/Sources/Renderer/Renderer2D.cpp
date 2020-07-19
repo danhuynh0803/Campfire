@@ -40,9 +40,6 @@ static BatchData batch;
 
 void Renderer2D::Init()
 {
-    shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
-    shader->SetUniformBlock("Matrices", 0);
-
     std::vector<uint32_t> indices;
     for (uint32_t count = 0; count < batch.maxQuads; ++count)
     {
@@ -70,7 +67,10 @@ void Renderer2D::Init()
     {
         samplers[i] = i;
     }
+
+    shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
     shader->Bind();
+    shader->SetUniformBlock("Matrices", 0);
     shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
 
     // Default-white texture at slot 0
@@ -155,8 +155,8 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
     };
 
     // Check if texture is present in list
-    uint32_t textureIndex = -99;
-    for (int i = 0; i < batch.maxTextureSlots; ++i)
+    uint32_t textureIndex = 0;
+    for (uint32_t i = 1; i < batch.maxTextureSlots; ++i)
     {
         if (batch.textureSlots[i].get() == texture.get())
         {
@@ -166,7 +166,7 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
     }
 
     // This is a new texture
-    if (textureIndex == -99)
+    if (textureIndex == 0)
     {
         textureIndex = (float)batch.textureSlotIndex;
         batch.textureSlots[batch.textureSlotIndex] = texture;
@@ -180,7 +180,6 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
         batch.quadVertexBufferPtr->color = color;
         batch.quadVertexBufferPtr->uvCoords = uv[i];
         batch.quadVertexBufferPtr->textureID = textureIndex;
-
         batch.quadVertexBufferPtr++;
     }
 
@@ -192,29 +191,36 @@ void Renderer2D::DrawBatch()
 {
     if (batch.indexCount == 0) { return; } // No quads submitted to draw
 
-    shader->Bind();
-    shader->SetMat4("model", glm::mat4(1.0f));
-
     // Bind all submitted textures
     for (uint32_t i = 0; i < batch.textureSlotIndex; ++i)
     {
         batch.textureSlots[i]->Bind(i);
     }
-    //batch.textureSlots[0]->Bind();
 
     batch.vertexArray->Bind();
     glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_INT, (void*)0);
     batch.vertexArray->Unbind();
+
 }
 
 
 void Renderer2D::BeginScene(Camera& camera)
 {
+    int32_t samplers[batch.maxTextureSlots];
+    for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
+    {
+        samplers[i] = i;
+    }
+    shader->Bind();
+    shader->SetMat4("model", glm::mat4(1.0f));
+    shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
+
     batch.indexCount = 0;
     batch.quadCount = 0;
-    batch.textureSlotIndex = 1;
+    //batch.textureSlotIndex = 1;
 
     batch.quadVertexBufferPtr = batch.quadVertexBufferBase; // reset
+
 }
 
 void Renderer2D::EndScene()
