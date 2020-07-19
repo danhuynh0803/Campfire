@@ -17,10 +17,6 @@
 
 #include "RenderLayer.h"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 Camera camera(1600, 900, 0.1f, 100.0f);
 
 SharedPtr<Shader> postprocessShader;
