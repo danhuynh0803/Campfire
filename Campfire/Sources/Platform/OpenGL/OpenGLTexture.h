@@ -3,6 +3,8 @@
 
 #include "Renderer/Texture.h"
 
+#include <glad/glad.h>
+
 class OpenGLTexture2D : public Texture2D
 {
 public:
@@ -19,6 +21,7 @@ private:
     uint32_t renderID;
     uint32_t width, height;
     std::string filepath;
+    GLenum internalFormat, dataFormat;
 };
 
 // TODO

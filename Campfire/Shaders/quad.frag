@@ -9,14 +9,17 @@ layout (location = 3) in float inTexIndex;
 out vec4 fragColor;
 
 // =========================================
+//uniform sampler2D uTex;
 uniform sampler2D uTextures[32];
 uniform float time;
 
 // =========================================
 void main()
 {
+    int index = int(inTexIndex);
     fragColor =
-        texture(uTextures[int(inTexIndex)], inUV)
+        texture(uTextures[index], inUV)
+        //texture(uTex, inUV)
         * inColor
     ;
 }

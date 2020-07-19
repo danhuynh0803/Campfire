@@ -122,7 +122,7 @@ void OpenGLShader::SetInt(const std::string &name, int value)
 
 void OpenGLShader::SetIntArray(const std::string &name, int* values, uint32_t count)
 {
-
+    glUniform1iv(glGetUniformLocation(renderID, name.c_str()), count, values);
 }
 
 void OpenGLShader::SetFloat (const std::string &name, float value)

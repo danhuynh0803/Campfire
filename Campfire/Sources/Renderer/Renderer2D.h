@@ -35,6 +35,7 @@ public:
     static void Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 
 public:
+    static void SubmitQuad(const glm::mat4& transform, const glm::vec4& color);
     static void SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& tintColor = glm::vec4(1.0f));
     static void DrawBatch();
 

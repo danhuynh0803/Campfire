@@ -130,6 +130,11 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>
 //=========================================
 //--------------Batching-------------------
 //=========================================
+void Renderer2D::SubmitQuad(const glm::mat4& transform, const glm::vec4& color)
+{
+    SubmitQuad(transform, batch.whiteTexture, color);
+}
+
 void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const glm::vec4& color)
 {
     glm::vec2 uv[4] =
@@ -150,7 +155,7 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
     };
 
     // Check if texture is present in list
-    uint32_t textureIndex = 0;
+    uint32_t textureIndex = -99;
     for (int i = 0; i < batch.maxTextureSlots; ++i)
     {
         if (batch.textureSlots[i].get() == texture.get())
@@ -161,7 +166,7 @@ void Renderer2D::SubmitQuad(const glm::mat4& transform, const SharedPtr<Texture2
     }
 
     // This is a new texture
-    if (textureIndex == 0)
+    if (textureIndex == -99)
     {
         textureIndex = (float)batch.textureSlotIndex;
         batch.textureSlots[batch.textureSlotIndex] = texture;
@@ -193,23 +198,23 @@ void Renderer2D::DrawBatch()
     // Bind all submitted textures
     for (uint32_t i = 0; i < batch.textureSlotIndex; ++i)
     {
-        batch.textureSlots[i]->Bind();
+        batch.textureSlots[i]->Bind(i);
     }
+    //batch.textureSlots[0]->Bind();
 
     batch.vertexArray->Bind();
     glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_INT, (void*)0);
     batch.vertexArray->Unbind();
-
-    // Clear out quadList for next frame
-    //quadList.clear();
-    batch.indexCount = 0;
-    batch.quadCount = 0;
-    batch.quadVertexBufferPtr = batch.quadVertexBufferBase; // reset
 }
 
 
 void Renderer2D::BeginScene(Camera& camera)
 {
+    batch.indexCount = 0;
+    batch.quadCount = 0;
+    batch.textureSlotIndex = 1;
+
+    batch.quadVertexBufferPtr = batch.quadVertexBufferBase; // reset
 }
 
 void Renderer2D::EndScene()
