@@ -17,6 +17,10 @@
 
 #include "RenderLayer.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 Camera camera(1600, 900, 0.1f, 100.0f);
 
 SharedPtr<Shader> postprocessShader;
@@ -56,8 +60,6 @@ void RenderLayer::OnAttach()
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 
-    ps.position = glm::vec3(0.0f, 0.0f, -2.0f);
-    ps.GenerateParticles(100);
 }
 
 void RenderLayer::OnDetach()
@@ -101,6 +103,31 @@ void RenderLayer::OnUpdate(float dt)
 
 void RenderLayer::OnImGuiRender()
 {
+    ImGui::Begin("Particles");
+    ImGui::InputInt("Number of particles", &ps.numParticles);
+    ImGui::InputFloat("Particle Lifetime", &ps.lifetime);
+
+    ImGui::Spacing();
+
+    ImGui::SliderFloat3("Position", (float*)&ps.position, -10.0f, 10.0f);
+    ImGui::SliderFloat3("Velocity", (float*)&ps.velocity, -10.0f, 10.0f);
+    ImGui::SliderFloat3("Scale", (float*)&ps.scale, 0.0f, 1.0f);
+
+    ImGui::Spacing();
+
+    //ImGui::ColorEdit4("Single Color", (float*)&ps.color);
+
+    ImGui::ColorEdit4("Start", (float*)&ps.colorScaleStart);
+    ImGui::ColorEdit4("End", (float*)&ps.colorScaleEnd);
+
+    ImGui::Spacing();
+
+    if (ImGui::Button("Generate"))
+    {
+        ps.GenerateParticles(ps.numParticles);
+    }
+
+    ImGui::End();
 }
 
 void RenderLayer::OnEvent(Event& event)
