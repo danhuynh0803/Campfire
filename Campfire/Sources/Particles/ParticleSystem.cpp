@@ -16,50 +16,55 @@ void ParticleSystem::GenerateParticles(uint32_t numParticles)
 {
     for (uint32_t i = 0; i < numParticles; ++i)
     {
-        Particle particle;
-        particle.position = position;
-        particle.rotation = glm::vec3(0.0f);
-        particle.scale = scale;
-        particle.lifetime = lifetime;
-
-        float t = (float)std::rand()/RAND_MAX;
-        particle.color = colorScaleStart*t + colorScaleEnd*(1.0f-t);
-
-        switch (pVelocity)
-        {
-            case (VelocityPattern::RADIAL):
-            {
-                particle.velocity =
-                    glm::vec3(
-                        velocity.x * sin( RADIAN((float)i / numParticles * 360) ),
-                        velocity.y,
-                        velocity.z * cos( RADIAN((float)i / numParticles * 360) )
-                    );
-                break;
-            }
-            case (VelocityPattern::RANDOM):
-            {
-                float randX = ((float) std::rand() / (RAND_MAX));
-                float randY = ((float) std::rand() / (RAND_MAX));
-                float randZ = ((float) std::rand() / (RAND_MAX));
-
-                particle.velocity =
-                    glm::vec3(
-                        velocityX[0]*randX + velocityX[1]*(1-randX),
-                        velocityY[0]*randY + velocityY[1]*(1-randY),
-                        velocityZ[0]*randZ + velocityZ[1]*(1-randZ)
-                    );
-                break;
-            }
-            default:
-            {
-                particle.velocity = velocity;
-                break;
-            }
-        }
-
-        particles.push_back(particle);
+        GenerateParticle();
     }
+}
+
+void ParticleSystem::GenerateParticle()
+{
+    Particle particle;
+    particle.position = position;
+    particle.rotation = glm::vec3(0.0f);
+    particle.lifetime = lifetime;
+
+    float t = (float)std::rand()/RAND_MAX;
+    particle.color = colorScaleStart*t + colorScaleEnd*(1.0f-t);
+    particle.scale = scale*t;
+
+    switch (pVelocity)
+    {
+        case (VelocityPattern::RADIAL):
+        {
+            particle.velocity =
+                glm::vec3(
+                    velocity.x, //* sin( RADIAN((float)i / numParticles * 360) ),
+                    velocity.y,
+                    velocity.z //* cos( RADIAN((float)i / numParticles * 360) )
+                );
+            break;
+        }
+        case (VelocityPattern::RANDOM):
+        {
+            float randX = ((float) std::rand() / (RAND_MAX));
+            float randY = ((float) std::rand() / (RAND_MAX));
+            float randZ = ((float) std::rand() / (RAND_MAX));
+
+            particle.velocity =
+                glm::vec3(
+                    velocityX[0]*randX + velocityX[1]*(1-randX),
+                    velocityY[0]*randY + velocityY[1]*(1-randY),
+                    velocityZ[0]*randZ + velocityZ[1]*(1-randZ)
+                );
+            break;
+        }
+        default:
+        {
+            particle.velocity = velocity;
+            break;
+        }
+    }
+
+    particles.push_back(particle);
 }
 
 //GenerateSequence(uint32_t numParticles{)
@@ -72,6 +77,18 @@ void ParticleSystem::GenerateParticles(uint32_t numParticles)
 
 void ParticleSystem::OnUpdate(float dt)
 {
+    float spawnTime = 1.0f / rateOverTime;
+    static float timer = spawnTime;
+    if (isLooping)
+    {
+        timer -= dt;
+        if (timer <= 0)
+        {
+            GenerateParticle();
+            timer = spawnTime;
+        }
+    }
+
     // Update each particle position
     size_t count = 0;
     for (auto& particle : particles)
@@ -98,23 +115,26 @@ void ParticleSystem::Draw()
 {
     glm::mat4 transform = glm::mat4(1.0f);
     transform = glm::translate(transform, position);
+    transform = glm::scale(transform, glm::vec3(0.1f));
 
-    // Draw a red quad to indication position of PS
-    Renderer2D::SubmitQuad(transform, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    // Draw a white quad to indication position of PS
+    Renderer2D::SubmitQuad(transform, glm::vec4(1.0f));
 
     for (const auto& particle : particles)
     {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, particle.position);
-        transform = glm::scale(transform, particle.scale);
-        Renderer2D::SubmitQuad(transform, particle.color);
+        Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
     }
 }
 
 void ParticleSystem::OnImGuiRender()
 {
     ImGui::Begin("Particles");
+
+    ImGui::Separator();
+
     ImGui::Text("Global Settings");
+    ImGui::Checkbox("isLooping", &isLooping);
+    ImGui::InputFloat("Rate over time", &rateOverTime);
     ImGui::InputInt("Number of particles", &numParticles);
     ImGui::InputFloat("Particle Lifetime", &lifetime);
     ImGui::InputFloat("Gravity", &gravity);
@@ -144,6 +164,11 @@ void ParticleSystem::OnImGuiRender()
     if (ImGui::Button("Generate"))
     {
         GenerateParticles(numParticles);
+    }
+
+    if (ImGui::Button("Clear"))
+    {
+        particles.clear();
     }
 
     ImGui::End();

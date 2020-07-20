@@ -23,6 +23,9 @@ public:
     static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
 public:
+    static void DrawBillboard(const glm::vec3& position, const glm::vec3& scale, const glm::vec4& color = glm::vec4(1.0f));
+    static void DrawBillboard(const glm::vec3& position, const glm::vec3& scale, const SharedPtr<Texture2D>& texture, const glm::vec4& color = glm::vec4(1.0f));
+
     static void DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t colorAttachmentID);
 
     static void DrawQuad(const glm::mat4& transform, const SharedPtr<Texture2D>& texture, const SharedPtr<Shader>& shader);
@@ -40,6 +43,7 @@ public:
     static void DrawBatch();
 
 private:
+    static glm::mat4 viewMatrix;
     static SharedPtr<Shader> shader;
 };
 
