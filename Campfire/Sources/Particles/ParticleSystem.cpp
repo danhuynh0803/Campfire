@@ -122,10 +122,7 @@ void ParticleSystem::Draw()
 
     for (const auto& particle : particles)
     {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, particle.position);
-        transform = glm::scale(transform, particle.scale);
-        Renderer2D::SubmitQuad(transform, particle.color);
+        Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
     }
 }
 

@@ -2,7 +2,6 @@
 #define PARTICLE_SYSTEM_H
 
 #include "Particles/Particle.h"
-
 #include <vector>
 
 class ParticleSystem
@@ -23,6 +22,8 @@ public:
         RANDOM
     };
 
+    ParticleSystem() = default;
+    ~ParticleSystem() = default;
     void GenerateParticles(uint32_t numParticles);
     void GenerateParticle();
     void OnUpdate(float dt);

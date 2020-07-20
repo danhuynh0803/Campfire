@@ -33,5 +33,6 @@ void main()
     gl_Position =
         viewProj
         * model
-        * vec4(aPos, 1.0f);
+        * vec4(aPos, 1.0f)
+    ;
 }

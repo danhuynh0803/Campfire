@@ -4,7 +4,10 @@
 #include <iostream>
 #include <array>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 // TODO add tiling factor
+glm::mat4 Renderer2D::viewMatrix;
 SharedPtr<Shader> Renderer2D::shader;
 
 struct QuadVertexData
@@ -70,7 +73,7 @@ void Renderer2D::Init()
 
     shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
     shader->Bind();
-    shader->SetUniformBlock("Matrices", 0);
+    shader->SetUniformBlock("Camera", 0);
     shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
 
     // Default-white texture at slot 0
@@ -95,6 +98,76 @@ void Renderer2D::Init()
 
 void Renderer2D::Shutdown()
 {
+}
+
+void Renderer2D::DrawBillboard(const glm::vec3& position, const glm::vec3& scale, const glm::vec4& color)
+{
+    DrawBillboard(position, scale, batch.whiteTexture, color);
+}
+
+void Renderer2D::DrawBillboard(const glm::vec3& position, const glm::vec3& scale, const SharedPtr<Texture2D>& texture, const glm::vec4& color)
+{
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, position);
+    transform = glm::scale(transform, scale);
+
+    glm::vec3 cameraRight = glm::vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
+    glm::vec3 cameraUp    = glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+
+    glm::vec2 uv[4] =
+    {
+        glm::vec2(0.0f, 1.0f),
+        glm::vec2(0.0f, 0.0f),
+        glm::vec2(1.0f, 0.0f),
+        glm::vec2(1.0f, 1.0f)
+    };
+
+    // Default quad vertices
+    std::array<glm::vec4, 4> pos =
+    {
+        glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f),
+        glm::vec4(-1.0f,-1.0f, 0.0f, 1.0f),
+        glm::vec4( 1.0f,-1.0f, 0.0f, 1.0f),
+        glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f),
+    };
+
+    for (int i = 0; i < pos.size(); ++i)
+    {
+        pos[i] = glm::vec4(position + (cameraRight * pos[i].x) + (cameraUp * pos[i].y), 1.0f);
+        pos[i] = transform * pos[i];
+    }
+
+    // Check if texture is present in list
+    uint32_t textureIndex = 0;
+    for (uint32_t i = 1; i < batch.maxTextureSlots; ++i)
+    {
+        if (batch.textureSlots[i].get() == texture.get())
+        {
+            textureIndex = (float)i;
+            break;
+        }
+    }
+
+    // This is a new texture
+    if (textureIndex == 0)
+    {
+        textureIndex = (float)batch.textureSlotIndex;
+        batch.textureSlots[batch.textureSlotIndex] = texture;
+        batch.textureSlotIndex++;
+    }
+
+    // Process new data
+    for (int i = 0; i < 4; ++i)
+    {
+        batch.quadVertexBufferPtr->position = glm::vec3(pos[i].x, pos[i].y, pos[i].z);
+        batch.quadVertexBufferPtr->color = color;
+        batch.quadVertexBufferPtr->uvCoords = uv[i];
+        batch.quadVertexBufferPtr->textureID = textureIndex;
+        batch.quadVertexBufferPtr++;
+    }
+
+    batch.quadCount++;
+    batch.indexCount += 6;
 }
 
 void Renderer2D::DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t colorAttachmentID)
@@ -206,6 +279,8 @@ void Renderer2D::DrawBatch()
 
 void Renderer2D::BeginScene(Camera& camera)
 {
+    // view matrix for orienting billboards
+    viewMatrix = camera.GetViewMatrix();
     //int32_t samplers[batch.maxTextureSlots];
     //for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
     //{
