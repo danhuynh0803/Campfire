@@ -43,8 +43,8 @@ public:
     glm::vec2 velocityY = glm::vec2(-1.0f, 1.0f);
     glm::vec2 velocityZ = glm::vec2(-1.0f, 1.0f);
 
-    glm::vec2 minScale = glm::vec3(0.05f);
-    glm::vec2 maxScale = glm::vec3(0.1f);
+    // min/max scale
+    glm::vec2 scale = glm::vec2(0.05f, 0.1f);
 
     glm::vec4 color = glm::vec4(1.0f);
     glm::vec4 colorScaleStart = glm::vec4(1.0f);

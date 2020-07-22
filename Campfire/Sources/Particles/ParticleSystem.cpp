@@ -44,7 +44,7 @@ void ParticleSystem::GenerateParticle()
 
     float t = (float)std::rand()/RAND_MAX;
     particle.color = colorScaleStart*t + colorScaleEnd*(1.0f-t);
-    particle.scale = glm::vec3(minScale*t + maxScale*(1.0f - t), 0.0f);
+    particle.scale = glm::vec3(scale[0]*t + scale[1]*(1.0f - t));
 
     switch (pVelocity)
     {
@@ -149,9 +149,9 @@ void ParticleSystem::OnImGuiRender()
 
     ImGui::Separator();
 
-    ImGui::SliderFloat3("Position", (float*)&position, -10.0f, 10.0f);
     ImGui::Text("Global Settings");
     ImGui::Checkbox("isLooping", &isLooping);
+    ImGui::DragFloat3("System Position", (float*)&position, 0.1f);
     ImGui::InputFloat("Rate over time", &rateOverTime);
     ImGui::InputInt("Number of particles", &numParticles);
     ImGui::InputFloat("Particle Lifetime", &lifetime);
@@ -159,12 +159,12 @@ void ParticleSystem::OnImGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Velocity Settings");
-    ImGui::DragFloat2("min/max Velocity X", (float*)&velocityX);
-    ImGui::DragFloat2("min/max Velocity Y", (float*)&velocityY);
-    ImGui::DragFloat2("min/max Velocity Z", (float*)&velocityZ);
-    ImGui::DragFloat2("min scale", (float*)&minScale);
-    ImGui::DragFloat2("max scale", (float*)&maxScale);
+    ImGui::Text("Particle Settings");
+    ImGui::Text("Randomized between the two selected values)");
+    ImGui::DragFloat2("min/max Velocity X", (float*)&velocityX, 0.1f);
+    ImGui::DragFloat2("min/max Velocity Y", (float*)&velocityY, 0.1f);
+    ImGui::DragFloat2("min/max Velocity Z", (float*)&velocityZ, 0.1f);
+    ImGui::DragFloat2("min and max scale", (float*)&scale, 0.01f);
 
     ImGui::Separator();
 
