@@ -25,8 +25,6 @@ public:
 
 private:
     SharedPtr<UniformBuffer> ubo;
-    SharedPtr<Texture2D> texture2D;
-
     SharedPtr<FrameBuffer> colorFB;
 };
 

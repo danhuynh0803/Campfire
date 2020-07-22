@@ -1,6 +1,10 @@
-#version 450 core
+#version 460 core
 
-layout (location = 0) in vec3 inPos;
+// =========================================
+layout (location = 0) in vec3 aPos;
+
+// =========================================
+layout (location = 0) out vec3 TexCoords;
 
 // =========================================
 layout (std140, binding = 0) uniform Camera
@@ -10,10 +14,9 @@ layout (std140, binding = 0) uniform Camera
     mat4 viewProj;
 };
 
-out vec3 TexCoords;
 
 void main()
 {
-    gl_Position = proj * mat4(mat3(view)) * vec4(inPos, 1.0f);
-    TexCoords = inPos;
+    TexCoords = aPos;
+    gl_Position = proj * mat4(mat3(view)) * vec4(aPos, 1.0f);
 }
