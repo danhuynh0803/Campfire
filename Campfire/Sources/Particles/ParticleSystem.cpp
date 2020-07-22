@@ -1,5 +1,6 @@
 #include <math.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
 #include "Particles/ParticleSystem.h"
 #include "Renderer/Renderer2D.h"
 
@@ -11,19 +12,38 @@
 #define RADIAN(x) (x * PI/180.0f)
 
 #include <random>
+#include <algorithm>
 
 SharedPtr<Texture2D> tex0;
 
 void ParticleSystem::Init()
 {
-    tex0 = Texture2D::Create("../Assets/Particles/star_05.png");
+    tex0 = Texture2D::Create("../Assets/Particles/circle_05.png");
 }
 
 void ParticleSystem::GenerateParticles(uint32_t numParticles)
 {
+    // For manual spawning test particles
+    //DebugParticle();
     for (uint32_t i = 0; i < numParticles; ++i)
     {
         GenerateParticle();
+    }
+}
+
+void ParticleSystem::DebugParticle()
+{
+    for (int i = 0; i < 5; ++i)
+    {
+        Particle particle;
+        particle.scale = glm::vec3(scale[1]);
+        particle.position = glm::vec3(0.2f * i, 0.0f, -1.0f + (0.5f * i));
+        particle.rotation = glm::vec3(0.0f);
+        particle.lifetime = lifetime;
+        float t = (float)std::rand() / RAND_MAX;
+        particle.color = glm::vec4(0.1f, 0.1f, 0.1f * i, 1.0f);
+
+        particles.push_back(particle);
     }
 }
 
@@ -82,7 +102,7 @@ void ParticleSystem::GenerateParticle()
 //{
 //}
 
-void ParticleSystem::OnUpdate(float dt)
+void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
 {
     float spawnTime = 1.0f / rateOverTime;
     static float timer = spawnTime;
@@ -94,6 +114,7 @@ void ParticleSystem::OnUpdate(float dt)
             GenerateParticle();
             timer = spawnTime;
         }
+        //GenerateParticles((uint32_t)dt*numParticles);
     }
 
     // Update each particle position
@@ -112,11 +133,14 @@ void ParticleSystem::OnUpdate(float dt)
         particle.velocity.y += 0.5f * gravity * dt*dt;
         particle.position.y += particle.velocity.y * dt;
         particle.position.z += particle.velocity.z * dt;
+        particle.cameraDistance = glm::length2(particle.position - camPosition);
 
         count++;
     }
-}
 
+    // Sort all particles for transparency ordering
+    std::sort(particles.begin(), particles.end());
+}
 
 void ParticleSystem::Draw()
 {
@@ -130,7 +154,6 @@ void ParticleSystem::Draw()
     for (const auto& particle : particles)
     {
         //Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
-
         Renderer2D::DrawBillboard(particle.position, particle.scale, tex0, particle.color);
     }
 }

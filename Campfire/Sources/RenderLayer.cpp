@@ -69,7 +69,7 @@ void RenderLayer::OnUpdate(float dt)
 {
     camera.OnUpdate(dt);
 
-    ps.OnUpdate(dt);
+    ps.OnUpdate(dt, camera.GetPosition());
 
     if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
     {
