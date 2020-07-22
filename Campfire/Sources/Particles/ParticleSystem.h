@@ -24,6 +24,7 @@ public:
 
     ParticleSystem() = default;
     ~ParticleSystem() = default;
+    void Init();
     void GenerateParticles(uint32_t numParticles);
     void GenerateParticle();
     void OnUpdate(float dt);
@@ -32,7 +33,7 @@ public:
 
 public:
     bool isLooping = true;
-    float rateOverTime = 10.0f; // # of particles to spawn per second
+    float rateOverTime = 100.0f; // # of particles to spawn per second
 
     glm::vec3 position = glm::vec3(0.0f);
 
@@ -42,11 +43,12 @@ public:
     glm::vec2 velocityY = glm::vec2(-1.0f, 1.0f);
     glm::vec2 velocityZ = glm::vec2(-1.0f, 1.0f);
 
-    glm::vec3 scale = glm::vec3(0.1f);
+    glm::vec2 minScale = glm::vec3(0.05f);
+    glm::vec2 maxScale = glm::vec3(0.1f);
 
     glm::vec4 color = glm::vec4(1.0f);
-    glm::vec4 colorScaleStart = glm::vec4(0.1f);
-    glm::vec4 colorScaleEnd = glm::vec4(1.0f);
+    glm::vec4 colorScaleStart = glm::vec4(1.0f);
+    glm::vec4 colorScaleEnd = glm::vec4(1.0, 0.0f, 0.0f, 1.0f);
 
     float lifetime = 10.0f;
     int numParticles = 1000;
