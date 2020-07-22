@@ -14,6 +14,13 @@ struct Particle
     glm::vec4 color;
 
     float lifetime;
+
+    float cameraDistance;
+
+    bool operator < (Particle& other)
+    {
+        return this->cameraDistance > other.cameraDistance;
+    }
 };
 
 #endif // PARTICLE_H

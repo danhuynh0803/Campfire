@@ -27,7 +27,8 @@ public:
     void Init();
     void GenerateParticles(uint32_t numParticles);
     void GenerateParticle();
-    void OnUpdate(float dt);
+    void DebugParticle();
+    void OnUpdate(float dt, const glm::vec3& camPosition);
     void OnImGuiRender();
     void Draw();
 
@@ -36,14 +37,12 @@ public:
     float rateOverTime = 100.0f; // # of particles to spawn per second
 
     glm::vec3 position = glm::vec3(0.0f);
-
     glm::vec3 velocity = glm::vec3(0.0f, 1.0f, 0.0f);
-
     glm::vec2 velocityX = glm::vec2(-1.0f, 1.0f);
     glm::vec2 velocityY = glm::vec2(-1.0f, 1.0f);
     glm::vec2 velocityZ = glm::vec2(-1.0f, 1.0f);
 
-    // min/max scale
+    // min and max scale
     glm::vec2 scale = glm::vec2(0.05f, 0.1f);
 
     glm::vec4 color = glm::vec4(1.0f);

@@ -285,6 +285,14 @@ void Renderer2D::BeginScene(Camera& camera)
     // view matrix for orienting billboards
     viewMatrix = camera.GetViewMatrix();
 
+    int32_t samplers[batch.maxTextureSlots];
+    for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
+    {
+        samplers[i] = i;
+    }
+    shader->Bind();
+    shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
+
     batch.indexCount = 0;
     batch.quadCount = 0;
     //batch.textureSlotIndex = 1;
