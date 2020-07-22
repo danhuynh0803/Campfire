@@ -5,6 +5,7 @@
 #include "Core/Base.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Shader.h"
+#include "Renderer/VertexArray.h"
 
 class Skybox
 {
@@ -20,6 +21,11 @@ public:
         BACK
     };
 
+    Skybox() = default;
+    ~Skybox() = default;
+
+    void Init();
+
     void OnUpdate(float dt);
 
     void Load(Face face, const std::string& filepath);
@@ -30,6 +36,7 @@ public:
 private:
     SharedPtr<TextureCube> textureCube;
     SharedPtr<Shader> shader;
+    SharedPtr<VertexArray> vertexArray;
 
     std::vector<std::string> faces;
 };

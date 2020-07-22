@@ -20,7 +20,7 @@ struct QuadVertexData
 
 struct BatchData
 {
-    static const uint32_t maxQuads = 10000;
+    static const uint32_t maxQuads = 20000;
     static const uint32_t maxVertices = maxQuads * 4;
     static const uint32_t maxIndices = maxQuads * 6;
     static const uint32_t maxTextureSlots = 32;
@@ -71,7 +71,7 @@ void Renderer2D::Init()
         samplers[i] = i;
     }
 
-    shader = ShaderManager::Create("quadDefault", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
+    shader = ShaderManager::Create("quad", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
     shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
@@ -133,7 +133,9 @@ void Renderer2D::DrawBillboard(const glm::vec3& position, const glm::vec3& scale
 
     for (int i = 0; i < pos.size(); ++i)
     {
+        // Orient billboard
         pos[i] = glm::vec4(position + (cameraRight * pos[i].x) + (cameraUp * pos[i].y), 1.0f);
+        // Apply position and scale transforms
         pos[i] = transform * pos[i];
     }
 
@@ -264,6 +266,8 @@ void Renderer2D::DrawBatch()
 {
     if (batch.indexCount == 0) { return; } // No quads submitted to draw
 
+    shader->Bind();
+
     // Bind all submitted textures
     for (uint32_t i = 0; i < batch.textureSlotIndex; ++i)
     {
@@ -273,7 +277,6 @@ void Renderer2D::DrawBatch()
     batch.vertexArray->Bind();
     glDrawElements(GL_TRIANGLES, batch.indexCount, GL_UNSIGNED_INT, (void*)0);
     batch.vertexArray->Unbind();
-
 }
 
 
@@ -281,14 +284,6 @@ void Renderer2D::BeginScene(Camera& camera)
 {
     // view matrix for orienting billboards
     viewMatrix = camera.GetViewMatrix();
-    //int32_t samplers[batch.maxTextureSlots];
-    //for (uint32_t i = 0; i < batch.maxTextureSlots; ++i)
-    //{
-    //    samplers[i] = i;
-    //}
-    shader->Bind();
-    shader->SetMat4("model", glm::mat4(1.0f));
-    //shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);
 
     batch.indexCount = 0;
     batch.quadCount = 0;

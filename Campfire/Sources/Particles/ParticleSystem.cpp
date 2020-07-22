@@ -12,6 +12,21 @@
 
 #include <random>
 
+SharedPtr<Texture2D> tex0;
+SharedPtr<Texture2D> tex1;
+SharedPtr<Texture2D> tex2;
+SharedPtr<Texture2D> tex3;
+SharedPtr<Texture2D> tex4;
+
+void ParticleSystem::Init()
+{
+    tex0 = Texture2D::Create("../Assets/Textures/awesomeface.png");
+    tex1 = Texture2D::Create("../Assets/Textures/uv.png");
+    tex2 = Texture2D::Create("../Assets/Textures/wall.jpg");
+    tex3 = Texture2D::Create("../Assets/Textures/container.jpg");
+    tex4 = Texture2D::Create("../Assets/Textures/flowmap.png");
+}
+
 void ParticleSystem::GenerateParticles(uint32_t numParticles)
 {
     for (uint32_t i = 0; i < numParticles; ++i)
@@ -29,7 +44,7 @@ void ParticleSystem::GenerateParticle()
 
     float t = (float)std::rand()/RAND_MAX;
     particle.color = colorScaleStart*t + colorScaleEnd*(1.0f-t);
-    particle.scale = scale*t;
+    particle.scale = glm::vec3(scale[0]*t + scale[1]*(1.0f - t));
 
     switch (pVelocity)
     {
@@ -123,6 +138,8 @@ void ParticleSystem::Draw()
     for (const auto& particle : particles)
     {
         Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
+
+        //Renderer2D::DrawBillboard(particle.position, particle.scale, tex0, particle.color);
     }
 }
 
@@ -134,6 +151,7 @@ void ParticleSystem::OnImGuiRender()
 
     ImGui::Text("Global Settings");
     ImGui::Checkbox("isLooping", &isLooping);
+    ImGui::DragFloat3("System Position", (float*)&position, 0.1f);
     ImGui::InputFloat("Rate over time", &rateOverTime);
     ImGui::InputInt("Number of particles", &numParticles);
     ImGui::InputFloat("Particle Lifetime", &lifetime);
@@ -141,16 +159,12 @@ void ParticleSystem::OnImGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Positional Settings");
-    ImGui::SliderFloat3("Position", (float*)&position, -10.0f, 10.0f);
-    //ImGui::SliderFloat3("Velocity", (float*)&velocity, -10.0f, 10.0f);
-    ImGui::SliderFloat("minX", (float*)&velocityX[0], 0.0f,-10.0f);
-    ImGui::SliderFloat("maxX", (float*)&velocityX[1], 0.0f, 10.0f);
-    ImGui::SliderFloat("minY", (float*)&velocityY[0], 0.0f,-10.0f);
-    ImGui::SliderFloat("maxY", (float*)&velocityY[1], 0.0f, 10.0f);
-    ImGui::SliderFloat("minZ", (float*)&velocityZ[0], 0.0f,-10.0f);
-    ImGui::SliderFloat("maxZ", (float*)&velocityZ[1], 0.0f, 10.0f);
-    ImGui::SliderFloat3("Scale", (float*)&scale, 0.0f, 1.0f);
+    ImGui::Text("Particle Settings");
+    ImGui::Text("Randomized between the two selected values)");
+    ImGui::DragFloat2("min/max Velocity X", (float*)&velocityX, 0.1f);
+    ImGui::DragFloat2("min/max Velocity Y", (float*)&velocityY, 0.1f);
+    ImGui::DragFloat2("min/max Velocity Z", (float*)&velocityZ, 0.1f);
+    ImGui::DragFloat2("min and max scale", (float*)&scale, 0.01f);
 
     ImGui::Separator();
 

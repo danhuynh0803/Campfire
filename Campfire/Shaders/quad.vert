@@ -21,9 +21,6 @@ layout (std140, binding = 0) uniform Camera
 };
 
 // =========================================
-uniform mat4 model;
-
-// =========================================
 void main()
 {
     outColor = aColor;
@@ -32,7 +29,6 @@ void main()
 
     gl_Position =
         viewProj
-        * model
         * vec4(aPos, 1.0f)
     ;
 }

@@ -12,6 +12,7 @@
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Camera.h"
 #include "Scene/Scene.h"
+#include "Scene/Skybox.h"
 
 #include "Particles/ParticleSystem.h"
 
@@ -21,12 +22,7 @@ Camera camera(1600, 900, 0.1f, 100.0f);
 
 SharedPtr<Shader> postprocessShader;
 
-
-SharedPtr<Texture2D> tex0;
-SharedPtr<Texture2D> tex1;
-SharedPtr<Texture2D> tex2;
-SharedPtr<Texture2D> tex3;
-SharedPtr<Texture2D> tex4;
+Skybox skybox;
 
 ParticleSystem ps;
 
@@ -37,12 +33,6 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
-    tex0 = Texture2D::Create("../Assets/Textures/awesomeface.png");
-    tex1 = Texture2D::Create("../Assets/Textures/uv.png");
-    tex2 = Texture2D::Create("../Assets/Textures/wall.jpg");
-    tex3 = Texture2D::Create("../Assets/Textures/container.jpg");
-    tex4 = Texture2D::Create("../Assets/Textures/flowmap.png");
-
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
@@ -56,6 +46,19 @@ void RenderLayer::OnAttach()
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 
+    ps.Init();
+    skybox.Init();
+
+    std::vector<std::string> skyboxTextures =
+    {
+        "../Assets/Textures/skybox/right.jpg",
+        "../Assets/Textures/skybox/left.jpg",
+        "../Assets/Textures/skybox/top.jpg",
+        "../Assets/Textures/skybox/bottom.jpg",
+        "../Assets/Textures/skybox/front.jpg",
+        "../Assets/Textures/skybox/back.jpg"
+    };
+    skybox.Load(skyboxTextures);
 }
 
 void RenderLayer::OnDetach()
@@ -83,6 +86,8 @@ void RenderLayer::OnUpdate(float dt)
     Renderer::BeginScene(camera);
 
     colorFB->Bind();
+
+    skybox.DrawSkybox();
 
     Timer timer("Particle draw");
     ps.Draw();
