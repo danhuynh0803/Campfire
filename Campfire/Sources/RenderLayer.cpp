@@ -51,12 +51,12 @@ void RenderLayer::OnAttach()
 
     std::vector<std::string> skyboxTextures =
     {
-        "../Assets/Textures/skybox/right.jpg",
-        "../Assets/Textures/skybox/left.jpg",
-        "../Assets/Textures/skybox/top.jpg",
-        "../Assets/Textures/skybox/bottom.jpg",
-        "../Assets/Textures/skybox/front.jpg",
-        "../Assets/Textures/skybox/back.jpg"
+        "../Assets/Textures/Skyboxes/blue/right.png",
+        "../Assets/Textures/Skyboxes/blue/left.png",
+        "../Assets/Textures/Skyboxes/blue/top.png",
+        "../Assets/Textures/Skyboxes/blue/bottom.png",
+        "../Assets/Textures/Skyboxes/blue/front.png",
+        "../Assets/Textures/Skyboxes/blue/back.png"
     };
     skybox.Load(skyboxTextures);
 }

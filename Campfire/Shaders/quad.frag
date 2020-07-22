@@ -21,8 +21,15 @@ void main()
     // since this value is passed from vertex data
     int index = int(round(inTexIndex));
 
+    vec4 texColor = texture(uTextures[index], inUV);
+
+    if (texColor.a < 0.01f)
+    {
+        discard;
+    }
+
     fragColor =
-        texture(uTextures[index], inUV)
+        texColor
         * inColor
     ;
 }

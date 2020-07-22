@@ -13,18 +13,10 @@
 #include <random>
 
 SharedPtr<Texture2D> tex0;
-SharedPtr<Texture2D> tex1;
-SharedPtr<Texture2D> tex2;
-SharedPtr<Texture2D> tex3;
-SharedPtr<Texture2D> tex4;
 
 void ParticleSystem::Init()
 {
-    tex0 = Texture2D::Create("../Assets/Textures/awesomeface.png");
-    tex1 = Texture2D::Create("../Assets/Textures/uv.png");
-    tex2 = Texture2D::Create("../Assets/Textures/wall.jpg");
-    tex3 = Texture2D::Create("../Assets/Textures/container.jpg");
-    tex4 = Texture2D::Create("../Assets/Textures/flowmap.png");
+    tex0 = Texture2D::Create("../Assets/Particles/star_05.png");
 }
 
 void ParticleSystem::GenerateParticles(uint32_t numParticles)
@@ -137,9 +129,9 @@ void ParticleSystem::Draw()
 
     for (const auto& particle : particles)
     {
-        Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
+        //Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
 
-        //Renderer2D::DrawBillboard(particle.position, particle.scale, tex0, particle.color);
+        Renderer2D::DrawBillboard(particle.position, particle.scale, tex0, particle.color);
     }
 }
 
@@ -152,10 +144,10 @@ void ParticleSystem::OnImGuiRender()
     ImGui::Text("Global Settings");
     ImGui::Checkbox("isLooping", &isLooping);
     ImGui::DragFloat3("System Position", (float*)&position, 0.1f);
-    ImGui::InputFloat("Rate over time", &rateOverTime);
-    ImGui::InputInt("Number of particles", &numParticles);
-    ImGui::InputFloat("Particle Lifetime", &lifetime);
-    ImGui::InputFloat("Gravity", &gravity);
+    ImGui::DragFloat("Rate over time", &rateOverTime, 1.0f);
+    ImGui::DragInt("Number of particles", &numParticles);
+    ImGui::DragFloat("Particle Lifetime", &lifetime, 0.1f);
+    ImGui::DragFloat("Gravity", &gravity, 0.1f);
 
     ImGui::Separator();
 
