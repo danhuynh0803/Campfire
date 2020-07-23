@@ -1,6 +1,8 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 
+#include "Core/Base.h"
+#include "Renderer/Texture.h"
 #include "Particles/Particle.h"
 #include <vector>
 
@@ -59,6 +61,7 @@ public:
 
 private:
     std::vector<Particle> particles;
+    SharedPtr<Texture2D> particleTexture;
 };
 
 #endif // PARTICLE_SYSTEM_H

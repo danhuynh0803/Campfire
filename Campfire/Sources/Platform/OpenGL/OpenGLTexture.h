@@ -14,6 +14,7 @@ public:
 
     virtual uint32_t GetWidth() const override { return width; }
     virtual uint32_t GetHeight() const override { return height; }
+    virtual std::string GetName() const override { return filepath; }
     virtual void Bind(uint32_t unit = 0) const override;
     virtual void SetData(void* data, uint32_t size);
 

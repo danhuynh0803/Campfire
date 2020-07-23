@@ -14,11 +14,10 @@
 #include <random>
 #include <algorithm>
 
-SharedPtr<Texture2D> tex0;
-
 void ParticleSystem::Init()
 {
-    tex0 = Texture2D::Create("../Assets/Particles/circle_05.png");
+    // Default texture
+    particleTexture = Texture2D::Create("../Assets/Particles/circle_05.png");
 }
 
 void ParticleSystem::GenerateParticles(uint32_t numParticles)
@@ -154,7 +153,7 @@ void ParticleSystem::Draw()
     for (const auto& particle : particles)
     {
         //Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
-        Renderer2D::DrawBillboard(particle.position, particle.scale, tex0, particle.color);
+        Renderer2D::DrawBillboard(particle.position, particle.scale, particleTexture, particle.color);
     }
 }
 
@@ -187,6 +186,16 @@ void ParticleSystem::OnImGuiRender()
     //ImGui::ColorEdit4("Single Color", (float*)&color);
     ImGui::ColorEdit4("Start", (float*)&colorScaleStart);
     ImGui::ColorEdit4("End", (float*)&colorScaleEnd);
+
+    ImGui::Separator();
+
+    ImGui::Text("Particle Texture");
+    static char path[128] = "../Assets/Particles/";
+    ImGui::InputText("TexturePath", path, IM_ARRAYSIZE(path));
+    if (ImGui::Button("Set New Texture"))
+    {
+        particleTexture = Texture2D::Create(std::string(path));
+    }
 
     ImGui::Separator();
 
