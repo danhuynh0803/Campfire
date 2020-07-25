@@ -192,7 +192,8 @@ void ParticleSystem::OnImGuiRender()
     ImGui::Text("Particle Texture");
     static char path[128] = "../Assets/Particles/";
     ImGui::InputText("TexturePath", path, IM_ARRAYSIZE(path));
-    if (ImGui::Button("Set New Texture"))
+
+    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(32, 32), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         particleTexture = Texture2D::Create(std::string(path));
     }

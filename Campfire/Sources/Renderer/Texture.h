@@ -25,6 +25,8 @@ public:
 
     static SharedPtr<Texture2D> Create(const std::string& path);
     static SharedPtr<Texture2D> Create(uint32_t width, uint32_t height);
+
+    virtual uint32_t GetRenderID() const = 0;
 };
 
 class Texture3D : public Texture

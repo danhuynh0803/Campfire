@@ -18,6 +18,8 @@ public:
     virtual void Bind(uint32_t unit = 0) const override;
     virtual void SetData(void* data, uint32_t size);
 
+    virtual uint32_t GetRenderID() const override { return renderID; }
+
 private:
     uint32_t renderID;
     uint32_t width, height;

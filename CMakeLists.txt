@@ -51,6 +51,7 @@ include_directories(Campfire/Sources/
 
 file(GLOB VENDORS_SOURCES Campfire/Vendor/glad/src/glad.c
                           Campfire/Vendor/imgui/*.cpp
+                          Campfire/Vendor/tracy/TracyClient.cpp
 )
 
 file(GLOB PROJECT_HEADERS Campfire/Headers/*.hpp)
