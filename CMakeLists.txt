@@ -64,6 +64,8 @@ file(GLOB PROJECT_SOURCES Campfire/Sources/Core/*.h
                           Campfire/Sources/Platform/OpenGL/*.cpp
                           Campfire/Sources/Platform/Windows/*.h
                           Campfire/Sources/Platform/Windows/*.cpp
+                          Campfire/Sources/Platform/Linux/*.h
+                          Campfire/Sources/Platform/Linux/*.cpp
                           Campfire/Sources/Renderer/*.h
                           Campfire/Sources/Renderer/*.cpp
                           #Campfire/Sources/Physics/*.h
