@@ -24,19 +24,19 @@ public:
     template <typename T, typename... Args>
     T& AddComponent(Args&&... args)
     {
-        scene->registry.emplace<T>(entityHandle, std::forward<Args>(args)...);
+        //scene->registry.emplace<T>(entityHandle, std::forward<Args>(args)...);
     }
 
     template <typename T>
     void RemoveComponent()
     {
-        scene->registry.remove<T>(entityHandle);
+        //scene->registry.remove<T>(entityHandle);
     }
 
     template <typename T>
     T& GetComponent()
     {
-        return scene->registry.get<T>(entityHandle);
+        //return scene->registry.get<T>(entityHandle);
     }
 
 private:
