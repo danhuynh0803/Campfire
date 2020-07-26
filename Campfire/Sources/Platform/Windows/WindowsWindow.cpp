@@ -7,6 +7,7 @@
 #include "Events/KeyEvent.h"
 
 #include "Core/Input.h"
+#include "WindowsFileSystem.h"
 
 static uint8_t glfwWindowCount = 0;
 
@@ -22,6 +23,8 @@ WindowsWindow::~WindowsWindow()
 
 void WindowsWindow::Init(const WindowProps& props)
 {
+    WindowsFileSystem::OpenFile("");
+
     data.title = props.title;
     data.width = props.width;
     data.height = props.height;

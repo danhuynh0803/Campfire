@@ -6,6 +6,7 @@
 #endif
 
 #include <string>
+#include "CDialogEventHandler.h"
 
 class WindowsFileSystem
 {
