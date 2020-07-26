@@ -1,6 +1,10 @@
 #ifndef WINDOWS_FILE_SYSTEM_H
 #define WINDOWS_FILE_SYSTEM_H
 
+#ifdef _WIN32
+#  include <windows.h>
+#endif
+
 #include <string>
 
 class WindowsFileSystem
