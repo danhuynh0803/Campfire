@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "Core/Log.h"
+
 // TODO where to put so all files have access? Maybe a default header to be added to all other header files?
 //typedef uint_8t  UINT8
 //typedef uint_16t UINT16

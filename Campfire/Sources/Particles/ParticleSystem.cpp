@@ -3,6 +3,7 @@
 #include <glm/gtx/norm.hpp>
 #include "Particles/ParticleSystem.h"
 #include "Renderer/Renderer2D.h"
+#include "Core/FileSystem.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -189,13 +190,13 @@ void ParticleSystem::OnImGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Particle Texture");
-    static char path[128] = "../Assets/Particles/";
-    ImGui::InputText("TexturePath", path, IM_ARRAYSIZE(path));
-
-    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(32, 32), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
+    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(64, 64), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
-        particleTexture = Texture2D::Create(std::string(path));
+        std::string path = FileSystem::OpenFile("*.png");
+        if (path.compare("") != 0) // No file selected
+        {
+            particleTexture = Texture2D::Create(path);
+        }
     }
 
     ImGui::Separator();
