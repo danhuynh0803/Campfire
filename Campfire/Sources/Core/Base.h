@@ -27,7 +27,9 @@
     #endif
 
 #elif defined(__APPLE__) || defined(__MACH__)
+    #define PLATFORM_MAC
 #elif defined(__linux__)
+    #define PLATFORM_LINUX
 #else
 #endif // Platform detection
 
