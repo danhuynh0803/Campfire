@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(Campfire VERSION 0.1
-                 DESCRIPTION "Game Engine"
-                 LANGUAGES CXX)
+project(Campfire)
+#project(Campfire VERSION 0.1
+#                 DESCRIPTION "Game Engine"
+#                 LANGUAGES CXX)
 
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,13 +36,14 @@ elseif(APPLE)
     MESSAGE("Setting MACOSX_DEPLOYMENT_TARGET to '${MACOSX_DEPLOYMENT_TARGET}'.")
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
+    find_package(PkgConfig REQUIRED)
+    PKG_CHECK_MODULES(GTK3 REQUIRED gtk+-3.0)
+    include_directories(${GTK3_INCLUDE_DIRS})
+    link_directories(${GTK3_LIBRARY_DIRS})
     if(NOT WIN32)
         set(GLAD_LIBRARIES dl)
     endif()
 endif()
-
-add_library(glad STATIC Campfire/Vendor/glad/src/glad.c)
-target_link_libraries(glad PUBLIC Campfire/Vendor/glad/include/)
 
 include_directories(Campfire/Sources/
                     Campfire/Vendor/assimp/include/
@@ -73,8 +75,8 @@ file(GLOB SRC_PLATFORM_OPENGL Campfire/Sources/Platform/OpenGL/*.h
 file(GLOB SRC_PLATFORM_WINDOWS Campfire/Sources/Platform/Windows/*.h
                                Campfire/Sources/Platform/Windows/*.cpp)
 
-file(GLOB SRC_PLATFORM_LINUX Campfire/Sources/Platform/LINUX/*.h
-                             Campfire/Sources/Platform/LINUX/*.cpp)
+file(GLOB SRC_PLATFORM_LINUX Campfire/Sources/Platform/Linux/*.h
+                             Campfire/Sources/Platform/ Campfire/Sources/Platform/Linux/*.cpp)
 
 file(GLOB SRC_RENDERER Campfire/Sources/Renderer/*.h
                        Campfire/Sources/Renderer/*.cpp)
@@ -104,7 +106,7 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitmodules)
 
 
-# Source groupings
+# Source groupings for IDEs
 source_group("Sources"                     FILES ${PROJECT_SOURCES})
 source_group("Sources\\Core"               FILES ${SRC_CORE})
 source_group("Sources\\Events"             FILES ${SRC_EVENTS})
