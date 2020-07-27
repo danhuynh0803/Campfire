@@ -24,9 +24,13 @@ public:
         RANDOM
     };
 
-    #define SCALE_Pattern_FIXED 0
-    #define SCALE_Pattern_RANDOM 1
-    #define SCALE_Pattern_OVER_LIFE_TIME 2
+    #define SIZE_PATTERN_FIXED 0
+    #define SIZE_PATTERN_RANDOM 1
+    #define SIZE_PATTERN_OVER_LIFE_TIME 2
+
+    #define COLOR_PATTERN_FIXED 0
+    #define COLOR_PATTERN_RANDOM 1
+    #define COLOR_PATTERN_OVER_LIFE_TIME 2
 
     ParticleSystem() = default;
     ~ParticleSystem() = default;
@@ -58,8 +62,10 @@ public:
     glm::vec2 scaleZOverLifeTime = glm::vec2(0.01f, 0.05f);
 
     glm::vec4 color = glm::vec4(1.0f);
-    glm::vec4 colorScaleStart = glm::vec4(1.0f);
-    glm::vec4 colorScaleEnd = glm::vec4(1.0, 0.0f, 0.0f, 1.0f);
+    glm::vec4 colorRandomStart = glm::vec4(1.0f);
+    glm::vec4 colorRandomEnd = glm::vec4(1.0f);
+    glm::vec4 colorOverLifeTimeStart = glm::vec4(1.0f);
+    glm::vec4 colorOverLifeEnd = glm::vec4(1.0f);
 
     float lifetime = 10.0f;
     int numParticles = 1000;
@@ -68,7 +74,8 @@ public:
 
     GenerationPattern pGeneration = GenerationPattern::SEQUENCE;
     VelocityPattern pVelocity = VelocityPattern::RANDOM;
-    int pScale = SCALE_Pattern_FIXED;
+    int pSize = SIZE_PATTERN_FIXED;
+    int pColor = COLOR_PATTERN_FIXED;
 
 private:
     std::vector<Particle> particles;

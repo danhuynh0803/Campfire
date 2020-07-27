@@ -13,6 +13,7 @@ struct Particle
     glm::vec3 scaleRate;
 
     glm::vec4 color;
+    glm::vec4 colorScaleRate;
 
     float lifetime;
 
