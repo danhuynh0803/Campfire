@@ -190,7 +190,7 @@ void ParticleSystem::OnImGuiRender()
 
     ImGui::Separator();
 
-    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(64, 64), ImVec2(0,0), ImVec2(1,1), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
+    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(64, 64), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile("*.png");
         if (path.compare("") != 0) // No file selected
