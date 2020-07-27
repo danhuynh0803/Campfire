@@ -17,9 +17,6 @@ Now generate a project file or makefile for your platform. If you want to use a 
 cmake ..
 make -j4
 
-# Mac OSX
-cmake -G "Xcode" ..
-
 # Microsoft Windows
 cmake -G "Visual Studio 16 2019" ..
 ```
