@@ -1,5 +1,4 @@
 # Campfire
-![](enginePlayState.gif)
 
 ## Summary
 Campfire is an in-progress game engine intended for use in small gamejam projects. Not currently usable other than for myself due to a lot of hardcoded file paths for testing purposes. Campfire uses [Glitter](https://github.com/Polytonic/Glitter) as the starting template but requires at least C++17 due to certain imgui widgets.
@@ -17,9 +16,6 @@ Now generate a project file or makefile for your platform. If you want to use a 
 # UNIX Makefile
 cmake ..
 make -j4
-
-# Mac OSX
-cmake -G "Xcode" ..
 
 # Microsoft Windows
 cmake -G "Visual Studio 16 2019" ..
