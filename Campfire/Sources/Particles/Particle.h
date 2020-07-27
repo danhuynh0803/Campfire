@@ -10,6 +10,7 @@ struct Particle
     glm::vec3 scale;
 
     glm::vec3 velocity;
+    glm::vec3 scaleRate;
 
     glm::vec4 color;
 

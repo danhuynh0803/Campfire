@@ -24,6 +24,10 @@ public:
         RANDOM
     };
 
+    #define SCALE_Pattern_FIXED 0
+    #define SCALE_Pattern_RANDOM 1
+    #define SCALE_Pattern_OVER_LIFE_TIME 2
+
     ParticleSystem() = default;
     ~ParticleSystem() = default;
     void Init();
@@ -45,7 +49,13 @@ public:
     glm::vec2 velocityZ = glm::vec2(-1.0f, 1.0f);
 
     // min and max scale
-    glm::vec2 scale = glm::vec2(0.05f, 0.1f);
+    glm::vec3 scale = glm::vec3(0.01f, 0.01f,0.01f);
+    glm::vec2 scaleRandomX = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleRandomY = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleRandomZ = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleXOverLifeTime = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleYOverLifeTime = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleZOverLifeTime = glm::vec2(0.01f, 0.05f);
 
     glm::vec4 color = glm::vec4(1.0f);
     glm::vec4 colorScaleStart = glm::vec4(1.0f);
@@ -58,6 +68,7 @@ public:
 
     GenerationPattern pGeneration = GenerationPattern::SEQUENCE;
     VelocityPattern pVelocity = VelocityPattern::RANDOM;
+    int pScale = SCALE_Pattern_FIXED;
 
 private:
     std::vector<Particle> particles;
