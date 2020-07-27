@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Core/LayerStack.h"
 
 LayerStack::~LayerStack()
