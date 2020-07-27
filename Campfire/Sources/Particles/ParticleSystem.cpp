@@ -36,7 +36,7 @@ void ParticleSystem::DebugParticle()
     for (int i = 0; i < 5; ++i)
     {
         Particle particle;
-        particle.scale = glm::vec3(scale[1]);
+        particle.scale = glm::vec3(1.0f,1.0f,1.0f);
         particle.position = glm::vec3(0.2f * i, 0.0f, -1.0f + (0.5f * i));
         particle.rotation = glm::vec3(0.0f);
         particle.lifetime = lifetime;
@@ -56,7 +56,6 @@ void ParticleSystem::GenerateParticle()
 
     float t = (float)std::rand()/RAND_MAX;
     particle.color = colorScaleStart*t + colorScaleEnd*(1.0f-t);
-    particle.scale = glm::vec3(scale[0]*t + scale[1]*(1.0f - t));
 
     switch (pVelocity)
     {
@@ -87,6 +86,25 @@ void ParticleSystem::GenerateParticle()
         default:
         {
             particle.velocity = velocity;
+            break;
+        }
+    }
+
+    switch (pScale)
+    {
+        case(SCALE_Pattern_RANDOM):
+        {
+            float randX = ((float)std::rand() / (RAND_MAX));
+            float randY = ((float)std::rand() / (RAND_MAX));
+            float randZ = ((float)std::rand() / (RAND_MAX));
+            particle.scale = glm::vec3(scaleX[0] * randX + scaleX[1] * (1.0f - randX),
+                scaleY[0] * randY + scaleY[1] * (1.0f - randY),
+                scaleZ[0] * randZ + scaleZ[1] * (1.0f - randZ));
+            break;
+        }
+        default:
+        {
+            particle.scale = scale;
             break;
         }
     }
@@ -179,8 +197,16 @@ void ParticleSystem::OnImGuiRender()
     ImGui::DragFloat2("min/max Velocity X", (float*)&velocityX, 0.1f);
     ImGui::DragFloat2("min/max Velocity Y", (float*)&velocityY, 0.1f);
     ImGui::DragFloat2("min/max Velocity Z", (float*)&velocityZ, 0.1f);
-    ImGui::DragFloat2("min and max scale", (float*)&scale, 0.01f);
+    ImGui::Separator();
 
+    ImGui::Text("Particle Scale Modes)");
+    ImGui::RadioButton("Fixed", &pScale, 0); ImGui::SameLine();
+    ImGui::RadioButton("Randomized", &pScale, 1);
+    ImGui::DragFloat3("Fixed Particle Scale", (float*)&scale, 0.1f,0.0f);
+    ImGui::Text("Randomized between the two selected values)"); 
+    ImGui::DragFloat2("min and max scale X", (float*)&scaleX, 0.01f, 0.0f);
+    ImGui::DragFloat2("min and max scale Y", (float*)&scaleY, 0.01f, 0.0f);
+    ImGui::DragFloat2("min and max scale Z", (float*)&scaleZ, 0.01f, 0.0f);
     ImGui::Separator();
 
     ImGui::Text("Color Settings");
@@ -212,5 +238,4 @@ void ParticleSystem::OnImGuiRender()
     }
 
     ImGui::End();
-
 }
