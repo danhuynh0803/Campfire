@@ -5,7 +5,6 @@
 
 std::string FileSystem::OpenFile(const char* filter)
 {
-    // TODO swap to using a PLATFORM enum maybe?
     #ifdef PLATFORM_WINDOWS
         return WindowsFileSystem::OpenFile(filter);
     #elif PLATFORM_LINUX

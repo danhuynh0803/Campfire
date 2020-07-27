@@ -13,6 +13,7 @@ class WindowsFileSystem
 public:
     static std::string OpenFile(const char* filter);
     static std::string SaveFile();
+    static HRESULT hr;
 };
 
 #endif // WINDOWS_FILE_SYSTEM_H

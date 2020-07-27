@@ -23,8 +23,6 @@ WindowsWindow::~WindowsWindow()
 
 void WindowsWindow::Init(const WindowProps& props)
 {
-    WindowsFileSystem::OpenFile("");
-
     data.title = props.title;
     data.width = props.width;
     data.height = props.height;

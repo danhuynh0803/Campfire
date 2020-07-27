@@ -26,6 +26,7 @@ const COMDLG_FILTERSPEC c_rgSaveTypes[] =
     {L"Text Document (*.txt)",       L"*.txt"},
     {L"All Documents (*.*)",         L"*.*"}
 };
+#define CAMPFIRE L"CampFire"
 
 // Indices of file types
 #define INDEX_WORDDOC 1
