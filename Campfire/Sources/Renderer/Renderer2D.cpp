@@ -134,7 +134,7 @@ void Renderer2D::DrawBillboard(const glm::vec3& position, const glm::vec3& scale
     for (int i = 0; i < pos.size(); ++i)
     {
         // Orient billboard
-        pos[i] = glm::vec4(position + (cameraRight * pos[i].x) + (cameraUp * pos[i].y), 1.0f);
+        pos[i] = glm::vec4((cameraRight * pos[i].x) + (cameraUp * pos[i].y), 1.0f);
         // Apply position and scale transforms
         pos[i] = transform * pos[i];
     }
