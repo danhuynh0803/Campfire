@@ -31,3 +31,6 @@
 [submodule "Campfire/Vendor/openal-soft"]
 	path = Campfire/Vendor/openal-soft
 	url = https://github.com/kcat/openal-soft
+[submodule "Campfire/Vendor/tracy"]
+	path = Campfire/Vendor/tracy
+	url = https://github.com/wolfpld/tracy

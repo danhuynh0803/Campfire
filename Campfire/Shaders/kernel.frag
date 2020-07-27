@@ -5,6 +5,7 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D screenTex;
+uniform sampler2DMS screenTexMS;
 
 const float offset = 1.0f/300.0f;
 

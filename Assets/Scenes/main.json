@@ -19,7 +19,7 @@
                 1.0,
                 10.0
             ],
-            "texture": "../Assets/Textures/wall.jpg",
+            "texture": "Textures/wall.jpg",
             "isActive": true,
             "mass": 0.0,
             "isDynamic": false,
@@ -44,7 +44,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures\\blending_transparent_window.png",
+            "texture": "Textures/blending_transparent_window.png",
             "isActive": true,
             "mass": 1.0,
             "isDynamic": true,
@@ -69,7 +69,7 @@
                 0.5,
                 0.5
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "color": [
                 1.0,
@@ -103,7 +103,7 @@
                 0.5,
                 0.5
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "color": [
                 1.0,
@@ -137,7 +137,7 @@
                 0.5,
                 0.5
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "color": [
                 0.0,
@@ -171,7 +171,7 @@
                 0.5,
                 0.5
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "color": [
                 0.0,
@@ -205,7 +205,7 @@
                 0.5,
                 0.5
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "color": [
                 1.0,
@@ -239,7 +239,7 @@
                 0.5,
                 0.5
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "color": [
                 0.0,
@@ -273,7 +273,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures/Skybox/front.jpg",
+            "texture": "Textures/Skybox/front.jpg",
             "isActive": true,
             "mass": 2.0,
             "isDynamic": false,
@@ -298,7 +298,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures/awesomeface.png",
+            "texture": "Textures/awesomeface.png",
             "isActive": true,
             "mass": 3.0,
             "isDynamic": true,
@@ -323,7 +323,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures\\flowmap.png",
+            "texture": "Textures/flowmap.png",
             "isActive": true,
             "mass": 5.0,
             "isDynamic": true,
@@ -348,7 +348,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures\\container.jpg",
+            "texture": "Textures/container.jpg",
             "isActive": true,
             "mass": 10.0,
             "isDynamic": false,
@@ -373,7 +373,7 @@
                 1.0,
                 1.0
             ],
-            "texture": "../Assets/Textures/uv.png",
+            "texture": "Textures/uv.png",
             "isActive": true,
             "mass": 0.0,
             "isDynamic": false,
