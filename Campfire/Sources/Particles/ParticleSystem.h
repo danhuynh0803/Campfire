@@ -26,6 +26,7 @@ public:
 
     #define SCALE_Pattern_FIXED 0
     #define SCALE_Pattern_RANDOM 1
+    #define SCALE_Pattern_OVER_LIFE_TIME 2
 
     ParticleSystem() = default;
     ~ParticleSystem() = default;
@@ -49,9 +50,12 @@ public:
 
     // min and max scale
     glm::vec3 scale = glm::vec3(0.01f, 0.01f,0.01f);
-    glm::vec2 scaleX = glm::vec2(0.01f, 0.05f);
-    glm::vec2 scaleY = glm::vec2(0.01f, 0.05f);
-    glm::vec2 scaleZ = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleRandomX = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleRandomY = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleRandomZ = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleXOverLifeTime = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleYOverLifeTime = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleZOverLifeTime = glm::vec2(0.01f, 0.05f);
 
     glm::vec4 color = glm::vec4(1.0f);
     glm::vec4 colorScaleStart = glm::vec4(1.0f);
