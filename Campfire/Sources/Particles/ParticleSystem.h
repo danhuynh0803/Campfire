@@ -24,13 +24,18 @@ public:
         RANDOM
     };
 
+    #define VELOCITY_PATTERN_FIXED 0
+    #define VELOCITY_PATTERN_RANDOM 1
+    #define VELOCITY_PATTERN_OVER_RADIAL 2
+
     #define SIZE_PATTERN_FIXED 0
     #define SIZE_PATTERN_RANDOM 1
     #define SIZE_PATTERN_OVER_LIFE_TIME 2
 
     #define COLOR_PATTERN_FIXED 0
     #define COLOR_PATTERN_RANDOM 1
-    #define COLOR_PATTERN_OVER_LIFE_TIME 2
+    #define COLOR_PATTERN_RANDOM_BETWEEN_TWO_COLOR 2
+    #define COLOR_PATTERN_OVER_LIFE_TIME 3
 
     ParticleSystem() = default;
     ~ParticleSystem() = default;
@@ -47,19 +52,19 @@ public:
     float rateOverTime = 100.0f; // # of particles to spawn per second
 
     glm::vec3 position = glm::vec3(0.0f);
-    glm::vec3 velocity = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec2 velocityX = glm::vec2(-1.0f, 1.0f);
-    glm::vec2 velocityY = glm::vec2(-1.0f, 1.0f);
-    glm::vec2 velocityZ = glm::vec2(-1.0f, 1.0f);
+    glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec2 velocityRandomX = glm::vec2(-1.0f, 1.0f);
+    glm::vec2 velocityRandomY = glm::vec2(-1.0f, 1.0f);
+    glm::vec2 velocityRandomZ = glm::vec2(-1.0f, 1.0f);
 
     // min and max scale
     glm::vec3 scale = glm::vec3(0.01f, 0.01f,0.01f);
     glm::vec2 scaleRandomX = glm::vec2(0.01f, 0.05f);
     glm::vec2 scaleRandomY = glm::vec2(0.01f, 0.05f);
     glm::vec2 scaleRandomZ = glm::vec2(0.01f, 0.05f);
-    glm::vec2 scaleXOverLifeTime = glm::vec2(0.01f, 0.05f);
-    glm::vec2 scaleYOverLifeTime = glm::vec2(0.01f, 0.05f);
-    glm::vec2 scaleZOverLifeTime = glm::vec2(0.01f, 0.05f);
+    glm::vec2 scaleXOverLifeTime = glm::vec2(0.01f, 0.5f);
+    glm::vec2 scaleYOverLifeTime = glm::vec2(0.01f, 0.5f);
+    glm::vec2 scaleZOverLifeTime = glm::vec2(0.01f, 0.5f);
 
     glm::vec4 color = glm::vec4(1.0f);
     glm::vec4 colorRandomStart = glm::vec4(1.0f);
@@ -70,12 +75,15 @@ public:
     float lifetime = 10.0f;
     int numParticles = 1000;
 
-    float gravity = -9.81;
+    //-9.81
+    float gravity = 0.0f;
 
     GenerationPattern pGeneration = GenerationPattern::SEQUENCE;
-    VelocityPattern pVelocity = VelocityPattern::RANDOM;
-    int pSize = SIZE_PATTERN_FIXED;
-    int pColor = COLOR_PATTERN_FIXED;
+    //VelocityPattern pVelocity = VelocityPattern::RANDOM;
+    
+    int pVelocity = VELOCITY_PATTERN_RANDOM;
+    int pSize = SIZE_PATTERN_OVER_LIFE_TIME;
+    int pColor = COLOR_PATTERN_RANDOM;
 
 private:
     std::vector<Particle> particles;

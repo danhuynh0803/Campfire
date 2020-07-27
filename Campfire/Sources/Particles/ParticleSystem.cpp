@@ -56,27 +56,27 @@ void ParticleSystem::GenerateParticle()
 
     switch (pVelocity)
     {
-        case (VelocityPattern::RADIAL):
+        case (VELOCITY_PATTERN_RANDOM):
+        {
+            float randX = ((float)std::rand() / (RAND_MAX));
+            float randY = ((float)std::rand() / (RAND_MAX));
+            float randZ = ((float)std::rand() / (RAND_MAX));
+
+            particle.velocity =
+                glm::vec3(
+                    velocityRandomX[0] * randX + velocityRandomX[1] * (1 - randX),
+                    velocityRandomY[0] * randY + velocityRandomY[1] * (1 - randY),
+                    velocityRandomZ[0] * randZ + velocityRandomZ[1] * (1 - randZ)
+                );
+            break;
+        }
+        case (VELOCITY_PATTERN_OVER_RADIAL):
         {
             particle.velocity =
                 glm::vec3(
                     velocity.x, //* sin( RADIAN((float)i / numParticles * 360) ),
                     velocity.y,
                     velocity.z //* cos( RADIAN((float)i / numParticles * 360) )
-                );
-            break;
-        }
-        case (VelocityPattern::RANDOM):
-        {
-            float randX = ((float) std::rand() / (RAND_MAX));
-            float randY = ((float) std::rand() / (RAND_MAX));
-            float randZ = ((float) std::rand() / (RAND_MAX));
-
-            particle.velocity =
-                glm::vec3(
-                    velocityX[0]*randX + velocityX[1]*(1-randX),
-                    velocityY[0]*randY + velocityY[1]*(1-randY),
-                    velocityZ[0]*randZ + velocityZ[1]*(1-randZ)
                 );
             break;
         }
@@ -122,6 +122,15 @@ void ParticleSystem::GenerateParticle()
     switch (pColor)
     {
         case(COLOR_PATTERN_RANDOM):
+        {
+            float r = (float)std::rand() / RAND_MAX;
+            float g = (float)std::rand() / RAND_MAX;
+            float b = (float)std::rand() / RAND_MAX;
+            float a = (float)std::rand() / RAND_MAX;
+            particle.color = glm::vec4(r, g, b, a);
+            break;
+        }
+        case(COLOR_PATTERN_RANDOM_BETWEEN_TWO_COLOR):
         {
             float t = (float)std::rand() / RAND_MAX;
             particle.color = colorRandomStart * t + colorRandomEnd * (1.0f - t);
@@ -177,13 +186,10 @@ void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
             particles.erase(particles.begin()+count);
             continue;
         }
-
-        particle.position.x += particle.velocity.x * dt;
-        particle.velocity.y += 0.5f * gravity * dt*dt;
-        particle.position.y += particle.velocity.y * dt;
-        particle.position.z += particle.velocity.z * dt;
+        particle.velocity += glm::vec3(0.0f, gravity, 0.0f) * dt;
         if(pSize == SIZE_PATTERN_OVER_LIFE_TIME) particle.scale += particle.scaleRate * dt;
         if(pColor == COLOR_PATTERN_OVER_LIFE_TIME) particle.color += particle.colorScaleRate * dt;
+        particle.position += particle.velocity * dt;
         particle.cameraDistance = glm::length2(particle.position - camPosition);
 
         count++;
@@ -226,20 +232,23 @@ void ParticleSystem::OnImGuiRender()
 
     if (ImGui::TreeNode("Particle Velocity Setting"))
     {
-        ImGui::Text("Randomized Velocity)");
-        ImGui::DragFloat2("Min/Max Velocity X", (float*)&velocityX, 0.1f);
-        ImGui::DragFloat2("Min/Max Velocity Y", (float*)&velocityY, 0.1f);
-        ImGui::DragFloat2("Min/Max Velocity Z", (float*)&velocityZ, 0.1f);
+        ImGui::RadioButton("Fixed on Spawn", &pVelocity, VELOCITY_PATTERN_FIXED); ImGui::SameLine();
+        ImGui::RadioButton("Randomized on Spawn", &pVelocity, VELOCITY_PATTERN_RANDOM);
+        ImGui::DragFloat3("Fixed Velocity", (float*)&velocity, 0.01f);
+        ImGui::Text("Randomized Velocity");
+        ImGui::DragFloat2("Min/Max Velocity X", (float*)&velocityRandomX, 0.01f);
+        ImGui::DragFloat2("Min/Max Velocity Y", (float*)&velocityRandomY, 0.01f);
+        ImGui::DragFloat2("Min/Max Velocity Z", (float*)&velocityRandomZ, 0.01f);
         ImGui::TreePop();
     }
     ImGui::Separator();
 
     if(ImGui::TreeNode("Particle Size Setting"))
     {
-        ImGui::RadioButton("Fixed on Spawn", &pSize, 0); ImGui::SameLine();
-        ImGui::RadioButton("Randomized on Spawn", &pSize, 1); ImGui::SameLine();
-        ImGui::RadioButton("Size Over Life Time", &pSize, 2);
-        ImGui::DragFloat3("Fixed Size", (float*)&scale, 0.1f, 0.0f);
+        ImGui::RadioButton("Fixed on Spawn", &pSize, SIZE_PATTERN_FIXED); ImGui::SameLine();
+        ImGui::RadioButton("Randomized on Spawn", &pSize, SIZE_PATTERN_RANDOM); ImGui::SameLine();
+        ImGui::RadioButton("Size Over Life Time", &pSize, SIZE_PATTERN_OVER_LIFE_TIME);
+        ImGui::DragFloat3("Fixed Size", (float*)&scale, 0.01f, 0.0f);
         ImGui::Text("Randomized Size");
         ImGui::DragFloat2("Min/Max Size X", (float*)&scaleRandomX, 0.01f, 0.0f);
         ImGui::DragFloat2("Min/Max Size Y", (float*)&scaleRandomY, 0.01f, 0.0f);
@@ -255,11 +264,12 @@ void ParticleSystem::OnImGuiRender()
     if (ImGui::TreeNode("Color Settings"))
     {
         //ImGui::ColorEdit4("Single Color", (float*)&color);
-        ImGui::RadioButton("Fixed on Spawn", &pColor, 0); ImGui::SameLine();
-        ImGui::RadioButton("Randomized on Spawn", &pColor, 1); ImGui::SameLine();
-        ImGui::RadioButton("Color Over Life Time", &pColor, 2);
+        ImGui::RadioButton("Fixed on Spawn", &pColor, COLOR_PATTERN_FIXED); ImGui::SameLine();
+        ImGui::RadioButton("Randomized on Spawn", &pColor, COLOR_PATTERN_RANDOM);
+        ImGui::RadioButton("Randomized Between Two Color on Spawn", &pColor, COLOR_PATTERN_RANDOM_BETWEEN_TWO_COLOR);
+        ImGui::RadioButton("Color Over Life Time", &pColor, COLOR_PATTERN_OVER_LIFE_TIME);
         ImGui::ColorEdit4("Fixed Color", (float*)&color, 0.01f);
-        ImGui::Text("Randomized Color between Two Color");
+        ImGui::Text("Randomized Between Two Color");
         ImGui::ColorEdit4("Min", (float*)&colorRandomStart, 0.01f);
         ImGui::ColorEdit4("Max", (float*)&colorRandomEnd, 0.01f);
         ImGui::Text("Color Over Life Time");
