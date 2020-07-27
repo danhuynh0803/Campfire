@@ -54,32 +54,29 @@ void ParticleSystem::GenerateParticle()
     particle.rotation = glm::vec3(0.0f);
     particle.lifetime = lifetime;
 
-    float t = (float)std::rand()/RAND_MAX;
-    particle.color = colorScaleStart*t + colorScaleEnd*(1.0f-t);
-
     switch (pVelocity)
     {
-        case (VelocityPattern::RADIAL):
+        case (VELOCITY_PATTERN_RANDOM):
+        {
+            float randX = ((float)std::rand() / (RAND_MAX));
+            float randY = ((float)std::rand() / (RAND_MAX));
+            float randZ = ((float)std::rand() / (RAND_MAX));
+
+            particle.velocity =
+                glm::vec3(
+                    velocityRandomX[0] * randX + velocityRandomX[1] * (1 - randX),
+                    velocityRandomY[0] * randY + velocityRandomY[1] * (1 - randY),
+                    velocityRandomZ[0] * randZ + velocityRandomZ[1] * (1 - randZ)
+                );
+            break;
+        }
+        case (VELOCITY_PATTERN_OVER_RADIAL):
         {
             particle.velocity =
                 glm::vec3(
                     velocity.x, //* sin( RADIAN((float)i / numParticles * 360) ),
                     velocity.y,
                     velocity.z //* cos( RADIAN((float)i / numParticles * 360) )
-                );
-            break;
-        }
-        case (VelocityPattern::RANDOM):
-        {
-            float randX = ((float) std::rand() / (RAND_MAX));
-            float randY = ((float) std::rand() / (RAND_MAX));
-            float randZ = ((float) std::rand() / (RAND_MAX));
-
-            particle.velocity =
-                glm::vec3(
-                    velocityX[0]*randX + velocityX[1]*(1-randX),
-                    velocityY[0]*randY + velocityY[1]*(1-randY),
-                    velocityZ[0]*randZ + velocityZ[1]*(1-randZ)
                 );
             break;
         }
@@ -90,9 +87,9 @@ void ParticleSystem::GenerateParticle()
         }
     }
 
-    switch (pScale)
+    switch (pSize)
     {
-        case(SCALE_Pattern_RANDOM):
+        case(SIZE_PATTERN_RANDOM):
         {
             float randX = ((float)std::rand() / (RAND_MAX));
             float randY = ((float)std::rand() / (RAND_MAX));
@@ -102,7 +99,7 @@ void ParticleSystem::GenerateParticle()
                 scaleRandomZ[0] * randZ + scaleRandomZ[1] * (1.0f - randZ));
             break;
         }
-        case(SCALE_Pattern_OVER_LIFE_TIME):
+        case(SIZE_PATTERN_OVER_LIFE_TIME):
         {
             float randX = ((float)std::rand() / (RAND_MAX));
             float randY = ((float)std::rand() / (RAND_MAX));
@@ -118,6 +115,36 @@ void ParticleSystem::GenerateParticle()
         default:
         {
             particle.scale = scale;
+            break;
+        }
+    }
+
+    switch (pColor)
+    {
+        case(COLOR_PATTERN_RANDOM):
+        {
+            float r = (float)std::rand() / RAND_MAX;
+            float g = (float)std::rand() / RAND_MAX;
+            float b = (float)std::rand() / RAND_MAX;
+            float a = (float)std::rand() / RAND_MAX;
+            particle.color = glm::vec4(r, g, b, a);
+            break;
+        }
+        case(COLOR_PATTERN_RANDOM_BETWEEN_TWO_COLOR):
+        {
+            float t = (float)std::rand() / RAND_MAX;
+            particle.color = colorRandomStart * t + colorRandomEnd * (1.0f - t);
+            break;
+        }
+        case(COLOR_PATTERN_OVER_LIFE_TIME):
+        {
+            particle.color = colorOverLifeTimeStart;
+            particle.colorScaleRate = (colorOverLifeEnd - colorOverLifeTimeStart) / lifetime;
+            break;
+        }
+        default:
+        {
+            particle.color = color;
             break;
         }
     }
@@ -159,12 +186,10 @@ void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
             particles.erase(particles.begin()+count);
             continue;
         }
-
-        particle.position.x += particle.velocity.x * dt;
-        particle.velocity.y += 0.5f * gravity * dt*dt;
-        particle.position.y += particle.velocity.y * dt;
-        particle.position.z += particle.velocity.z * dt;
-        particle.scale += particle.scaleRate * dt;
+        particle.velocity += glm::vec3(0.0f, gravity, 0.0f) * dt;
+        if(pSize == SIZE_PATTERN_OVER_LIFE_TIME) particle.scale += particle.scaleRate * dt;
+        if(pColor == COLOR_PATTERN_OVER_LIFE_TIME) particle.color += particle.colorScaleRate * dt;
+        particle.position += particle.velocity * dt;
         particle.cameraDistance = glm::length2(particle.position - camPosition);
 
         count++;
@@ -207,28 +232,31 @@ void ParticleSystem::OnImGuiRender()
 
     if (ImGui::TreeNode("Particle Velocity Setting"))
     {
-        ImGui::Text("Randomized between the two selected values)");
-        ImGui::DragFloat2("min/max Velocity X", (float*)&velocityX, 0.1f);
-        ImGui::DragFloat2("min/max Velocity Y", (float*)&velocityY, 0.1f);
-        ImGui::DragFloat2("min/max Velocity Z", (float*)&velocityZ, 0.1f);
+        ImGui::RadioButton("Fixed on Spawn", &pVelocity, VELOCITY_PATTERN_FIXED); ImGui::SameLine();
+        ImGui::RadioButton("Randomized on Spawn", &pVelocity, VELOCITY_PATTERN_RANDOM);
+        ImGui::DragFloat3("Fixed Velocity", (float*)&velocity, 0.01f);
+        ImGui::Text("Randomized Velocity");
+        ImGui::DragFloat2("Min/Max Velocity X", (float*)&velocityRandomX, 0.01f);
+        ImGui::DragFloat2("Min/Max Velocity Y", (float*)&velocityRandomY, 0.01f);
+        ImGui::DragFloat2("Min/Max Velocity Z", (float*)&velocityRandomZ, 0.01f);
         ImGui::TreePop();
     }
     ImGui::Separator();
 
     if(ImGui::TreeNode("Particle Size Setting"))
     {
-        ImGui::RadioButton("Fixed on Spawn", &pScale, 0); ImGui::SameLine();
-        ImGui::RadioButton("Randomized on Spawn", &pScale, 1); ImGui::SameLine();
-        ImGui::RadioButton("Size Over Life Time", &pScale, 2);
-        ImGui::DragFloat3("Fixed Size", (float*)&scale, 0.1f, 0.0f);
+        ImGui::RadioButton("Fixed on Spawn", &pSize, SIZE_PATTERN_FIXED); ImGui::SameLine();
+        ImGui::RadioButton("Randomized on Spawn", &pSize, SIZE_PATTERN_RANDOM); ImGui::SameLine();
+        ImGui::RadioButton("Size Over Life Time", &pSize, SIZE_PATTERN_OVER_LIFE_TIME);
+        ImGui::DragFloat3("Fixed Size", (float*)&scale, 0.01f, 0.0f);
         ImGui::Text("Randomized Size");
-        ImGui::DragFloat2("min and max size X", (float*)&scaleRandomX, 0.01f, 0.0f);
-        ImGui::DragFloat2("min and max size Y", (float*)&scaleRandomY, 0.01f, 0.0f);
-        ImGui::DragFloat2("min and max size Z", (float*)&scaleRandomZ, 0.01f, 0.0f);
+        ImGui::DragFloat2("Min/Max Size X", (float*)&scaleRandomX, 0.01f, 0.0f);
+        ImGui::DragFloat2("Min/Max Size Y", (float*)&scaleRandomY, 0.01f, 0.0f);
+        ImGui::DragFloat2("Min/Max Size Z", (float*)&scaleRandomZ, 0.01f, 0.0f);
         ImGui::Text("Size Over Life Time");
-        ImGui::DragFloat2("start and end size X", (float*)&scaleXOverLifeTime, 0.01f, 0.0f);
-        ImGui::DragFloat2("start and end size Y", (float*)&scaleYOverLifeTime, 0.01f, 0.0f);
-        ImGui::DragFloat2("start and end size Z", (float*)&scaleZOverLifeTime, 0.01f, 0.0f);
+        ImGui::DragFloat2("Start/End Size X", (float*)&scaleXOverLifeTime, 0.01f, 0.0f);
+        ImGui::DragFloat2("Start/End Size Y", (float*)&scaleYOverLifeTime, 0.01f, 0.0f);
+        ImGui::DragFloat2("Start/End Size Z", (float*)&scaleZOverLifeTime, 0.01f, 0.0f);
         ImGui::TreePop();
     }
     ImGui::Separator();
@@ -236,8 +264,17 @@ void ParticleSystem::OnImGuiRender()
     if (ImGui::TreeNode("Color Settings"))
     {
         //ImGui::ColorEdit4("Single Color", (float*)&color);
-        ImGui::ColorEdit4("Start", (float*)&colorScaleStart);
-        ImGui::ColorEdit4("End", (float*)&colorScaleEnd);
+        ImGui::RadioButton("Fixed on Spawn", &pColor, COLOR_PATTERN_FIXED); ImGui::SameLine();
+        ImGui::RadioButton("Randomized on Spawn", &pColor, COLOR_PATTERN_RANDOM);
+        ImGui::RadioButton("Randomized Between Two Color on Spawn", &pColor, COLOR_PATTERN_RANDOM_BETWEEN_TWO_COLOR);
+        ImGui::RadioButton("Color Over Life Time", &pColor, COLOR_PATTERN_OVER_LIFE_TIME);
+        ImGui::ColorEdit4("Fixed Color", (float*)&color, 0.01f);
+        ImGui::Text("Randomized Between Two Color");
+        ImGui::ColorEdit4("Min", (float*)&colorRandomStart, 0.01f);
+        ImGui::ColorEdit4("Max", (float*)&colorRandomEnd, 0.01f);
+        ImGui::Text("Color Over Life Time");
+        ImGui::ColorEdit4("Start Color", (float*)&colorOverLifeTimeStart, 0.01f);
+        ImGui::ColorEdit4("End Color", (float*)&colorOverLifeEnd, 0.01f);
         ImGui::TreePop();
     }
     ImGui::Separator();
