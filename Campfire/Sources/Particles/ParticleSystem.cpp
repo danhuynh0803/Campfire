@@ -186,7 +186,7 @@ void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
             particles.erase(particles.begin()+count);
             continue;
         }
-        particle.velocity += glm::vec3(0.0f, gravity, 0.0f) * dt;
+        particle.velocity += (glm::vec3(0.0f, gravity, 0.0f) + acceleration)* dt;
         if(pSize == SIZE_PATTERN_OVER_LIFE_TIME) particle.scale += particle.scaleRate * dt;
         if(pColor == COLOR_PATTERN_OVER_LIFE_TIME) particle.color += particle.colorScaleRate * dt;
         particle.position += particle.velocity * dt;
@@ -239,6 +239,12 @@ void ParticleSystem::OnImGuiRender()
         ImGui::DragFloat2("Min/Max Velocity X", (float*)&velocityRandomX, 0.01f);
         ImGui::DragFloat2("Min/Max Velocity Y", (float*)&velocityRandomY, 0.01f);
         ImGui::DragFloat2("Min/Max Velocity Z", (float*)&velocityRandomZ, 0.01f);
+        ImGui::TreePop();
+    }
+    ImGui::Separator();
+    if (ImGui::TreeNode("Particle Acceleration Setting"))
+    {
+        ImGui::DragFloat3("Fixed Acceleration", (float*)&acceleration, 0.01f);
         ImGui::TreePop();
     }
     ImGui::Separator();

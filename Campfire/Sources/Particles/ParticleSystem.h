@@ -56,6 +56,7 @@ public:
     glm::vec2 velocityRandomX = glm::vec2(-1.0f, 1.0f);
     glm::vec2 velocityRandomY = glm::vec2(-1.0f, 1.0f);
     glm::vec2 velocityRandomZ = glm::vec2(-1.0f, 1.0f);
+    glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 
     // min and max scale
     glm::vec3 scale = glm::vec3(0.01f, 0.01f,0.01f);
