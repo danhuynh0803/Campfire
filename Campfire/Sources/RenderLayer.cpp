@@ -42,7 +42,7 @@ void RenderLayer::OnAttach()
     };
     ubo->SetLayout(uboLayout, 0);
 
-    colorFB = FrameBuffer::Create(1600, 900, 16);
+    colorFB = Framebuffer::Create(1600, 900, 16);
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 

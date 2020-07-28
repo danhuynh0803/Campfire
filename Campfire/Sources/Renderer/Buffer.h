@@ -153,22 +153,7 @@ struct UniformBuffer
     virtual void SetData(void* data, uint32_t offset, uint32_t size) = 0;
     virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex) = 0;
 
-    //virtual void SubmitData() = 0;
-
     static SharedPtr<UniformBuffer> Create();
 };
-
-struct FrameBuffer
-{
-    virtual ~FrameBuffer() {}
-    virtual void Bind() const = 0;
-    virtual void Unbind() const = 0;
-    virtual uint32_t GetRenderID() const = 0;
-    virtual uint32_t GetColorAttachmentID() const = 0;
-
-    static SharedPtr<FrameBuffer> Create(uint32_t width, uint32_t height, uint32_t samples = 0);
-};
-
-
 
 #endif // BUFFER_H

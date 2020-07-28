@@ -56,16 +56,3 @@ SharedPtr<UniformBuffer> UniformBuffer::Create()
 
     return nullptr;
 }
-
-SharedPtr<FrameBuffer> FrameBuffer::Create(uint32_t width, uint32_t height, uint32_t samples)
-{
-    switch (RendererAPI::GetAPI())
-    {
-        case RendererAPI::API::None:
-            return nullptr;
-        case RendererAPI::API::OpenGL:
-            return CreateSharedPtr<OpenGLFrameBuffer>(width, height, samples);
-    }
-
-    return nullptr;
-}

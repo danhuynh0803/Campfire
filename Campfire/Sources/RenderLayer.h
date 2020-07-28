@@ -10,6 +10,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Texture.h"
+#include "Renderer/Framebuffer.h"
 
 class RenderLayer : public Layer
 {
@@ -25,7 +26,7 @@ public:
 
 private:
     SharedPtr<UniformBuffer> ubo;
-    SharedPtr<FrameBuffer> colorFB;
+    SharedPtr<Framebuffer> colorFB;
 };
 
 #endif // RENDER_LAYER_H
