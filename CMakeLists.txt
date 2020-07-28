@@ -54,7 +54,9 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/glm/
                     Campfire/Vendor/stb/
                     Campfire/Vendor/spdlog/include/
-                    Campfire/Vendor/rapidjson/include
+                    Campfire/Vendor/rapidjson/include/
+                    Campfire/Vendor/openal-soft/include/
+                    Campfire/Vendor/rapidjson/include/
                     Campfire/Vendor/imgui
                     Campfire/Vendor/entt
 )
