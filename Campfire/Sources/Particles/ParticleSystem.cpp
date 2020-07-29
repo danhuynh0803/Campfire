@@ -203,7 +203,7 @@ void ParticleSystem::Draw()
 {
     glm::mat4 transform = glm::mat4(1.0f);
     transform = glm::translate(transform, position);
-    transform = glm::scale(transform, glm::vec3(0.1f));
+    transform = glm::scale(transform, glm::vec3(0.01f));
 
     // Draw a white quad to indication position of PS
     Renderer2D::SubmitQuad(transform, glm::vec4(1.0f));

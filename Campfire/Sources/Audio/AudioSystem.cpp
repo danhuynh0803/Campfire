@@ -42,7 +42,7 @@ void AudioSystem::PlaySound(const char* filepath)
 
     FMOD::Sound* bgm;
     coreSystem->createSound(filepath, FMOD_DEFAULT, nullptr, &bgm);
-    bgm->setMode(FMOD_LOOP_NORMAL);
+    //bgm->setMode(FMOD_LOOP_NORMAL);
 
     coreSystem->playSound(bgm, 0, false, &channel1);
 }
