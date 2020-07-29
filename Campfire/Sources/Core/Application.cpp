@@ -10,6 +10,7 @@
 #include "Core/Time.h"
 
 #include "Renderer/Renderer.h"
+#include "Audio/AudioLayer.h"
 
 Application* Application::instance = nullptr;
 
@@ -22,6 +23,10 @@ Application::Application()
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
+    // Init audio layer
+    AudioLayer* audioLayer = new AudioLayer();
+    PushLayer(audioLayer);
+
     // Init renderer
     Renderer::Init();
     RenderLayer* renderLayer = new RenderLayer();
@@ -30,7 +35,6 @@ Application::Application()
     // Imgui overlay
     imguiLayer = new ImGuiLayer();
     PushOverlay(imguiLayer);
-
 }
 
 Application::~Application()
