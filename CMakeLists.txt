@@ -28,6 +28,25 @@ option(BUILD_OPENGL3_DEMOS OFF)
 option(BUILD_UNIT_TESTS OFF)
 add_subdirectory(Campfire/Vendor/bullet)
 
+
+# FMOD
+#find_path (FMOD_INCLUDE_DIR fmod.h)
+if(MSVC)
+    find_library(FMOD_LIB fmod_vc)
+    find_library(FMOD_STUDIO_LIB fmodstudio_vc)
+else()
+    find_library(FMOD_LIB fmod)
+    find_library(FMOD_STUDIO_LIB fmodstudio)
+endif()
+
+set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Campfire/Vendor/fmod")
+
+include_directories(${FMOD_DIR}/core/inc/
+                    ${FMOD_DIR}/studio/inc/)
+
+link_directories(${FMOD_DIR}/core/lib/
+                 ${FMOD_DIR}/studio/lib/)
+
 if(MSVC)
     add_compile_options(/W4)
 elseif(APPLE)
@@ -55,7 +74,7 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/stb/
                     Campfire/Vendor/spdlog/include/
                     Campfire/Vendor/rapidjson/include/
-                    Campfire/Vendor/openal-soft/include/
+                    #Campfire/Vendor/openal-soft/include/
                     Campfire/Vendor/rapidjson/include/
                     Campfire/Vendor/imgui
                     Campfire/Vendor/entt
@@ -89,6 +108,9 @@ file(GLOB SRC_PARTICLES Campfire/Sources/Particles/*.h
 
 file(GLOB SRC_IMGUI Campfire/Sources/ImGui/*.h
                     Campfire/Sources/ImGui/*.cpp)
+
+file(GLOB SRC_AUDIO Campfire/Sources/Audio/*.h
+                    Campfire/Sources/Audio/*.cpp)
 
 file(GLOB PROJECT_SHADERS Campfire/Shaders/*.comp
                           Campfire/Shaders/*.frag
@@ -124,6 +146,7 @@ source_group("Sources\\Renderer"           FILES ${SRC_RENDERER})
 source_group("Sources\\Particles"          FILES ${SRC_PARTICLES})
 source_group("Sources\\Scene"              FILES ${SRC_SCENE})
 source_group("Sources\\ImGui"              FILES ${SRC_IMGUI})
+source_group("Sources\\Audio"              FILES ${SRC_AUDIO})
 
 # Shaders
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -144,14 +167,18 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
                                ${SRC_PARTICLES}
                                ${SRC_SCENE}
                                ${SRC_IMGUI}
+                               ${SRC_AUDIO}
                                ${PROJECT_SHADERS}
                                ${PROJECT_CONFIGS}
                                ${VENDORS_SOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME} assimp glfw
+                      fmod_vc fmodstudio_vc
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
                       BulletDynamics BulletCollision LinearMath)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/core/lib/fmod.dll ${FMOD_DIR}/studio/lib/fmodstudio.dll ${CMAKE_BINARY_DIR}/. )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
