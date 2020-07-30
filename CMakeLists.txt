@@ -8,6 +8,9 @@ project(Campfire)
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# LUA Options
+add_subdirectory(Campfire/Vendor/lua-5.4.0)
+
 # GLFW Options
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -126,6 +129,9 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitattributes
                          .gitignore
                          .gitmodules)
+						 
+file(GLOB SRC_SCRIPTING Campfire/Sources/Scripting/*.h
+                   Campfire/Sources/Scripting/*.cpp)
 
 if (NOT MSVC)
 file(GLOB SRC_PLATFORM_LINUX Campfire/Sources/Platform/Linux/*.h
@@ -147,6 +153,7 @@ source_group("Sources\\Particles"          FILES ${SRC_PARTICLES})
 source_group("Sources\\Scene"              FILES ${SRC_SCENE})
 source_group("Sources\\ImGui"              FILES ${SRC_IMGUI})
 source_group("Sources\\Audio"              FILES ${SRC_AUDIO})
+source_group("Sources\\Scripting"          FILES ${SRC_SCRIPTING})
 
 # Shaders
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -168,6 +175,7 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
                                ${SRC_SCENE}
                                ${SRC_IMGUI}
                                ${SRC_AUDIO}
+							   ${SRC_SCRIPTING}
                                ${PROJECT_SHADERS}
                                ${PROJECT_CONFIGS}
                                ${VENDORS_SOURCES}
@@ -176,7 +184,7 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
 target_link_libraries(${PROJECT_NAME} assimp glfw
                       fmod_vc fmodstudio_vc
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
-                      BulletDynamics BulletCollision LinearMath)
+                      BulletDynamics BulletCollision LinearMath LuaLib)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/core/lib/fmod.dll ${FMOD_DIR}/studio/lib/fmodstudio.dll ${CMAKE_BINARY_DIR}/. )
 
