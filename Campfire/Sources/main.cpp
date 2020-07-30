@@ -3,10 +3,9 @@
 
 int main(int argc, char * argv[])
 {
-    ScriptEngine test;
-
-    //Application app;
-    //app.Run();
+    //ScriptEngine test;
+    Application app;
+    app.Run();
 
     return 0;
 }
