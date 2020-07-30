@@ -1,14 +1,13 @@
 #ifndef AUDIO_SYSTEM_H
 #define AUDIO_SYSTEM_H
 
-#include <fmod_studio.hpp>
-#include <fmod.hpp>
 #include <string>
 #include <map>
 #include <vector>
 #include <math.h>
 
 #include "Core/Base.h"
+#include "Audio/FmodImpl.h"
 
 class AudioSystem
 {
@@ -21,7 +20,6 @@ public:
     static void PlaySound(const char* filepath);
 
 private:
-    static FMOD::System* coreSystem;
-    static FMOD::Studio::System* studioSystem;
+    static UniquePtr<FmodImpl> fmod;
 };
 #endif // AUDIO_SYSTEM_H

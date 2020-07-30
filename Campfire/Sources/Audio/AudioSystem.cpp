@@ -2,26 +2,11 @@
 
 #include "Core/Log.h"
 
-FMOD::System* AudioSystem::coreSystem = nullptr;
-FMOD::Studio::System* AudioSystem::studioSystem = nullptr;
+UniquePtr<FmodImpl> AudioSystem::fmod;
 
 void AudioSystem::Init()
 {
-    FMOD_RESULT result;
-    result = FMOD::System_Create(&coreSystem);
-    FMOD::System_Create(&coreSystem);
-    if (result != FMOD_OK)
-    {
-        //LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
-        exit(-1);
-    }
-    result = coreSystem->init(512, FMOD_INIT_NORMAL, 0);
-    coreSystem->init(512, FMOD_INIT_NORMAL, 0);
-    if (result != FMOD_OK)
-    {
-        //LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
-        exit(-1);
-    }
+    fmod = CreateUniquePtr<FmodImpl>();
 }
 
 void AudioSystem::Shutdown()
@@ -41,8 +26,8 @@ void AudioSystem::PlaySound(const char* filepath)
     FMOD_VECTOR listenerPos = {0.0f, 0.0f, -1.0f};
 
     FMOD::Sound* bgm;
-    coreSystem->createSound(filepath, FMOD_DEFAULT, nullptr, &bgm);
+    fmod->coreSystem->createSound(filepath, FMOD_DEFAULT, nullptr, &bgm);
     //bgm->setMode(FMOD_LOOP_NORMAL);
 
-    coreSystem->playSound(bgm, 0, false, &channel1);
+    fmod->coreSystem->playSound(bgm, 0, false, &channel1);
 }
