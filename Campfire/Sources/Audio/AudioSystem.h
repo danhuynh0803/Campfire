@@ -20,10 +20,11 @@ public:
     // Studio related
     static void LoadBank(const std::string& bankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags);
     static void LoadEvent(const std::string& eventName);
+    static void StopEvent(const std::string& eventName, bool isImmediate = false);
     static void LoadSound(const std::string& soundName, bool is3d = true, bool isLooping = false, bool isStream = false);
     static void UnloadSound(const std::string& soundName);
 
-    static void SetListenerPosition(const glm::vec3& pos = glm::vec3(0.0f), float volumedB = 0.0f);
+    static void SetListenerAttributes(int listener, const glm::vec3& pos, const glm::vec3& velocity = glm::vec3(0.0f));
 
     static int PlaySound(const std::string& soundName, const glm::vec3& pos = glm::vec3(0.0f), float volumedB = 0.0f);
     static void PlayEvent(const std::string& eventName, bool isImmediate = false);
