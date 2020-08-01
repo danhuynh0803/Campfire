@@ -40,6 +40,14 @@ void AudioLayer::OnImGuiRender()
 
     ImGui::Text("Clips");
     std::string clipName;
+
+    if (ImGui::Button("Stop All Channels"))
+    {
+        AudioSystem::StopAllChannels();
+    }
+
+    ImGui::Separator();
+
     if (ImGui::Button("Add Audio Clip"))
     {
         //std::string path = FileSystem::OpenFile("*.wav");
