@@ -4,26 +4,15 @@
 #include <fmod_studio.hpp>
 #include <fmod.hpp>
 
+#include <map>
+#include <string>
+
 struct FmodImpl
 {
-    FmodImpl()
-    {
-        FMOD_RESULT result;
-        result = FMOD::System_Create(&coreSystem);
-        FMOD::System_Create(&coreSystem);
-        if (result != FMOD_OK)
-        {
-            //LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
-            exit(-1);
-        }
-        result = coreSystem->init(512, FMOD_INIT_NORMAL, 0);
-        coreSystem->init(512, FMOD_INIT_NORMAL, 0);
-        if (result != FMOD_OK)
-        {
-            //LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
-            exit(-1);
-        }
-    }
+    FmodImpl();
+    ~FmodImpl();
+
+    void OnUpdate(float dt);
 
     FMOD::System* coreSystem;
     FMOD::Studio::System* studioSystem;

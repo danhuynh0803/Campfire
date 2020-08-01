@@ -25,12 +25,12 @@ public:
 
     static void SetListenerPosition(const glm::vec3& pos = glm::vec3(0.0f), float volumedB = 0.0f);
 
-    static void PlaySound(const std::string& filepath, const glm::vec3& pos = glm::vec3(0.0f), float volumedB = 0.0f);
+    static int PlaySound(const std::string& soundName, const glm::vec3& pos = glm::vec3(0.0f), float volumedB = 0.0f);
     static void PlayEvent(const std::string& eventName, bool isImmediate = false);
 
     static void StopAllChannels();
     static void SetChannel3dPosition(int channelId, const glm::vec3& position);
-    static void SetChannelVolume(int channelId, float volumedB);
+    static void SetChannelVolume(int channelId, float dB);
 
     static bool IsPlaying(int channelId);
     static bool IsEventPlaying(const std::string& eventName);

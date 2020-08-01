@@ -13,7 +13,8 @@ void AudioLayer::OnAttach()
 {
     // Init audio
     AudioSystem::Init();
-    AudioSystem::PlaySound("../Assets/Audio/test.wav");
+    std::string BGM = "../Assets/Audio/test.wav";
+    AudioSystem::PlaySound(BGM);
 
     clips.reserve(5);
 }
@@ -56,7 +57,7 @@ void AudioLayer::OnImGuiRender()
         else { clipName = clips[i]; }
         if (ImGui::Button(clipName.c_str()))
         {
-            std::string path = FileSystem::OpenFile("*.wav");            
+            std::string path = FileSystem::OpenFile("*.wav");
             if (!path.empty())
             {
                 clips[i] = path;
