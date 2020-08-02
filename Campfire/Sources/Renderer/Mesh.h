@@ -75,7 +75,7 @@ public:
 
     void OnUpdate(float dt);
 
-    static SharedPtr<Mesh> Create(const std::string&& filename);
+    static SharedPtr<Mesh> Create(const std::string& filename);
 
     //SharedPtr<VertexArray> GetVertexArray() { return vertexArray; }
     std::vector<Submesh> GetSubmeshes() { return submeshes; }

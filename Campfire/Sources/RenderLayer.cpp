@@ -15,9 +15,14 @@
 #include "Scene/Scene.h"
 #include "Scene/Skybox.h"
 
+#include "ImGui/ImGuiLayer.h"
+#include "Core/FileSystem.h"
+
 #include "Particles/ParticleSystem.h"
 
 #include "RenderLayer.h"
+
+#include <stdint.h> // intptr_t
 
 Camera camera(1600, 900, 0.1f, 100.0f);
 
@@ -25,9 +30,14 @@ SharedPtr<Shader> postprocessShader;
 
 Skybox skybox;
 
-ParticleSystem ps;
+struct MeshData
+{
+    SharedPtr<Mesh> mesh;
+    glm::vec3 pos = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(0.1f);
+};
 
-SharedPtr<Mesh> mesh;
+std::vector<MeshData> meshes;
 
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
@@ -36,8 +46,6 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
-    mesh = Mesh::Create("../Assets/Models/planet/planet.obj");
-
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
@@ -51,7 +59,6 @@ void RenderLayer::OnAttach()
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 
-    ps.Init();
     skybox.Init();
 
     std::vector<std::string> skyboxTextures =
@@ -74,8 +81,6 @@ void RenderLayer::OnUpdate(float dt)
 {
     camera.OnUpdate(dt);
 
-    ps.OnUpdate(dt, camera.GetPosition());
-
     if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
     {
         ShaderManager::ReloadShaders();
@@ -92,19 +97,52 @@ void RenderLayer::OnUpdate(float dt)
 
     skybox.DrawSkybox();
 
-    //Timer timer("Particle draw");
-    //ps.Draw();
-
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.1f));
-    Renderer::SubmitMesh(mesh, model);
+    //Timer timer("Model draw");
+    for (auto& meshData : meshes)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, meshData.pos);
+        model = glm::scale(model, meshData.scale);
+        Renderer::SubmitMesh(meshData.mesh, model);
+    }
 
     Renderer::EndScene();
 }
 
 void RenderLayer::OnImGuiRender()
 {
-    ps.OnImGuiRender();
+    ImGui::Begin("Mesh Loader");
+    if (ImGui::Button("Load Model"))
+    {
+        std::string modelPath = FileSystem::OpenFile();
+        if (modelPath != "")
+        {
+            MeshData meshData;
+            meshData.mesh = Mesh::Create(modelPath);
+            meshes.push_back(meshData);
+        }
+    }
+
+    for (size_t i = 0; i < meshes.size(); ++i)
+    {
+        ImGui::Separator();
+
+        if (i == 0)
+        {
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        }
+
+        if (ImGui::TreeNode((void*)(intptr_t)i, "Model %d", i))
+        {
+            auto& meshData = meshes[i];
+            ImGui::DragFloat3("Position", (float*)&meshData.pos, 0.1f);
+            ImGui::DragFloat3("Scale", (float*)&meshData.scale, 0.1f);
+            ImGui::Text("Albedo");
+            ImGui::TreePop();
+        }
+    }
+
+    ImGui::End();
 }
 
 void RenderLayer::OnEvent(Event& event)
