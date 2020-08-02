@@ -18,14 +18,15 @@ SharedPtr<VertexBuffer> VertexBuffer::Create(uint32_t size)
     return nullptr;
 }
 
-SharedPtr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
+SharedPtr<VertexBuffer> VertexBuffer::Create(void* vertices, uint32_t size)
 {
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::API::None:
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return CreateSharedPtr<OpenGLVertexBuffer>(vertices, size);
+            // TODO convert OpenGLBuffer to use void* data so we can pass vertex data directly without converting to float*
+            return CreateSharedPtr<OpenGLVertexBuffer>((float*)vertices, size);
     }
 
     return nullptr;

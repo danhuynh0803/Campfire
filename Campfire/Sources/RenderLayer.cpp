@@ -11,6 +11,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Camera.h"
+#include "Renderer/Mesh.h"
 #include "Scene/Scene.h"
 #include "Scene/Skybox.h"
 
@@ -26,6 +27,8 @@ Skybox skybox;
 
 ParticleSystem ps;
 
+SharedPtr<Mesh> mesh;
+
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
 {
@@ -33,6 +36,8 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
+    mesh = Mesh::Create("../Assets/Models/planet/planet.obj");
+
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
@@ -85,19 +90,14 @@ void RenderLayer::OnUpdate(float dt)
 
     Renderer::BeginScene(camera);
 
-    colorFB->Bind();
-
     skybox.DrawSkybox();
 
-    Timer timer("Particle draw");
-    ps.Draw();
+    //Timer timer("Particle draw");
+    //ps.Draw();
 
-    colorFB->Bind();
-
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, colorFB->GetRenderID());
-    glDrawBuffer(GL_BACK);
-    glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.1f));
+    Renderer::SubmitMesh(mesh, model);
 
     Renderer::EndScene();
 }
