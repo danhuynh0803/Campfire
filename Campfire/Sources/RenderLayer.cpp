@@ -11,6 +11,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Camera.h"
+#include "Renderer/Mesh.h"
 #include "Scene/Scene.h"
 #include "Scene/Skybox.h"
 
@@ -26,6 +27,8 @@ Skybox skybox;
 
 ParticleSystem ps;
 
+SharedPtr<Mesh> mesh;
+
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
 {
@@ -33,6 +36,7 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
+    mesh = Mesh::Create("../Assets/Models/rock/rock.obj");
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
@@ -89,7 +93,7 @@ void RenderLayer::OnUpdate(float dt)
 
     skybox.DrawSkybox();
 
-    Timer timer("Particle draw");
+    //Timer timer("Particle draw");
     ps.Draw();
 
     colorFB->Bind();

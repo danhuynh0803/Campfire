@@ -1,5 +1,10 @@
 #include "Renderer/Mesh.h"
 
+SharedPtr<Mesh> Mesh::Create(const std::string&& filename)
+{
+    return CreateSharedPtr<Mesh>(filename);
+}
+
 Mesh::Mesh(const std::string& filename)
     : filepath(filename)
 {

@@ -10,8 +10,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Core/Base.h"
 #include "Renderer/Texture.h"
+
+#include "Core/Base.h"
 
 struct Vertex
 {
@@ -49,6 +50,8 @@ public:
     ~Mesh();
 
     void OnUpdate(float dt);
+
+    static SharedPtr<Mesh> Create(const std::string&& filename);
 
 private:
     void LoadModel(const std::string& path);
