@@ -1,5 +1,6 @@
 #include "Platform/Windows/WindowsFileSystem.h"
 #include "CDialogEventHandler.h"
+#include <algorithm>
 
 wchar_t* CharToWChar(const char* text)
 {
@@ -133,6 +134,10 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
     std::string fileNameStr;
     if (GetOpenFileName(&ofn))
         fileNameStr = fileName;
+
+    // Replace '\' from windows filesystems with '/', which works on all platforms
+    std::replace(fileNameStr.begin(), fileNameStr.end(), '\\', '/');
+
     return fileNameStr;
 }
 
