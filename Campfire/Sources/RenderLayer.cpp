@@ -36,7 +36,7 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
-    mesh = Mesh::Create("../Assets/Models/rock/rock.obj");
+    mesh = Mesh::Create("../Assets/Models/nanosuit/nanosuit.obj");
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
@@ -94,7 +94,11 @@ void RenderLayer::OnUpdate(float dt)
     skybox.DrawSkybox();
 
     //Timer timer("Particle draw");
-    ps.Draw();
+    //ps.Draw();
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.1f));
+    Renderer::SubmitMesh(mesh, model);
 
     colorFB->Bind();
 

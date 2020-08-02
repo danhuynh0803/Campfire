@@ -132,7 +132,7 @@ struct VertexBuffer
     virtual const BufferLayout& GetLayout() const = 0;
 
     static SharedPtr<VertexBuffer> Create(uint32_t size);
-    static SharedPtr<VertexBuffer> Create(float* vertices, uint32_t size);
+    static SharedPtr<VertexBuffer> Create(void* vertices, uint32_t size);
 };
 
 struct IndexBuffer

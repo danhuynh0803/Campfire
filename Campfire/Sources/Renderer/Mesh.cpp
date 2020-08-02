@@ -17,6 +17,7 @@ Mesh::~Mesh()
 
 void Mesh::OnUpdate(float dt)
 {
+    // TODO for animations
 }
 
 void Mesh::LoadModel(const std::string& path)

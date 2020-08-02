@@ -6,6 +6,8 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Texture.h"
+#include "Renderer/Mesh.h"
+#include "Renderer/Material.h"
 
 class Renderer
 {
@@ -16,6 +18,9 @@ public:
     static void BeginScene(Camera& camera);
     static void EndScene();
 
+public:
+    // TODO allow material instance to override
+    static void SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), SharedPtr<Material> overrideMaterial = nullptr);
 
 public:
     static void Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
@@ -27,11 +32,7 @@ public:
 
 private:
     static glm::mat4 viewProjMatrix;
-
-    //struct SceneData
-    //{
-    //    glm::mat4 viewProjMatrix;
-    //};
+    static SharedPtr<Shader> shader;
 };
 
 #endif // RENDERER_H
