@@ -68,6 +68,11 @@ void Application::Run()
     }
 }
 
+void Application::Close()
+{
+    isRunning = false;
+}
+
 void Application::Shutdown()
 {
 
@@ -89,6 +94,7 @@ void Application::OnEvent(Event& e)
 {
     EventDispatcher dispatcher(e);
 
+    dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
     for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
     {
         if (e.handled)
@@ -98,4 +104,17 @@ void Application::OnEvent(Event& e)
         }
         (*revIt)->OnEvent(e);
     }
+}
+
+bool Application::OnWindowResize(WindowResizeEvent& e)
+{
+    if (e.GetWidth() == 0 || e.GetHeight() == 0)
+    {
+        // TODO
+        // Window minimized
+        return false;
+    }
+
+    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    return false;
 }

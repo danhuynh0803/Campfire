@@ -106,13 +106,24 @@ bool Camera::OnMouseScrolled(MouseScrolledEvent& e)
     if (zoom >= 45.0f)
         zoom = 45.0f;
 
-    SetPerspectiveProjection(1600, 900, 0.1f, 100.0f);
+    SetPerspectiveProjection(viewportWidth, viewportHeight, 0.1f, 100.0f);
+
+    return false;
+}
+
+bool Camera::OnWindowResized(WindowResizeEvent& e)
+{
+    viewportWidth = e.GetWidth();
+    viewportHeight = e.GetHeight();
+
+    SetPerspectiveProjection(viewportWidth, viewportHeight, 0.1f, 100.0f);
 
     return false;
 }
 
 
 Camera::Camera(float width, float height, float nearPlane, float farPlane)
+    : viewportWidth(width), viewportHeight(height)
 {
     position = glm::vec3(0.0f, 0.0f, 5.0f);
     front = glm::vec3(0.0f, 0.0f, -1.0f);

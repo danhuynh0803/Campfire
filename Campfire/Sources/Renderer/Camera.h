@@ -57,6 +57,8 @@ private:
     glm::mat4 viewMatrix;
     glm::mat4 projMatrix;
 
+    uint32_t viewportWidth, viewportHeight;
+
     float rotation = 0.0f;
 
     bool isPerspective = true;

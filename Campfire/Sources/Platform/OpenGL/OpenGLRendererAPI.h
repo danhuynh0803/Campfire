@@ -11,5 +11,7 @@ class OpenGLRendererAPI : public RendererAPI
 
     virtual void DrawIndexed(const SharedPtr<VertexArray>& vertexArray) override;
 
+    virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+
 };
 #endif // OPENGL_RENDERER_API_H

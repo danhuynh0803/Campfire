@@ -4,6 +4,7 @@
 #include "Core/Window.h"
 #include "Core/LayerStack.h"
 #include "Events/Event.h"
+#include "Events/ApplicationEvent.h"
 #include "ImGui/ImGuiLayer.h"
 
 class Application
@@ -14,12 +15,14 @@ public:
 
     static Application& Get() { return *instance; }
     virtual void Run();
+    virtual void Close();
     virtual void Shutdown();
 
     void PushLayer(Layer* layer);
     void PushOverlay(Layer* layer);
 
     void OnEvent(Event& e);
+    bool OnWindowResize(WindowResizeEvent& event);
 
     Window& GetWindow() { return *window; }
 

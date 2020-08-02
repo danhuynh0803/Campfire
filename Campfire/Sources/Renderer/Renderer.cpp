@@ -67,7 +67,7 @@ void Renderer::Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray
 
 void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 {
-
+    RenderCommand::SetViewport(0, 0, width, height);
 }
 
 

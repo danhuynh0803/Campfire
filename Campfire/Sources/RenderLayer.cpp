@@ -97,13 +97,15 @@ void RenderLayer::OnUpdate(float dt)
 
     skybox.DrawSkybox();
 
-    //Timer timer("Model draw");
-    for (auto& meshData : meshes)
     {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, meshData.pos);
-        model = glm::scale(model, meshData.scale);
-        Renderer::SubmitMesh(meshData.mesh, model);
+        Timer timer("Model draw");
+        for (auto& meshData : meshes)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, meshData.pos);
+            model = glm::scale(model, meshData.scale);
+            Renderer::SubmitMesh(meshData.mesh, model);
+        }
     }
 
     Renderer::EndScene();
