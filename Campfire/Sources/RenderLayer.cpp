@@ -36,8 +36,8 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
-    mesh = Mesh::Create("../Assets/Models/cyborg/cyborg.obj");
-    //mesh = Mesh::Create("../Assets/Models/nanosuit/nanosuit.obj");
+    mesh = Mesh::Create("../Assets/Models/planet/planet.obj");
+
     ubo = UniformBuffer::Create();
     BufferLayout uboLayout =
     {
