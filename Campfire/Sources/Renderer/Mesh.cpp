@@ -23,9 +23,19 @@ void Mesh::OnUpdate(float dt)
 void Mesh::LoadModel(const std::string& path)
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+    const uint32_t meshImportFlags =
+        aiProcess_Triangulate
+        | aiProcess_GenUVCoords
+        | aiProcess_GenNormals
+        | aiProcess_OptimizeMeshes
+        | aiProcess_ValidateDataStructure
+        //| aiProcess_FlipUVs
+    ;
+
+    const aiScene* scene = importer.ReadFile(path, meshImportFlags);
+
+    if (!scene || !scene->HasMeshes())
     {
         LOG_ERROR("ERROR::ASSIMP::{0}", importer.GetErrorString());
         return;
@@ -53,8 +63,8 @@ void Mesh::ProcessNode(aiNode* node, const aiScene* scene)
 
 Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
 {
-    std::vector<Vertex>  vertices;
-    std::vector<uint32_t>  indices;
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
     std::vector<SharedPtr<Texture>> textures;
 
     // Process vertex info
@@ -62,17 +72,20 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
     {
         Vertex vertex;
 
+        // Position
         glm::vec3 tempVector;
         tempVector.x = mesh->mVertices[i].x;
         tempVector.y = mesh->mVertices[i].y;
         tempVector.z = mesh->mVertices[i].z;
         vertex.position = tempVector;
 
+        // Normals
         tempVector.x = mesh->mNormals[i].x;
         tempVector.y = mesh->mNormals[i].y;
         tempVector.z = mesh->mNormals[i].z;
         vertex.normal = tempVector;
 
+        // TexCoords
         if (mesh->mTextureCoords[0])
         {
             glm::vec2 tex;
@@ -101,14 +114,15 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
     // Process materials (if any)
     if (mesh->mMaterialIndex >= 0)
     {
+        // TODO check if there exists Albedo, specular, normal, bump maps, etc
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         std::vector<SharedPtr<Texture>> diffuseMaps = LoadMaterialTextures(material,
                 aiTextureType_DIFFUSE, "texture_diffuse");
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-        std::vector<SharedPtr<Texture>> specularMaps = LoadMaterialTextures(
-                material, aiTextureType_SPECULAR, "texture_specular");
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        //std::vector<SharedPtr<Texture>> specularMaps = LoadMaterialTextures(
+        //        material, aiTextureType_SPECULAR, "texture_specular");
+        //textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
 
     return Submesh(vertices, indices, textures);

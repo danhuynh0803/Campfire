@@ -39,26 +39,17 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
     shader->Bind();
     shader->SetMat4("model", transform);
 
+    // TODO Replace with Materials
     for (auto submesh : mesh->GetSubmeshes())
     {
-        GLuint diffuseNr = 1;
-        int i = 0;
-        //for(size_t i = 0; i < textures.size(); ++i)
+        for(size_t i = 0; i < submesh.textures.size(); ++i)
         {
-            // retrieve texture number (the N in diffuse_textureN)
-            //std::string number;
-            //std::string name = textures[i].type;
-            //if(name == "texDiffuse")
-            //    number = std::to_string(diffuseNr++);
-            //else if(name == "texture_specular")
-            //    number = std::to_string(specularNr++);
-            //else if(name == "texture_normal")
-            //    number = std::to_string(normalNr++);
-            //else if(name == "texture_height")
-            //    number = std::to_string(heightNr++);
-
-            shader->SetFloat("texDiffuse", i);
-            submesh.textures[i]->Bind(i);
+            auto texture = submesh.textures[i];
+            if (texture)
+            {
+                shader->SetFloat("texDiffuse", i);
+                submesh.textures[i]->Bind(i);
+            }
         }
 
         RenderCommand::DrawIndexed(submesh.vertexArray);

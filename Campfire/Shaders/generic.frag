@@ -9,15 +9,11 @@ struct Light
     vec4 pos;
     vec4 color;
 
-    //vec4 ambient;
-    //vec4 diffuse;
-    //vec4 specular;
-
-    // packed into a vec4
-    //x: constant
-    //y: linear
-    //z: quadratic
-    //w: padding
+    /* packed into a vec4
+    x: constant factor for attenuation
+    y: linear factor
+    z: quadratic factor
+    w: padding */
     vec4 attenFactors;
 };
 
@@ -38,24 +34,9 @@ out vec4 fragColor;
 
 // =========================================
 uniform sampler2D texDiffuse;
-
-// =========================================
-
-//float near = 0.1f;
-//float far = 100.0f;
-
-// =========================================
-// TODO for shadows
-//float LinearizeDepth(float depth)
-//{
-//    float z = depth * 2.0f - 1.0f;
-//    return (2.0f * near * far) / (far + near - z * (far - near));
-//}
-
-//vec3 CalcPointLight()
-//{
-//
-//}
+uniform sampler2D texSpecular;
+uniform sampler2D texNormals;
+uniform sampler2D texBump;
 
 // =========================================
 vec3 Phong()

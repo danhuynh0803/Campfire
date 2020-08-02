@@ -89,6 +89,9 @@ private:
     std::vector<Submesh> submeshes;
     std::string filepath;
     std::string directory;
+
+private: // assimp related
+    //Assimp::Importer importer;
 };
 
 #endif // MESH_H

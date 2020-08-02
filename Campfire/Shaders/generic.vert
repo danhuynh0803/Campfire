@@ -29,5 +29,6 @@ void main()
     uvCoords = aUV;
 
     // TODO find a way to not do this too often
+    // pass as uniform maybe?
     normal = mat3(transpose(inverse(model))) * aNormal;
 }
