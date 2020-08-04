@@ -1,5 +1,20 @@
 #include "Scene/Scene.h"
 
+#include <imgui.h>
+
+Scene::Scene()
+{
+    /*
+       Scene should be initialized with the following:
+       1) Camera
+       2) Directional light
+    */
+
+    auto mainCamera = CreateEntity("camera");
+    mainCamera.AddComponent<TransformComponent>();
+
+}
+
 void Scene::Init()
 {
 
@@ -15,14 +30,39 @@ void Scene::OnEvent(Event& e)
 
 }
 
+void Scene::OnImGuiRender()
+{
+    ImGui::Begin("Scene Hierarchy");
+
+    size_t i = 0;
+
+    for (auto entityPair : entityMap)
+    {
+        std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
+
+        if (ImGui::Selectable(tag.c_str()))
+        {
+            // Open inspector for selected object
+        }
+
+        ++i;
+    }
+
+    ImGui::End();
+}
+
 void Scene::SetSkybox(SharedPtr<TextureCube> skyboxTex)
 {
-
+    //skybox->Load()
 }
 
 Entity Scene::CreateEntity(const std::string& name)
 {
     auto entity = Entity(registry.create(), this);
+    entity.AddComponent<TagComponent>(name);
+
+    // TODO figure out a identifier system later
+    entityMap[0] = entity;
 
     return entity;
 }
