@@ -11,6 +11,7 @@
 
 #include "Renderer/Renderer.h"
 #include "Audio/AudioLayer.h"
+#include "EditorLayer.h"
 
 Application* Application::instance = nullptr;
 
@@ -31,6 +32,9 @@ Application::Application()
     Renderer::Init();
     RenderLayer* renderLayer = new RenderLayer();
     PushLayer(renderLayer);
+
+    // Init Editor
+    PushLayer(new EditorLayer());
 
     // Imgui overlay
     imguiLayer = new ImGuiLayer();

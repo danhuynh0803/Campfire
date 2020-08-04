@@ -107,10 +107,12 @@ void RenderLayer::OnUpdate(float dt)
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, meshData.pos);
 
-            glm::quat quaternion = glm::quat(glm::vec3(
-                glm::radians(meshData.rotation.x),
-                glm::radians(meshData.rotation.y),
-                glm::radians(meshData.rotation.z))
+            glm::quat quaternion = glm::quat(
+                glm::vec3(
+                    glm::radians(meshData.rotation.x),
+                    glm::radians(meshData.rotation.y),
+                    glm::radians(meshData.rotation.z)
+                )
             );
             glm::mat4 rotation = glm::toMat4(quaternion);
             model = model * rotation;
@@ -125,6 +127,9 @@ void RenderLayer::OnUpdate(float dt)
 
 void RenderLayer::OnImGuiRender()
 {
+    // TODO issues with loading, looks like an issue with mixing relative path and absolute path
+    //skybox.OnImGuiRender();
+
     ImGui::Begin("Mesh Loader");
     if (ImGui::Button("Load Model"))
     {

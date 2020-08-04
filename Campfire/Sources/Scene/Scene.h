@@ -16,9 +16,11 @@ class Entity;
 class Scene
 {
 public:
+    Scene();
     void Init();
     void OnUpdate(float timestep);
     void OnEvent(Event& e);
+    void OnImGuiRender();
 
     void SetSkybox(SharedPtr<TextureCube> skyboxTex);
 
@@ -27,15 +29,15 @@ public:
     //void RemoveEntityRange();
 
 private:
-    entt::entity entity;
-    entt::registry registry;
+    std::unordered_map<uint64_t, Entity> entityMap;
 
     UniquePtr<Skybox> skybox;
 
+    entt::entity entity;
+    entt::registry registry;
+
     friend class Entity;
     friend class Skybox;
-
-    //std::unordered_map<uint64_t, Entity> entityMap;
 };
 
 #endif // SCENE_H
