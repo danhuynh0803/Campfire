@@ -27,6 +27,7 @@ public:
     void Init();
 
     void OnUpdate(float dt);
+    void OnImGuiRender();
 
     void Load(Face face, const std::string& filepath);
     void Load(const std::vector<std::string>& filepaths);
@@ -34,11 +35,14 @@ public:
     void DrawSkybox();
 
 private:
+    SharedPtr<VertexArray> vertexArray;
     SharedPtr<TextureCube> textureCube;
     SharedPtr<Shader> shader;
-    SharedPtr<VertexArray> vertexArray;
+    std::vector<std::string> facePaths;
 
-    std::vector<std::string> faces;
+    // Just for ImGui display
+    // TODO maybe find some other way
+    std::array<SharedPtr<Texture2D>, 6> faceTex2D;
 };
 
 #endif // SKYBOX_H
