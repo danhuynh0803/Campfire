@@ -1,7 +1,7 @@
 # Campfire
 
 ## Summary
-Campfire is an in-progress game engine intended for use in small gamejam projects. Not currently usable other than for myself due to a lot of hardcoded file paths for testing purposes. Campfire uses [Glitter](https://github.com/Polytonic/Glitter) as the starting template but requires at least C++17 due to certain imgui widgets.
+Campfire is an in-progress game engine intended for use in small gamejam projects. Not currently usable other than for myself due to a lot of hardcoded file paths for testing purposes. Campfire uses [Glitter](https://github.com/Polytonic/Glitter) as the starting template. Mostly developed and tested on Windows so the Linux builds may not always be reliable.
 
 ## Build Instructions
 ```bash
@@ -32,3 +32,5 @@ Texture Loading         | [stb](https://github.com/nothings/stb)
 Logging                 | [spdlog](https://github.com/gabime/spdlog)
 Scene Loading/Saving    | [rapidjson](https://github.com/Tencent/rapidjson)
 GUI                     | [imgui](https://github.com/ocornut/imgui)
+Audio                   | [FMOD](https://www.fmod.com/studio)
+Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
