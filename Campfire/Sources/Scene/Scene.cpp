@@ -32,23 +32,6 @@ void Scene::OnEvent(Event& e)
 
 void Scene::OnImGuiRender()
 {
-    ImGui::Begin("Scene Hierarchy");
-
-    size_t i = 0;
-
-    for (auto entityPair : entityMap)
-    {
-        std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
-
-        if (ImGui::Selectable(tag.c_str()))
-        {
-            // Open inspector for selected object
-        }
-
-        ++i;
-    }
-
-    ImGui::End();
 }
 
 void Scene::SetSkybox(SharedPtr<TextureCube> skyboxTex)

@@ -16,10 +16,8 @@ public:
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
 
-    int masterVolume = 50;
-
 private:
-    std::vector<std::string> clips;
+
 };
 
 

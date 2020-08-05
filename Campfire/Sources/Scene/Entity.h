@@ -39,6 +39,12 @@ public:
         return scene->registry.get<T>(entityHandle);
     }
 
+    template <typename T>
+    bool HasComponent()
+    {
+        return scene->registry.has<T>(entityHandle);
+    }
+
 private:
     entt::entity entityHandle;
 
