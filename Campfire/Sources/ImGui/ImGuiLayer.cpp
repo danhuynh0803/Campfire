@@ -91,6 +91,11 @@ void ImGuiLayer::OnAttach()
     GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 450"); // TODO set this version based on the available platform
+
+    // Scale font up for 4k display
+    // TODO maybe have it be dynamic to match screen res or better to just have difference sized fonts since scaling causes it to be blurry
+    io.FontGlobalScale = 2.0f;
+
 }
 
 void ImGuiLayer::OnEvent(Event& e)

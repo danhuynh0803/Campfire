@@ -32,16 +32,6 @@ SharedPtr<Shader> postprocessShader;
 
 Skybox skybox;
 
-struct MeshData
-{
-    SharedPtr<Mesh> mesh;
-    glm::vec3 pos = glm::vec3(0.0f);
-    glm::vec3 rotation = glm::vec3(0.0f);
-    glm::vec3 scale = glm::vec3(0.25f);
-};
-
-std::vector<MeshData> meshes;
-
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
 {
@@ -100,28 +90,6 @@ void RenderLayer::OnUpdate(float dt)
 
     skybox.DrawSkybox();
 
-    {
-        //Timer timer("Model draw");
-        for (auto& meshData : meshes)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, meshData.pos);
-
-            glm::quat quaternion = glm::quat(
-                glm::vec3(
-                    glm::radians(meshData.rotation.x),
-                    glm::radians(meshData.rotation.y),
-                    glm::radians(meshData.rotation.z)
-                )
-            );
-            glm::mat4 rotation = glm::toMat4(quaternion);
-            model = model * rotation;
-
-            model = glm::scale(model, meshData.scale);
-            Renderer::SubmitMesh(meshData.mesh, model);
-        }
-    }
-
     Renderer::EndScene();
 }
 
@@ -129,40 +97,6 @@ void RenderLayer::OnImGuiRender()
 {
     // TODO issues with loading, looks like an issue with mixing relative path and absolute path
     //skybox.OnImGuiRender();
-
-    ImGui::Begin("Mesh Loader");
-    if (ImGui::Button("Load Model"))
-    {
-        std::string modelPath = FileSystem::OpenFile();
-        if (modelPath != "")
-        {
-            MeshData meshData;
-            meshData.mesh = Mesh::Create(modelPath);
-            meshes.push_back(meshData);
-        }
-    }
-
-    for (size_t i = 0; i < meshes.size(); ++i)
-    {
-        ImGui::Separator();
-
-        if (i == 0)
-        {
-            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        }
-
-        if (ImGui::TreeNode((void*)(intptr_t)i, "Model %d", i))
-        {
-            auto& meshData = meshes[i];
-            ImGui::DragFloat3("Position", (float*)&meshData.pos, 0.1f);
-            ImGui::DragFloat3("Rotation", (float*)&meshData.rotation, 0.1f);
-            ImGui::DragFloat3("Scale", (float*)&meshData.scale, 0.1f);
-            ImGui::Text("Albedo");
-            ImGui::TreePop();
-        }
-    }
-
-    ImGui::End();
 }
 
 void RenderLayer::OnEvent(Event& event)

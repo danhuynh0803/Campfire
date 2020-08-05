@@ -129,9 +129,14 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitattributes
                          .gitignore
                          .gitmodules)
-						 
+
 file(GLOB SRC_SCRIPTING Campfire/Sources/Scripting/*.h
                    Campfire/Sources/Scripting/*.cpp)
+
+file(GLOB SRC_EDITOR
+    Campfire/Sources/Editor/*.h
+    Campfire/Sources/Editor/*.cpp
+)
 
 if (NOT MSVC)
 file(GLOB SRC_PLATFORM_LINUX Campfire/Sources/Platform/Linux/*.h
@@ -154,6 +159,7 @@ source_group("Sources\\Scene"              FILES ${SRC_SCENE})
 source_group("Sources\\ImGui"              FILES ${SRC_IMGUI})
 source_group("Sources\\Audio"              FILES ${SRC_AUDIO})
 source_group("Sources\\Scripting"          FILES ${SRC_SCRIPTING})
+source_group("Sources\\Editor"             FILES ${SRC_EDITOR})
 
 # Shaders
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -164,21 +170,24 @@ source_group("Vendors" FILES ${VENDORS_SOURCES})
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
-                               ${SRC_CORE}
-                               ${SRC_EVENTS}
-                               ${SRC_PLATFORM_OPENGL}
-                               ${SRC_PLATFORM_WINDOWS}
-                               ${SRC_PLATFORM_LINUX}
-                               ${SRC_RENDERER}
-                               ${SRC_PARTICLES}
-                               ${SRC_SCENE}
-                               ${SRC_IMGUI}
-                               ${SRC_AUDIO}
-							   ${SRC_SCRIPTING}
-                               ${PROJECT_SHADERS}
-                               ${PROJECT_CONFIGS}
-                               ${VENDORS_SOURCES}
+add_executable(
+    ${PROJECT_NAME}
+        ${PROJECT_SOURCES}
+        ${SRC_CORE}
+        ${SRC_EVENTS}
+        ${SRC_PLATFORM_OPENGL}
+        ${SRC_PLATFORM_WINDOWS}
+        ${SRC_PLATFORM_LINUX}
+        ${SRC_RENDERER}
+        ${SRC_PARTICLES}
+        ${SRC_SCENE}
+        ${SRC_IMGUI}
+        ${SRC_AUDIO}
+        ${SRC_SCRIPTING}
+        ${SRC_EDITOR}
+        ${PROJECT_SHADERS}
+        ${PROJECT_CONFIGS}
+        ${VENDORS_SOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME} assimp glfw

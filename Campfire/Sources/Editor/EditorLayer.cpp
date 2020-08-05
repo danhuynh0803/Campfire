@@ -203,6 +203,11 @@ void EditorLayer::ShowHierarchy(bool* isOpen)
     {
         ImGui::OpenPopup("NewEntityPopup");
     }
+    if (ImGui::BeginPopupContextWindow(0, 1, false))
+    {
+        ShowNewEntityMenu();
+        ImGui::EndPopup();
+    }
     if (ImGui::BeginPopup("NewEntityPopup"))
     {
         ShowNewEntityMenu();
@@ -282,15 +287,6 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         if (ImGui::TreeNode("Mesh"))
         {
             auto& mesh = entity.GetComponent<MeshComponent>().mesh;
-            if (mesh)
-            {
-                ImGui::Text(mesh->GetName().c_str());
-            }
-            else
-            {
-                ImGui::Text("Empty Mesh");
-            }
-
             if (ImGui::Button("Load Mesh"))
             {
                 std::string newPath = FileSystem::OpenFile();
@@ -298,6 +294,17 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
                 {
                     mesh = Mesh::Create(newPath);
                 }
+            }
+
+            ImGui::SameLine();
+
+            if (mesh)
+            {
+                ImGui::Text(mesh->GetName().c_str());
+            }
+            else
+            {
+                ImGui::Text("Empty Mesh");
             }
 
             ImGui::TreePop();
@@ -405,23 +412,32 @@ void EditorLayer::ShowNewEntityMenu()
 void EditorLayer::ShowComponentMenu()
 {
     // TODO
-    if (ImGui::MenuItem("Audio"))
+    if (!selectedEntity.HasComponent<AudioComponent>())
     {
-        //selectedEntity.AddComponent<AudioComponent>();
+        if (ImGui::MenuItem("Audio"))
+        {
+            //selectedEntity.AddComponent<AudioComponent>();
+        }
     }
 
     if (ImGui::BeginMenu("Effects"))
     {
-        if (ImGui::MenuItem("Particle System"))
+        if (!selectedEntity.HasComponent<ParticleSystemComponent>())
         {
-            selectedEntity.AddComponent<ParticleSystemComponent>();
+            if (ImGui::MenuItem("Particle System"))
+            {
+                selectedEntity.AddComponent<ParticleSystemComponent>();
+            }
         }
         ImGui::EndMenu();
     }
 
-    if (ImGui::MenuItem("Mesh"))
+    if (!selectedEntity.HasComponent<MeshComponent>())
     {
-        selectedEntity.AddComponent<MeshComponent>();
+        if (ImGui::MenuItem("Mesh"))
+        {
+            selectedEntity.AddComponent<MeshComponent>();
+        }
     }
 
     if (ImGui::BeginMenu("Physics"))
