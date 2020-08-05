@@ -22,7 +22,7 @@ public:
     virtual void OnEvent(Event& event) override;
 
 private:
-    SharedPtr<Scene> currentScene;
+    SharedPtr<Scene> activeScene;
 
     void ShowMenuFile();
     void ShowMenuWindow();

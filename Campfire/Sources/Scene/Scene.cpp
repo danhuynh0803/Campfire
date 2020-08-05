@@ -1,5 +1,5 @@
 #include "Scene/Scene.h"
-
+#include "Core/Random.h"
 #include <imgui.h>
 
 Scene::Scene()
@@ -42,10 +42,11 @@ void Scene::SetSkybox(SharedPtr<TextureCube> skyboxTex)
 Entity Scene::CreateEntity(const std::string& name)
 {
     auto entity = Entity(registry.create(), this);
+    auto ID = Random::UINT64T();
+    entity.AddComponent<IDComponent>(ID);
     entity.AddComponent<TagComponent>(name);
 
-    // TODO figure out a identifier system later
-    entityMap[0] = entity;
+    entityMap[ID] = entity;
 
     return entity;
 }

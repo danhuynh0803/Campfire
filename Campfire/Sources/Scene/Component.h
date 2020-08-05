@@ -14,7 +14,7 @@
 
 struct IDComponent
 {
-
+    uint64_t ID;
 };
 
 struct TagComponent

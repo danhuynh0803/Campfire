@@ -6,7 +6,7 @@
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
-    currentScene = CreateSharedPtr<Scene>();
+    activeScene = CreateSharedPtr<Scene>();
 }
 
 void EditorLayer::OnAttach()
@@ -48,7 +48,7 @@ void EditorLayer::OnImGuiRender()
     if (showHierarchy) { ShowHierarchy(&showHierarchy); }
 
     // Draw Scene Hierarchy
-    //currentScene->OnImGuiRender();
+    //activeScene->OnImGuiRender();
 
     //ImGui::Begin("Scene");
     //auto viewportSize = ImGui::GetContentRegionAvail();
@@ -209,7 +209,7 @@ void EditorLayer::ShowHierarchy(bool* isOpen)
     static int selected = -1;
     static Entity selectedEntity;
     int i = 0;
-    for (auto entityPair : currentScene->GetEntityMap())
+    for (auto entityPair : activeScene->GetEntityMap())
     {
         std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
         if (filter.PassFilter(tag.c_str()))
@@ -271,6 +271,7 @@ void EditorLayer::ShowNewEntityMenu()
 {
     if (ImGui::MenuItem("Create Empty"))
     {
+        activeScene->CreateEntity("Empty");
     }
 
     if (ImGui::BeginMenu("3D Object"))

@@ -8,6 +8,7 @@
 #include <iostream>
 #include "Core/Log.h"
 #include "Core/Time.h"
+#include "Core/Random.h"
 
 #include "Renderer/Renderer.h"
 #include "Audio/AudioLayer.h"
@@ -19,6 +20,7 @@ Application::Application()
 {
     Log::Init();
     Time::Init();
+    Random::Init();
 
     instance = this;
     window = Window::Create();
