@@ -80,6 +80,8 @@ public:
     //SharedPtr<VertexArray> GetVertexArray() { return vertexArray; }
     std::vector<Submesh> GetSubmeshes() { return submeshes; }
 
+    std::string GetName() const { return name; }
+
 private:
     void LoadModel(const std::string& path);
     void ProcessNode(aiNode* node, const aiScene* scene);
@@ -88,6 +90,7 @@ private:
 private:
     std::vector<Submesh> submeshes;
     std::string filepath;
+    std::string name;
     std::string directory;
 
 private: // assimp related

@@ -36,7 +36,7 @@ struct TransformComponent
 
     operator glm::mat4& ()
     {
-        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::mat4(1.0f);
 
         transform = glm::translate(transform,position);
 
@@ -59,6 +59,8 @@ struct TransformComponent
 
 struct MeshComponent
 {
+    MeshComponent() = default;
+
     SharedPtr<Mesh> mesh;
 
     operator SharedPtr<Mesh>& () { return mesh; }
@@ -66,27 +68,31 @@ struct MeshComponent
 
 struct RigidbodyComponent
 {
-
+    RigidbodyComponent() = default;
 };
 
 struct AudioComponent
 {
-
+    AudioComponent() = default;
 };
 
 struct ScriptComponent
 {
-
+    ScriptComponent() = default;
 };
 
 struct CameraComponent
 {
-
+    CameraComponent() = default;
 };
 
 struct ParticleSystemComponent
 {
+    ParticleSystemComponent() = default;
+
     SharedPtr<ParticleSystem> ps;
+
+    operator SharedPtr<ParticleSystem>& () { return ps; }
 };
 
 

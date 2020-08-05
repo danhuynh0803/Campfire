@@ -5,6 +5,8 @@
 
 Camera editorCamera(1600, 900, 0.1f, 100.0f);
 
+static Entity selectedEntity;
+
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
@@ -213,7 +215,6 @@ void EditorLayer::ShowHierarchy(bool* isOpen)
     ImGui::Separator();
 
     static int selected = -1;
-    static Entity selectedEntity;
     int i = 0;
     for (auto entityPair : activeScene->GetEntityMap())
     {
@@ -280,7 +281,24 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh"))
         {
-            auto mesh = entity.GetComponent<MeshComponent>().mesh;
+            auto& mesh = entity.GetComponent<MeshComponent>().mesh;
+            if (mesh)
+            {
+                ImGui::Text(mesh->GetName().c_str());
+            }
+            else
+            {
+                ImGui::Text("Empty Mesh");
+            }
+
+            if (ImGui::Button("Load Mesh"))
+            {
+                std::string newPath = FileSystem::OpenFile();
+                if (!newPath.empty())
+                {
+                    mesh = Mesh::Create(newPath);
+                }
+            }
 
             ImGui::TreePop();
         }
@@ -389,22 +407,37 @@ void EditorLayer::ShowComponentMenu()
     // TODO
     if (ImGui::MenuItem("Audio"))
     {
+        //selectedEntity.AddComponent<AudioComponent>();
     }
-    if (ImGui::MenuItem("Effects"))
+
+    if (ImGui::BeginMenu("Effects"))
     {
+        if (ImGui::MenuItem("Particle System"))
+        {
+            selectedEntity.AddComponent<ParticleSystemComponent>();
+        }
+        ImGui::EndMenu();
     }
+
     if (ImGui::MenuItem("Mesh"))
     {
+        selectedEntity.AddComponent<MeshComponent>();
     }
-    if (ImGui::MenuItem("Physics"))
+
+    if (ImGui::BeginMenu("Physics"))
     {
+        ImGui::EndMenu();
     }
-    if (ImGui::MenuItem("Rendering"))
+
+    if (ImGui::BeginMenu("Rendering"))
     {
+        ImGui::EndMenu();
     }
+
     if (ImGui::MenuItem("Scripts"))
     {
     }
+
     if (ImGui::MenuItem("New Script"))
     {
     }

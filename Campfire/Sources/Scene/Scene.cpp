@@ -28,6 +28,19 @@ void Scene::OnUpdate(float dt)
 void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
 
+    // Only render objects that have mesh components
+    auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+    for (auto entity : group)
+    {
+        auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+        if (meshComponent.mesh)
+        {
+            meshComponent.mesh->OnUpdate(dt);
+
+            Renderer::SubmitMesh(meshComponent, transformComponent);
+        }
+    }
+
 }
 
 void Scene::OnRenderRuntime(float dt)
