@@ -31,13 +31,16 @@ private:
     void ShowConsole(bool* isOpen);
     void ShowHierarchy(bool* isOpen);
     void ShowInspector(Entity& entity, bool* isOpen);
+
+    // Popups
     void ShowComponentMenu();
+    void ShowNewEntityMenu();
 
     // Audio
     bool showAudioSettings = false;
     // General
     bool showConsole = false;
-    bool showHierarchy = false;
+    bool showHierarchy = true;
     bool showInspector = false;
 
     // Rendering

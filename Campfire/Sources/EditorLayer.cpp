@@ -190,7 +190,18 @@ void EditorLayer::ShowHierarchy(bool* isOpen)
                 "  \"-xxx\"     hide lines containing \"xxx\""
             );
 
-    HelpMarker(filterHelp);
+    // Create new entity
+    if (ImGui::Button("+"))
+    {
+        ImGui::OpenPopup("NewEntityPopup");
+    }
+    if (ImGui::BeginPopup("NewEntityPopup"))
+    {
+        ShowNewEntityMenu();
+        ImGui::EndPopup();
+    }
+
+    //HelpMarker(filterHelp);
     ImGui::SameLine(); filter.Draw();
 
     ImGui::Separator();
@@ -254,6 +265,71 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
     }
 
     ImGui::End();
+}
+
+void EditorLayer::ShowNewEntityMenu()
+{
+    if (ImGui::MenuItem("Create Empty"))
+    {
+    }
+
+    if (ImGui::BeginMenu("3D Object"))
+    {
+        if (ImGui::MenuItem("Cube"))
+        {
+        }
+        if (ImGui::MenuItem("Sphere"))
+        {
+        }
+        if (ImGui::MenuItem("Plane"))
+        {
+        }
+        if (ImGui::MenuItem("Quad"))
+        {
+        }
+        if (ImGui::MenuItem("Cube"))
+        {
+        }
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("2D Object"))
+    {
+        if (ImGui::MenuItem("Sprite"))
+        {
+        }
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Effects"))
+    {
+        if (ImGui::MenuItem("Particle System"))
+        {
+        }
+        ImGui::EndMenu();
+    }
+
+    // TODO
+    if (ImGui::BeginMenu("Light"))
+    {
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Audio"))
+    {
+        // Just an object with an audio component attached
+        // with transform and tag
+        if (ImGui::MenuItem("Audio Source"))
+        {
+        }
+        ImGui::EndMenu();
+    }
+
+    // TODO
+    if (ImGui::BeginMenu("UI"))
+    {
+        ImGui::EndMenu();
+    }
 }
 
 void EditorLayer::ShowComponentMenu()
