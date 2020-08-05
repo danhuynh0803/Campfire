@@ -354,18 +354,23 @@ void EditorLayer::ShowNewEntityMenu()
     {
         if (ImGui::MenuItem("Cube"))
         {
+            auto& entity = activeScene->CreateEntity("Cube");
+            entity.AddComponent<MeshComponent>();
         }
         if (ImGui::MenuItem("Sphere"))
         {
+            auto& entity = activeScene->CreateEntity("Sphere");
+            entity.AddComponent<MeshComponent>();
         }
         if (ImGui::MenuItem("Plane"))
         {
+            auto& entity = activeScene->CreateEntity("Plane");
+            entity.AddComponent<MeshComponent>();
         }
         if (ImGui::MenuItem("Quad"))
         {
-        }
-        if (ImGui::MenuItem("Cube"))
-        {
+            auto& entity = activeScene->CreateEntity("Quad");
+            entity.AddComponent<MeshComponent>();
         }
         ImGui::EndMenu();
     }
