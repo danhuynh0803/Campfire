@@ -18,8 +18,12 @@ class Scene
 public:
     Scene();
     void Init();
-    void OnUpdate(float timestep);
     void OnEvent(Event& e);
+    void OnUpdate(float dt);
+    // Render scene based on editor camera
+    void OnRenderEditor(float dt, const Camera& editorCamera);
+    // Render scene based on game camera
+    void OnRenderRuntime(float dt);
     void OnImGuiRender();
 
     void SetSkybox(SharedPtr<TextureCube> skyboxTex);

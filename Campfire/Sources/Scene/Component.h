@@ -11,6 +11,7 @@
 
 #include "Core/Base.h"
 #include "Renderer/Mesh.h"
+#include "Particles/ParticleSystem.h"
 
 struct IDComponent
 {
@@ -22,7 +23,7 @@ struct TagComponent
     std::string tag;
 
     operator std::string& () { return tag; }
-    operator const std::string& () const { return tag; }
+    //operator const std::string& () const { return tag; }
 };
 
 struct TransformComponent
@@ -53,13 +54,14 @@ struct TransformComponent
 
         return transform;
     }
+
 };
 
 struct MeshComponent
 {
-    Mesh mesh;
+    SharedPtr<Mesh> mesh;
 
-    operator Mesh& () { return mesh; }
+    operator SharedPtr<Mesh>& () { return mesh; }
 };
 
 struct RigidbodyComponent
@@ -84,6 +86,7 @@ struct CameraComponent
 
 struct ParticleSystemComponent
 {
+    SharedPtr<ParticleSystem> ps;
 };
 
 

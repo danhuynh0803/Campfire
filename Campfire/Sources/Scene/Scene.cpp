@@ -2,6 +2,8 @@
 #include "Core/Random.h"
 #include <imgui.h>
 
+#include "Renderer/Renderer.h"
+
 Scene::Scene()
 {
     /*
@@ -11,8 +13,6 @@ Scene::Scene()
     */
 
     auto mainCamera = CreateEntity("camera");
-    mainCamera.AddComponent<TransformComponent>();
-
 }
 
 void Scene::Init()
@@ -20,9 +20,32 @@ void Scene::Init()
 
 }
 
-void Scene::OnUpdate(float timestep)
+void Scene::OnUpdate(float dt)
 {
 
+}
+
+void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
+{
+
+}
+
+void Scene::OnRenderRuntime(float dt)
+{
+    // Render scene from perspective of game camera
+
+    // Only render objects that have mesh components
+    auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+    for (auto entity : group)
+    {
+        auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+        if (meshComponent.mesh)
+        {
+            meshComponent.mesh->OnUpdate(dt);
+
+            Renderer::SubmitMesh(meshComponent, transformComponent);
+        }
+    }
 }
 
 void Scene::OnEvent(Event& e)
@@ -42,9 +65,14 @@ void Scene::SetSkybox(SharedPtr<TextureCube> skyboxTex)
 Entity Scene::CreateEntity(const std::string& name)
 {
     auto entity = Entity(registry.create(), this);
+
+    // Random ID for access in hashmap
     auto ID = Random::UINT64T();
+
+    // Default components all entities should have
     entity.AddComponent<IDComponent>(ID);
     entity.AddComponent<TagComponent>(name);
+    entity.AddComponent<TransformComponent>();
 
     entityMap[ID] = entity;
 

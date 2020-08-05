@@ -3,6 +3,8 @@
 #include "Audio/AudioSystem.h"
 #include "EditorLayer.h"
 
+Camera editorCamera(1600, 900, 0.1f, 100.0f);
+
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
@@ -21,7 +23,11 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
+    activeScene->OnUpdate(dt);
 
+    activeScene->OnRenderEditor(dt, editorCamera);
+
+    //activeScene->OnRenderRuntime(dt);
 }
 
 void EditorLayer::OnImGuiRender()
@@ -246,13 +252,58 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         strcpy(tag, entity.GetComponent<TagComponent>().tag.c_str());
         ImGui::InputText("", tag, IM_ARRAYSIZE(tag));
         entity.GetComponent<TagComponent>().tag.assign(tag);
+
+        ImGui::Separator();
     }
+
 
     // Transform
     if (entity.HasComponent<TransformComponent>())
     {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Transform"))
+        {
+            auto& transform = entity.GetComponent<TransformComponent>();
+            ImGui::DragFloat3("Position", (float*)&transform.position, 0.1f);
+            ImGui::DragFloat3("Rotation", (float*)&transform.rotation, 0.1f);
+            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.1f);
 
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
     }
+
+
+    // Mesh
+    if (entity.HasComponent<MeshComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Mesh"))
+        {
+            auto mesh = entity.GetComponent<MeshComponent>().mesh;
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+    // Particle System
+    if (entity.HasComponent<ParticleSystemComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Particle System"))
+        {
+            auto psPtr = entity.GetComponent<ParticleSystemComponent>().ps;
+            //psPtr->OnImGuiRender();
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+    // Audio
+
+    // Script
 
     if (ImGui::Button("Add Component"))
     {
