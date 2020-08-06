@@ -1,9 +1,7 @@
 #ifndef BULLET_DEBUG_DRAWER_H
 #define BULLET_DEBUG_DRAWER_H
 
-#include "ShaderOld.h"
-#include "ResourceManager.h"
-
+/*
 class BulletDebugDrawer : public btIDebugDraw
 {
 public:
@@ -55,12 +53,10 @@ public:
         debugLines.clear();
     }
 
-    /*
-    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-    {
-        debugLines.push_back(Line(from, to));
-    }
-    */
+//    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+//    {
+//        debugLines.push_back(Line(from, to));
+//    }
 
     virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
     {
@@ -108,5 +104,6 @@ public:
     int getDebugMode(void) const { return 3; }
     int m;
 };
+*/
 
 #endif // BULLET_DEBUG_DRAWER_H

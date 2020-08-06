@@ -127,6 +127,16 @@ struct LightComponent
 struct RigidbodyComponent
 {
     RigidbodyComponent() = default;
+
+    float mass = 0.0f;
+    float drag = 0.0f;
+    float angularDrag = 0.05f;
+
+    bool useGravity = true;
+    bool isKinematic = false;
+
+    bool freezePosition[3] { false, false, false };
+    bool freezeRotation[3] { false, false, false };
 };
 
 struct AudioComponent

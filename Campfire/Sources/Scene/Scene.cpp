@@ -74,6 +74,15 @@ void Scene::OnUpdate(float dt)
     // Based on the lua script attached
     // also if theres a rigidbody attached
 
+    // Update rigidbodies
+    {
+        auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, rigidbodyComponent] = group.get<TransformComponent, RigidbodyComponent>(entity);
+        }
+    }
+
 }
 
 // Render scene from perspective of editor camera
@@ -115,7 +124,6 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
             }
         }
     }
-
 }
 
 // Render scene from perspective of game camera
