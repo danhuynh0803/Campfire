@@ -6,6 +6,19 @@
 
 Scene::Scene()
 {
+    // Setup default skybox
+    skybox = CreateUniquePtr<Skybox>();
+    std::vector<std::string> skyboxTextures =
+    {
+        "../Assets/Textures/Skyboxes/blue/right.png",
+        "../Assets/Textures/Skyboxes/blue/left.png",
+        "../Assets/Textures/Skyboxes/blue/top.png",
+        "../Assets/Textures/Skyboxes/blue/bottom.png",
+        "../Assets/Textures/Skyboxes/blue/front.png",
+        "../Assets/Textures/Skyboxes/blue/back.png"
+    };
+    skybox->Load(skyboxTextures);
+
     /*
        Scene should be initialized with the following:
        1) Camera
@@ -68,6 +81,9 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
     // Send light info to our UBO
     SubmitLights();
+
+    // Draw skybox
+    skybox->DrawSkybox();
 
     // Render particles first since they're transparent
     {

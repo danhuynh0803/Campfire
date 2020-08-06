@@ -4,6 +4,11 @@
 #include "Core/FileSystem.h"
 #include "imgui.h"
 
+Skybox::Skybox()
+{
+    Init();
+}
+
 void Skybox::Init()
 {
     shader = ShaderManager::Create("skybox", "../Campfire/Shaders/skybox.vert", "../Campfire/Shaders/skybox.frag");

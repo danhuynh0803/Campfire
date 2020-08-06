@@ -21,7 +21,7 @@ public:
         BACK
     };
 
-    Skybox() = default;
+    Skybox();
     ~Skybox() = default;
 
     void Init();

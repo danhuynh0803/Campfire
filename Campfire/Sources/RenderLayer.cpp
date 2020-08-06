@@ -30,8 +30,6 @@ Camera camera(1600, 900, 0.1f, 100.0f);
 
 SharedPtr<Shader> postprocessShader;
 
-Skybox skybox;
-
 RenderLayer::RenderLayer()
     : Layer("RenderLayer")
 {
@@ -43,18 +41,6 @@ void RenderLayer::OnAttach()
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 
-    skybox.Init();
-
-    std::vector<std::string> skyboxTextures =
-    {
-        "../Assets/Textures/Skyboxes/blue/right.png",
-        "../Assets/Textures/Skyboxes/blue/left.png",
-        "../Assets/Textures/Skyboxes/blue/top.png",
-        "../Assets/Textures/Skyboxes/blue/bottom.png",
-        "../Assets/Textures/Skyboxes/blue/front.png",
-        "../Assets/Textures/Skyboxes/blue/back.png"
-    };
-    skybox.Load(skyboxTextures);
 }
 
 void RenderLayer::OnDetach()
@@ -67,8 +53,6 @@ void RenderLayer::OnUpdate(float dt)
     {
         ShaderManager::ReloadShaders();
     }
-
-    skybox.DrawSkybox();
 }
 
 void RenderLayer::OnImGuiRender()
