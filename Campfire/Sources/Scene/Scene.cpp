@@ -19,9 +19,28 @@ Scene::Scene()
         { ShaderDataType::FLOAT4, "color" },
         { ShaderDataType::FLOAT4, "attenFactors" }
     };
-    // 25 is currently the max number of lights
-    // specified within the shader
-    uboLights->SetLayout(uboLayout, 1, 25);
+
+    /*
+     25 is currently the max number of lights specified within the shader,
+     but we pass 26 since it's a bit messy otherwise to set in the bufferlayout.
+     Data is stored as the following in the shader:
+
+     Lights[25];
+     uint numLights; //which comes after the array
+
+    --------------------------
+
+    In terms of memory layout, it looks like:
+    Lights[0]
+    Lights[1]
+    ...
+    ...
+    Lights[24]
+    uint numLights
+
+     */
+
+    uboLights->SetLayout(uboLayout, 1, 26);
 
     auto& mainCamera = CreateEntity("Camera");
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 5.0f);

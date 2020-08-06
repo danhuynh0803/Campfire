@@ -44,24 +44,19 @@ vec4 Phong()
     vec4 color = texture(texDiffuse, uvCoords);
     if (color.a < 0.01) { discard; }
 
+    // Albedo
     vec3 albedo = color.rgb;
-
-    float specularCoeff = 0.0f;
-    vec3 diffuse = vec3(0.0f);
-    vec3 specular = vec3(0.0f);
-
     vec3 ambient = 0.1f * albedo;
 
+    // Diffuse
+    vec3 diffuse = vec3(0.0f);
+
+    // Specular
+    float specularCoeff = 0.0f;
+    vec3 specular = vec3(0.0f);
+
     vec3 totalColor = vec3(0.0f);
-
-    // Debug
-    if (numLights < 1)
-    {
-        //return vec4(1.0f, 0.0f, 1.0f, 1.0f);
-    }
-
-    //for (int i = 0; i < numLights; ++i)
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < numLights; ++i)
     {
         vec4 attenFactor = lights[i].attenFactors;
         float distance = length(lights[i].pos.xyz - position);
