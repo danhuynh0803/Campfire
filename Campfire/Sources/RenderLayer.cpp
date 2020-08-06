@@ -26,8 +26,6 @@
 
 #include <stdint.h> // intptr_t
 
-Camera camera(1600, 900, 0.1f, 100.0f);
-
 SharedPtr<Shader> postprocessShader;
 
 RenderLayer::RenderLayer()
@@ -57,11 +55,8 @@ void RenderLayer::OnUpdate(float dt)
 
 void RenderLayer::OnImGuiRender()
 {
-    // TODO issues with loading, looks like an issue with mixing relative path and absolute path
-    //skybox.OnImGuiRender();
 }
 
 void RenderLayer::OnEvent(Event& event)
 {
-    //camera.OnEvent(event);
 }

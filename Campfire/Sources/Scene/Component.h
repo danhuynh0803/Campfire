@@ -16,6 +16,8 @@
 struct IDComponent
 {
     uint64_t ID;
+
+    operator uint64_t () { return ID; }
 };
 
 struct TagComponent

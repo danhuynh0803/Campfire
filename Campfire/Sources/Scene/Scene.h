@@ -31,7 +31,7 @@ public:
     void SetSkybox(SharedPtr<TextureCube> skyboxTex);
 
     Entity CreateEntity(const std::string& name);
-    void RemoveEntity(entt::entity entity);
+    void RemoveEntity(Entity entity);
     //void RemoveEntityRange();
     const std::unordered_map<uint64_t, Entity> const GetEntityMap() { return entityMap; }
 

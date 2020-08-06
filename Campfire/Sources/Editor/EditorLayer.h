@@ -1,13 +1,17 @@
 #ifndef EDITOR_LAYER_H
 #define EDITOR_LAYER_H
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include "Core/Layer.h"
-
 #include "Scene/Scene.h"
+
+#include "Editor/Widgets/ConsoleWidget.h"
+#include "Editor/Widgets/HierarchyWidget.h"
+#include "Editor/Widgets/InspectorWidget.h"
+#include "Editor/Widgets/TransformWidget.h"
 
 class EditorLayer : public Layer
 {
@@ -27,13 +31,14 @@ private:
     void ShowMenuFile();
     void ShowMenuWindow();
 
+    // Widgets
+    HierarchyWidget wHierarchy;
+    InspectorWidget wInspector;
+
+    // TODO convert to widget
     void ShowAudioSettings(bool* isOpen);
     void ShowConsole(bool* isOpen);
-    void ShowHierarchy(bool* isOpen);
-    void ShowInspector(Entity& entity, bool* isOpen);
 
-    // Popups
-    void ShowComponentMenu();
     void ShowNewEntityMenu();
 
     // Audio
@@ -41,7 +46,7 @@ private:
     // General
     bool showConsole = false;
     bool showHierarchy = true;
-    bool showInspector = false;
+    bool showInspector = true;
 
     // Rendering
     bool showLightSettings = false;

@@ -77,7 +77,6 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/stb/
                     Campfire/Vendor/spdlog/include/
                     Campfire/Vendor/rapidjson/include/
-                    #Campfire/Vendor/openal-soft/include/
                     Campfire/Vendor/rapidjson/include/
                     Campfire/Vendor/imgui
                     Campfire/Vendor/entt
@@ -109,6 +108,9 @@ file(GLOB SRC_SCENE Campfire/Sources/Scene/*.h
 file(GLOB SRC_PARTICLES Campfire/Sources/Particles/*.h
                         Campfire/Sources/Particles/*.cpp)
 
+file(GLOB SRC_PHYSICS Campfire/Sources/Physics/*.h
+                      Campfire/Sources/Physics/*.cpp)
+
 file(GLOB SRC_IMGUI Campfire/Sources/ImGui/*.h
                     Campfire/Sources/ImGui/*.cpp)
 
@@ -138,6 +140,11 @@ file(GLOB SRC_EDITOR
     Campfire/Sources/Editor/*.cpp
 )
 
+file(GLOB SRC_EDITOR_WIDGETS
+    Campfire/Sources/Editor/Widgets/*.h
+    Campfire/Sources/Editor/Widgets/*.cpp
+)
+
 if (NOT MSVC)
 file(GLOB SRC_PLATFORM_LINUX Campfire/Sources/Platform/Linux/*.h
                              Campfire/Sources/Platform/ Campfire/Sources/Platform/Linux/*.cpp)
@@ -155,11 +162,13 @@ source_group("Sources\\Platform\\OpenGL"   FILES ${SRC_PLATFORM_OPENGL})
 source_group("Sources\\Platform\\Windows"  FILES ${SRC_PLATFORM_WINDOWS})
 source_group("Sources\\Renderer"           FILES ${SRC_RENDERER})
 source_group("Sources\\Particles"          FILES ${SRC_PARTICLES})
+source_group("Sources\\Physics"            FILES ${SRC_PHYSICS})
 source_group("Sources\\Scene"              FILES ${SRC_SCENE})
 source_group("Sources\\ImGui"              FILES ${SRC_IMGUI})
 source_group("Sources\\Audio"              FILES ${SRC_AUDIO})
 source_group("Sources\\Scripting"          FILES ${SRC_SCRIPTING})
 source_group("Sources\\Editor"             FILES ${SRC_EDITOR})
+source_group("Sources\\Editor\\Widgets"    FILES ${SRC_EDITOR_WIDGETS})
 
 # Shaders
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -180,11 +189,13 @@ add_executable(
         ${SRC_PLATFORM_LINUX}
         ${SRC_RENDERER}
         ${SRC_PARTICLES}
+        ${SRC_PHYSICS}
         ${SRC_SCENE}
         ${SRC_IMGUI}
         ${SRC_AUDIO}
         ${SRC_SCRIPTING}
         ${SRC_EDITOR}
+        ${SRC_EDITOR_WIDGETS}
         ${PROJECT_SHADERS}
         ${PROJECT_CONFIGS}
         ${VENDORS_SOURCES}

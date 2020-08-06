@@ -45,6 +45,8 @@ public:
         return scene->registry.has<T>(entityHandle);
     }
 
+    entt::entity GetHandle() { return entityHandle; }
+
 private:
     entt::entity entityHandle;
 

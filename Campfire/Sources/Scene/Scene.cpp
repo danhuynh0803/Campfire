@@ -218,9 +218,10 @@ Entity Scene::CreateEntity(const std::string& name)
     return entity;
 }
 
-void Scene::RemoveEntity(entt::entity entity)
+void Scene::RemoveEntity(Entity entity)
 {
-    registry.destroy(entity);
+    entityMap.erase(entity.GetComponent<IDComponent>());
+    registry.destroy(entity.GetHandle());
 }
 
 
