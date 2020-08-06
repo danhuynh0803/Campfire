@@ -299,9 +299,9 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         if (ImGui::TreeNode("Transform"))
         {
             auto& transform = entity.GetComponent<TransformComponent>();
-            ImGui::DragFloat3("Position", (float*)&transform.position, 0.1f);
-            ImGui::DragFloat3("Rotation", (float*)&transform.rotation, 0.1f);
-            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.1f);
+            ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
+            ImGui::DragFloat3("Rotation", (float*)&transform.rotation, 0.01f);
+            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
 
             ImGui::TreePop();
         }

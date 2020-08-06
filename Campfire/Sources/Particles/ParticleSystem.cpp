@@ -211,11 +211,20 @@ void ParticleSystem::OnImGuiRender()
 {
     ImGui::Text("Global Settings");
     ImGui::Checkbox("isLooping", &isLooping);
-    ImGui::DragFloat3("System Position", (float*)&position, 0.1f);
     ImGui::DragFloat("Rate over time", &rateOverTime, 1.0f);
     ImGui::DragInt("Number of particles", &numParticles);
     ImGui::DragFloat("Particle Lifetime", &lifetime, 0.1f);
-    ImGui::DragFloat("Gravity", &gravity, 0.1f);
+    ImGui::DragFloat("Gravity", &gravity, 0.01f);
+    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(64, 64), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
+    {
+        std::string path = FileSystem::OpenFile("*.png");
+        if (path.compare("") != 0) // No file selected
+        {
+            particleTexture = Texture2D::Create(path);
+        }
+    }
+    ImGui::SameLine(); ImGui::Text("Particle Texture");
+
     ImGui::Separator();
 
     if (ImGui::TreeNode("Particle Velocity Setting"))
@@ -271,17 +280,6 @@ void ParticleSystem::OnImGuiRender()
         ImGui::ColorEdit4("End Color", (float*)&colorOverLifeEnd, 0.01f);
         ImGui::TreePop();
     }
-    ImGui::Separator();
-
-    if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(64, 64), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
-    {
-        std::string path = FileSystem::OpenFile("*.png");
-        if (path.compare("") != 0) // No file selected
-        {
-            particleTexture = Texture2D::Create(path);
-        }
-    }
-
     ImGui::Separator();
 
     if (ImGui::Button("Generate"))
