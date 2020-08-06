@@ -26,24 +26,26 @@ public:
     void OnRenderRuntime(float dt);
     void OnImGuiRender();
 
-    void SetSkybox(SharedPtr<TextureCube> skyboxTex);
+    void SubmitLights();
 
+    void SetSkybox(SharedPtr<TextureCube> skyboxTex);
 
     Entity CreateEntity(const std::string& name);
     void RemoveEntity(entt::entity entity);
     //void RemoveEntityRange();
-    const std::unordered_map<uint64_t, Entity> const GetEntityMap()
-    {
-        return entityMap;
-    }
+    const std::unordered_map<uint64_t, Entity> const GetEntityMap() { return entityMap; }
 
 private:
-    std::unordered_map<uint64_t, Entity> entityMap;
+    // UBO for lights
+    SharedPtr<UniformBuffer> uboLights;
 
+    // Skybox
     UniquePtr<Skybox> skybox;
 
+    // Entities
     entt::entity entity;
     entt::registry registry;
+    std::unordered_map<uint64_t, Entity> entityMap;
 
     friend class Entity;
     friend class Skybox;

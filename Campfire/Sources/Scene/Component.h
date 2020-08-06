@@ -57,13 +57,66 @@ struct TransformComponent
 
 };
 
+// Primitive models for default meshes
+enum class Geometry
+{
+    CUBE = 0,
+    SPHERE,
+    PLANE,
+    QUAD,
+    CONE,
+    CYLINDER
+};
+
 struct MeshComponent
 {
     MeshComponent() = default;
 
+    MeshComponent(Geometry geometry)
+    {
+        switch (geometry)
+        {
+            case Geometry::CUBE:
+                mesh = Mesh::Create("../Assets/Models/primitives/cube.fbx");
+                break;
+            case Geometry::SPHERE:
+                mesh = Mesh::Create("../Assets/Models/primitives/sphere.fbx");
+                break;
+            case Geometry::PLANE:
+                mesh = Mesh::Create("../Assets/Models/primitives/plane.fbx");
+                break;
+            case Geometry::QUAD:
+                mesh = Mesh::Create("../Assets/Models/primitives/quad.fbx");
+                break;
+            case Geometry::CONE:
+                mesh = Mesh::Create("../Assets/Models/primitives/cone.fbx");
+                break;
+            case Geometry::CYLINDER:
+                mesh = Mesh::Create("../Assets/Models/primitives/cylinder.fbx");
+                break;
+        }
+    }
+
     SharedPtr<Mesh> mesh;
 
     operator SharedPtr<Mesh>& () { return mesh; }
+};
+
+struct LightComponent
+{
+    enum class LightType
+    {
+        DIRECTIONAL = 0,
+        POINT,
+        SPOT,
+        AREA
+    };
+
+    glm::vec4 color = glm::vec4(1.0f);
+    // Attenuation factors
+    float constant = 1.0f; // Should stay at 1.0f
+    float linear = 0.09f;
+    float quadratic = 0.032f;
 };
 
 struct RigidbodyComponent

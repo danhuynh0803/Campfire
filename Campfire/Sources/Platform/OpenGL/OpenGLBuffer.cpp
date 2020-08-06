@@ -97,7 +97,7 @@ void OpenGLUniformBuffer::Unbind() const
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockIndex)
+void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockIndex, uint32_t count)
 {
     layout = _layout;
 
@@ -106,6 +106,9 @@ void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockI
     {
         size += ConvertShaderDataTypeToSize(element.type);
     }
+    // For allocating an array of data
+    // TODO replace with SSBO at some point
+    size *= count;
 
     // Allocate buffer based on attached elements
     glBindBuffer(GL_UNIFORM_BUFFER, renderID);
@@ -113,6 +116,7 @@ void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockI
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, blockIndex, renderID, 0, size);
 }
+
 
 void OpenGLUniformBuffer::SetData(void* data, uint32_t offset, uint32_t size)
 {

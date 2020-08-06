@@ -14,6 +14,7 @@ void Renderer::Init()
     shader = ShaderManager::Create("generic", "../Campfire/Shaders/generic.vert", "../Campfire/Shaders/generic.frag");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
+    shader->SetUniformBlock("LightBuffer", 1);
 
     // If no textures available then use the default white texture
     whiteTexture = Texture2D::Create(1, 1);

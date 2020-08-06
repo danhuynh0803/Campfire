@@ -39,7 +39,7 @@ uniform sampler2D texNormals;
 uniform sampler2D texBump;
 
 // =========================================
-vec3 Phong()
+vec4 Phong()
 {
     vec4 color = texture(texDiffuse, uvCoords);
     if (color.a < 0.01) { discard; }
@@ -54,7 +54,14 @@ vec3 Phong()
 
     vec3 totalColor = vec3(0.0f);
 
-    for (int i = 0; i < numLights; ++i)
+    // Debug
+    if (numLights < 1)
+    {
+        //return vec4(1.0f, 0.0f, 1.0f, 1.0f);
+    }
+
+    //for (int i = 0; i < numLights; ++i)
+    for (int i = 0; i < 1; ++i)
     {
         vec4 attenFactor = lights[i].attenFactors;
         float distance = length(lights[i].pos.xyz - position);
@@ -67,20 +74,15 @@ vec3 Phong()
         diffuse = max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
 
         // TODO specular with spec maps
-
         totalColor += ambient + (diffuse + specular) * albedo;
     }
 
-    return totalColor;
+    return vec4(totalColor, 1.0f);
 }
 
 // =========================================
 void main()
 {
-    //fragColor = vec4(Phong(), 1.0f);
-    vec4 color = texture(texDiffuse, uvCoords);
-    //color = vec4(1.0f);
-    //color.rgb = Phong();
-    //if (color.a < 0.01) { discard; }
+    vec4 color = Phong();
     fragColor = color;
 }

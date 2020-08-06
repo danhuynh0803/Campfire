@@ -312,6 +312,22 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Light
+    if (entity.HasComponent<LightComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Light"))
+        {
+            auto& color = entity.GetComponent<LightComponent>().color;
+
+            ImGui::ColorEdit4("Light Color", (float*)&color);
+            // TODO reorganize this with range, type, etc
+            //ImGui::DragFloat("Range", &light.linear, 0.01f);
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
     // Particle System
     if (entity.HasComponent<ParticleSystemComponent>())
     {
@@ -325,6 +341,7 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         }
         ImGui::Separator();
     }
+
 
     // Audio
 
@@ -355,22 +372,32 @@ void EditorLayer::ShowNewEntityMenu()
         if (ImGui::MenuItem("Cube"))
         {
             auto& entity = activeScene->CreateEntity("Cube");
-            entity.AddComponent<MeshComponent>();
+            entity.AddComponent<MeshComponent>(Geometry::CUBE);
         }
         if (ImGui::MenuItem("Sphere"))
         {
             auto& entity = activeScene->CreateEntity("Sphere");
-            entity.AddComponent<MeshComponent>();
+            entity.AddComponent<MeshComponent>(Geometry::SPHERE);
         }
         if (ImGui::MenuItem("Plane"))
         {
             auto& entity = activeScene->CreateEntity("Plane");
-            entity.AddComponent<MeshComponent>();
+            entity.AddComponent<MeshComponent>(Geometry::PLANE);
         }
         if (ImGui::MenuItem("Quad"))
         {
             auto& entity = activeScene->CreateEntity("Quad");
-            entity.AddComponent<MeshComponent>();
+            entity.AddComponent<MeshComponent>(Geometry::QUAD);
+        }
+        if (ImGui::MenuItem("Cone"))
+        {
+            auto& entity = activeScene->CreateEntity("Cone");
+            entity.AddComponent<MeshComponent>(Geometry::CONE);
+        }
+        if (ImGui::MenuItem("Cylinder"))
+        {
+            auto& entity = activeScene->CreateEntity("Cylinder");
+            entity.AddComponent<MeshComponent>(Geometry::CYLINDER);
         }
         ImGui::EndMenu();
     }

@@ -15,15 +15,6 @@
 #include "Renderer/VertexArray.h"
 #include "Core/Base.h"
 
-// Primitive models for default meshes
-enum class Primitive
-{
-    CUBE = 0,
-    SPHERE,
-    PLANE,
-    QUAD
-};
-
 struct Vertex
 {
     glm::vec3 position;
