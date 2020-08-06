@@ -146,7 +146,11 @@ struct CameraComponent
 
 struct ParticleSystemComponent
 {
-    ParticleSystemComponent() = default;
+    ParticleSystemComponent()
+    {
+        ps = CreateSharedPtr<ParticleSystem>();
+        ps->Init();
+    }
 
     SharedPtr<ParticleSystem> ps;
 

@@ -1,7 +1,10 @@
 #include "Core/Application.h"
 #include "Core/FileSystem.h"
 #include "Audio/AudioSystem.h"
-#include "EditorLayer.h"
+#include "Renderer/Renderer.h"
+#include "Editor/EditorLayer.h"
+
+SharedPtr<UniformBuffer> uboCamera;
 
 Camera editorCamera(1600, 900, 0.1f, 100.0f);
 
@@ -15,7 +18,14 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach()
 {
-
+    uboCamera = UniformBuffer::Create();
+    BufferLayout uboLayout =
+    {
+        { ShaderDataType::MAT4, "view"},
+        { ShaderDataType::MAT4, "proj"},
+        { ShaderDataType::MAT4, "viewProj"}
+    };
+    uboCamera->SetLayout(uboLayout, 0);
 }
 
 void EditorLayer::OnDetach()
@@ -25,11 +35,25 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
+    editorCamera.OnUpdate(dt);
+
+    // TODO create a camera controller:
+    // update active camera (either editor or game camera)
+    // Set UBO data based on that active camera
+    uboCamera->Bind();
+    uboCamera->SetData((void*)glm::value_ptr(editorCamera.GetViewMatrix()), 0, sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(editorCamera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(editorCamera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->Unbind();
+
     activeScene->OnUpdate(dt);
 
-    activeScene->OnRenderEditor(dt, editorCamera);
+    Renderer::BeginScene(editorCamera);
 
+    activeScene->OnRenderEditor(dt, editorCamera);
     //activeScene->OnRenderRuntime(dt);
+
+    Renderer::EndScene();
 }
 
 void EditorLayer::OnImGuiRender()
@@ -111,6 +135,7 @@ void EditorLayer::ShowMenuWindow()
 
 void EditorLayer::OnEvent(Event& event)
 {
+    editorCamera.OnEvent(event);
 }
 
 // Editor Imgui Widgets
@@ -338,8 +363,8 @@ void EditorLayer::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Particle System"))
         {
-            auto psPtr = entity.GetComponent<ParticleSystemComponent>().ps;
-            //psPtr->OnImGuiRender();
+            auto& psPtr = entity.GetComponent<ParticleSystemComponent>().ps;
+            psPtr->OnImGuiRender();
 
             ImGui::TreePop();
         }
@@ -418,6 +443,8 @@ void EditorLayer::ShowNewEntityMenu()
     {
         if (ImGui::MenuItem("Particle System"))
         {
+            auto& entity = activeScene->CreateEntity("Particle System");
+            entity.AddComponent<ParticleSystemComponent>();
         }
         ImGui::EndMenu();
     }

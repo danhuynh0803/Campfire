@@ -57,6 +57,9 @@ void Scene::Init()
 
 void Scene::OnUpdate(float dt)
 {
+    // Update all entities
+    // Based on the lua script attached
+    // also if theres a rigidbody attached
 
 }
 
@@ -66,16 +69,34 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
     // Send light info to our UBO
     SubmitLights();
 
-    // Only render objects that have mesh components
-    auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
-    for (auto entity : group)
+    // Render particles first since they're transparent
     {
-        auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
-        if (meshComponent.mesh)
+        auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
         {
-            meshComponent.mesh->OnUpdate(dt);
+            auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
+            if (particleSystemComponent.ps)
+            {
+                particleSystemComponent.ps->position = transformComponent.position;
+                particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
+                particleSystemComponent.ps->Draw(transformComponent);
+            }
+        }
+    }
 
-            Renderer::SubmitMesh(meshComponent, transformComponent);
+    // Render opaque meshes
+    {
+        // Only render objects that have mesh components
+        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+            if (meshComponent.mesh)
+            {
+                meshComponent.mesh->OnUpdate(dt);
+
+                Renderer::SubmitMesh(meshComponent, transformComponent);
+            }
         }
     }
 

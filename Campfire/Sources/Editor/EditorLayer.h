@@ -47,6 +47,7 @@ private:
     bool showLightSettings = false;
     bool showLightExplorer = false;
 
+    //Camera editorCamera(1600, 900, 0.1f, 100f);
 };
 
 #endif // EDITOR_LAYER_H

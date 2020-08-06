@@ -199,14 +199,10 @@ void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
     std::sort(particles.begin(), particles.end());
 }
 
-void ParticleSystem::Draw()
+void ParticleSystem::Draw(const glm::mat4& transform)
 {
-    glm::mat4 transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, position);
-    transform = glm::scale(transform, glm::vec3(0.01f));
-
     // Draw a white quad to indication position of PS
-    Renderer2D::SubmitQuad(transform, glm::vec4(1.0f));
+    Renderer2D::SubmitQuad(transform, glm::vec4(0.01f));
 
     for (const auto& particle : particles)
     {
@@ -217,10 +213,6 @@ void ParticleSystem::Draw()
 
 void ParticleSystem::OnImGuiRender()
 {
-    ImGui::Begin("Particles");
-
-    ImGui::Separator();
-
     ImGui::Text("Global Settings");
     ImGui::Checkbox("isLooping", &isLooping);
     ImGui::DragFloat3("System Position", (float*)&position, 0.1f);
@@ -305,6 +297,4 @@ void ParticleSystem::OnImGuiRender()
     {
         particles.clear();
     }
-
-    ImGui::End();
 }

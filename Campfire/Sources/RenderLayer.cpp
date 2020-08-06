@@ -39,15 +39,6 @@ RenderLayer::RenderLayer()
 
 void RenderLayer::OnAttach()
 {
-    ubo = UniformBuffer::Create();
-    BufferLayout uboLayout =
-    {
-        { ShaderDataType::MAT4, "view"},
-        { ShaderDataType::MAT4, "proj"},
-        { ShaderDataType::MAT4, "viewProj"}
-    };
-    ubo->SetLayout(uboLayout, 0);
-
     colorFB = Framebuffer::Create(1600, 900, 16);
 
     postprocessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
@@ -72,25 +63,12 @@ void RenderLayer::OnDetach()
 
 void RenderLayer::OnUpdate(float dt)
 {
-    camera.OnUpdate(dt);
-
     if (Input::GetMod(MOD_SHIFT) && Input::GetKeyDown(KEY_R))
     {
         ShaderManager::ReloadShaders();
     }
 
-    // Set UBO data
-    ubo->Bind();
-    ubo->SetData((void*)glm::value_ptr(camera.GetViewMatrix()), 0, sizeof(glm::mat4));
-    ubo->SetData((void*)glm::value_ptr(camera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-    ubo->SetData((void*)glm::value_ptr(camera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
-    ubo->Unbind();
-
-    Renderer::BeginScene(camera);
-
     skybox.DrawSkybox();
-
-    Renderer::EndScene();
 }
 
 void RenderLayer::OnImGuiRender()
@@ -101,5 +79,5 @@ void RenderLayer::OnImGuiRender()
 
 void RenderLayer::OnEvent(Event& event)
 {
-    camera.OnEvent(event);
+    //camera.OnEvent(event);
 }

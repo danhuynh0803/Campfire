@@ -45,7 +45,7 @@ public:
     void DebugParticle();
     void OnUpdate(float dt, const glm::vec3& camPosition);
     void OnImGuiRender();
-    void Draw();
+    void Draw(const glm::mat4& transform);
 
 public:
     bool isLooping = true;
@@ -81,7 +81,7 @@ public:
 
     GenerationPattern pGeneration = GenerationPattern::SEQUENCE;
     //VelocityPattern pVelocity = VelocityPattern::RANDOM;
-    
+
     int pVelocity = VELOCITY_PATTERN_RANDOM;
     int pSize = SIZE_PATTERN_OVER_LIFE_TIME;
     int pColor = COLOR_PATTERN_RANDOM;

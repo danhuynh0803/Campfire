@@ -102,7 +102,7 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
     if (zoom >= 45.0f)
         zoom = 45.0f;
 
-    camera.SetPerspectiveProjection(1600, 900, 0.1f, 100.0f);
+    activeCamera.SetPerspectiveProjection(1600, 900, 0.1f, 100.0f);
 
     return false;
 }

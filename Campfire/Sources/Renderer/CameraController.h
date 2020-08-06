@@ -58,7 +58,7 @@ private:
 
 private:
     friend class Camera;
-    Camera camera;
+    Camera activeCamera;
 
     glm::vec3 cameraPosition = glm::vec3(0.0f);
     float cameraTranslationSpeed = 10.0f;
