@@ -112,6 +112,11 @@ struct LightComponent
         AREA
     };
 
+    LightComponent() = default;
+    LightComponent(LightType t)
+        : type(t) {}
+
+    LightType type = LightType::DIRECTIONAL;
     glm::vec4 color = glm::vec4(1.0f);
     // Attenuation factors
     float constant = 1.0f; // Should stay at 1.0f

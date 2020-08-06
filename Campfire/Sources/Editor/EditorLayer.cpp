@@ -167,7 +167,7 @@ void EditorLayer::ShowAudioSettings(bool* isOpen)
 
 void EditorLayer::ShowConsole(bool* isOpen)
 {
-
+    // TODO make console widget
 }
 
 static void HelpMarker(const char* desc)
@@ -226,7 +226,11 @@ void EditorLayer::ShowHierarchy(bool* isOpen)
         std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
         if (filter.PassFilter(tag.c_str()))
         {
-            if (ImGui::Selectable(tag.c_str(), selected == i))
+            char buf[128];
+            // FIXME: adding an index into tag since duplicate tags
+            // cause us to only be able to select the first of that matching tag
+            sprintf(buf, "%d. %s", i, tag.c_str());
+            if (ImGui::Selectable(buf, selected == i))
             {
                 // Open inspector for selected object
                 showInspector = true;
@@ -421,6 +425,27 @@ void EditorLayer::ShowNewEntityMenu()
     // TODO
     if (ImGui::BeginMenu("Light"))
     {
+        if (ImGui::MenuItem("Directional Light"))
+        {
+            auto& entity = activeScene->CreateEntity("Directional Light");
+            entity.AddComponent<LightComponent>(LightComponent::LightType::DIRECTIONAL);
+        }
+        if (ImGui::MenuItem("Point Light"))
+        {
+            auto& entity = activeScene->CreateEntity("Point Light");
+            entity.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+        }
+        if (ImGui::MenuItem("Spot Light"))
+        {
+            auto& entity = activeScene->CreateEntity("Spot Light");
+            entity.AddComponent<LightComponent>(LightComponent::LightType::SPOT);
+        }
+        if (ImGui::MenuItem("Area Light"))
+        {
+            auto& entity = activeScene->CreateEntity("Area Light");
+            entity.AddComponent<LightComponent>(LightComponent::LightType::AREA);
+        }
+
         ImGui::EndMenu();
     }
 
@@ -477,9 +502,12 @@ void EditorLayer::ShowComponentMenu()
         ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Rendering"))
+    if (!selectedEntity.HasComponent<LightComponent>())
     {
-        ImGui::EndMenu();
+        if (ImGui::MenuItem("Light"))
+        {
+            selectedEntity.AddComponent<LightComponent>();
+        }
     }
 
     if (ImGui::MenuItem("Scripts"))
