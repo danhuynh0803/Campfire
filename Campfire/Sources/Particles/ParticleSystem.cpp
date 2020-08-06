@@ -201,12 +201,8 @@ void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
 
 void ParticleSystem::Draw(const glm::mat4& transform)
 {
-    // Draw a white quad to indication position of PS
-    Renderer2D::SubmitQuad(transform, glm::vec4(0.01f));
-
     for (const auto& particle : particles)
     {
-        //Renderer2D::DrawBillboard(particle.position, particle.scale, particle.color);
         Renderer2D::DrawBillboard(particle.position, particle.scale, particleTexture, particle.color);
     }
 }
