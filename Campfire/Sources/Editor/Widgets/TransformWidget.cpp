@@ -6,35 +6,75 @@
 
 void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
 {
-    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
-    static bool useSnap = false;
-    static float snap[3] = { 1.f, 1.f, 1.f };
-    static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-    static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-    static bool boundSizing = false;
-    static bool boundSizingSnap = false;
+    if (!entity.HasComponent<TransformComponent>())
+    {
+        // Don't draw Gizmo if transform componenet not present
+        return;
+    }
 
     if (!Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
     {
         if (Input::GetKeyDown(KEY_W))
-            mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+            operation = ImGuizmo::TRANSLATE;
         if (Input::GetKeyDown(KEY_E))
-            mCurrentGizmoOperation = ImGuizmo::ROTATE;
+            operation = ImGuizmo::ROTATE;
         if (Input::GetKeyDown(KEY_R))
-            mCurrentGizmoOperation = ImGuizmo::SCALE;
+            operation = ImGuizmo::SCALE;
     }
 
-    if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+    float* viewMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetViewMatrix()));
+    float* projMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetProjMatrix()));
+
+    auto& transformComp = entity.GetComponent<TransformComponent>();
+    float* transform = const_cast<float*>(glm::value_ptr(transformComp.GetTransform()));
+
+    ImGuizmo::Manipulate(
+        viewMatrix,
+        projMatrix,
+        operation,
+        mode,
+        transform,
+        nullptr,                                // delta matrix
+        useSnap ? &snap[0] : nullptr,           // snap
+        boundSizing ? bounds : NULL,            // local bounds
+        boundSizingSnap ? boundsSnap : NULL     // bounds snap
+    );
+
+    // Update transform component's data
+    float newTranslation[3], newRotation[3], newScale[3];
+    ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation, newScale);
+    transformComp.position = glm::make_vec3(newTranslation);
+    transformComp.rotation = glm::make_vec3(newRotation);
+    transformComp.scale    = glm::make_vec3(newScale);
+}
+
+void TransformWidget::ShowTransformSettings(bool* isOpen)
+{
+    ImGui::Begin("Move Tool", isOpen);
+
+    ImGui::NewLine();
+
+    if (operation != ImGuizmo::SCALE)
     {
-        if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
-            mCurrentGizmoMode = ImGuizmo::LOCAL;
+        if (ImGui::RadioButton("Local", mode == ImGuizmo::LOCAL))
+            mode = ImGuizmo::LOCAL;
         ImGui::SameLine();
-        if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
-            mCurrentGizmoMode = ImGuizmo::WORLD;
+        if (ImGui::RadioButton("World", mode == ImGuizmo::WORLD))
+            mode = ImGuizmo::WORLD;
     }
 
-    switch (mCurrentGizmoOperation)
+    ImGui::NewLine();
+    ImGui::Separator();
+    ImGui::NewLine();
+
+    ImGui::Text("Snap Settings (Enable with CTRL)");
+    ImGui::Checkbox("", &useSnap);
+    useSnap = (Input::GetMod(MOD_CONTROL)) ? true : false;
+    ImGui::SameLine();
+    switch (operation)
     {
         case ImGuizmo::TRANSLATE:
             ImGui::InputFloat3("Snap", &snap[0]);
@@ -46,7 +86,13 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
             ImGui::InputFloat("Scale Snap", &snap[0]);
             break;
     }
-    ImGui::Checkbox("Bound Sizing", &boundSizing);
+
+    ImGui::NewLine();
+    ImGui::Separator();
+    ImGui::NewLine();
+
+    ImGui::Text("Bound Size Settings");
+    ImGui::Checkbox("Enable Bound Sizing", &boundSizing);
     if (boundSizing)
     {
         ImGui::PushID(3);
@@ -56,37 +102,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
         ImGui::PopID();
     }
 
-    // TODO broken
-    //ImGui::Checkbox("", &useSnap);
-    //ImGui::SameLine();
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-    float* viewMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetViewMatrix()));
-    float* projMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetProjMatrix()));
-
-    if (!entity.HasComponent<TransformComponent>())
-    {
-        // Don't draw Gizmo if transform componenet not present
-        return;
-    }
-
-    auto& transformComp = entity.GetComponent<TransformComponent>();
-    float* transform = const_cast<float*>(glm::value_ptr(transformComp.GetTransform()));
-
-    ImGuizmo::Manipulate(viewMatrix, projMatrix, mCurrentGizmoOperation, mCurrentGizmoMode, transform, NULL, useSnap ? &snap[0] : NULL, boundSizing?bounds:NULL, boundSizingSnap?boundsSnap:NULL);
-
-    // Update transform component's data
-    float newTranslation[3], newRotation[3], newScale[3];
-    ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation, newScale);
-    transformComp.position = glm::make_vec3(newTranslation);
-    transformComp.rotation = glm::make_vec3(newRotation);
-    transformComp.scale    = glm::make_vec3(newScale);
-}
-
-void TransformWidget::ShowTransformSettings()
-{
-
+    ImGui::End();
 }
 
 

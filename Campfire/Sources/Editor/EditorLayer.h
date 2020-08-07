@@ -48,6 +48,7 @@ private:
     bool showConsole = false;
     bool showHierarchy = true;
     bool showInspector = true;
+    bool showTransformSettings = false;
 
     // Rendering
     bool showLightSettings = false;

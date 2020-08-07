@@ -81,6 +81,10 @@ void EditorLayer::OnImGuiRender()
     {
         wTransform.EditTransform(wHierarchy.GetSelectedEntity(), editorCamera);
     }
+    if (showTransformSettings)
+    {
+        wTransform.ShowTransformSettings(&showTransformSettings);
+    }
 
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }
@@ -117,6 +121,7 @@ void EditorLayer::ShowMenuWindow()
         ImGui::MenuItem("Console", NULL, &showConsole);
         ImGui::MenuItem("Hierarchy", NULL, &showHierarchy);
         ImGui::MenuItem("Inspector", NULL, &showInspector);
+        ImGui::MenuItem("Move Tool", NULL, &showTransformSettings);
 
         ImGui::EndMenu();
     }
