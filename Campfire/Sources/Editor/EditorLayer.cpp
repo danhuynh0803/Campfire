@@ -73,7 +73,14 @@ void EditorLayer::OnImGuiRender()
         ImGui::EndMainMenuBar();
     }
 
-    if (showHierarchy) { wHierarchy.ShowHierarchy(activeScene, &showHierarchy); }
+    if (showHierarchy)
+    {
+        wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
+    }
+    if (wHierarchy.hasSelectedEntity)
+    {
+        wTransform.EditTransform(wHierarchy.GetSelectedEntity(), editorCamera);
+    }
 
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }

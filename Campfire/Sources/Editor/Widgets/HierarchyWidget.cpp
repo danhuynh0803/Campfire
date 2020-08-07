@@ -67,19 +67,19 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
                 // Open inspector for selected object
                 selected = i;
                 selectedEntity = entityPair.second;
+                hasSelectedEntity = true;
             }
         }
-
         ++i;
     }
 
     if (Input::GetKeyDown(KEY_DELETE) && selected != -1)
     {
         activeScene->RemoveEntity(selectedEntity);
-        selected = -1;
+        hasSelectedEntity = false;
     }
 
-    if (selected != -1)
+    if (hasSelectedEntity)
     {
        wInspector.ShowInspector(selectedEntity, isOpen);
     }

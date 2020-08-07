@@ -34,6 +34,7 @@ private:
     // Widgets
     HierarchyWidget wHierarchy;
     InspectorWidget wInspector;
+    TransformWidget wTransform;
 
     // TODO convert to widget
     void ShowAudioSettings(bool* isOpen);

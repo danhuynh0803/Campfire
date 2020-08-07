@@ -9,6 +9,8 @@ class HierarchyWidget
 public:
     void ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen);
 
+    bool hasSelectedEntity = false;
+    Entity& GetSelectedEntity() { return selectedEntity; }
 private:
     void ShowNewEntityMenu(SharedPtr<Scene>& activeScene);
 

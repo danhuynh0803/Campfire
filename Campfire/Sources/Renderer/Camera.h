@@ -35,7 +35,6 @@ public:
     //    rotation = newRotation;
     //    RecalculateViewMatrix();
     //}
-
     glm::mat4 GetViewMatrix() const { return viewMatrix; }
     glm::mat4 GetProjMatrix() const { return projMatrix; }
     glm::mat4 GetViewProjMatrix() const { return projMatrix * viewMatrix; }
