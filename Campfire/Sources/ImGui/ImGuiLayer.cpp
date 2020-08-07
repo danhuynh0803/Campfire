@@ -94,8 +94,22 @@ void ImGuiLayer::OnAttach()
 
     // Scale font up for 4k display
     // TODO maybe have it be dynamic to match screen res or better to just have difference sized fonts since scaling causes it to be blurry
-    io.FontGlobalScale = 2.0f;
 
+#define WIN32_CAMPFIRE_DEFAULT_HORIZONTAL_PIXEL 1920.0f
+
+#ifdef _WIN32
+    RECT desktop;
+    const HWND hDesktop = GetDesktopWindow();
+    // Get the size of screen to the variable desktop
+    GetWindowRect(hDesktop, &desktop);
+    // The top left corner will have coordinates (0,0)
+    // and the bottom right corner will have coordinates
+    // (horizontal, vertical)
+    LOG_INFO("Screen Resoultion(from Windows Display): {0}x{1}",desktop.right, desktop.bottom);
+    io.FontGlobalScale = desktop.right / WIN32_CAMPFIRE_DEFAULT_HORIZONTAL_PIXEL;
+#else
+    io.FontGlobalScale = 1.0f;
+#endif
 }
 
 void ImGuiLayer::OnEvent(Event& e)
