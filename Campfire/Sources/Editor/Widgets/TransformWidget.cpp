@@ -2,6 +2,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Editor/Widgets/TransformWidget.h"
+#include "Core/Input.h"
 
 void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
 {
@@ -14,15 +15,13 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     static bool boundSizing = false;
     static bool boundSizingSnap = false;
 
-    ImGuiIO& io = ImGui::GetIO();
-    // Note: numbers based on ascii table
-    if (!io.WantCaptureKeyboard)
+    if (!Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
     {
-        if (ImGui::IsKeyPressed(87)) // w
+        if (Input::GetKeyDown(KEY_W))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(69)) // e
+        if (Input::GetKeyDown(KEY_E))
             mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(82)) // r
+        if (Input::GetKeyDown(KEY_R))
             mCurrentGizmoOperation = ImGuizmo::SCALE;
     }
 
@@ -60,7 +59,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     // TODO broken
     //ImGui::Checkbox("", &useSnap);
     //ImGui::SameLine();
-
+    ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
     float* viewMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetViewMatrix()));

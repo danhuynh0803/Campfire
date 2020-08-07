@@ -67,14 +67,17 @@ void Camera::OnUpdate(float timestep)
         movementSpeed = normalSpeed;
     }
 
-    if (Input::GetKey(KEY_W))
-        ProcessKeyboard(FORWARD, timestep);
-    if (Input::GetKey(KEY_A))
-        ProcessKeyboard(LEFT, timestep);
-    if (Input::GetKey(KEY_S))
-        ProcessKeyboard(BACKWARD, timestep);
-    if (Input::GetKey(KEY_D))
-        ProcessKeyboard(RIGHT, timestep);
+    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    {
+        if (Input::GetKey(KEY_W))
+            ProcessKeyboard(FORWARD, timestep);
+        if (Input::GetKey(KEY_A))
+            ProcessKeyboard(LEFT, timestep);
+        if (Input::GetKey(KEY_S))
+            ProcessKeyboard(BACKWARD, timestep);
+        if (Input::GetKey(KEY_D))
+            ProcessKeyboard(RIGHT, timestep);
+    }
 
     UpdateCameraVectors();
     RecalculateViewMatrix();
