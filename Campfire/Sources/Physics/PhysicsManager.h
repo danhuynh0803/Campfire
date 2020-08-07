@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include "Physics/BulletDebugDrawer.h"
+#include "Scene/Entity.h"
 
 class PhysicsManager
 {
@@ -12,7 +13,7 @@ public:
     static void OnUpdate(float dt);
     static void Shutdown();
 
-    //static void AddObject(GameObject*);
+    static void SubmitEntity(Entity& entity);
     //static void UpdateColliders();
     static void ClearLists();
 

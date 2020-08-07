@@ -22,18 +22,12 @@ void PhysicsManager::Init()
     //dynamicsWorld->setDebugDrawer(&mydebugdrawer);
 }
 
-// TODO for when updating rigidbody parameters in GUI
-//void PhysicsManager::UpdateObject()
-//{
-//
-//}
-
-//void PhysicsManager::AddObject(GameObject* object)
-//{
-//    // TODO is this needed?
-//    collisionShapes.push_back(object->rigidBody->shape);
-//    dynamicsWorld->addRigidBody(object->rigidBody->body);
-//}
+void PhysicsManager::SubmitEntity(Entity& entity)
+{
+    // TODO is this needed?
+    //collisionShapes.push_back(object->rigidBody->shape);
+    //dynamicsWorld->addRigidBody(object->rigidBody->body);
+}
 
 //void PhysicsManager::UpdateColliders()
 //{

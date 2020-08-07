@@ -99,32 +99,32 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         if (ImGui::MenuItem("Cube"))
         {
             auto& entity = activeScene->CreateEntity("Cube");
-            entity.AddComponent<MeshComponent>(Geometry::CUBE);
+            entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         }
         if (ImGui::MenuItem("Sphere"))
         {
             auto& entity = activeScene->CreateEntity("Sphere");
-            entity.AddComponent<MeshComponent>(Geometry::SPHERE);
+            entity.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         }
         if (ImGui::MenuItem("Plane"))
         {
             auto& entity = activeScene->CreateEntity("Plane");
-            entity.AddComponent<MeshComponent>(Geometry::PLANE);
+            entity.AddComponent<MeshComponent>(MeshComponent::Geometry::PLANE);
         }
         if (ImGui::MenuItem("Quad"))
         {
             auto& entity = activeScene->CreateEntity("Quad");
-            entity.AddComponent<MeshComponent>(Geometry::QUAD);
+            entity.AddComponent<MeshComponent>(MeshComponent::Geometry::QUAD);
         }
         if (ImGui::MenuItem("Cone"))
         {
             auto& entity = activeScene->CreateEntity("Cone");
-            entity.AddComponent<MeshComponent>(Geometry::CONE);
+            entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CONE);
         }
         if (ImGui::MenuItem("Cylinder"))
         {
             auto& entity = activeScene->CreateEntity("Cylinder");
-            entity.AddComponent<MeshComponent>(Geometry::CYLINDER);
+            entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CYLINDER);
         }
         ImGui::EndMenu();
     }

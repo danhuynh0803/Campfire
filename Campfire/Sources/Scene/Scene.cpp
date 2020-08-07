@@ -4,35 +4,34 @@
 
 #include "Renderer/Renderer.h"
 
-Scene::Scene()
+Scene::Scene(bool isNewScene)
 {
-    // Setup default skybox
-    skybox = CreateUniquePtr<Skybox>();
-    std::vector<std::string> skyboxTextures =
+    //==============================================
+    // Camera UBO
     {
-        "../Assets/Textures/Skyboxes/blue/right.png",
-        "../Assets/Textures/Skyboxes/blue/left.png",
-        "../Assets/Textures/Skyboxes/blue/top.png",
-        "../Assets/Textures/Skyboxes/blue/bottom.png",
-        "../Assets/Textures/Skyboxes/blue/front.png",
-        "../Assets/Textures/Skyboxes/blue/back.png"
-    };
-    skybox->Load(skyboxTextures);
+        uboCamera = UniformBuffer::Create();
+        BufferLayout uboLayout =
+        {
+            { ShaderDataType::MAT4, "view"},
+            { ShaderDataType::MAT4, "proj"},
+            { ShaderDataType::MAT4, "viewProj"}
+        };
+        uboCamera->SetLayout(uboLayout, 0);
+    }
+    //==============================================
 
-    /*
-       Scene should be initialized with the following:
-       1) Camera
-       2) Directional light
-    */
-
-    uboLights = UniformBuffer::Create();
-    BufferLayout uboLayout =
+    //==============================================
+    // UBO for lights
     {
-        { ShaderDataType::FLOAT4, "pos" },
-        { ShaderDataType::FLOAT4, "color" },
-        { ShaderDataType::FLOAT4, "attenFactors" }
-    };
-
+        uboLights = UniformBuffer::Create();
+        BufferLayout uboLayout =
+        {
+            { ShaderDataType::FLOAT4, "pos" },
+            { ShaderDataType::FLOAT4, "color" },
+            { ShaderDataType::FLOAT4, "attenFactors" }
+        };
+        uboLights->SetLayout(uboLayout, 1, 26);
+    }
     /*
      25 is currently the max number of lights specified within the shader,
      but we pass 26 since it's a bit messy otherwise to set in the bufferlayout.
@@ -52,20 +51,41 @@ Scene::Scene()
     uint numLights
 
      */
+    //==============================================
 
-    uboLights->SetLayout(uboLayout, 1, 26);
+    // Default objects within each new scene
+    // if not loading object via scene file
+    if (isNewScene) { Init(); }
+}
 
+
+void Scene::Init()
+{
+    /*
+       Scene should be initialized with the following:
+       1) Camera
+       2) Directional light
+    */
     auto& mainCamera = CreateEntity("Camera");
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 5.0f);
+    mainCamera.AddComponent<CameraComponent>();
 
     auto& directionalLight = CreateEntity("Directional Light");
     directionalLight.AddComponent<LightComponent>();
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
-}
 
-void Scene::Init()
-{
-
+    // Setup default skybox
+    skybox = CreateUniquePtr<Skybox>();
+    std::vector<std::string> skyboxTextures =
+    {
+        "../Assets/Textures/Skyboxes/blue/right.png",
+        "../Assets/Textures/Skyboxes/blue/left.png",
+        "../Assets/Textures/Skyboxes/blue/top.png",
+        "../Assets/Textures/Skyboxes/blue/bottom.png",
+        "../Assets/Textures/Skyboxes/blue/front.png",
+        "../Assets/Textures/Skyboxes/blue/back.png"
+    };
+    skybox->Load(skyboxTextures);
 }
 
 void Scene::OnUpdate(float dt)
@@ -85,9 +105,23 @@ void Scene::OnUpdate(float dt)
 
 }
 
+void Scene::SubmitCamera(const Camera& camera)
+{
+    // TODO create a camera controller:
+    // update active camera (either editor or game camera)
+    // Set UBO data based on that active camera
+    uboCamera->Bind();
+    uboCamera->SetData((void*)glm::value_ptr(camera.GetViewMatrix()), 0, sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(camera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(camera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->Unbind();
+}
+
 // Render scene from perspective of editor camera
 void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
+    SubmitCamera(editorCamera);
+
     // Send light info to our UBO
     SubmitLights();
 
@@ -129,6 +163,10 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 // Render scene from perspective of game camera
 void Scene::OnRenderRuntime(float dt)
 {
+    // TODO
+    //auto gameCamera = registry.group<CameraComponent>();
+    //SubmitCamera(editorCamera);
+
     // Send light info to our UBO
     SubmitLights();
 

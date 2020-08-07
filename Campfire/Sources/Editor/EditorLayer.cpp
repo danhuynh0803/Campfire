@@ -1,5 +1,6 @@
 #include "Core/Application.h"
 #include "Core/FileSystem.h"
+#include "Core/Time.h"
 #include "Audio/AudioSystem.h"
 #include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
@@ -48,14 +49,22 @@ void EditorLayer::OnUpdate(float dt)
 
     Renderer::BeginScene(editorCamera);
 
-    activeScene->OnRenderEditor(dt, editorCamera);
-    //activeScene->OnRenderRuntime(dt);
+    if (state == State::STOP)
+    {
+        activeScene->OnRenderEditor(dt, editorCamera);
+    }
+    else
+    {
+        Time::timeScale = (state == State::PAUSE) ? 0.0f : 1.0f;
+        activeScene->OnRenderRuntime(dt);
+    }
 
     Renderer::EndScene();
 }
 
 void EditorLayer::OnImGuiRender()
 {
+    // Menu bar
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -73,6 +82,7 @@ void EditorLayer::OnImGuiRender()
         ImGui::EndMainMenuBar();
     }
 
+    // Various widgets
     if (showHierarchy)
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
@@ -85,10 +95,21 @@ void EditorLayer::OnImGuiRender()
     {
         wTransform.ShowTransformSettings(&showTransformSettings);
     }
-
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }
     if (showConsole) { ShowConsole(&showConsole); }
+
+    // Editor state buttons
+    ImGui::Begin("Tool Bar");
+    // TODO put various image buttons here
+    // for now radio buttons to test
+    static int currState = static_cast<int>(state);
+    ImGui::RadioButton("Stop",  &currState, 0); ImGui::SameLine();
+    ImGui::RadioButton("Play",  &currState, 1); ImGui::SameLine();
+    ImGui::RadioButton("Pause", &currState, 2);
+    state = static_cast<State>(currState);
+
+    ImGui::End();
 
     //ImGui::Begin("Scene");
     //auto viewportSize = ImGui::GetContentRegionAvail();

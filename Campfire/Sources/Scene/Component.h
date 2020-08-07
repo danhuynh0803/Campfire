@@ -11,6 +11,7 @@
 
 #include "Core/Base.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/Camera.h"
 #include "Particles/ParticleSystem.h"
 
 struct IDComponent
@@ -80,19 +81,19 @@ struct TransformComponent
 
 };
 
-// Primitive models for default meshes
-enum class Geometry
-{
-    CUBE = 0,
-    SPHERE,
-    PLANE,
-    QUAD,
-    CONE,
-    CYLINDER
-};
-
 struct MeshComponent
 {
+    // Primitive models for default meshes
+    enum class Geometry
+    {
+        CUBE = 0,
+        SPHERE,
+        PLANE,
+        QUAD,
+        CONE,
+        CYLINDER
+    };
+
     MeshComponent() = default;
 
     MeshComponent(Geometry geometry)
@@ -147,6 +148,7 @@ struct LightComponent
     float quadratic = 0.032f;
 };
 
+
 struct RigidbodyComponent
 {
     RigidbodyComponent() = default;
@@ -162,6 +164,15 @@ struct RigidbodyComponent
     bool freezeRotation[3] { false, false, false };
 };
 
+struct ColliderComponent
+{
+    //btCollisionShape* shape = nullptr;
+
+    bool isTrigger = false;
+    glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
+    glm::vec3 size = glm::vec3(1.0f);
+};
+
 struct AudioComponent
 {
     AudioComponent() = default;
@@ -174,7 +185,10 @@ struct ScriptComponent
 
 struct CameraComponent
 {
+    SharedPtr<Camera> camera;
     CameraComponent() = default;
+
+    operator SharedPtr<Camera>& () { return camera; }
 };
 
 struct ParticleSystemComponent

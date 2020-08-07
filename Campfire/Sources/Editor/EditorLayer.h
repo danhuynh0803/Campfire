@@ -54,6 +54,15 @@ private:
     bool showLightSettings = false;
     bool showLightExplorer = false;
 
+    // Editor state
+    enum class State
+    {
+        STOP = 0,
+        PLAY,
+        PAUSE
+    };
+    State state = State::STOP;
+
     //Camera editorCamera(1600, 900, 0.1f, 100f);
 };
 

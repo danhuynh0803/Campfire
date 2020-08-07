@@ -13,6 +13,7 @@
 #include "Renderer/Renderer.h"
 #include "Audio/AudioLayer.h"
 #include "Editor/EditorLayer.h"
+#include "Physics/PhysicsManager.h"
 
 Application* Application::instance = nullptr;
 
@@ -21,6 +22,7 @@ Application::Application()
     Log::Init();
     Time::Init();
     Random::Init();
+    PhysicsManager::Init();
 
     instance = this;
     window = Window::Create();

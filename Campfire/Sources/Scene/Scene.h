@@ -16,7 +16,7 @@ class Entity;
 class Scene
 {
 public:
-    Scene();
+    Scene(bool isNewScene = true);
     void Init();
     void OnEvent(Event& e);
     void OnUpdate(float dt);
@@ -26,8 +26,6 @@ public:
     void OnRenderRuntime(float dt);
     void OnImGuiRender();
 
-    void SubmitLights();
-
     void SetSkybox(SharedPtr<TextureCube> skyboxTex);
 
     Entity CreateEntity(const std::string& name);
@@ -36,13 +34,14 @@ public:
     const std::unordered_map<uint64_t, Entity> const GetEntityMap() { return entityMap; }
 
 private:
-    // UBO for lights
-    SharedPtr<UniformBuffer> uboLights;
+    void SubmitCamera(const Camera& camera);
+    void SubmitLights();
 
-    // Skybox
+private:
+    SharedPtr<UniformBuffer> uboCamera;
+    SharedPtr<UniformBuffer> uboLights;
     UniquePtr<Skybox> skybox;
 
-    // Entities
     entt::entity entity;
     entt::registry registry;
     std::unordered_map<uint64_t, Entity> entityMap;
