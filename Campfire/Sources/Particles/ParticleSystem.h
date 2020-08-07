@@ -76,8 +76,8 @@ public:
     float lifetime = 10.0f;
     int numParticles = 1000;
 
-    //-9.81
-    float gravity = 0.0f;
+    bool hasGravity = false;
+    float gravity = -9.81f;
 
     GenerationPattern pGeneration = GenerationPattern::SEQUENCE;
     //VelocityPattern pVelocity = VelocityPattern::RANDOM;

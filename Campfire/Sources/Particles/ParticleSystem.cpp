@@ -186,7 +186,11 @@ void ParticleSystem::OnUpdate(float dt, const glm::vec3& camPosition)
             particles.erase(particles.begin()+count);
             continue;
         }
-        particle.velocity += (glm::vec3(0.0f, gravity, 0.0f) + acceleration)* dt;
+        if (hasGravity)
+            particle.velocity += (glm::vec3(0.0f, gravity, 0.0f) + acceleration) * dt;
+        else
+            particle.velocity += (acceleration * dt);
+
         if(pSize == SIZE_PATTERN_OVER_LIFE_TIME) particle.scale += particle.scaleRate * dt;
         if(pColor == COLOR_PATTERN_OVER_LIFE_TIME) particle.color += particle.colorScaleRate * dt;
         particle.position += particle.velocity * dt;
@@ -214,7 +218,9 @@ void ParticleSystem::OnImGuiRender()
     ImGui::DragFloat("Rate over time", &rateOverTime, 1.0f);
     ImGui::DragInt("Number of particles", &numParticles);
     ImGui::DragFloat("Particle Lifetime", &lifetime, 0.1f);
+    ImGui::Checkbox("Enable Gravity", &hasGravity);
     ImGui::DragFloat("Gravity", &gravity, 0.01f);
+
     if (ImGui::ImageButton((ImTextureID)particleTexture->GetRenderID(), ImVec2(64, 64), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile("*.png");
