@@ -7,8 +7,6 @@
 
 SharedPtr<UniformBuffer> uboCamera;
 
-Camera editorCamera(1600, 900, 0.1f, 100.0f);
-
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
@@ -25,6 +23,8 @@ void EditorLayer::OnAttach()
         { ShaderDataType::MAT4, "viewProj"}
     };
     uboCamera->SetLayout(uboLayout, 0);
+
+    editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 100.0f);
 }
 
 void EditorLayer::OnDetach()
@@ -34,24 +34,24 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    editorCamera.OnUpdate(dt);
+    editorCamera->OnUpdate(dt);
 
     // TODO create a camera controller:
     // update active camera (either editor or game camera)
     // Set UBO data based on that active camera
     uboCamera->Bind();
-    uboCamera->SetData((void*)glm::value_ptr(editorCamera.GetViewMatrix()), 0, sizeof(glm::mat4));
-    uboCamera->SetData((void*)glm::value_ptr(editorCamera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-    uboCamera->SetData((void*)glm::value_ptr(editorCamera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(editorCamera->GetViewMatrix()), 0, sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(editorCamera->GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(editorCamera->GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
     uboCamera->Unbind();
 
     activeScene->OnUpdate(dt);
 
-    Renderer::BeginScene(editorCamera);
+    Renderer::BeginScene(*editorCamera);
 
     if (state == State::STOP)
     {
-        activeScene->OnRenderEditor(dt, editorCamera);
+        activeScene->OnRenderEditor(dt, *editorCamera);
     }
     else
     {
@@ -89,7 +89,7 @@ void EditorLayer::OnImGuiRender()
     }
     if (wHierarchy.hasSelectedEntity)
     {
-        wTransform.EditTransform(wHierarchy.GetSelectedEntity(), editorCamera);
+        wTransform.EditTransform(wHierarchy.GetSelectedEntity(), *editorCamera);
     }
     if (showTransformSettings)
     {
@@ -165,7 +165,7 @@ void EditorLayer::ShowMenuWindow()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    editorCamera.OnEvent(event);
+    editorCamera->OnEvent(event);
 }
 
 // Editor Imgui Widgets

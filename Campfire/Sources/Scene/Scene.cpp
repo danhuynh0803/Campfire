@@ -120,7 +120,7 @@ void Scene::SubmitCamera(const Camera& camera)
 // Render scene from perspective of editor camera
 void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
-    SubmitCamera(editorCamera);
+    //SubmitCamera(editorCamera);
 
     // Send light info to our UBO
     SubmitLights();

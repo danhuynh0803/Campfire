@@ -27,6 +27,7 @@ public:
 
 private:
     SharedPtr<Scene> activeScene;
+    SharedPtr<Camera> editorCamera;
 
     void ShowMenuFile();
     void ShowMenuWindow();
@@ -62,8 +63,6 @@ private:
         PAUSE
     };
     State state = State::STOP;
-
-    //Camera editorCamera(1600, 900, 0.1f, 100f);
 };
 
 #endif // EDITOR_LAYER_H
