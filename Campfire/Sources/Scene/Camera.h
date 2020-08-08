@@ -27,7 +27,7 @@ public:
 
 public:
     bool isPerspective = true;
-    float fov = 60.0f;
+    float vFov = 60.0f;
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
     float depth = 0.0f;
@@ -44,6 +44,7 @@ private:
     glm::mat4 projMatrix = glm::mat4(1.0f);
 
     SharedPtr<VertexArray> vertexArray;
+    SharedPtr<VertexBuffer> vertexBuffer;
     SharedPtr<Shader> shader;
 };
 

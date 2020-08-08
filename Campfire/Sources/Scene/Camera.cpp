@@ -40,22 +40,6 @@ void Camera::Init()
     */
 
     // Create VAO for frustum
-    // Vertex data
-    GLfloat vertices[] =
-    {
-        // near
-        -1, 1, -nearPlane,
-        -1,-1, -nearPlane,
-         1,-1, -nearPlane,
-         1, 1, -nearPlane,
-
-         // Far
-        -1, 1, -farPlane,
-        -1,-1, -farPlane,
-         1,-1, -farPlane,
-         1, 1, -farPlane,
-    };
-
     uint32_t indices[] =
     {
         // near
@@ -67,21 +51,86 @@ void Camera::Init()
     };
 
     vertexArray = VertexArray::Create();
-    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
+    // 8 vertices for frustum
+    vertexBuffer = VertexBuffer::Create(24 * sizeof(float));
     BufferLayout layout =
     {
         { ShaderDataType::FLOAT3, "aPos" }
     };
-    buffer->SetLayout(layout);
-    vertexArray->AddVertexBuffer(buffer);
+    vertexBuffer->SetLayout(layout);
+    vertexArray->AddVertexBuffer(vertexBuffer);
 
     SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 
     vertexArray->SetIndexBuffer(indexBuffer);
+
+    vertexBuffer->Unbind();
+    vertexArray->Unbind();
 }
 
 void Camera::DrawFrustum(glm::mat4 transform)
 {
+    glm::vec3 camPos = glm::vec3(transform[0][3], transform[1][3], transform[2][3]);
+    glm::vec3 camRight = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
+
+    glm::vec3 nearCenter = camPos - camFront * nearPlane;
+    glm::vec3 farCenter  = camPos - camFront * farPlane;
+
+    float aspectRatio = width / height;
+    float nearHeight, farHeight;
+
+    if (isPerspective)
+    {
+        float fovRadians = glm::radians(vFov);
+        nearHeight = 2 * glm::tan(fovRadians / 2) * nearPlane;
+        farHeight  = 2 * glm::tan(fovRadians / 2) * farPlane;
+    }
+    else
+    {
+        nearHeight = farHeight = 2 * size;
+    }
+
+    float nearWidth = nearHeight * aspectRatio;
+    float farWidth  = farHeight  * aspectRatio;
+
+    float halfNearHeight = nearHeight * 0.5f;
+    float halfNearWidth  = nearWidth  * 0.5f;
+    float halfFarHeight  = farHeight  * 0.5f;
+    float halfFarWidth   = farWidth   * 0.5f;
+
+    //glm::vec3 nearTL, nearTR, nearBL, nearBR;
+    //glm::vec3 farTL, farTR, farBL, farBR;
+
+    glm::vec3 nearTL = nearCenter + camUp * halfNearHeight - camRight * halfNearWidth;
+    glm::vec3 nearTR = nearCenter + camUp * halfNearHeight + camRight * halfNearWidth;
+    glm::vec3 nearBL = nearCenter - camUp * halfNearHeight - camRight * halfNearWidth;
+    glm::vec3 nearBR = nearCenter - camUp * halfNearHeight + camRight * halfNearWidth;
+
+    glm::vec3 farTL  = farCenter + camUp * halfFarHeight - camRight * halfFarWidth;
+    glm::vec3 farTR  = farCenter + camUp * halfFarHeight + camRight * halfFarWidth;
+    glm::vec3 farBL  = farCenter - camUp * halfFarHeight - camRight * halfFarWidth;
+    glm::vec3 farBR  = farCenter - camUp * halfFarHeight + camRight * halfFarWidth;
+
+    // Vertex data
+    GLfloat vertices[] =
+    {
+        // near
+        nearTL.x, nearTL.y, -nearPlane,
+        nearBL.x, nearBL.y, -nearPlane,
+        nearBR.x, nearBR.y, -nearPlane,
+        nearTR.x, nearTR.y, -nearPlane,
+
+        // Far
+        farTL.x, farTL.y, -farPlane,
+        farBL.x, farBL.y, -farPlane,
+        farBR.x, farBR.y, -farPlane,
+        farTR.x, farTR.y, -farPlane,
+    };
+
+    vertexBuffer->SetData(vertices, sizeof(vertices));
+
     Renderer::DrawLines(shader, vertexArray, transform);
 }
 
@@ -121,7 +170,7 @@ void Camera::SetPerspectiveProjection()
 {
     projMatrix =
         glm::perspective(
-            glm::radians(fov), // actually the vertical FOV
+            glm::radians(vFov), // actually the vertical FOV
             (width / height), // aspect ratio
             nearPlane,
             farPlane

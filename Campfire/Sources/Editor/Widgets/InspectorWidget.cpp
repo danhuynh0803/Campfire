@@ -59,7 +59,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 camera->SetProjection();
 
             if (camera->isPerspective)
-                ImGui::DragFloat("Vertical FOV", &camera->fov);
+                ImGui::DragFloat("Vertical FOV", &camera->vFov);
             else
                 ImGui::DragFloat("Size", &camera->size);
 

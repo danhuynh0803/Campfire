@@ -57,7 +57,7 @@ void EditorLayer::OnImGuiRender()
     ImGui::Checkbox("Is Perspective", &editorCamera->isPerspective);
 
     if (editorCamera->isPerspective)
-        ImGui::DragFloat("Vertical FOV", &editorCamera->fov);
+        ImGui::DragFloat("Vertical FOV", &editorCamera->vFov);
     else
         ImGui::DragFloat("Size", &editorCamera->size);
 
@@ -101,13 +101,14 @@ void EditorLayer::OnImGuiRender()
     if (wHierarchy.hasSelectedEntity && state != State::PLAY)
     {
         auto& entity = wHierarchy.GetSelectedEntity();
+
         wTransform.EditTransform(entity, *editorCamera);
 
-        if (entity.HasComponent<CameraComponent>())
+        if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
         {
-            // Draw camera frustum
-            auto camera = entity.GetComponent<CameraComponent>().camera;
             auto transform = entity.GetComponent<TransformComponent>().GetTransform();
+            auto camera = entity.GetComponent<CameraComponent>().camera;
+
             camera->DrawFrustum(transform);
         }
     }
@@ -115,6 +116,7 @@ void EditorLayer::OnImGuiRender()
     {
         wTransform.ShowTransformSettings(&showTransformSettings);
     }
+
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }
     if (showConsole) { ShowConsole(&showConsole); }

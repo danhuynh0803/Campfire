@@ -50,7 +50,7 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
     if (fov >= 60.0f)
         fov = 60.0f;
 
-    activeCamera->fov = fov;
+    activeCamera->vFov = fov;
     activeCamera->SetProjection();
 
     return false;
