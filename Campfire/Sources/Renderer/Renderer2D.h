@@ -2,11 +2,13 @@
 #define RENDERER_2D_H
 
 #include "Core/Base.h"
+
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Shader.h"
-#include "Renderer/Camera.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
+
+#include "Scene/Camera.h"
 
 #include <array>
 

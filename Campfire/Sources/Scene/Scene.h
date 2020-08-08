@@ -5,7 +5,7 @@
 #include <entt.hpp>
 
 #include "Core/Base.h"
-#include "Renderer/Camera.h"
+#include "Scene/Camera.h"
 #include "Renderer/Texture.h"
 
 #include "Scene/Entity.h"

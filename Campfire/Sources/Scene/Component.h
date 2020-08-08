@@ -11,7 +11,7 @@
 
 #include "Core/Base.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/Camera.h"
+#include "Scene/Camera.h"
 #include "Particles/ParticleSystem.h"
 
 struct IDComponent

@@ -4,10 +4,11 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Shader.h"
-#include "Renderer/Camera.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
+
+#include "Scene/Camera.h"
 
 class Renderer
 {

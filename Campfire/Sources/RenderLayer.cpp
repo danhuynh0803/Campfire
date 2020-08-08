@@ -1,3 +1,5 @@
+// TODO remove later, unused
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,23 +10,18 @@
 #include "Core/Timer.h"
 #include "Core/Input.h"
 #include "Core/Time.h"
+#include "Core/FileSystem.h"
 
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Renderer2D.h"
-#include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
+
 #include "Scene/Scene.h"
 #include "Scene/Skybox.h"
-
-#include "ImGui/ImGuiLayer.h"
-#include "Core/FileSystem.h"
-
-#include "Particles/ParticleSystem.h"
+#include "Scene/Camera.h"
 
 #include "RenderLayer.h"
-
-#include <stdint.h> // intptr_t
 
 SharedPtr<Shader> postprocessShader;
 

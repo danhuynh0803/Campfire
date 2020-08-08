@@ -2,7 +2,7 @@
 #define TRANSFORM_WIDGET_H
 
 #include <ImGuizmo.h>
-#include "Renderer/Camera.h"
+#include "Scene/Camera.h"
 #include "Scene/Entity.h"
 
 class TransformWidget

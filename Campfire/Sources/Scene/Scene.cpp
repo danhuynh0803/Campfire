@@ -137,7 +137,10 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
             if (particleSystemComponent.ps)
             {
                 particleSystemComponent.ps->position = transformComponent.position;
-                particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
+                //particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
+                glm::mat4 view = editorCamera.GetViewMatrix();
+                glm::vec3 camPos = glm::vec3(view[0][3], view[1][3], view[2][3]);
+                particleSystemComponent.ps->OnUpdate(dt, camPos);
                 particleSystemComponent.ps->Draw(transformComponent);
             }
         }

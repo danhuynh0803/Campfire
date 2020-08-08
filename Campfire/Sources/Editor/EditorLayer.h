@@ -7,6 +7,7 @@
 
 #include "Core/Layer.h"
 #include "Scene/Scene.h"
+#include "Scene/CameraController.h"
 
 #include "Editor/Widgets/ConsoleWidget.h"
 #include "Editor/Widgets/HierarchyWidget.h"
@@ -28,6 +29,7 @@ public:
 private:
     SharedPtr<Scene> activeScene;
     SharedPtr<Camera> editorCamera;
+    CameraController cameraController;
 
     void ShowMenuFile();
     void ShowMenuWindow();

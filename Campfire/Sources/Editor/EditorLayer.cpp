@@ -25,6 +25,7 @@ void EditorLayer::OnAttach()
     uboCamera->SetLayout(uboLayout, 0);
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 100.0f);
+    cameraController.SetActiveCamera(editorCamera);
 }
 
 void EditorLayer::OnDetach()
@@ -34,7 +35,8 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    editorCamera->OnUpdate(dt);
+    //editorCamera->OnUpdate(dt);
+    cameraController.OnUpdate(dt);
 
     // TODO create a camera controller:
     // update active camera (either editor or game camera)
@@ -165,7 +167,8 @@ void EditorLayer::ShowMenuWindow()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    editorCamera->OnEvent(event);
+    //editorCamera->OnEvent(event);
+    cameraController.OnEvent(event);
 }
 
 // Editor Imgui Widgets
