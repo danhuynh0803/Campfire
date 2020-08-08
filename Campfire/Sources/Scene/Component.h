@@ -186,7 +186,10 @@ struct ScriptComponent
 struct CameraComponent
 {
     SharedPtr<Camera> camera;
-    CameraComponent() = default;
+    CameraComponent()
+    {
+        camera = CreateSharedPtr<Camera>();
+    }
 
     operator SharedPtr<Camera>& () { return camera; }
 };

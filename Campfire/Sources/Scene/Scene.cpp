@@ -8,30 +8,26 @@ Scene::Scene(bool isNewScene)
 {
     //==============================================
     // Camera UBO
+    uboCamera = UniformBuffer::Create();
+    BufferLayout uboLayout =
     {
-        uboCamera = UniformBuffer::Create();
-        BufferLayout uboLayout =
-        {
-            { ShaderDataType::MAT4, "view"},
-            { ShaderDataType::MAT4, "proj"},
-            { ShaderDataType::MAT4, "viewProj"}
-        };
-        uboCamera->SetLayout(uboLayout, 0);
-    }
+        { ShaderDataType::MAT4, "view" },
+        { ShaderDataType::MAT4, "proj" },
+        { ShaderDataType::MAT4, "viewProj" }
+    };
+    uboCamera->SetLayout(uboLayout, 0);
     //==============================================
 
     //==============================================
     // UBO for lights
+    uboLights = UniformBuffer::Create();
+    uboLayout =
     {
-        uboLights = UniformBuffer::Create();
-        BufferLayout uboLayout =
-        {
-            { ShaderDataType::FLOAT4, "pos" },
-            { ShaderDataType::FLOAT4, "color" },
-            { ShaderDataType::FLOAT4, "attenFactors" }
-        };
-        uboLights->SetLayout(uboLayout, 1, 26);
-    }
+        { ShaderDataType::FLOAT4, "pos" },
+        { ShaderDataType::FLOAT4, "color" },
+        { ShaderDataType::FLOAT4, "attenFactors" }
+    };
+    uboLights->SetLayout(uboLayout, 1, 26);
     /*
      25 is currently the max number of lights specified within the shader,
      but we pass 26 since it's a bit messy otherwise to set in the bufferlayout.
@@ -120,7 +116,7 @@ void Scene::SubmitCamera(const Camera& camera)
 // Render scene from perspective of editor camera
 void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
-    //SubmitCamera(editorCamera);
+    SubmitCamera(editorCamera);
 
     // Send light info to our UBO
     SubmitLights();
@@ -137,10 +133,10 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
             if (particleSystemComponent.ps)
             {
                 particleSystemComponent.ps->position = transformComponent.position;
+                // TODO have this transparency ordering check in renderer instead of PS
+                // or swap to OIT eventually
                 //particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
-                glm::mat4 view = editorCamera.GetViewMatrix();
-                glm::vec3 camPos = glm::vec3(view[0][3], view[1][3], view[2][3]);
-                particleSystemComponent.ps->OnUpdate(dt, camPos);
+                particleSystemComponent.ps->OnUpdate(dt, glm::vec3(0.0f));
                 particleSystemComponent.ps->Draw(transformComponent);
             }
         }

@@ -46,6 +46,37 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Camera
+    if (entity.HasComponent<CameraComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Camera"))
+        {
+            auto& camera = entity.GetComponent<CameraComponent>().camera;
+            bool prevState = camera->isPerspective;
+            ImGui::Checkbox("Is Perspective", &camera->isPerspective);
+            if (prevState != camera->isPerspective)
+                camera->SetProjection();
+
+            if (camera->isPerspective)
+                ImGui::DragFloat("Vertical FOV", &camera->fov);
+            else
+                ImGui::DragFloat("Size", &camera->size);
+
+            ImGui::DragFloat("Near Plane", &camera->nearPlane);
+            ImGui::DragFloat("Far Plane", &camera->farPlane);
+            ImGui::DragFloat("Depth", &camera->depth);
+
+            ImGui::Text("Viewport Rect");
+            ImGui::DragFloat("x", &camera->x);
+            ImGui::DragFloat("y", &camera->y);
+            ImGui::DragFloat("w", &camera->width);
+            ImGui::DragFloat("h", &camera->height);
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
 
     // Mesh
     if (entity.HasComponent<MeshComponent>())

@@ -5,8 +5,6 @@
 #include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
 
-SharedPtr<UniformBuffer> uboCamera;
-
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
@@ -15,15 +13,6 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach()
 {
-    uboCamera = UniformBuffer::Create();
-    BufferLayout uboLayout =
-    {
-        { ShaderDataType::MAT4, "view"},
-        { ShaderDataType::MAT4, "proj"},
-        { ShaderDataType::MAT4, "viewProj"}
-    };
-    uboCamera->SetLayout(uboLayout, 0);
-
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 100.0f);
     cameraController.SetActiveCamera(
             editorCamera,
@@ -39,15 +28,6 @@ void EditorLayer::OnDetach()
 void EditorLayer::OnUpdate(float dt)
 {
     cameraController.OnUpdate(dt);
-
-    // TODO create a camera controller:
-    // update active camera (either editor or game camera)
-    // Set UBO data based on that active camera
-    uboCamera->Bind();
-    uboCamera->SetData((void*)glm::value_ptr(editorCamera->GetViewMatrix()), 0, sizeof(glm::mat4));
-    uboCamera->SetData((void*)glm::value_ptr(editorCamera->GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-    uboCamera->SetData((void*)glm::value_ptr(editorCamera->GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
-    uboCamera->Unbind();
 
     activeScene->OnUpdate(dt);
 
@@ -68,8 +48,28 @@ void EditorLayer::OnUpdate(float dt)
 
 void EditorLayer::OnImGuiRender()
 {
-    ImGui::Begin("Camera Settings");
+    ImGui::Begin("Editor Camera Info");
     ImGui::DragFloat3("Position", (float*)&cameraController.position);
+    bool prevState = editorCamera->isPerspective;
+    ImGui::Checkbox("Is Perspective", &editorCamera->isPerspective);
+
+    if (editorCamera->isPerspective)
+        ImGui::DragFloat("Vertical FOV", &editorCamera->fov);
+    else
+        ImGui::DragFloat("Size", &editorCamera->size);
+
+    ImGui::DragFloat("Near Plane", &editorCamera->nearPlane);
+    ImGui::DragFloat("Far Plane", &editorCamera->farPlane);
+    ImGui::DragFloat("Depth", &editorCamera->depth);
+
+    ImGui::Text("Viewport Rect");
+    ImGui::DragFloat("x", &editorCamera->x);
+    ImGui::DragFloat("y", &editorCamera->y);
+    ImGui::DragFloat("w", &editorCamera->width);
+    ImGui::DragFloat("h", &editorCamera->height);
+
+    editorCamera->SetProjection();
+
     ImGui::End();
 
     // Menu bar
