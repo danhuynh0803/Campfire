@@ -6,12 +6,17 @@
 
 #include "Events/ApplicationEvent.h"
 #include "Events/MouseEvent.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/Shader.h"
 
 class Camera
 {
 public:
     Camera();
     Camera(float w, float h, float nearplane, float farplane);
+    void Init();
+
+    void DrawFrustum(glm::mat4 transform);
 
     void SetProjection();
     glm::mat4 GetViewMatrix() const { return viewMatrix; }
@@ -24,7 +29,7 @@ public:
     bool isPerspective = true;
     float fov = 60.0f;
     float nearPlane = 0.1f;
-    float farPlane = 1000.0f;
+    float farPlane = 100.0f;
     float depth = 0.0f;
     // viewport rect
     float x = 0, y = 0, width = 1600.0f, height = 900.0f;
@@ -37,6 +42,9 @@ private:
 
     glm::mat4 viewMatrix = glm::mat4(1.0f);
     glm::mat4 projMatrix = glm::mat4(1.0f);
+
+    SharedPtr<VertexArray> vertexArray;
+    SharedPtr<Shader> shader;
 };
 
 #endif // CAMERA_H

@@ -13,7 +13,7 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach()
 {
-    editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 100.0f);
+    editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
             editorCamera,
             glm::vec3(0.0f, 3.0f, 10.0f),
@@ -100,7 +100,16 @@ void EditorLayer::OnImGuiRender()
     }
     if (wHierarchy.hasSelectedEntity && state != State::PLAY)
     {
-        wTransform.EditTransform(wHierarchy.GetSelectedEntity(), *editorCamera);
+        auto& entity = wHierarchy.GetSelectedEntity();
+        wTransform.EditTransform(entity, *editorCamera);
+
+        if (entity.HasComponent<CameraComponent>())
+        {
+            // Draw camera frustum
+            auto camera = entity.GetComponent<CameraComponent>().camera;
+            auto transform = entity.GetComponent<TransformComponent>().GetTransform();
+            camera->DrawFrustum(transform);
+        }
     }
     if (showTransformSettings)
     {

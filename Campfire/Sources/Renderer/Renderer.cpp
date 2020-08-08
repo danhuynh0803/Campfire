@@ -83,6 +83,14 @@ void Renderer::Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray
     RenderCommand::DrawIndexed(vertexArray);
 }
 
+void Renderer::DrawLines(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform)
+{
+    shader->Bind();
+    shader->SetMat4("model", transform);
+    RenderCommand::DrawIndexedLines(vertexArray);
+}
+
+
 void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 {
     RenderCommand::SetViewport(0, 0, width, height);

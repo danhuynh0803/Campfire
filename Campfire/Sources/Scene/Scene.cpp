@@ -67,8 +67,8 @@ void Scene::Init()
     mainCamera.AddComponent<CameraComponent>();
 
     auto& directionalLight = CreateEntity("Directional Light");
-    directionalLight.AddComponent<LightComponent>();
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
+    directionalLight.AddComponent<LightComponent>();
 
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
@@ -89,6 +89,15 @@ void Scene::OnUpdate(float dt)
     // Update all entities
     // Based on the lua script attached
     // also if theres a rigidbody attached
+    {
+        auto group = registry.group<ScriptComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            //auto [transformComponent, scriptComponent] = group.get<TransformComponent, ScriptComponent>(entity);
+
+            //script->OnUpdate(dt);
+        }
+    }
 
     // Update rigidbodies
     {
@@ -135,6 +144,7 @@ void Scene::OnRenderRuntime(float dt)
         gameCamera->SetProjection();
         // TODO change function signature to use camera ptr instead of constantly dereferencing
         SubmitCamera(*gameCamera);
+        break;
     }
 
     OnRender(dt);
@@ -175,7 +185,7 @@ void Scene::OnRender(float dt)
             auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
             if (meshComponent.mesh)
             {
-                meshComponent.mesh->OnUpdate(dt);
+                //meshComponent.mesh->OnUpdate(dt);
 
                 Renderer::SubmitMesh(meshComponent, transformComponent);
             }

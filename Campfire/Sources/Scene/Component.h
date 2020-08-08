@@ -180,6 +180,8 @@ struct AudioComponent
 
 struct ScriptComponent
 {
+    //SharedPtr<Script> script;
+
     ScriptComponent() = default;
 };
 

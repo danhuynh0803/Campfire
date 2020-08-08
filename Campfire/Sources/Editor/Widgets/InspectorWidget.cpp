@@ -142,7 +142,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
 
     // Audio
-    if (entity.HasComponent<ParticleSystemComponent>())
+    if (entity.HasComponent<AudioComponent>())
     {
     }
 

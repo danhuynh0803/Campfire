@@ -1,16 +1,26 @@
-#version 330 core
+#version 450 core
 
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec3 col;
+// =========================================
+layout (location = 0) in vec3 aPos;
+//layout (location = 1) in vec3 aColor;
 
-out vec3 color;
+// =========================================
+//layout (location = 0) out vec3 color;
 
-uniform mat4 proj;
-uniform mat4 view;
+// =========================================
+layout (std140, binding = 0) uniform Camera
+{
+    mat4 view;
+    mat4 proj;
+    mat4 viewProj;
+};
+
+// =========================================
 uniform mat4 model;
 
+// =========================================
 void main()
 {
-    gl_Position = proj * view * model * vec4(pos, 1.0f);
-    color = col;
+    gl_Position = viewProj * model * vec4(aPos, 1.0f);
+    //color = aColor;
 }
