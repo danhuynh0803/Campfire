@@ -118,6 +118,30 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
     SubmitCamera(editorCamera);
 
+    OnRender(dt);
+}
+
+// Render scene from perspective of editor camera
+void Scene::OnRenderRuntime(float dt)
+{
+    // Search for the first object in our scene that contains both camera and transform components
+    auto group = registry.group<CameraComponent>(entt::get<TransformComponent>);
+    for (auto entity : group)
+    {
+        auto [transformComponent, cameraComponent] = group.get<TransformComponent, CameraComponent>(entity);
+
+        auto gameCamera = cameraComponent.camera;
+        gameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.rotation);
+        gameCamera->SetProjection();
+        // TODO change function signature to use camera ptr instead of constantly dereferencing
+        SubmitCamera(*gameCamera);
+    }
+
+    OnRender(dt);
+}
+
+void Scene::OnRender(float dt)
+{
     // Send light info to our UBO
     SubmitLights();
 
@@ -155,30 +179,6 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 
                 Renderer::SubmitMesh(meshComponent, transformComponent);
             }
-        }
-    }
-}
-
-// Render scene from perspective of game camera
-void Scene::OnRenderRuntime(float dt)
-{
-    // TODO
-    //auto gameCamera = registry.group<CameraComponent>();
-    //SubmitCamera(editorCamera);
-
-    // Send light info to our UBO
-    SubmitLights();
-
-    // Only render objects that have mesh components
-    auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
-    for (auto entity : group)
-    {
-        auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
-        if (meshComponent.mesh)
-        {
-            meshComponent.mesh->OnUpdate(dt);
-
-            Renderer::SubmitMesh(meshComponent, transformComponent);
         }
     }
 }

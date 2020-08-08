@@ -14,7 +14,7 @@ void CameraController::SetActiveCamera(const SharedPtr<Camera>& camera, const gl
     // Orient controller to match camera's rotation
     position = pos;
     pitch = euler.x;
-    yaw += euler.y;
+    yaw -= euler.y;
 }
 
 void CameraController::OnEvent(Event& e)
@@ -132,7 +132,7 @@ void CameraController::UpdateCameraVectors()
     offset.y = sin(glm::radians(pitch));
     offset.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     front = glm::normalize(offset);
-    // Also re-calculate the Right and Up vector
-    right = glm::normalize(glm::cross(front, worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
 }

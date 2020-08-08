@@ -20,6 +20,8 @@ public:
     void Init();
     void OnEvent(Event& e);
     void OnUpdate(float dt);
+    
+    void OnRender(float dt);
     // Render scene based on editor camera
     void OnRenderEditor(float dt, const Camera& editorCamera);
     // Render scene based on game camera

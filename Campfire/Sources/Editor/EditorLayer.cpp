@@ -17,7 +17,7 @@ void EditorLayer::OnAttach()
     cameraController.SetActiveCamera(
             editorCamera,
             glm::vec3(0.0f, 3.0f, 10.0f),
-            glm::vec3(-20.0f, 0.0f, 0.0f)
+            glm::vec3(0.0f, 20.0f, 0.0f)
     );
 }
 
@@ -27,7 +27,10 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    cameraController.OnUpdate(dt);
+    if (state == State::STOP)
+    {
+        cameraController.OnUpdate(dt);
+    }
 
     activeScene->OnUpdate(dt);
 
@@ -173,7 +176,10 @@ void EditorLayer::ShowMenuWindow()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    cameraController.OnEvent(event);
+    if (state == State::STOP)
+    {
+        cameraController.OnEvent(event);
+    }
 }
 
 // Editor Imgui Widgets

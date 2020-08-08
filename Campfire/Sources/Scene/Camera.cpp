@@ -20,6 +20,25 @@ void Camera::RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& f
     viewMatrix = glm::lookAt(position, position + front, up);
 }
 
+void Camera::RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler)
+{
+    float pitch = euler.x;
+    float yaw = -90.0f - euler.y;
+
+    // Calculate the orthonormal basis for the game camera based
+    // on it's transform
+    glm::vec3 front, up, right;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front = glm::normalize(front);
+    right = glm::normalize(glm::cross(front, glm::vec3(0, 1, 0)));
+    up = glm::normalize(glm::cross(right, front));
+
+    viewMatrix = glm::lookAt(position, position + front, up);
+}
+
+
 void Camera::SetProjection()
 {
     if (isPerspective)

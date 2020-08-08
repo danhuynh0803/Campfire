@@ -18,6 +18,7 @@ public:
     glm::mat4 GetProjMatrix() const { return projMatrix; }
     glm::mat4 GetViewProjMatrix() const { return projMatrix * viewMatrix; }
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
+    void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler);
 
 public:
     bool isPerspective = true;
