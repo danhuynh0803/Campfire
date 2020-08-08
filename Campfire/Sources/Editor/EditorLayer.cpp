@@ -35,7 +35,6 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    //editorCamera->OnUpdate(dt);
     cameraController.OnUpdate(dt);
 
     // TODO create a camera controller:
@@ -167,7 +166,6 @@ void EditorLayer::ShowMenuWindow()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    //editorCamera->OnEvent(event);
     cameraController.OnEvent(event);
 }
 

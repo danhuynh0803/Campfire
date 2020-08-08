@@ -11,45 +11,44 @@ void CameraController::SetActiveCamera(const SharedPtr<Camera>& camera, const gl
 {
     activeCamera = camera;
 
-//    glm::mat4 transform = glm::mat4(1.0f);
-//    //transform = glm::translate(transform, pos);
-//    glm::quat quaternion = glm::quat(
-//        glm::vec3(
-//            glm::radians(euler.x),
-//            glm::radians(euler.y),
-//            glm::radians(euler.z)
-//        )
-//    );
-//    glm::mat4 rotation = glm::toMat4(quaternion);
-//    //transform = transform * rotation;
-//
-//    // Reorient controller parameters based on incoming camera's transform, which is pretty much the view matrix
-//    /*
-//       Camera view matrix is a column-major, right-hand coordinate system:
-//       Rx   Ux   Fx   Tx
-//       Ry   Uy   Fy   Ty
-//       Rz   Uz   Fz   Tz
-//        0    0    0    1
-//    */
-//    auto view = camera->GetViewMatrix();
-//    right    = glm::vec3(view[0][0], view[1][0], view[2][0]);
-//    up       = glm::vec3(view[0][1], view[1][1], view[2][1]);
-//    front    = glm::vec3(view[0][2], view[1][2], view[2][2]); // Camera faces -Z direction
-//    position = glm::vec3(view[0][3], view[1][3], view[2][3]);
-//
-//    //right    = glm::vec3(transform[0][0], transform[1][0], transform[2][0]);
-//    //up       = glm::vec3(transform[0][1], transform[1][1], transform[2][1]);
-//    //front    = glm::vec3(transform[0][2], transform[1][2], transform[2][2]) * -1.0f; // Camera faces -Z direction
-//
-//    //right    = glm::vec3(transform[0][0], transform[0][1], transform[0][2]);
-//    //up       = glm::vec3(transform[1][0], transform[1][1], transform[1][2]);
-//    //front    = glm::vec3(transform[2][0], transform[2][1], transform[1][2]) * -1.0f; // Camera faces -Z direction
-//
-//
-//    //position = glm::vec3(transform[0][3], transform[1][3], transform[2][3]);
-//    position = pos;
-//
-//    activeCamera->RecalculateViewMatrix(position, front, up);
+    //glm::mat4 transform = glm::mat4(1.0f);
+    ////transform = glm::translate(transform, pos);
+    //glm::quat quaternion = glm::quat(
+    //    glm::vec3(
+    //        glm::radians(euler.x),
+    //        glm::radians(euler.y),
+    //        glm::radians(euler.z)
+    //    )
+    //);
+    //glm::mat4 rotation = glm::toMat4(quaternion);
+    //transform = transform * rotation;
+
+    // Reorient controller parameters based on incoming camera's transform, which is pretty much the view matrix
+    /*
+       Camera view matrix is a column-major, right-hand coordinate system:
+       Rx   Ux   Fx   Tx
+       Ry   Uy   Fy   Ty
+       Rz   Uz   Fz   Tz
+        0    0    0    1
+    */
+    //auto view = camera->GetViewMatrix();
+    //right    = glm::vec3(view[0][0], view[1][0], view[2][0]);
+    //up       = glm::vec3(view[0][1], view[1][1], view[2][1]);
+    //front    = glm::vec3(view[0][2], view[1][2], view[2][2]); // Camera faces -Z direction
+    //position = glm::vec3(view[0][3], view[1][3], view[2][3]);
+
+    //right    = glm::vec3(transform[0][0], transform[1][0], transform[2][0]);
+    //up       = glm::vec3(transform[0][1], transform[1][1], transform[2][1]);
+    //front    = glm::vec3(transform[0][2], transform[1][2], transform[2][2]) * -1.0f; // Camera faces -Z direction
+
+    //right    = glm::vec3(transform[0][0], transform[0][1], transform[0][2]);
+    //up       = glm::vec3(transform[1][0], transform[1][1], transform[1][2]);
+    //front    = glm::vec3(transform[2][0], transform[2][1], transform[1][2]) * -1.0f; // Camera faces -Z direction
+
+    ////position = glm::vec3(transform[0][3], transform[1][3], transform[2][3]);
+    //position = pos;
+
+    //activeCamera->RecalculateViewMatrix(position, front, up);
 }
 
 void CameraController::OnEvent(Event& e)
