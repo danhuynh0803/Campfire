@@ -1,5 +1,6 @@
 #include "Scene/Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "Core/Log.h"
 
 Camera::Camera()
     : width(1600.0f), height(900.0f), nearPlane(0.1f), farPlane(1000.0f)

@@ -25,12 +25,15 @@ void EditorLayer::OnAttach()
     uboCamera->SetLayout(uboLayout, 0);
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 100.0f);
-    cameraController.SetActiveCamera(editorCamera);
+    cameraController.SetActiveCamera(
+            editorCamera,
+            glm::vec3(0.0f, 3.0f, 10.0f),
+            glm::vec3(-20.0f, 0.0f, 0.0f)
+    );
 }
 
 void EditorLayer::OnDetach()
 {
-
 }
 
 void EditorLayer::OnUpdate(float dt)
@@ -65,6 +68,10 @@ void EditorLayer::OnUpdate(float dt)
 
 void EditorLayer::OnImGuiRender()
 {
+    ImGui::Begin("Camera Settings");
+    ImGui::DragFloat3("Position", (float*)&cameraController.position);
+    ImGui::End();
+
     // Menu bar
     if (ImGui::BeginMainMenuBar())
     {
@@ -88,7 +95,7 @@ void EditorLayer::OnImGuiRender()
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
     }
-    if (wHierarchy.hasSelectedEntity)
+    if (wHierarchy.hasSelectedEntity && state != State::PLAY)
     {
         wTransform.EditTransform(wHierarchy.GetSelectedEntity(), *editorCamera);
     }

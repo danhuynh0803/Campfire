@@ -11,44 +11,10 @@ void CameraController::SetActiveCamera(const SharedPtr<Camera>& camera, const gl
 {
     activeCamera = camera;
 
-    //glm::mat4 transform = glm::mat4(1.0f);
-    ////transform = glm::translate(transform, pos);
-    //glm::quat quaternion = glm::quat(
-    //    glm::vec3(
-    //        glm::radians(euler.x),
-    //        glm::radians(euler.y),
-    //        glm::radians(euler.z)
-    //    )
-    //);
-    //glm::mat4 rotation = glm::toMat4(quaternion);
-    //transform = transform * rotation;
-
-    // Reorient controller parameters based on incoming camera's transform, which is pretty much the view matrix
-    /*
-       Camera view matrix is a column-major, right-hand coordinate system:
-       Rx   Ux   Fx   Tx
-       Ry   Uy   Fy   Ty
-       Rz   Uz   Fz   Tz
-        0    0    0    1
-    */
-    //auto view = camera->GetViewMatrix();
-    //right    = glm::vec3(view[0][0], view[1][0], view[2][0]);
-    //up       = glm::vec3(view[0][1], view[1][1], view[2][1]);
-    //front    = glm::vec3(view[0][2], view[1][2], view[2][2]); // Camera faces -Z direction
-    //position = glm::vec3(view[0][3], view[1][3], view[2][3]);
-
-    //right    = glm::vec3(transform[0][0], transform[1][0], transform[2][0]);
-    //up       = glm::vec3(transform[0][1], transform[1][1], transform[2][1]);
-    //front    = glm::vec3(transform[0][2], transform[1][2], transform[2][2]) * -1.0f; // Camera faces -Z direction
-
-    //right    = glm::vec3(transform[0][0], transform[0][1], transform[0][2]);
-    //up       = glm::vec3(transform[1][0], transform[1][1], transform[1][2]);
-    //front    = glm::vec3(transform[2][0], transform[2][1], transform[1][2]) * -1.0f; // Camera faces -Z direction
-
-    ////position = glm::vec3(transform[0][3], transform[1][3], transform[2][3]);
-    //position = pos;
-
-    //activeCamera->RecalculateViewMatrix(position, front, up);
+    // Orient controller to match camera's rotation
+    position = pos;
+    pitch = euler.x;
+    yaw += euler.y;
 }
 
 void CameraController::OnEvent(Event& e)
@@ -77,12 +43,12 @@ void CameraController::OnUpdate(float dt)
 
 bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 {
-    if (fov >= 1.0f && fov <= 45.0f)
+    if (fov >= 1.0f && fov <= 60.0f)
         fov -= e.GetYOffset();
     if (fov <= 1.0f)
         fov = 1.0f;
-    if (fov >= 45.0f)
-        fov = 45.0f;
+    if (fov >= 60.0f)
+        fov = 60.0f;
 
     activeCamera->fov = fov;
     activeCamera->SetProjection();
@@ -161,11 +127,11 @@ void CameraController::ProcessKeyboard(CameraMovement direction, float deltaTime
 void CameraController::UpdateCameraVectors()
 {
     // Calculate the new Front vector
-    glm::vec3 frontVec;
-    frontVec.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    frontVec.y = sin(glm::radians(pitch));
-    frontVec.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front = glm::normalize(frontVec);
+    glm::vec3 offset;
+    offset.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    offset.y = sin(glm::radians(pitch));
+    offset.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front = glm::normalize(offset);
     // Also re-calculate the Right and Up vector
     right = glm::normalize(glm::cross(front, worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     up = glm::normalize(glm::cross(right, front));
