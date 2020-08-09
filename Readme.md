@@ -1,4 +1,5 @@
 # Campfire
+![Ubuntu](https://github.com/danhuynh0803/Campfire/workflows/C/C++%20CI/badge.svg)
 
 ## Summary
 Campfire is an in-progress game engine intended for use in small gamejam projects. Not currently usable other than for myself due to a lot of hardcoded file paths for testing purposes. Campfire uses [Glitter](https://github.com/Polytonic/Glitter) as the starting template. Mostly developed and tested on Windows so the Linux builds may not always be reliable.
