@@ -201,8 +201,6 @@ struct ColliderComponent
     }
 
     SharedPtr<Collider> collider;
-    bool isTrigger = false;
-    glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
     operator SharedPtr<Collider>& () { return collider; }
 };
 

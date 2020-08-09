@@ -110,6 +110,21 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Collider
+    if (entity.HasComponent<ColliderComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Collider"))
+        {
+            auto& collider = entity.GetComponent<ColliderComponent>().collider;
+            ImGui::Checkbox("Is Trigger", &collider->isTrigger);
+            collider->ShowData();
+            ImGui::DragFloat3("Center", (float*)&collider->center);
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
     // Rigidbody
     if (entity.HasComponent<RigidbodyComponent>())
     {
@@ -238,21 +253,27 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
 
     if (ImGui::BeginMenu("Physics"))
     {
-        if (ImGui::MenuItem("Rigidbody"))
+        if (!entity.HasComponent<RigidbodyComponent>())
         {
-            entity.AddComponent<RigidbodyComponent>();
+            if (ImGui::MenuItem("Rigidbody"))
+            {
+                entity.AddComponent<RigidbodyComponent>();
+            }
         }
-        if (ImGui::MenuItem("Box Collider"))
+        if (!entity.HasComponent<ColliderComponent>())
         {
-            entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
-        }
-        if (ImGui::MenuItem("Sphere Collider"))
-        {
-            entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
-        }
-        if (ImGui::MenuItem("Capsule Collider"))
-        {
-            entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Capsule);
+            if (ImGui::MenuItem("Box Collider"))
+            {
+                entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+            }
+            if (ImGui::MenuItem("Sphere Collider"))
+            {
+                entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
+            }
+            if (ImGui::MenuItem("Capsule Collider"))
+            {
+                entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Capsule);
+            }
         }
         ImGui::EndMenu();
     }
