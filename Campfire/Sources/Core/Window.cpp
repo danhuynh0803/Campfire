@@ -9,9 +9,15 @@
 
 std::unique_ptr<Window> Window::Create(const WindowProps& props)
 {
+    //#ifdef PLATFORM_WINDOWS
+    //    return CreateUniquePtr<WindowsWindow>(props);
+    //#elif PLATFORM_LINUX
+    //    return CreateUniquePtr<LinuxWindow>(props);
+    //#endif
+
     #ifdef PLATFORM_WINDOWS
         return CreateUniquePtr<WindowsWindow>(props);
-    #elif PLATFORM_LINUX
+    #else
         return CreateUniquePtr<LinuxWindow>(props);
     #endif
 }
