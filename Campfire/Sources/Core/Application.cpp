@@ -1,7 +1,6 @@
 #include "Core/Application.h"
 #include "Core/Timer.h"
 #include "ImGui/ImGuiLayer.h"
-#include "RenderLayer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -34,8 +33,6 @@ Application::Application()
 
     // Init renderer
     Renderer::Init();
-    RenderLayer* renderLayer = new RenderLayer();
-    PushLayer(renderLayer);
 
     // Init Editor
     PushLayer(new EditorLayer());
