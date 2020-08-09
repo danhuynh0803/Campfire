@@ -27,6 +27,9 @@ public:
     virtual void OnEvent(Event& event) override;
 
 private:
+    bool startScene = false;
+    bool stopScene = true;
+
     SharedPtr<Scene> activeScene;
     SharedPtr<Camera> editorCamera;
     CameraController cameraController;

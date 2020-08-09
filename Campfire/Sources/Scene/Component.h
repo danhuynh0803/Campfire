@@ -37,6 +37,7 @@ struct TransformComponent
     glm::vec3 scale = glm::vec3(1.0f);
 
     glm::mat4 transform = glm::mat4(1.0f);
+    glm::mat4 runtimeTransform = glm::mat4(1.0f);
 
     glm::mat4 GetTransform()
     {

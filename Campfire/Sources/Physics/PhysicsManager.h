@@ -16,6 +16,7 @@ public:
     static void SubmitEntity(Entity& entity);
     //static void UpdateColliders();
     static void ClearLists();
+    static void UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp);
 
     //static void DebugDraw();
 

@@ -33,14 +33,40 @@ void PhysicsManager::SubmitEntity(Entity& entity)
     if (entity.HasComponent<RigidbodyComponent>())
     {
         auto rb = entity.GetComponent<RigidbodyComponent>();
+        auto transformComponent = entity.GetComponent<TransformComponent>();
+        rb.rigidbody->Construct(transformComponent.position, transformComponent.rotation, nullptr);
+
         dynamicsWorld->addRigidBody(rb.rigidbody->GetBulletRigidbody());
     }
+}
+
+void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp)
+{
+    btRigidBody* body = rb->GetBulletRigidbody();
+    btTransform trans;
+    if (body && body->getMotionState())
+    {
+        body->getMotionState()->getWorldTransform(trans);
+    }
+    else
+    {
+        //trans = objectPtr->rigidBody->shape->getWorldTransform();
+        //std::cout << "Warning: Object missing motion state\n";
+    }
+
+    // Update transform
+    btScalar m[16];
+    trans.getOpenGLMatrix(m);
+    // Apply scale separately since bullet doesn't convey that info
+    transComp.runtimeTransform = glm::make_mat4x4(m);
+
 }
 
 void PhysicsManager::OnUpdate(float dt)
 {
     dynamicsWorld->stepSimulation(dt, 10);
 
+    /*
     for (size_t i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
     {
         btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
@@ -64,6 +90,7 @@ void PhysicsManager::OnUpdate(float dt)
         // Apply scale separately since bullet doesn't convey that info
         glm::mat4 transform = glm::make_mat4x4(m);
     }
+    */
 }
 
 void PhysicsManager::ClearLists()

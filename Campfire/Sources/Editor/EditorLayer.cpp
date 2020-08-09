@@ -4,6 +4,7 @@
 #include "Audio/AudioSystem.h"
 #include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
+#include "Physics/PhysicsManager.h"
 
 EditorLayer::EditorLayer()
     : Layer("Editor")
@@ -32,7 +33,27 @@ void EditorLayer::OnUpdate(float dt)
         cameraController.OnUpdate(dt);
     }
 
-    activeScene->OnUpdate(dt);
+    Time::timeScale = (state == State::PAUSE) ? 0.0f : 1.0f;
+
+    if (startScene)
+    {
+        LOG_INFO("Starting Scene");
+        // Submit all entities with rbs to Physics
+        for (auto& entityPair : activeScene->GetEntityMap())
+        {
+            PhysicsManager::SubmitEntity(entityPair.second);
+        }
+    }
+    else if (stopScene)
+    {
+        LOG_INFO("Stopping Scene");
+        PhysicsManager::ClearLists();
+    }
+
+    if (state != State::STOP)
+    {
+        activeScene->OnUpdate(dt);
+    }
 
     Renderer::BeginScene(*editorCamera);
 
@@ -42,7 +63,6 @@ void EditorLayer::OnUpdate(float dt)
     }
     else
     {
-        Time::timeScale = (state == State::PAUSE) ? 0.0f : 1.0f;
         activeScene->OnRenderRuntime(dt);
     }
 
@@ -102,11 +122,19 @@ void EditorLayer::OnImGuiRender()
     ImGui::Begin("Tool Bar");
     // TODO put various image buttons here
     // for now radio buttons to test
+    static int prevState = -1;
     static int currState = static_cast<int>(state);
+
+    prevState = currState;
     ImGui::RadioButton("Stop",  &currState, 0); ImGui::SameLine();
     ImGui::RadioButton("Play",  &currState, 1); ImGui::SameLine();
     ImGui::RadioButton("Pause", &currState, 2);
     state = static_cast<State>(currState);
+
+    startScene = (currState == 1 && prevState == 0) ? true : false;
+    stopScene  = (currState == 0 && prevState != 0) ? true : false;
+
+
 
     ImGui::End();
 

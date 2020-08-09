@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include "Renderer/Renderer.h"
+#include "Physics/PhysicsManager.h"
 
 Scene::Scene(bool isNewScene)
 {
@@ -99,15 +100,18 @@ void Scene::OnUpdate(float dt)
         }
     }
 
+    PhysicsManager::OnUpdate(dt);
+
     // Update rigidbodies
     {
         auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
         for (auto entity : group)
         {
             auto [transformComponent, rigidbodyComponent] = group.get<TransformComponent, RigidbodyComponent>(entity);
+
+            PhysicsManager::UpdateEntity(rigidbodyComponent.rigidbody, transformComponent);
         }
     }
-
 }
 
 void Scene::SubmitCamera(const Camera& camera)
@@ -147,7 +151,48 @@ void Scene::OnRenderRuntime(float dt)
         break;
     }
 
-    OnRender(dt);
+    //OnRender(dt);
+
+    // Send light info to our UBO
+    SubmitLights();
+
+    // Draw skybox
+    skybox->DrawSkybox();
+
+    // Render particles first since they're transparent
+    {
+        auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
+            if (particleSystemComponent.ps)
+            {
+                particleSystemComponent.ps->position = transformComponent.position;
+                // TODO have this transparency ordering check in renderer instead of PS
+                // or swap to OIT eventually
+                //particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
+                particleSystemComponent.ps->OnUpdate(dt, glm::vec3(0.0f));
+                particleSystemComponent.ps->Draw(transformComponent);
+            }
+        }
+    }
+
+    // Render opaque meshes
+    {
+        // Only render objects that have mesh components
+        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+            if (meshComponent.mesh)
+            {
+                //meshComponent.mesh->OnUpdate(dt);
+
+                Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
+            }
+        }
+    }
+
 }
 
 void Scene::OnRender(float dt)

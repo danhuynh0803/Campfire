@@ -8,7 +8,6 @@
 class Rigidbody
 {
 public:
-
     void Construct(const glm::vec3& pos, const glm::vec3& euler, const SharedPtr<Collider>& collider)
     {
         btTransform transform;
@@ -18,7 +17,15 @@ public:
         transform.setRotation(quat);
         btVector3 localInertia(angularDrag, angularDrag, angularDrag);
 
-        btCollisionShape* shape = collider->shape;
+        btCollisionShape* shape = nullptr;
+        if (collider != nullptr)
+        {
+            btCollisionShape* shape = collider->shape;
+        }
+        else
+        {
+            shape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+        }
 
         if (isDynamic)
         {
