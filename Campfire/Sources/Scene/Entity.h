@@ -24,25 +24,25 @@ public:
     template <typename T, typename... Args>
     T& AddComponent(Args&&... args)
     {
-        return scene->registry.emplace<T>(entityHandle, std::forward<Args>(args)...);
+        return scene->registry.template emplace<T>(entityHandle, std::forward<Args>(args)...);
     }
 
     template <typename T>
     void RemoveComponent()
     {
-        scene->registry.remove<T>(entityHandle);
+        scene->registry.template remove<T>(entityHandle);
     }
 
     template <typename T>
     T& GetComponent()
     {
-        return scene->registry.get<T>(entityHandle);
+        return scene->registry.template get<T>(entityHandle);
     }
 
     template <typename T>
     bool HasComponent()
     {
-        return scene->registry.has<T>(entityHandle);
+        return scene->registry.template has<T>(entityHandle);
     }
 
     entt::entity GetHandle() { return entityHandle; }

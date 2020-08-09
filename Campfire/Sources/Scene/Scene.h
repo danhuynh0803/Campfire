@@ -33,7 +33,7 @@ public:
     Entity CreateEntity(const std::string& name);
     void RemoveEntity(Entity entity);
     //void RemoveEntityRange();
-    const std::unordered_map<uint64_t, Entity> const GetEntityMap() { return entityMap; }
+    const std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
 
 private:
     void SubmitCamera(const Camera& camera);

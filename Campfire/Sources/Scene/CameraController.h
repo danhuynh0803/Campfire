@@ -10,7 +10,7 @@ class CameraController
 {
 public:
     SharedPtr<Camera> GetActiveCamera() { return activeCamera; }
-    void CameraController::SetActiveCamera(const SharedPtr<Camera>& camera, const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& rotation = glm::vec3(0.0f));
+    void SetActiveCamera(const SharedPtr<Camera>& camera, const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& rotation = glm::vec3(0.0f));
     void OnEvent(Event& e);
     void OnUpdate(float dt);
     bool OnMouseScrolled(MouseScrolledEvent& e);
