@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #ifndef CDIALOG_EVENT_HANDLER_H
 #define CDIALOG_EVENT_HANDLER_H
 #include <windows.h>      // For common windows data types and function headers
@@ -104,5 +105,5 @@ private:
 };
 
 #endif // CDIALOG_EVENT_HANDLER_H
-
+#endif
 //source: "https://github.com/microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/winui/shell/appplatform/CommonFileDialogModes"
