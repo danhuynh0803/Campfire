@@ -40,16 +40,16 @@ void EditorLayer::OnUpdate(float dt)
     {
         LOG_INFO("Starting Scene");
         // Submit all entities with rbs to Physics
-        //for (auto& entityPair : activeScene->GetEntityMap())
-        //{
-        //    PhysicsManager::SubmitEntity(entityPair.second);
-        //}
+        PhysicsManager::ClearLists();
+        for (auto& entityPair : activeScene->GetEntityMap())
+        {
+            PhysicsManager::SubmitEntity(entityPair.second);
+        }
     }
 
     else if (stopScene)
     {
         LOG_INFO("Stopping Scene");
-        //PhysicsManager::ClearLists();
     }
 
     Renderer::BeginScene(*editorCamera);
@@ -59,15 +59,6 @@ void EditorLayer::OnUpdate(float dt)
         cameraController.OnUpdate(dt);
 
         activeScene->OnRenderEditor(dt, *editorCamera);
-
-        // FIXME: figure out a way to draw colliders without submitting to bullet each time
-        PhysicsManager::ClearLists();
-        for (auto& entityPair : activeScene->GetEntityMap())
-        {
-            PhysicsManager::SubmitEntity(entityPair.second);
-        }
-        PhysicsManager::DebugDraw();
-
     }
     else
     {
@@ -117,7 +108,13 @@ void EditorLayer::OnImGuiRender()
 
             camera->DrawFrustum(transform);
         }
+
+        // FIXME: figure out a way to draw colliders without submitting to bullet each time
+        PhysicsManager::ClearLists();
+        PhysicsManager::SubmitEntity(entity);
+        PhysicsManager::DebugDraw();
     }
+
     if (showTransformSettings)
     {
         wTransform.ShowTransformSettings(&showTransformSettings);

@@ -47,6 +47,21 @@ public:
             bulletRigidbody = new btRigidBody(rbInfo);
         }
 
+        bulletRigidbody->setLinearFactor(
+                btVector3(
+                    static_cast<int>(freezePosition[0]) ^ 1,
+                    static_cast<int>(freezePosition[1]) ^ 1,
+                    static_cast<int>(freezePosition[2]) ^ 1
+                    )
+                );
+
+        bulletRigidbody->setAngularFactor(
+                btVector3(
+                    static_cast<int>(freezeRotation[0]) ^ 1,
+                    static_cast<int>(freezeRotation[1]) ^ 1,
+                    static_cast<int>(freezeRotation[2]) ^ 1
+                    )
+                );
     }
 
     btRigidBody* GetBulletRigidbody()
