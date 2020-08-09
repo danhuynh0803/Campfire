@@ -1,4 +1,5 @@
 #include "Physics/PhysicsManager.h"
+#include "Physics/BulletDebugDrawer.h"
 
 btDefaultCollisionConfiguration* PhysicsManager::collisionConfiguration;
 btCollisionDispatcher* PhysicsManager::dispatcher;
@@ -6,7 +7,6 @@ btBroadphaseInterface* PhysicsManager::overlappingPairCache;
 btSequentialImpulseConstraintSolver* PhysicsManager::solver;
 btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld;
 btAlignedObjectArray<btCollisionShape*> PhysicsManager::collisionShapes;
-//BulletDebugDrawer PhysicsManager::mydebugdrawer;
 
 float PhysicsManager::gravity = -9.81;
 
@@ -19,22 +19,24 @@ void PhysicsManager::Init()
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0, gravity, 0));
 
-    //dynamicsWorld->setDebugDrawer(&mydebugdrawer);
+    dynamicsWorld->setDebugDrawer(new BulletDebugDrawer());
 }
 
 void PhysicsManager::SubmitEntity(Entity& entity)
 {
+    SharedPtr<Collider> collider = nullptr;
     if (entity.HasComponent<ColliderComponent>())
     {
-        auto collider = entity.GetComponent<ColliderComponent>();
-        //collisionShapes.push_back(
+        collider = entity.GetComponent<ColliderComponent>().collider;
+        collider->UpdateShape();
+        //collisionShapes.push_back(collider->shape);
     }
 
     if (entity.HasComponent<RigidbodyComponent>())
     {
         auto rb = entity.GetComponent<RigidbodyComponent>();
         auto transformComponent = entity.GetComponent<TransformComponent>();
-        rb.rigidbody->Construct(transformComponent.position, transformComponent.rotation, nullptr);
+        rb.rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
 
         dynamicsWorld->addRigidBody(rb.rigidbody->GetBulletRigidbody());
     }
@@ -57,9 +59,15 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
     // Update transform
     btScalar m[16];
     trans.getOpenGLMatrix(m);
-    // Apply scale separately since bullet doesn't convey that info
     transComp.runtimeTransform = glm::make_mat4x4(m);
+    // Apply scale separately since bullet doesn't convey that info
+    transComp.runtimeTransform = glm::scale(transComp.runtimeTransform, transComp.scale);
 
+}
+
+void PhysicsManager::DebugDraw()
+{
+    dynamicsWorld->debugDrawWorld();
 }
 
 void PhysicsManager::OnUpdate(float dt)
@@ -111,9 +119,9 @@ void PhysicsManager::ClearLists()
     // Delete collision shapes
     for (int i = 0; i < collisionShapes.size(); ++i)
     {
-        btCollisionShape* shape = collisionShapes[i];
-        collisionShapes[i] = 0;
-        delete shape;
+        //btCollisionShape* shape = collisionShapes[i];
+        //collisionShapes[i] = 0;
+        //delete shape;
     }
 }
 
@@ -128,19 +136,6 @@ void PhysicsManager::Shutdown()
 
     collisionShapes.clear();
 }
-
-//void PhysicsManager::DebugDraw()
-//{
-//    mydebugdrawer.SetMatrices(
-//        shared.renderCamera->GetViewMatrix(),
-//        // TODO get resolution from camera
-//        shared.renderCamera->GetProjMatrix(1600.0f, 900.0f)
-//    );
-//
-//    dynamicsWorld->debugDrawWorld();
-//    // TODO make all lines into one draw call
-//    //mydebugdrawer.DebugDraw();
-//}
 
 
 // ==============================================================

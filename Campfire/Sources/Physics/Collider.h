@@ -9,6 +9,7 @@ struct Collider
     bool isTrigger = false;
     glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
 
+    virtual void UpdateShape() = 0;
     virtual void ShowData() = 0;
 };
 
@@ -18,12 +19,18 @@ struct BoxCollider : public Collider
     {
         shape = new btBoxShape(btVector3(size.x, size.y, size.z));
     }
-    glm::vec3 size = glm::vec3(1.0f);
+
+    virtual void UpdateShape()
+    {
+        shape = new btBoxShape(btVector3(size.x, size.y, size.z));
+    }
 
     virtual void ShowData()
     {
-        ImGui::DragFloat3("Size", (float*)&size);
+        ImGui::DragFloat3("Size", (float*)&size, 0.1f);
     }
+
+    glm::vec3 size = glm::vec3(1.0f);
 };
 
 struct SphereCollider : public Collider
@@ -33,11 +40,16 @@ struct SphereCollider : public Collider
         shape = new btSphereShape(radius);
     }
 
+    virtual void UpdateShape()
+    {
+        shape = new btSphereShape(radius);
+    }
+
     virtual void ShowData()
     {
-        ImGui::DragFloat("Radius", &radius);
+        ImGui::DragFloat("Radius", &radius, 0.1f);
     }
-    float radius = 0.5f;
+    float radius = 1.0f;
 };
 
 struct CapsuleCollider : public Collider
@@ -47,12 +59,17 @@ struct CapsuleCollider : public Collider
         //shape = new btCapsuleShape(radius, height, zUp);
     }
 
+    virtual void UpdateShape()
+    {
+        //shape = new btSphereShape(radius);
+    }
+
     virtual void ShowData()
     {
-        ImGui::DragFloat("Radius", &radius);
-        ImGui::DragFloat("Height", &height);
+        ImGui::DragFloat("Radius", &radius, 0.1f);
+        ImGui::DragFloat("Height", &height, 0.1f);
     }
-    float radius = 0.5f;
+    float radius = 1.0f;
     float height = 1.0f;
 };
 

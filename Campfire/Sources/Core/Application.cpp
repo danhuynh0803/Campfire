@@ -21,7 +21,6 @@ Application::Application()
     Log::Init();
     Time::Init();
     Random::Init();
-    PhysicsManager::Init();
 
     instance = this;
     window = Window::Create();
@@ -31,10 +30,10 @@ Application::Application()
     AudioLayer* audioLayer = new AudioLayer();
     PushLayer(audioLayer);
 
-    // Init renderer
     Renderer::Init();
 
-    // Init Editor
+    PhysicsManager::Init();
+
     PushLayer(new EditorLayer());
 
     // Imgui overlay

@@ -78,6 +78,7 @@ struct TransformComponent
 
         transform = glm::scale(transform, scale);
 
+        runtimeTransform = transform;
         return transform;
     }
 

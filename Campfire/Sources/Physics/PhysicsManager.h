@@ -3,7 +3,6 @@
 
 #include <btBulletDynamicsCommon.h>
 
-#include "Physics/BulletDebugDrawer.h"
 #include "Scene/Entity.h"
 
 class PhysicsManager
@@ -18,7 +17,7 @@ public:
     static void ClearLists();
     static void UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp);
 
-    //static void DebugDraw();
+    static void DebugDraw();
 
     // TODO Move to general picking or maybe make my own
     //static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
@@ -35,7 +34,6 @@ private:
     static btSequentialImpulseConstraintSolver* solver;
     static btDiscreteDynamicsWorld* dynamicsWorld;
     static btAlignedObjectArray<btCollisionShape*> collisionShapes;
-    //static BulletDebugDrawer mydebugdrawer;
 };
 
 #endif // PHYSICS_MANAGER_H

@@ -1,5 +1,6 @@
 #include "Core/Application.h"
 #include "Core/FileSystem.h"
+#include "Core/Input.h"
 #include "Core/Time.h"
 #include "Audio/AudioSystem.h"
 #include "Renderer/Renderer.h"
@@ -28,43 +29,52 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    if (state == State::STOP)
-    {
-        cameraController.OnUpdate(dt);
-    }
-
     Time::timeScale = (state == State::PAUSE) ? 0.0f : 1.0f;
+
+    if (Input::GetMod(MOD_CONTROL) && Input::GetKeyDown(KEY_R))
+    {
+        ShaderManager::ReloadShaders();
+    }
 
     if (startScene)
     {
         LOG_INFO("Starting Scene");
         // Submit all entities with rbs to Physics
-        for (auto& entityPair : activeScene->GetEntityMap())
-        {
-            PhysicsManager::SubmitEntity(entityPair.second);
-        }
+        //for (auto& entityPair : activeScene->GetEntityMap())
+        //{
+        //    PhysicsManager::SubmitEntity(entityPair.second);
+        //}
     }
+
     else if (stopScene)
     {
         LOG_INFO("Stopping Scene");
-        PhysicsManager::ClearLists();
-    }
-
-    if (state != State::STOP)
-    {
-        activeScene->OnUpdate(dt);
+        //PhysicsManager::ClearLists();
     }
 
     Renderer::BeginScene(*editorCamera);
 
     if (state == State::STOP)
     {
+        cameraController.OnUpdate(dt);
+
         activeScene->OnRenderEditor(dt, *editorCamera);
+
+        // FIXME: figure out a way to draw colliders without submitting to bullet each time
+        PhysicsManager::ClearLists();
+        for (auto& entityPair : activeScene->GetEntityMap())
+        {
+            PhysicsManager::SubmitEntity(entityPair.second);
+        }
+        PhysicsManager::DebugDraw();
+
     }
     else
     {
+        activeScene->OnUpdate(dt);
         activeScene->OnRenderRuntime(dt);
     }
+
 
     Renderer::EndScene();
 }

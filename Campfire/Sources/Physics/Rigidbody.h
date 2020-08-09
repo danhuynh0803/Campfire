@@ -20,10 +20,12 @@ public:
         btCollisionShape* shape = nullptr;
         if (collider != nullptr)
         {
-            btCollisionShape* shape = collider->shape;
+            shape = collider->shape;
         }
         else
         {
+            // No collider present, but we create a shape of size 0, in order for physics to still be applied
+            //shape = new btBoxShape(btVector3(0.0f, 0.0f, 0.0f));
             shape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
         }
 
@@ -33,8 +35,18 @@ public:
         }
 
         btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-        bulletRigidbody = new btRigidBody(rbInfo);
+
+        if (useGravity)
+        {
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
+            bulletRigidbody = new btRigidBody(rbInfo);
+        }
+        else
+        {
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, shape, localInertia);
+            bulletRigidbody = new btRigidBody(rbInfo);
+        }
+
     }
 
     btRigidBody* GetBulletRigidbody()

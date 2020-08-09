@@ -27,15 +27,15 @@ void Camera::Init()
 
                4--------------------7
               -|                 -  |
-            -  |              -     |
-          -    |          -         |
-        -      |      -             |
-       0------------3               |
-       |       5----|---------------6
-       |     -      |            -
-       |   -        |       -
-       | -          |   -
-       1------------2
+            -  |               -    |
+          -    |            -       |
+        -      |         -          |
+       0---------------3            |
+       |       5-------|------------6
+       |     -         |          -
+       |   -           |      -
+       | -             |  -
+       1---------------2
 
     */
 
@@ -51,11 +51,12 @@ void Camera::Init()
     };
 
     vertexArray = VertexArray::Create();
-    // 8 vertices for frustum
-    vertexBuffer = VertexBuffer::Create(24 * sizeof(float));
+    // pos, color, and 8 vertices for frustum
+    vertexBuffer = VertexBuffer::Create(3 * 3 * 8 * sizeof(float));
     BufferLayout layout =
     {
-        { ShaderDataType::FLOAT3, "aPos" }
+        { ShaderDataType::FLOAT3, "aPos" },
+        { ShaderDataType::FLOAT3, "aColor" }
     };
     vertexBuffer->SetLayout(layout);
     vertexArray->AddVertexBuffer(vertexBuffer);
@@ -114,20 +115,21 @@ void Camera::DrawFrustum(glm::mat4 transform)
     glm::vec3 farBL  = farCenter - camUp * halfFarHeight - camRight * halfFarWidth;
     glm::vec3 farBR  = farCenter - camUp * halfFarHeight + camRight * halfFarWidth;
 
+    glm::vec3 color = glm::vec3(1.0f);
     // Vertex data
     GLfloat vertices[] =
     {
         // near
-        nearTL.x, nearTL.y, -nearPlane,
-        nearBL.x, nearBL.y, -nearPlane,
-        nearBR.x, nearBR.y, -nearPlane,
-        nearTR.x, nearTR.y, -nearPlane,
+        nearTL.x, nearTL.y, -nearPlane, color.r, color.g, color.b,
+        nearBL.x, nearBL.y, -nearPlane, color.r, color.g, color.b,
+        nearBR.x, nearBR.y, -nearPlane, color.r, color.g, color.b,
+        nearTR.x, nearTR.y, -nearPlane, color.r, color.g, color.b,
 
         // Far
-        farTL.x, farTL.y, -farPlane,
-        farBL.x, farBL.y, -farPlane,
-        farBR.x, farBR.y, -farPlane,
-        farTR.x, farTR.y, -farPlane,
+        farTL.x, farTL.y, -farPlane, color.r, color.g, color.b,
+        farBL.x, farBL.y, -farPlane, color.r, color.g, color.b,
+        farBR.x, farBR.y, -farPlane, color.r, color.g, color.b,
+        farTR.x, farTR.y, -farPlane, color.r, color.g, color.b
     };
 
     vertexBuffer->SetData(vertices, sizeof(vertices));

@@ -62,14 +62,38 @@ void Scene::Init()
        Scene should be initialized with the following:
        1) Camera
        2) Directional light
+       3) Test cube
     */
     auto mainCamera = CreateEntity("Camera");
-    mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 5.0f);
+    mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
+
+    auto testCube = CreateEntity("Test Cube");
+    testCube.GetComponent<TransformComponent>().position = glm::vec3(-2.0f, 0.0f, 0.0f);
+    testCube.AddComponent<RigidbodyComponent>();
+    testCube.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+    testCube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+
+    auto testSphere = CreateEntity("Test Sphere");
+    testSphere.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, 0.0f);
+    testSphere.AddComponent<RigidbodyComponent>();
+    testSphere.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
+    testSphere.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+
+    /*
+    auto testFloor = CreateEntity("Test Floor");
+    testCube.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -10.0f, 0.0f);
+    testCube.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 1.0f, 10.0f);
+    testCube.AddComponent<RigidbodyComponent>();
+    testCube.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+    testCube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+    */
+
+
 
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
