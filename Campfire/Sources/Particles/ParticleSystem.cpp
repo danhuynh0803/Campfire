@@ -213,6 +213,12 @@ void ParticleSystem::Draw(const glm::mat4& transform)
 
 void ParticleSystem::OnImGuiRender()
 {
+    ImGui::NewLine();
+    if (ImGui::Button("Generate")) { GenerateParticles(numParticles); }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear")) { particles.clear(); }
+    ImGui::Separator();
+
     ImGui::Text("Global Settings");
     ImGui::Checkbox("isLooping", &isLooping);
     ImGui::DragFloat("Rate over time", &rateOverTime, 1.0f);
@@ -287,14 +293,4 @@ void ParticleSystem::OnImGuiRender()
         ImGui::TreePop();
     }
     ImGui::Separator();
-
-    if (ImGui::Button("Generate"))
-    {
-        GenerateParticles(numParticles);
-    }
-
-    if (ImGui::Button("Clear"))
-    {
-        particles.clear();
-    }
 }

@@ -96,9 +96,6 @@ file(GLOB SRC_EVENTS Campfire/Sources/Events/*.h
 file(GLOB SRC_PLATFORM_OPENGL Campfire/Sources/Platform/OpenGL/*.h
                               Campfire/Sources/Platform/OpenGL/*.cpp)
 
-file(GLOB SRC_PLATFORM_WINDOWS Campfire/Sources/Platform/Windows/*.h
-                               Campfire/Sources/Platform/Windows/*.cpp)
-
 file(GLOB SRC_RENDERER Campfire/Sources/Renderer/*.h
                        Campfire/Sources/Renderer/*.cpp)
 
@@ -145,6 +142,13 @@ file(GLOB SRC_EDITOR_WIDGETS
     Campfire/Sources/Editor/Widgets/*.cpp
 )
 
+if(MSVC)
+file(GLOB SRC_PLATFORM_WINDOWS Campfire/Sources/Platform/Windows/*.h
+                               Campfire/Sources/Platform/Windows/*.cpp)
+
+source_group("Sources\\Platform\\Windows"  FILES ${SRC_PLATFORM_WINDOWS})
+endif()
+
 if (NOT MSVC)
 file(GLOB SRC_PLATFORM_LINUX Campfire/Sources/Platform/Linux/*.h
                              Campfire/Sources/Platform/ Campfire/Sources/Platform/Linux/*.cpp)
@@ -159,7 +163,6 @@ source_group("Sources"                     FILES ${PROJECT_SOURCES})
 source_group("Sources\\Core"               FILES ${SRC_CORE})
 source_group("Sources\\Events"             FILES ${SRC_EVENTS})
 source_group("Sources\\Platform\\OpenGL"   FILES ${SRC_PLATFORM_OPENGL})
-source_group("Sources\\Platform\\Windows"  FILES ${SRC_PLATFORM_WINDOWS})
 source_group("Sources\\Renderer"           FILES ${SRC_RENDERER})
 source_group("Sources\\Particles"          FILES ${SRC_PARTICLES})
 source_group("Sources\\Physics"            FILES ${SRC_PHYSICS})

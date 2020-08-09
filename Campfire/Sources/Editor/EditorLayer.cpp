@@ -74,7 +74,7 @@ void EditorLayer::OnImGuiRender()
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
     }
-    if (wHierarchy.hasSelectedEntity && state != State::PLAY)
+    if (wHierarchy.hasSelectedEntity && state == State::STOP)
     {
         auto& entity = wHierarchy.GetSelectedEntity();
 
