@@ -59,19 +59,19 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 camera->SetProjection();
 
             if (camera->isPerspective)
-                ImGui::DragFloat("Vertical FOV", &camera->vFov);
+                ImGui::DragFloat("Vertical FOV", &camera->vFov, 0.1f);
             else
-                ImGui::DragFloat("Size", &camera->size);
+                ImGui::DragFloat("Size", &camera->size, 0.1f);
 
-            ImGui::DragFloat("Near Plane", &camera->nearPlane);
-            ImGui::DragFloat("Far Plane", &camera->farPlane);
-            ImGui::DragFloat("Depth", &camera->depth);
+            ImGui::DragFloat("Near Plane", &camera->nearPlane, 0.1f);
+            ImGui::DragFloat("Far Plane", &camera->farPlane, 0.1f);
+            ImGui::DragFloat("Depth", &camera->depth, 0.1f);
 
             ImGui::Text("Viewport Rect");
-            ImGui::DragFloat("x", &camera->x);
-            ImGui::DragFloat("y", &camera->y);
-            ImGui::DragFloat("w", &camera->width);
-            ImGui::DragFloat("h", &camera->height);
+            ImGui::DragFloat("x", &camera->x, 0.1f);
+            ImGui::DragFloat("y", &camera->y, 0.1f);
+            ImGui::DragFloat("w", &camera->width, 0.1f);
+            ImGui::DragFloat("h", &camera->height, 0.1f);
 
             ImGui::TreePop();
         }

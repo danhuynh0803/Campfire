@@ -16,8 +16,8 @@ void EditorLayer::OnAttach()
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
             editorCamera,
-            glm::vec3(0.0f, 3.0f, 10.0f),
-            glm::vec3(0.0f, 20.0f, 0.0f)
+            glm::vec3(0.0f, 5.0f, 10.0f),
+            glm::vec3(-20.0f, 0.0f, 0.0f)
     );
 }
 
@@ -51,30 +51,6 @@ void EditorLayer::OnUpdate(float dt)
 
 void EditorLayer::OnImGuiRender()
 {
-    ImGui::Begin("Editor Camera Info");
-    ImGui::DragFloat3("Position", (float*)&cameraController.position);
-    bool prevState = editorCamera->isPerspective;
-    ImGui::Checkbox("Is Perspective", &editorCamera->isPerspective);
-
-    if (editorCamera->isPerspective)
-        ImGui::DragFloat("Vertical FOV", &editorCamera->vFov);
-    else
-        ImGui::DragFloat("Size", &editorCamera->size);
-
-    ImGui::DragFloat("Near Plane", &editorCamera->nearPlane);
-    ImGui::DragFloat("Far Plane", &editorCamera->farPlane);
-    ImGui::DragFloat("Depth", &editorCamera->depth);
-
-    ImGui::Text("Viewport Rect");
-    ImGui::DragFloat("x", &editorCamera->x);
-    ImGui::DragFloat("y", &editorCamera->y);
-    ImGui::DragFloat("w", &editorCamera->width);
-    ImGui::DragFloat("h", &editorCamera->height);
-
-    editorCamera->SetProjection();
-
-    ImGui::End();
-
     // Menu bar
     if (ImGui::BeginMainMenuBar())
     {
@@ -120,6 +96,7 @@ void EditorLayer::OnImGuiRender()
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }
     if (showConsole) { ShowConsole(&showConsole); }
+    if (showEditorCameraSettings) { ShowEditorCameraSettings(&showEditorCameraSettings); }
 
     // Editor state buttons
     ImGui::Begin("Tool Bar");
@@ -165,6 +142,7 @@ void EditorLayer::ShowMenuWindow()
         ImGui::MenuItem("Hierarchy", NULL, &showHierarchy);
         ImGui::MenuItem("Inspector", NULL, &showInspector);
         ImGui::MenuItem("Move Tool", NULL, &showTransformSettings);
+        ImGui::MenuItem("Editor Camera", NULL, &showEditorCameraSettings);
 
         ImGui::EndMenu();
     }
@@ -191,6 +169,34 @@ void EditorLayer::OnEvent(Event& event)
     {
         cameraController.OnEvent(event);
     }
+}
+
+void EditorLayer::ShowEditorCameraSettings(bool* isOpen)
+{
+    ImGui::Begin("Editor Camera Settings", isOpen);
+
+    ImGui::DragFloat3("Position", (float*)&cameraController.position);
+    bool prevState = editorCamera->isPerspective;
+    ImGui::Checkbox("Is Perspective", &editorCamera->isPerspective);
+
+    if (editorCamera->isPerspective)
+        ImGui::DragFloat("Vertical FOV", &editorCamera->vFov);
+    else
+        ImGui::DragFloat("Size", &editorCamera->size);
+
+    ImGui::DragFloat("Near Plane", &editorCamera->nearPlane);
+    ImGui::DragFloat("Far Plane", &editorCamera->farPlane);
+    ImGui::DragFloat("Depth", &editorCamera->depth);
+
+    ImGui::Text("Viewport Rect");
+    ImGui::DragFloat("x", &editorCamera->x);
+    ImGui::DragFloat("y", &editorCamera->y);
+    ImGui::DragFloat("w", &editorCamera->width);
+    ImGui::DragFloat("h", &editorCamera->height);
+
+    editorCamera->SetProjection();
+
+    ImGui::End();
 }
 
 // Editor Imgui Widgets

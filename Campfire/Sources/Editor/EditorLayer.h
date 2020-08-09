@@ -41,7 +41,9 @@ private:
 
     // TODO convert to widget
     void ShowAudioSettings(bool* isOpen);
+    // TODO make console widget
     void ShowConsole(bool* isOpen);
+    void ShowEditorCameraSettings(bool* isOpen);
 
     void ShowNewEntityMenu();
 
@@ -52,6 +54,7 @@ private:
     bool showHierarchy = true;
     bool showInspector = true;
     bool showTransformSettings = false;
+    bool showEditorCameraSettings = false;
 
     // Rendering
     bool showLightSettings = false;

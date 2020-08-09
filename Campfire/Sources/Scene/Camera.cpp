@@ -89,7 +89,8 @@ void Camera::DrawFrustum(glm::mat4 transform)
     }
     else
     {
-        nearHeight = farHeight = 2 * size;
+        nearHeight = 2 * size;
+        farHeight  = 2 * size;
     }
 
     float nearWidth = nearHeight * aspectRatio;
