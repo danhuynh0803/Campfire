@@ -183,7 +183,8 @@ void AudioSystem::SetChannel3dPosition(int channelId, const glm::vec3& position)
         // channel specified is not currently used
         return;
     }
-    foundIt->second->set3DAttributes(&VectorToFmod(position), nullptr);
+    FMOD_VECTOR pos = VectorToFmod(position);
+    foundIt->second->set3DAttributes(&pos, nullptr);
 }
 
 void AudioSystem::SetChannelVolume(int channelId, float dB)

@@ -170,19 +170,19 @@ struct ColliderComponent
         // Primitive shapes
         Box = 0,
         Sphere,
-        Capsule,
-        Cylinder,
-        Cone,
-        Plane,
-
-        // Complex shapes
-        Compound,
-        ConvexHull,
-        TriangleMesh,
-        Heightfield,
-        SoftBody,
-        MultiSphere,
-        ConvexPointCloud
+        Capsule
+//        Cylinder,
+//        Cone,
+//        Plane,
+//
+//        // Complex shapes
+//        Compound,
+//        ConvexHull,
+//        TriangleMesh,
+//        Heightfield,
+//        SoftBody,
+//        MultiSphere,
+//        ConvexPointCloud
     };
 
     ColliderComponent(Shape shape)

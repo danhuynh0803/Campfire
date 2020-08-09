@@ -63,11 +63,11 @@ void Scene::Init()
        1) Camera
        2) Directional light
     */
-    auto& mainCamera = CreateEntity("Camera");
+    auto mainCamera = CreateEntity("Camera");
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 5.0f);
     mainCamera.AddComponent<CameraComponent>();
 
-    auto& directionalLight = CreateEntity("Directional Light");
+    auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 

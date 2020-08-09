@@ -98,32 +98,32 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
     {
         if (ImGui::MenuItem("Cube"))
         {
-            auto& entity = activeScene->CreateEntity("Cube");
+            auto entity = activeScene->CreateEntity("Cube");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         }
         if (ImGui::MenuItem("Sphere"))
         {
-            auto& entity = activeScene->CreateEntity("Sphere");
+            auto entity = activeScene->CreateEntity("Sphere");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         }
         if (ImGui::MenuItem("Plane"))
         {
-            auto& entity = activeScene->CreateEntity("Plane");
+            auto entity = activeScene->CreateEntity("Plane");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::PLANE);
         }
         if (ImGui::MenuItem("Quad"))
         {
-            auto& entity = activeScene->CreateEntity("Quad");
+            auto entity = activeScene->CreateEntity("Quad");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::QUAD);
         }
         if (ImGui::MenuItem("Cone"))
         {
-            auto& entity = activeScene->CreateEntity("Cone");
+            auto entity = activeScene->CreateEntity("Cone");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CONE);
         }
         if (ImGui::MenuItem("Cylinder"))
         {
-            auto& entity = activeScene->CreateEntity("Cylinder");
+            auto entity = activeScene->CreateEntity("Cylinder");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CYLINDER);
         }
         ImGui::EndMenu();
@@ -141,7 +141,7 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
     {
         if (ImGui::MenuItem("Particle System"))
         {
-            auto& entity = activeScene->CreateEntity("Particle System");
+            auto entity = activeScene->CreateEntity("Particle System");
             entity.AddComponent<ParticleSystemComponent>();
         }
         ImGui::EndMenu();
@@ -152,22 +152,22 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
     {
         if (ImGui::MenuItem("Directional Light"))
         {
-            auto& entity = activeScene->CreateEntity("Directional Light");
+            auto entity = activeScene->CreateEntity("Directional Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::DIRECTIONAL);
         }
         if (ImGui::MenuItem("Point Light"))
         {
-            auto& entity = activeScene->CreateEntity("Point Light");
+            auto entity = activeScene->CreateEntity("Point Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::POINT);
         }
         if (ImGui::MenuItem("Spot Light"))
         {
-            auto& entity = activeScene->CreateEntity("Spot Light");
+            auto entity = activeScene->CreateEntity("Spot Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::SPOT);
         }
         if (ImGui::MenuItem("Area Light"))
         {
-            auto& entity = activeScene->CreateEntity("Area Light");
+            auto entity = activeScene->CreateEntity("Area Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::AREA);
         }
 
