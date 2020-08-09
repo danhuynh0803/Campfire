@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: install-package
+      run: sudo apt-get install xorg-dev libglu1-mesa-dev
     - uses: actions/checkout@v2
       with:
         submodules: 'true'
