@@ -13,6 +13,7 @@
 #include "Renderer/Mesh.h"
 #include "Scene/Camera.h"
 #include "Particles/ParticleSystem.h"
+#include "Physics/Rigidbody.h"
 
 struct IDComponent
 {
@@ -151,26 +152,58 @@ struct LightComponent
 
 struct RigidbodyComponent
 {
-    RigidbodyComponent() = default;
+    SharedPtr<Rigidbody> rigidbody;
 
-    float mass = 0.0f;
-    float drag = 0.0f;
-    float angularDrag = 0.05f;
+    RigidbodyComponent()
+    {
+        rigidbody = CreateSharedPtr<Rigidbody>();
+    }
 
-    bool useGravity = true;
-    bool isKinematic = false;
-
-    bool freezePosition[3] { false, false, false };
-    bool freezeRotation[3] { false, false, false };
+    operator SharedPtr<Rigidbody>& () { return rigidbody; }
 };
 
 struct ColliderComponent
 {
-    //btCollisionShape* shape = nullptr;
+    enum Shape
+    {
+        // Primitive shapes
+        Box = 0,
+        Sphere,
+        Capsule,
+        Cylinder,
+        Cone,
+        Plane,
 
+        // Complex shapes
+        Compound,
+        ConvexHull,
+        TriangleMesh,
+        Heightfield,
+        SoftBody,
+        MultiSphere,
+        ConvexPointCloud
+    };
+
+    ColliderComponent(Shape shape)
+    {
+        switch (shape)
+        {
+            case Box:
+                collider = CreateSharedPtr<BoxCollider>();
+                break;
+            case Sphere:
+                collider = CreateSharedPtr<SphereCollider>();
+                break;
+            case Capsule:
+                collider = CreateSharedPtr<CapsuleCollider>();
+                break;
+        }
+    }
+
+    SharedPtr<Collider> collider;
     bool isTrigger = false;
     glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
-    glm::vec3 size = glm::vec3(1.0f);
+    operator SharedPtr<Collider>& () { return collider; }
 };
 
 struct AudioComponent

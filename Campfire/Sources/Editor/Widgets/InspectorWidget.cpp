@@ -110,6 +110,46 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Rigidbody
+    if (entity.HasComponent<RigidbodyComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Rigidbody"))
+        {
+            auto& rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+
+            ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
+            ImGui::DragFloat("Drag", &rigidbody->drag, 0.1f);
+            ImGui::DragFloat("Angular Drag", &rigidbody->angularDrag, 0.1f);
+            ImGui::Checkbox("Use Gravity", &rigidbody->useGravity);
+            ImGui::Checkbox("Is Dynamic", &rigidbody->isDynamic);
+            //ImGui::CheckBox("Is Kinematic", &rigidbody->isKinematic);
+
+            ImGui::PushID(0);
+            ImGui::Text("Freeze Position");
+            ImGui::SameLine();
+            ImGui::Checkbox("X", &rigidbody->freezePosition[0]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Y", &rigidbody->freezePosition[1]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Z", &rigidbody->freezePosition[2]);
+            ImGui::PopID();
+
+            ImGui::PushID(1);
+            ImGui::Text("Freeze Rotation");
+            ImGui::SameLine();
+            ImGui::Checkbox("X", &rigidbody->freezeRotation[0]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Y", &rigidbody->freezeRotation[1]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Z", &rigidbody->freezeRotation[2]);
+            ImGui::PopID();
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
     // Light
     if (entity.HasComponent<LightComponent>())
     {
@@ -198,6 +238,22 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
 
     if (ImGui::BeginMenu("Physics"))
     {
+        if (ImGui::MenuItem("Rigidbody"))
+        {
+            entity.AddComponent<RigidbodyComponent>();
+        }
+        if (ImGui::MenuItem("Box Collider"))
+        {
+            entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+        }
+        if (ImGui::MenuItem("Sphere Collider"))
+        {
+            entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
+        }
+        if (ImGui::MenuItem("Capsule Collider"))
+        {
+            entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Capsule);
+        }
         ImGui::EndMenu();
     }
 
