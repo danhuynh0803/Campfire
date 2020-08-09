@@ -14,7 +14,7 @@ std::string FileSystem::OpenFile(const char* filter)
 
     #ifdef PLATFORM_WINDOWS
         return WindowsFileSystem::OpenFile(filter);
-    #elif
+    #else
         return LinuxFileSystem::OpenFile(filter);
     #endif
 
@@ -25,7 +25,7 @@ std::string FileSystem::SaveFile()
 {
     #ifdef PLATFORM_WINDOWS
         return WindowsFileSystem::SaveFile();
-    #elif
+    #else
         return LinuxFileSystem::SaveFile();
     #endif
 
