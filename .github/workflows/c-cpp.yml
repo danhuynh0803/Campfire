@@ -16,7 +16,7 @@ jobs:
       with:
         submodules: 'true'
     - name: cmake
-      run: cmake ..
+      run: cmake .
     - name: make
       run: make
     - name: make check
