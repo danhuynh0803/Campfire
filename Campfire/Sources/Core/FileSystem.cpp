@@ -25,9 +25,8 @@ std::string FileSystem::SaveFile()
 {
     #ifdef PLATFORM_WINDOWS
         return WindowsFileSystem::SaveFile();
-    #elif PLATFORM_LINUX
+    #elif
         return LinuxFileSystem::SaveFile();
-    #elif PLATFORM_MAC
     #endif
 
     return "ERROR";
