@@ -33,22 +33,37 @@ add_subdirectory(Campfire/Vendor/bullet)
 
 
 # FMOD
+set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Campfire/Vendor/fmod")
 #find_path (FMOD_INCLUDE_DIR fmod.h)
 if(MSVC)
+    # FIXME
     find_library(FMOD_LIB fmod_vc)
     find_library(FMOD_STUDIO_LIB fmodstudio_vc)
+    include_directories(
+        ${FMOD_DIR}/Windows/core/inc/
+        ${FMOD_DIR}/Windows/studio/inc/
+        )
+
+    link_directories(
+        ${FMOD_DIR}/Windows/core/lib/
+        ${FMOD_DIR}/Windows/studio/lib/
+        )
 else()
+    # FIXME
     find_library(FMOD_LIB fmod)
     find_library(FMOD_STUDIO_LIB fmodstudio)
+
+    include_directories(
+        ${FMOD_DIR}/Linux/core/inc/
+        ${FMOD_DIR}/Linux/studio/inc/
+        )
+
+    link_directories(
+        ${FMOD_DIR}/Linux/core/lib/x86_64/
+        ${FMOD_DIR}/Linux/studio/lib/x86_64/
+        )
 endif()
 
-set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Campfire/Vendor/fmod")
-
-include_directories(${FMOD_DIR}/core/inc/
-                    ${FMOD_DIR}/studio/inc/)
-
-link_directories(${FMOD_DIR}/core/lib/
-                 ${FMOD_DIR}/studio/lib/)
 
 if(MSVC)
     add_compile_options(/W4)
@@ -157,7 +172,6 @@ source_group("Sources\\Platform\\Linux"    FILES ${SRC_PLATFORM_LINUX})
 endif()
 
 
-
 # Source groupings for IDEs
 source_group("Sources"                     FILES ${PROJECT_SOURCES})
 source_group("Sources\\Core"               FILES ${SRC_CORE})
@@ -204,12 +218,21 @@ add_executable(
         ${VENDORS_SOURCES}
 )
 
-target_link_libraries(${PROJECT_NAME} assimp glfw
-                      fmod_vc fmodstudio_vc
-                      ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
-                      BulletDynamics BulletCollision LinearMath LuaLib)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/core/lib/fmod.dll ${FMOD_DIR}/studio/lib/fmodstudio.dll ${CMAKE_BINARY_DIR}/. )
+target_link_libraries(
+    ${PROJECT_NAME}
+        assimp glfw
+        ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
+        BulletDynamics BulletCollision LinearMath LuaLib
+    )
+
+if(MSVC)
+    target_link_libraries(${PROJECT_NAME} fmod_vc fmodstudio_vc)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/Windows/core/lib/fmod.dll ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll ${CMAKE_BINARY_DIR}/. )
+else()
+    target_link_libraries(${PROJECT_NAME} fmod fmodstudio)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/Linux/core/lib/x86_64/libfmod.so ${FMOD_DIR}/Linux/studio/lib/x86_64/libfmodstudio.so ${CMAKE_BINARY_DIR}/. )
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
