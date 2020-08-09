@@ -1,10 +1,8 @@
+#ifdef _WIN32
 #ifndef WINDOWS_FILE_SYSTEM_H
 #define WINDOWS_FILE_SYSTEM_H
 
-#ifdef _WIN32
-#  include <windows.h>
-#endif
-
+#include <windows.h>
 #include <string>
 #include "CDialogEventHandler.h"
 
@@ -17,3 +15,4 @@ public:
 };
 
 #endif // WINDOWS_FILE_SYSTEM_H
+#endif

@@ -5,11 +5,17 @@
 
 std::string FileSystem::OpenFile(const char* filter)
 {
+    //#ifdef PLATFORM_WINDOWS
+    //    return WindowsFileSystem::OpenFile(filter);
+    //#elif PLATFORM_LINUX
+    //    return LinuxFileSystem::OpenFile(filter);
+    //#elif PLATFORM_MAC
+    //#endif
+
     #ifdef PLATFORM_WINDOWS
         return WindowsFileSystem::OpenFile(filter);
-    #elif PLATFORM_LINUX
+    #elif
         return LinuxFileSystem::OpenFile(filter);
-    #elif PLATFORM_MAC
     #endif
 
     return "ERROR";
