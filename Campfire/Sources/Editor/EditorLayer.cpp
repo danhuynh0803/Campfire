@@ -39,10 +39,10 @@ void EditorLayer::OnUpdate(float dt)
 
     if (startScene)
     {
-        LOG_INFO("Starting Scene");
         // Submit all entities with rbs to Physics
         PhysicsManager::ClearLists();
-        for (auto& entityPair : activeScene->GetEntityMap())
+        //auto rbEntities = activeScene->GetAllEntitiesWith<RigidbodyComponent>();
+        for (auto entityPair : activeScene->GetEntityMap())
         {
             PhysicsManager::SubmitEntity(entityPair.second);
         }
@@ -50,7 +50,6 @@ void EditorLayer::OnUpdate(float dt)
 
     else if (stopScene)
     {
-        LOG_INFO("Stopping Scene");
     }
 
     Renderer::BeginScene(*editorCamera);
@@ -142,8 +141,6 @@ void EditorLayer::OnImGuiRender()
     startScene = (currState == 1 && prevState == 0) ? true : false;
     stopScene  = (currState == 0 && prevState != 0) ? true : false;
 
-
-
     ImGui::End();
 
     //ImGui::Begin("Scene");
@@ -151,12 +148,17 @@ void EditorLayer::OnImGuiRender()
     //ImGui::End();
 }
 
+void EditorLayer::ClearScene()
+{
+    activeScene.reset();
+    wHierarchy.Reset();
+}
+
 void EditorLayer::ShowMenuFile()
 {
     if (ImGui::MenuItem("New Scene"))
     {
-        activeScene->Clear();
-        activeScene.reset();
+        ClearScene();
         activeScene = SceneLoader::LoadNewScene();
     }
     if (ImGui::MenuItem("Open Scene"))
@@ -164,8 +166,7 @@ void EditorLayer::ShowMenuFile()
         std::string loadPath = FileSystem::OpenFile("*.cf");
         if (!loadPath.empty())
         {
-            activeScene->Clear();
-            activeScene.reset();
+            ClearScene();
             activeScene = SceneLoader::LoadScene(loadPath);
         }
     }

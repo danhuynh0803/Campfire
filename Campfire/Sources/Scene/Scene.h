@@ -37,7 +37,11 @@ public:
     //void RemoveEntityRange();
     //const std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
     //std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
-    std::map<uint64_t, Entity> GetEntityMap() { return entityMap; }
+
+    const std::map<uint64_t, Entity> GetEntityMap() { return entityMap; }
+
+    template <typename T>
+    auto GetAllEntitiesWith() { return registry.view<T>(); }
 
 private:
     void SubmitCamera(const Camera& camera);

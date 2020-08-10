@@ -51,7 +51,6 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
 
     ImGui::Separator();
 
-    static int selected = -1;
     int i = 0;
     for (auto entityPair : activeScene->GetEntityMap())
     {

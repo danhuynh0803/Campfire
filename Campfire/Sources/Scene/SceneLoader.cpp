@@ -17,8 +17,6 @@ std::string SceneLoader::activeSceneName;
 
 SharedPtr<Scene> SceneLoader::LoadNewScene()
 {
-    std::cout << "Clearing scene\n";
-
     activeScenePath.clear();
     activeSceneName.clear();
 

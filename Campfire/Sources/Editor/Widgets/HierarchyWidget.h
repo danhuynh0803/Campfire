@@ -9,6 +9,12 @@ class HierarchyWidget
 public:
     void ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen);
 
+    void Reset()
+    {
+        selected = -1;
+        hasSelectedEntity = false;
+    }
+
     bool hasSelectedEntity = false;
     Entity& GetSelectedEntity() { return selectedEntity; }
 private:
@@ -17,6 +23,7 @@ private:
     // For displaying entity properties
     Entity selectedEntity;
     InspectorWidget wInspector;
+    int selected = -1;
 };
 
 #endif // HIERARCHY_WIDGET_H

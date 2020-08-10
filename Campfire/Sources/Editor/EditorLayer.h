@@ -26,9 +26,11 @@ public:
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
 
+
 private:
     bool startScene = false;
     bool stopScene = true;
+    void ClearScene();
 
     SharedPtr<Scene> activeScene;
     SharedPtr<Camera> editorCamera;
