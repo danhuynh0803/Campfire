@@ -22,6 +22,6 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build Solution
         run: |
-         cd Build
+         cd ..\Build
          ls
          MSBuild.exe Campfire.sln
