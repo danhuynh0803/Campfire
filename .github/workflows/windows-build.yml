@@ -18,8 +18,9 @@ jobs:
          submodules: 'true'
       - name: Cmake
         run: cmake .
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.1
       - name: Build Solution
         run: |
-         echo “::add-path::C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin”
          cd Build
          MSBuild.exe Campfire.sln
