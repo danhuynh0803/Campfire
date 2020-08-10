@@ -2,7 +2,7 @@ name: Windows build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ windows-workflow-test ]
   pull_request:
     branches: [ master ]
 
