@@ -6,6 +6,7 @@
 #include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
+#include "Scene/SceneLoader.h"
 
 EditorLayer::EditorLayer()
     : Layer("Editor")
@@ -152,13 +153,33 @@ void EditorLayer::OnImGuiRender()
 
 void EditorLayer::ShowMenuFile()
 {
+    if (ImGui::MenuItem("New Scene"))
+    {
+        activeScene->Clear();
+        activeScene.reset();
+        activeScene = SceneLoader::LoadNewScene();
+    }
+    if (ImGui::MenuItem("Open Scene"))
+    {
+        std::string loadPath = FileSystem::OpenFile("*.cf");
+        if (!loadPath.empty())
+        {
+            activeScene->Clear();
+            activeScene.reset();
+            activeScene = SceneLoader::LoadScene(loadPath);
+        }
+    }
     if (ImGui::MenuItem("Save", "Ctrl+S"))
     {
-
+        SceneLoader::SaveCurrentScene(activeScene);
     }
-    if (ImGui::MenuItem("Save As.."))
+    if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
     {
-
+        std::string savePath = FileSystem::SaveFile();
+        if (!savePath.empty())
+        {
+            SceneLoader::SaveScene(activeScene, savePath);
+        }
     }
 
     ImGui::Separator();

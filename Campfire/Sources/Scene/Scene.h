@@ -24,11 +24,11 @@ public:
     void OnUpdate(float dt);
 
     void OnRender(float dt);
-    // Render scene based on editor camera
     void OnRenderEditor(float dt, const Camera& editorCamera);
-    // Render scene based on game camera
     void OnRenderRuntime(float dt);
     void OnImGuiRender();
+
+    void Clear() { registry.clear(); }
 
     void SetSkybox(SharedPtr<TextureCube> skyboxTex);
 
