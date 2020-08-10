@@ -23,4 +23,5 @@ jobs:
       - name: Build Solution
         run: |
          cd Build
+         ls
          MSBuild.exe Campfire.sln
