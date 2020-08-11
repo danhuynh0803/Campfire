@@ -9,6 +9,7 @@
 #include <rapidjson/prettywriter.h>
 
 #include "Scene/SceneLoader.h"
+#include "Scene/Component.h"
 
 using namespace rapidjson;
 
@@ -32,25 +33,13 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
         LOG_ERROR("Failed to load SCENE file : {0}", loadPath);
     }
 
+    LOG_TRACE("Loading SCENE file: {0}", loadPath);
+
     activeScenePath.assign(loadPath);
     activeSceneName = activeScenePath.substr(
             activeScenePath.find_last_of('/')+1
     );
 
-    SharedPtr<Scene> loadedScene = CreateSharedPtr<Scene>(false);
-
-    return loadedScene;
-    /*
-    LOG_TRACE("Clearing scene");
-    for (auto objectPtr : manager.objectList)
-    {
-        delete objectPtr;
-    }
-    manager.objectList.clear();
-
-
-    LOG_TRACE("Loading SCENE file: {0}", currentScenePath);
-    LOG_TRACE("Loading SCENE file: {0}", currentSceneFileName);
     char readBuffer[65536];
     FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 
@@ -64,90 +53,44 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
     const Value& sceneObjects = document["SceneObjects"];
     assert(sceneObjects.IsArray());
 
+    SharedPtr<Scene> scene = CreateSharedPtr<Scene>(false);
+
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
-        GameObject* gameObject = new GameObject();
-        gameObject->isActive = itr->FindMember("isActive")->value.GetBool();
-        gameObject->name = std::string(itr->FindMember("tag")->value.GetString());
-
         //===============================================================================
         // Load mesh
-        GlObject* mesh;
-        Geometry type = ConvertStringToGeometry(itr->FindMember("type")->value.GetString());
-        switch (type)
-        {
-            case CUBE: mesh = new Cube(); break;
-            case QUAD: mesh = new Quad(); break;
-            //case SPHERE: object = new Sphere(); break;
-            case LIGHT:
-                       mesh = new Light(); break;
-            case NONE:
-            default:
-                       LOG_ERROR("Loading object with no type specified from scene file");
-                       break;
-        }
-        mesh->type = type;
-
         {
             const Value& a = itr->FindMember("position")->value;
             assert(a.IsArray());
-            gameObject->position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            //gameObject->position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
 
         {
             const Value& a = itr->FindMember("rotation")->value;
             assert(a.IsArray());
-            gameObject->rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            //gameObject->rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
 
         {
             const Value& a = itr->FindMember("scale")->value;
             assert(a.IsArray());
-            gameObject->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
-        }
-
-        std::string path(itr->FindMember("texture")->value.GetString());
-        Texture texture(path.c_str());
-        mesh->texture = texture;
-
-        //ShaderOld* shader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
-        //mesh->shader = shader;
-
-        // TODO find a more manageable way of loading this?
-        if (mesh->type == LIGHT)
-        {
-            //ShaderOld* lightShader = shaderController.Get(std::string(itr->FindMember("shader")->value.GetString()));
-            //mesh->shader = lightShader;
-
-            {
-                const Value& a = itr->FindMember("color")->value;
-                assert(a.IsArray());
-                static_cast<Light*>(mesh)->color =
-                    glm::vec4(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble(), a[3].GetDouble());
-            }
-
-            static_cast<Light*>(mesh)->constant = itr->FindMember("constant")->value.GetDouble();
-            static_cast<Light*>(mesh)->linear = itr->FindMember("linear")->value.GetDouble();
-            static_cast<Light*>(mesh)->quadratic = itr->FindMember("quadratic")->value.GetDouble();
+            //gameObject->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
         }
         //===============================================================================
-
-        //===============================================================================
-        // Load rigidBody
-        RigidBody* rb = new RigidBody();
-        rb->mass = itr->FindMember("mass")->value.GetFloat();
-        rb->isDynamic = itr->FindMember("isDynamic")->value.GetBool();
-        rb->colShape = ConvertStringToColShape(itr->FindMember("shape")->value.GetString());
-        rb->InitTransform(gameObject->position, gameObject->rotation, gameObject->scale);
-        //===============================================================================
-
-        gameObject->rigidBody = rb;
-        gameObject->glObject = mesh;
-
-        manager.Add(gameObject);
     }
-    */
+    return scene;
 }
+
+Entity SceneLoader::LoadEntity()
+{
+    return Entity();
+}
+
+void SceneLoader::SaveEntity(const Entity& entity)
+{
+
+}
+
 
 void SceneLoader::SaveCurrentScene(const SharedPtr<Scene>& scene)
 {
@@ -160,104 +103,113 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     // then designate this new path as the currently loaded scene
     // This is for cases where users create a new scene
     // and that new scene currently has no name associated with it
-
-    /*
     if (!HasSceneLoaded())
     {
-        currentScenePath.assign(path);
-        currentSceneFileName = currentScenePath.substr(
-                currentScenePath.find_last_of('/')+1
+        activeScenePath.assign(savePath);
+        activeSceneName = activeScenePath.substr(
+                activeScenePath.find_last_of('/')+1
         );
     }
-    std::cout << "Saving Scene to " << path << '\n';
+
     Document doc;
     doc.SetObject();
     Value myArray(kArrayType);
     Document::AllocatorType& allocator = doc.GetAllocator();
 
-    for (const auto object : manager.objectList)
+    for (auto entityPair : scene->GetEntityMap())
     {
+        auto entity = entityPair.second;
+
         Value objValue;
         objValue.SetObject();
 
-        // Mesh details
-        // Write all fields of GlObject
-        GlObject* mesh = object->glObject;
+        // TODO
+        //objValue.AddMember("isActive", object->isActive, allocator);
 
+        if (entity.HasComponent<IDComponent>())
         {
-            Value tempValueType(ConvertGeometryToString(mesh->type), allocator);
-            objValue.AddMember("type", tempValueType, allocator);
+            //auto ID = entity.GetComponent<IDComponent>().ID;
+            //Value idValue(ID);
+            //objValue.AddMember("ID", idValue, allocator);
         }
 
-        if (mesh->type == LIGHT)
+        if (entity.HasComponent<TagComponent>())
         {
-            // Get the string associated with the shader controller map
-            objValue.AddMember("shader", "light", allocator);
-        }
-        else
-        {
-            objValue.AddMember("shader", "generic", allocator);
+            auto tag = entity.GetComponent<TagComponent>().tag;
+            Value tagValue(tag.c_str(), allocator);
+            objValue.AddMember("Tag", tagValue, allocator);
         }
 
-        Value tag(object->name.c_str(), allocator);
-
-        objValue.AddMember("tag", tag, allocator);
-
-
-        Value position(kArrayType);
-        for (int i = 0; i < 3; ++i)
+        if (entity.HasComponent<TransformComponent>())
         {
-            position.PushBack(Value().SetDouble(object->position[i]), allocator);
-        }
-        objValue.AddMember("position", position, allocator);
-
-
-        Value rotation(kArrayType);
-        for (int i = 0; i < 3; ++i)
-        {
-            rotation.PushBack(Value().SetDouble(object->rotation[i]), allocator);
-        }
-        objValue.AddMember("rotation", rotation, allocator);
-
-
-        Value scale(kArrayType);
-        for (int i = 0; i < 3; ++i)
-        {
-            scale.PushBack(Value().SetDouble(object->scale[i]), allocator);
-        }
-        objValue.AddMember("scale", scale, allocator);
-
-
-        Value texture(mesh->texture.GetName().c_str(), allocator);
-        objValue.AddMember("texture", texture, allocator);
-
-
-        objValue.AddMember("isActive", object->isActive, allocator);
-
-        if (mesh->type == LIGHT)
-        {
-            Light* light = static_cast<Light*>(mesh);
-            Value color(kArrayType);
-            for (int i = 0; i < 4; ++i)
+            auto position = entity.GetComponent<TransformComponent>().position;
+            Value positionValue(kArrayType);
+            for (int i = 0; i < 3; ++i)
             {
-                color.PushBack(Value().SetDouble(light->color[i]), allocator);
+                positionValue.PushBack(Value().SetDouble(position[i]), allocator);
             }
-            objValue.AddMember("color", color, allocator);
-            objValue.AddMember("constant" , light->constant , allocator);
-            objValue.AddMember("linear"   , light->linear   , allocator);
-            objValue.AddMember("quadratic", light->quadratic, allocator);
-            //Value lightValue;
-            //lightValue.SetObject();
+            objValue.AddMember("Position", positionValue, allocator);
+
+            auto rotation = entity.GetComponent<TransformComponent>().rotation;
+            Value rotationValue(kArrayType);
+            for (int i = 0; i < 3; ++i)
+            {
+                rotationValue.PushBack(Value().SetDouble(rotation[i]), allocator);
+            }
+            objValue.AddMember("Rotation", rotationValue, allocator);
+
+            auto scale = entity.GetComponent<TransformComponent>().scale;
+            Value scaleValue(kArrayType);
+            for (int i = 0; i < 3; ++i)
+            {
+                scaleValue.PushBack(Value().SetDouble(scale[i]), allocator);
+            }
+            objValue.AddMember("Scale", scaleValue, allocator);
         }
 
-        // RigidBody details
-        RigidBody* rb = object->rigidBody;
-        if (rb != nullptr)
+        if (entity.HasComponent<MeshComponent>())
         {
-            objValue.AddMember("mass", rb->mass, allocator);
-            objValue.AddMember("isDynamic", rb->isDynamic, allocator);
-            Value tempValueType(ConvertColShapeToString(rb->colShape), allocator);
-            objValue.AddMember("shape", tempValueType, allocator);
+            auto mesh = entity.GetComponent<MeshComponent>().mesh;
+            Value meshValue(mesh->GetFilePath().c_str(), allocator);
+            objValue.AddMember("Mesh", meshValue, allocator);
+        }
+
+        if (entity.HasComponent<LightComponent>())
+        {
+
+        }
+
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            //objValue.AddMember("mass", rb->mass, allocator);
+            //objValue.AddMember("isDynamic", rb->isDynamic, allocator);
+            //Value tempValueType(ConvertColShapeToString(rb->colShape), allocator);
+            //objValue.AddMember("shape", tempValueType, allocator);
+        }
+
+        if (entity.HasComponent<ColliderComponent>())
+        {
+
+        }
+
+        if (entity.HasComponent<AudioComponent>())
+        {
+
+        }
+
+        if (entity.HasComponent<CameraComponent>())
+        {
+
+        }
+
+        if (entity.HasComponent<ParticleSystemComponent>())
+        {
+
+        }
+
+        if (entity.HasComponent<ScriptComponent>())
+        {
+
         }
 
         myArray.PushBack(objValue, allocator);
@@ -269,12 +221,11 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     PrettyWriter<StringBuffer> writer(buffer);
     doc.Accept(writer);
 
-    std::ofstream out(path);
+    std::ofstream out(savePath);
     out << buffer.GetString();
     out.close();
 
-    LOG_INFO("Scene {0} has been saved", currentSceneFileName);
-    */
+    LOG_INFO("Scene {0} has been saved", activeSceneName);
 }
 
 void SceneLoader::DeleteScene()

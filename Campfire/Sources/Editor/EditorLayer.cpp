@@ -181,10 +181,12 @@ void EditorLayer::ShowMenuFile()
     }
     if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
     {
-        std::string savePath = FileSystem::SaveFile();
-        if (!savePath.empty())
+        //std::string savePath = FileSystem::SaveFile();
+        std::string testPath = "../Assets/Scenes/test.cf";
+        //if (!savePath.empty())
         {
-            SceneLoader::SaveScene(activeScene, savePath);
+            //SceneLoader::SaveScene(activeScene, savePath);
+            SceneLoader::SaveScene(activeScene, testPath);
         }
     }
 

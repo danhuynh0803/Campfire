@@ -19,6 +19,8 @@ public:
     static bool HasSceneLoaded() { return !(activeScenePath.empty()); }
 
 private:
+    Entity LoadEntity();
+    void SaveEntity(const Entity& entity);
     static std::string activeScenePath;
     static std::string activeSceneName;
 };

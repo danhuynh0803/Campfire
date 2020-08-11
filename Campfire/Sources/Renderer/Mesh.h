@@ -80,6 +80,7 @@ public:
     //SharedPtr<VertexArray> GetVertexArray() { return vertexArray; }
     std::vector<Submesh> GetSubmeshes() { return submeshes; }
 
+    std::string GetFilePath() { return filepath; }
     std::string GetName() const { return name; }
 
 private:
