@@ -37,7 +37,7 @@ struct LogWidget
 
     void    Draw(bool* p_open = NULL)
     {
-        if (!ImGui::Begin(title, p_open))
+        if (!ImGui::Begin("Log", p_open))
         {
             ImGui::End();
             return;
@@ -119,6 +119,7 @@ struct LogWidget
     }
 };
 
+/*
 // Demonstrate creating a simple log window with basic filtering.
 static void ShowLogWidget(bool* p_open)
 {
@@ -146,5 +147,6 @@ static void ShowLogWidget(bool* p_open)
     // Actually call in the regular Log helper (which will Begin() into the same window as we just did)
     log.Draw("Example: Log", p_open);
 }
+*/
 
 #endif // LOG_WIDGET_H

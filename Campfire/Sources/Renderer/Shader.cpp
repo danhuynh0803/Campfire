@@ -3,8 +3,6 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
-#include "Core/Log.h"
-
 SharedPtr<Shader> Shader::Create(const std::string& filepath)
 {
     switch (RendererAPI::GetAPI())
@@ -78,5 +76,5 @@ void ShaderManager::ReloadShaders()
 
         pair.second->SetRenderID(reloadedShader->GetRenderID());
     }
-    LOG_INFO("Reloaded all shaders");
+    LOG_INFO("Reloaded Shaders");
 }

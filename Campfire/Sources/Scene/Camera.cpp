@@ -1,6 +1,5 @@
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Core/Log.h"
 #include "Scene/Camera.h"
 #include "Renderer/Renderer.h"
 

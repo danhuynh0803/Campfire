@@ -37,7 +37,7 @@ void Mesh::LoadModel(const std::string& path)
 
     if (!scene || !scene->HasMeshes())
     {
-        LOG_ERROR("ERROR::ASSIMP::{0}", importer.GetErrorString());
+        //LOG_ERROR("ERROR::ASSIMP::{0}", importer.GetErrorString());
         return;
     }
 
@@ -138,7 +138,7 @@ std::vector<SharedPtr<Texture>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTe
         aiString str;
         mat->GetTexture(type, i, &str);
         std::string path(directory + '/' + str.C_Str());
-        LOG_INFO("Loading Texture from {0}", path);
+        //LOG_INFO("Loading Texture from {0}", path);
         SharedPtr<Texture> texture = Texture2D::Create(path.c_str());
         //texture.type = typeName;
 

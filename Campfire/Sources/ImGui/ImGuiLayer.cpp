@@ -105,7 +105,7 @@ void ImGuiLayer::OnAttach()
     // The top left corner will have coordinates (0,0)
     // and the bottom right corner will have coordinates
     // (horizontal, vertical)
-    LOG_INFO("Screen Resoultion(from Windows Display): {0}x{1}",desktop.right, desktop.bottom);
+    //LOG_INFO("Screen Resoultion(from Windows Display): {0}x{1}",desktop.right, desktop.bottom);
     io.FontGlobalScale = desktop.right / WIN32_CAMPFIRE_DEFAULT_HORIZONTAL_PIXEL;
 #else
     io.FontGlobalScale = 1.0f;

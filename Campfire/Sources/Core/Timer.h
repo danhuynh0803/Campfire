@@ -4,8 +4,6 @@
 #include <chrono>
 #include <string>
 
-#include "Log.h"
-
 struct Timer
 {
     std::chrono::high_resolution_clock::time_point start, end;
@@ -34,7 +32,7 @@ struct Timer
         duration = end - start;
         double ms = duration.count() * 1000.0f;
 
-        LOG_TRACE("Timer: {0}: {1}ms", msg, ms);
+        //LOG_TRACE("Timer: {0}: {1}ms", msg, ms);
     }
 };
 

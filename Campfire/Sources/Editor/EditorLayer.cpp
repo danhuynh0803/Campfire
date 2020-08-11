@@ -2,6 +2,7 @@
 #include "Core/FileSystem.h"
 #include "Core/Input.h"
 #include "Core/Time.h"
+#include "Core/Log.h"
 #include "Audio/AudioSystem.h"
 #include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
@@ -91,6 +92,10 @@ void EditorLayer::OnImGuiRender()
     }
 
     // Various widgets
+    if (showLog)
+    {
+        Log::ShowLog(&showLog);
+    }
     if (showHierarchy)
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
@@ -195,6 +200,7 @@ void EditorLayer::ShowMenuWindow()
 {
     if (ImGui::BeginMenu("General"))
     {
+        ImGui::MenuItem("Log", NULL, &showLog);
         ImGui::MenuItem("Console", NULL, &showConsole);
         ImGui::MenuItem("Hierarchy", NULL, &showHierarchy);
         ImGui::MenuItem("Inspector", NULL, &showInspector);

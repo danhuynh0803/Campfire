@@ -55,6 +55,7 @@ private:
     // Audio
     bool showAudioSettings = false;
     // General
+    bool showLog = true;
     bool showConsole = false;
     bool showHierarchy = true;
     bool showInspector = true;
