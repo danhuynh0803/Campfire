@@ -16,12 +16,12 @@ uint64_t Random::UINT64T()
 
 float Random::Range(float min, float max)
 {
-    // TODO
-    return 0.0f;
+    std::uniform_real_distribution<> dist(min,max);
+    return dist(gen64);
 }
 
 float Random::Value()
 {
-    // TODO
-    return 0.0f;
+    std::uniform_real_distribution<> dist(0.0f, 1.0f);
+    return dist(gen64);
 }
