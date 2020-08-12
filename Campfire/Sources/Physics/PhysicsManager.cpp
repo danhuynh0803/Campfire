@@ -17,7 +17,7 @@ void PhysicsManager::Init()
     overlappingPairCache = new btDbvtBroadphase();
     solver = new btSequentialImpulseConstraintSolver();
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-    //dynamicsWorld->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+    dynamicsWorld->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 
     dynamicsWorld->setDebugDrawer(new BulletDebugDrawer());
 }
@@ -39,6 +39,10 @@ void PhysicsManager::SubmitEntity(Entity& entity)
         rb.rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
 
         dynamicsWorld->addRigidBody(rb.rigidbody->GetBulletRigidbody());
+        if (!rb.rigidbody->useGravity)
+        {
+            rb.rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+        }
     }
 }
 

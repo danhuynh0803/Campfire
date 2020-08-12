@@ -17,6 +17,7 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
     }
     else
     {
+        // TODO
         // No collider present, but we create a shape of size 0, in order for physics to still be applied
         //shape = new btBoxShape(btVector3(0.0f, 0.0f, 0.0f));
         shape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
@@ -28,21 +29,8 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
     }
 
     btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-
-    if (useGravity)
-    {
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-        bulletRigidbody = new btRigidBody(rbInfo);
-        glm::vec3 gravity = PhysicsManager::gravity;
-        bulletRigidbody->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
-    }
-    else
-    {
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
-        bulletRigidbody = new btRigidBody(rbInfo);
-        //glm::vec3 negGravity = -PhysicsManager::gravity;
-        bulletRigidbody->setGravity(btVector3(0, 0, 0));
-    }
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
+    bulletRigidbody = new btRigidBody(rbInfo);
 
     bulletRigidbody->setLinearFactor(
         btVector3(
