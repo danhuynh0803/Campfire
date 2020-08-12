@@ -2,6 +2,7 @@
 #define COLLIDER_H
 
 #include <imgui.h>
+#include <glm/glm.hpp>
 
 struct Collider
 {

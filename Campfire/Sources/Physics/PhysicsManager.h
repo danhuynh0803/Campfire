@@ -24,7 +24,7 @@ public:
 
 public:
     //static bool isBoundingBoxOn = false;
-    static float gravity;
+    static glm::vec3 gravity;
 
 private:
     // TODO make uniquePtrs for these

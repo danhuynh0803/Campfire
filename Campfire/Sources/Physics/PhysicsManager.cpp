@@ -8,7 +8,7 @@ btSequentialImpulseConstraintSolver* PhysicsManager::solver;
 btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld;
 btAlignedObjectArray<btCollisionShape*> PhysicsManager::collisionShapes;
 
-float PhysicsManager::gravity = -9.81;
+glm::vec3 PhysicsManager::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 
 void PhysicsManager::Init()
 {
@@ -17,7 +17,7 @@ void PhysicsManager::Init()
     overlappingPairCache = new btDbvtBroadphase();
     solver = new btSequentialImpulseConstraintSolver();
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-    dynamicsWorld->setGravity(btVector3(0, gravity, 0));
+    //dynamicsWorld->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 
     dynamicsWorld->setDebugDrawer(new BulletDebugDrawer());
 }
