@@ -10,15 +10,10 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
     transform.setRotation(quat);
     btVector3 localInertia(angularDrag, angularDrag, angularDrag);
 
-    btCollisionShape* shape = nullptr;
+    btCollisionShape* shape = new btBoxShape(btVector3(0, 0, 0));
     if (collider != nullptr)
     {
         shape = collider->shape;
-    }
-    else
-    {
-        // No collider present, but we create a shape of size 0, in order for physics to still be applied
-        shape = new btBoxShape(btVector3(0, 0, 0));
     }
 
     if (isDynamic)

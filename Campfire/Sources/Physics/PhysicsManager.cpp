@@ -24,37 +24,52 @@ void PhysicsManager::Init()
 
 void PhysicsManager::SubmitEntity(Entity& entity)
 {
-    SharedPtr<Collider> collider = nullptr;
-    if (entity.HasComponent<ColliderComponent>())
-    {
-        collider = entity.GetComponent<ColliderComponent>().collider;
-        collider->UpdateShape();
-    }
-
     auto transformComponent = entity.GetComponent<TransformComponent>();
-    if (entity.HasComponent<RigidbodyComponent>())
+
+    if (entity.HasComponent<ColliderComponent>() && entity.HasComponent<RigidbodyComponent>())
     {
-        auto rb = entity.GetComponent<RigidbodyComponent>();
-        rb.rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
+        auto collider = entity.GetComponent<ColliderComponent>().collider;
+        collider->UpdateShape();
 
-        dynamicsWorld->addRigidBody(rb.rigidbody->GetBulletRigidbody());
-        if (!rb.rigidbody->useGravity)
-        {
-            rb.rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-        }
-        if (!collider)
-        {
-            rb.rigidbody->GetBulletRigidbody()->setCollisionFlags(rb.rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-        }
+        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
 
+        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+        if (!rigidbody->useGravity)
+        {
+            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+        }
     }
     else if (entity.HasComponent<ColliderComponent>())
     {
-        SharedPtr<Rigidbody> rb = CreateSharedPtr<Rigidbody>();
-        rb->Construct(transformComponent.position, transformComponent.rotation, collider);
-        dynamicsWorld->addRigidBody(rb->GetBulletRigidbody());
-        rb->GetBulletRigidbody()->setMassProps(0.0f, btVector3(0, 0, 0));
+        auto collider = entity.GetComponent<ColliderComponent>().collider;
+        collider->UpdateShape();
+
+        // Although entity does not have a rigidbody component, we must create one in order
+        // for bullet's collisions to simulate.
+        Rigidbody rigidbody;
+        rigidbody.Construct(transformComponent.position, transformComponent.rotation, collider);
+
+        // No rigidbody present so we want to have collisions applied but disable all physics interactions.
+        // This is done by setting mass of the rb to 0.
+        dynamicsWorld->addRigidBody(rigidbody.GetBulletRigidbody());
+        rigidbody.GetBulletRigidbody()->setMassProps(0, btVector3(0, 0, 0));
     }
+    else if (entity.HasComponent<RigidbodyComponent>())
+    {
+        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+        rigidbody->Construct(transformComponent.position, transformComponent.rotation, nullptr);
+
+        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+
+        if (!rigidbody->useGravity)
+        {
+            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+        }
+        // Disable collisions since no collider is attached
+        rigidbody->GetBulletRigidbody()->setCollisionFlags(rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+    }
+
 }
 
 void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp)
