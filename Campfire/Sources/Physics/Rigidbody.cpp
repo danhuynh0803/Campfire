@@ -17,10 +17,8 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
     }
     else
     {
-        // TODO
         // No collider present, but we create a shape of size 0, in order for physics to still be applied
-        //shape = new btBoxShape(btVector3(0.0f, 0.0f, 0.0f));
-        shape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+        shape = new btBoxShape(btVector3(0, 0, 0));
     }
 
     if (isDynamic)

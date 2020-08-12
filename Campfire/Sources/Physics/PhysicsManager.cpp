@@ -29,13 +29,12 @@ void PhysicsManager::SubmitEntity(Entity& entity)
     {
         collider = entity.GetComponent<ColliderComponent>().collider;
         collider->UpdateShape();
-        //collisionShapes.push_back(collider->shape);
     }
 
+    auto transformComponent = entity.GetComponent<TransformComponent>();
     if (entity.HasComponent<RigidbodyComponent>())
     {
         auto rb = entity.GetComponent<RigidbodyComponent>();
-        auto transformComponent = entity.GetComponent<TransformComponent>();
         rb.rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
 
         dynamicsWorld->addRigidBody(rb.rigidbody->GetBulletRigidbody());
@@ -43,6 +42,18 @@ void PhysicsManager::SubmitEntity(Entity& entity)
         {
             rb.rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
         }
+        if (!collider)
+        {
+            rb.rigidbody->GetBulletRigidbody()->setCollisionFlags(rb.rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        }
+
+    }
+    else if (entity.HasComponent<ColliderComponent>())
+    {
+        SharedPtr<Rigidbody> rb = CreateSharedPtr<Rigidbody>();
+        rb->Construct(transformComponent.position, transformComponent.rotation, collider);
+        dynamicsWorld->addRigidBody(rb->GetBulletRigidbody());
+        rb->GetBulletRigidbody()->setMassProps(0.0f, btVector3(0, 0, 0));
     }
 }
 
