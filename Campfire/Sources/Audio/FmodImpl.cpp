@@ -1,29 +1,16 @@
-#include "Audio/FmodImpl.h"
 #include <vector>
+#include <fmod_errors.h>
+
+#include "Audio/FmodImpl.h"
+#include "Core/Log.h"
+
 
 FmodImpl::FmodImpl()
 {
-    /*
-    FMOD_RESULT result;
-    result = FMOD::System_Create(&coreSystem);
-    FMOD::System_Create(&coreSystem);
-    if (result != FMOD_OK)
-    {
-        //LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
-        exit(-1);
-    }
-    result = coreSystem->init(512, FMOD_INIT_NORMAL, 0);
-    coreSystem->init(512, FMOD_INIT_NORMAL, 0);
-    if (result != FMOD_OK)
-    {
-        //LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
-        exit(-1);
-    }
-    */
-
     FMOD_RESULT result = FMOD::Studio::System::create(&studioSystem);
     if (result != FMOD_OK)
     {
+        LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
         exit(-1);
     }
     studioSystem->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);

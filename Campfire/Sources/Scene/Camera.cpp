@@ -138,6 +138,7 @@ void Camera::DrawFrustum(glm::mat4 transform)
 
 void Camera::RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up)
 {
+    pos = position;
     viewMatrix = glm::lookAt(position, position + front, up);
 }
 

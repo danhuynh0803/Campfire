@@ -70,7 +70,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     }
     else
     {
-        LOG_WARN("Failed to load: {0}", filepath);
+        LOG_ERROR("Failed to load: {0}", filepath);
     }
 
     stbi_image_free(data);

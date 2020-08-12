@@ -280,7 +280,7 @@ void Renderer2D::DrawBatch()
 }
 
 
-void Renderer2D::BeginScene(Camera& camera)
+void Renderer2D::BeginScene(const Camera& camera)
 {
     // view matrix for orienting billboards
     viewMatrix = camera.GetViewMatrix();

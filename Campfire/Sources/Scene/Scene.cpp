@@ -155,25 +155,68 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
     SubmitCamera(editorCamera);
 
-    OnRender(dt);
+    Renderer::BeginScene(editorCamera);
+
+    // Send light info to our UBO
+    SubmitLights();
+
+    // Draw skybox
+    skybox->DrawSkybox();
+
+    // Render particles first since they're transparent
+    {
+        auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
+            if (particleSystemComponent.ps)
+            {
+                particleSystemComponent.ps->position = transformComponent.position;
+                // TODO have this transparency ordering check in renderer instead of PS
+                // or swap to OIT eventually
+                particleSystemComponent.ps->OnUpdate(dt, editorCamera.pos);
+                particleSystemComponent.ps->Draw(transformComponent);
+            }
+        }
+    }
+
+    // Render opaque meshes
+    {
+        // Only render objects that have mesh components
+        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+            if (meshComponent.mesh)
+            {
+                //meshComponent.mesh->OnUpdate(dt);
+
+                Renderer::SubmitMesh(meshComponent, transformComponent);
+            }
+        }
+    }
 }
 
 // Render scene from perspective of editor camera
 void Scene::OnRenderRuntime(float dt)
 {
     // Search for the first object in our scene that contains both camera and transform components
+    glm::vec3 cameraPos;
     auto group = registry.group<CameraComponent>(entt::get<TransformComponent>);
     for (auto entity : group)
     {
         auto [transformComponent, cameraComponent] = group.get<TransformComponent, CameraComponent>(entity);
 
         auto gameCamera = cameraComponent.camera;
+        cameraPos = transformComponent.position;
         gameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.rotation);
         gameCamera->SetProjection();
         // TODO change function signature to use camera ptr instead of constantly dereferencing
         SubmitCamera(*gameCamera);
+        Renderer::BeginScene(*gameCamera);
         break;
     }
+
 
     //OnRender(dt);
 
@@ -194,8 +237,7 @@ void Scene::OnRenderRuntime(float dt)
                 particleSystemComponent.ps->position = transformComponent.position;
                 // TODO have this transparency ordering check in renderer instead of PS
                 // or swap to OIT eventually
-                //particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
-                particleSystemComponent.ps->OnUpdate(dt, glm::vec3(0.0f));
+                particleSystemComponent.ps->OnUpdate(dt, cameraPos);
                 particleSystemComponent.ps->Draw(transformComponent);
             }
         }
@@ -221,45 +263,7 @@ void Scene::OnRenderRuntime(float dt)
 
 void Scene::OnRender(float dt)
 {
-    // Send light info to our UBO
-    SubmitLights();
 
-    // Draw skybox
-    skybox->DrawSkybox();
-
-    // Render particles first since they're transparent
-    {
-        auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
-        for (auto entity : group)
-        {
-            auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
-            if (particleSystemComponent.ps)
-            {
-                particleSystemComponent.ps->position = transformComponent.position;
-                // TODO have this transparency ordering check in renderer instead of PS
-                // or swap to OIT eventually
-                //particleSystemComponent.ps->OnUpdate(dt, editorCamera.GetPosition());
-                particleSystemComponent.ps->OnUpdate(dt, glm::vec3(0.0f));
-                particleSystemComponent.ps->Draw(transformComponent);
-            }
-        }
-    }
-
-    // Render opaque meshes
-    {
-        // Only render objects that have mesh components
-        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
-        for (auto entity : group)
-        {
-            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
-            if (meshComponent.mesh)
-            {
-                //meshComponent.mesh->OnUpdate(dt);
-
-                Renderer::SubmitMesh(meshComponent, transformComponent);
-            }
-        }
-    }
 }
 
 void Scene::SubmitLights()

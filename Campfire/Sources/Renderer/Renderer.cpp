@@ -27,7 +27,7 @@ void Renderer::Shutdown()
     Renderer2D::Shutdown();
 }
 
-void Renderer::BeginScene(Camera& camera)
+void Renderer::BeginScene(const Camera& camera)
 {
     RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
     RenderCommand::Clear();

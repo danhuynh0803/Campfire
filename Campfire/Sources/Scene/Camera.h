@@ -26,6 +26,7 @@ public:
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler);
 
 public:
+    glm::vec3 pos = glm::vec3(0.0f); // TODO remove later
     bool isPerspective = true;
     float vFov = 60.0f;
     float nearPlane = 0.1f;

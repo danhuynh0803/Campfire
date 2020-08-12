@@ -53,8 +53,7 @@ void EditorLayer::OnUpdate(float dt)
     {
     }
 
-    Renderer::BeginScene(*editorCamera);
-
+    //Renderer::BeginScene(*editorCamera);
     if (state == State::STOP)
     {
         cameraController.OnUpdate(dt);
@@ -66,8 +65,6 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnUpdate(dt);
         activeScene->OnRenderRuntime(dt);
     }
-
-
     Renderer::EndScene();
 }
 
@@ -182,7 +179,7 @@ void EditorLayer::ShowMenuFile()
     if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
     {
         //std::string savePath = FileSystem::SaveFile();
-        std::string testPath = "../Assets/Scenes/test.cf";
+        std::string testPath = "../Assets/Scenes/test.json";
         //if (!savePath.empty())
         {
             //SceneLoader::SaveScene(activeScene, savePath);
