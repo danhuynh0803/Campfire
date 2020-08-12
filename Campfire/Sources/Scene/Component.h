@@ -98,6 +98,10 @@ struct MeshComponent
     };
 
     MeshComponent() = default;
+    MeshComponent(const std::string& meshPath)
+    {
+        mesh = Mesh::Create(meshPath);
+    }
 
     MeshComponent(Geometry geometry)
     {

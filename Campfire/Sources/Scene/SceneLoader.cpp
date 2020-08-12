@@ -57,27 +57,84 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
 
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
-        //===============================================================================
-        // Load mesh
+        // Tag
+        std::string tag = std::string(itr->FindMember("Tag")->value.GetString());
+        auto entity = scene->CreateEntity(tag);
+
+        // Transform
         {
-            const Value& a = itr->FindMember("position")->value;
-            assert(a.IsArray());
-            //gameObject->position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            auto foundItr = itr->FindMember("TransformComponent");
+            if (foundItr != itr->MemberEnd())
+            {
+                const Value& comp = foundItr->value;
+                {
+                    const Value& a = comp.FindMember("Position")->value;
+                    assert(a.IsArray());
+                    glm::vec3 position = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+                    entity.GetComponent<TransformComponent>().position = position;
+                }
+
+                {
+                    const Value& a = comp.FindMember("Rotation")->value;
+                    assert(a.IsArray());
+                    glm::vec3 rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+                    entity.GetComponent<TransformComponent>().rotation = rotation;
+                }
+
+                {
+                    const Value& a = comp.FindMember("Scale")->value;
+                    assert(a.IsArray());
+                    glm::vec3 scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+                    entity.GetComponent<TransformComponent>().scale = scale;
+                }
+            }
         }
 
+        // Mesh
         {
-            const Value& a = itr->FindMember("rotation")->value;
-            assert(a.IsArray());
-            //gameObject->rotation = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            auto foundItr = itr->FindMember("MeshComponent");
+            if (foundItr != itr->MemberEnd())
+            {
+                const Value& comp = foundItr->value;
+                const Value& path = comp.FindMember("Mesh")->value;
+                entity.AddComponent<MeshComponent>(path.GetString());
+            }
         }
 
+        // Light
         {
-            const Value& a = itr->FindMember("scale")->value;
-            assert(a.IsArray());
-            //gameObject->scale = glm::vec3(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble());
+            auto foundItr = itr->FindMember("LightComponent");
+            if (foundItr != itr->MemberEnd())
+            {
+                const Value& comp = foundItr->value;
+                // TODO: Create map of string and enums
+                //switch (foundItr->value.GetString())
+                //{
+                //    LightComponent::LightType type;
+                //    case "DIRECTIONAL":
+                //        type = LightComponent::LightType::DIRECTIONAL;
+                //        break;
+                //    case "POINT":
+                //        type = LightComponent::LightType::POINT;
+                //        break;
+                //    case "SPOT":
+                //        type = LightComponent::LightType::SPOT;
+                //        break;
+                //    case "AREA":
+                //        type = LightComponent::LightType::AREA;
+                //        break;
+                //}
+                entity.AddComponent<LightComponent>();
+                {
+                    const Value& a = comp.FindMember("Color")->value;
+                    assert(a.IsArray());
+                    glm::vec4 color = glm::vec4(a[0].GetDouble(), a[1].GetDouble(), a[2].GetDouble(), a[3].GetDouble());
+                    entity.GetComponent<LightComponent>().color = color;
+                }
+            }
         }
-        //===============================================================================
     }
+
     return scene;
 }
 
@@ -122,10 +179,8 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
 
         Value objValue;
         objValue.SetObject();
-
         // TODO
         //objValue.AddMember("isActive", object->isActive, allocator);
-
         if (entity.HasComponent<IDComponent>())
         {
             //auto ID = entity.GetComponent<IDComponent>().ID;
@@ -142,13 +197,16 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
 
         if (entity.HasComponent<TransformComponent>())
         {
+            Value compValue;
+            compValue.SetObject();
+
             auto position = entity.GetComponent<TransformComponent>().position;
             Value positionValue(kArrayType);
             for (int i = 0; i < 3; ++i)
             {
                 positionValue.PushBack(Value().SetDouble(position[i]), allocator);
             }
-            objValue.AddMember("Position", positionValue, allocator);
+            compValue.AddMember("Position", positionValue, allocator);
 
             auto rotation = entity.GetComponent<TransformComponent>().rotation;
             Value rotationValue(kArrayType);
@@ -156,7 +214,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             {
                 rotationValue.PushBack(Value().SetDouble(rotation[i]), allocator);
             }
-            objValue.AddMember("Rotation", rotationValue, allocator);
+            compValue.AddMember("Rotation", rotationValue, allocator);
 
             auto scale = entity.GetComponent<TransformComponent>().scale;
             Value scaleValue(kArrayType);
@@ -164,19 +222,59 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             {
                 scaleValue.PushBack(Value().SetDouble(scale[i]), allocator);
             }
-            objValue.AddMember("Scale", scaleValue, allocator);
+            compValue.AddMember("Scale", scaleValue, allocator);
+
+            objValue.AddMember("TransformComponent", compValue, allocator);
         }
 
         if (entity.HasComponent<MeshComponent>())
         {
+            Value compValue;
+            compValue.SetObject();
+
             auto mesh = entity.GetComponent<MeshComponent>().mesh;
             Value meshValue(mesh->GetFilePath().c_str(), allocator);
-            objValue.AddMember("Mesh", meshValue, allocator);
+            compValue.AddMember("Mesh", meshValue, allocator);
+
+            // TODO add material info
+
+            objValue.AddMember("MeshComponent", compValue, allocator);
         }
 
         if (entity.HasComponent<LightComponent>())
         {
+            Value lightCompValue;
+            lightCompValue.SetObject();
 
+            auto comp = entity.GetComponent<LightComponent>();
+            std::string type;
+            switch (comp.type)
+            {
+                case LightComponent::LightType::DIRECTIONAL:
+                    type = "DIRECTIONAL";
+                    break;
+                case LightComponent::LightType::POINT:
+                    type = "POINT";
+                    break;
+                case LightComponent::LightType::SPOT:
+                    type = "SPOT";
+                    break;
+                case LightComponent::LightType::AREA:
+                    type = "AREA";
+                    break;
+            }
+            Value lightTypeValue(type.c_str(), allocator);
+            lightCompValue.AddMember("Type", lightTypeValue, allocator);
+
+            auto color = entity.GetComponent<LightComponent>().color;
+            Value colorValue(kArrayType);
+            for (int i = 0; i < 4; ++i)
+            {
+                colorValue.PushBack(Value().SetDouble(color[i]), allocator);
+            }
+            lightCompValue.AddMember("Color", colorValue, allocator);
+
+            objValue.AddMember("LightComponent", lightCompValue, allocator);
         }
 
         if (entity.HasComponent<RigidbodyComponent>())
