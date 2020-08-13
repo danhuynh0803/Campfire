@@ -1,36 +1,8 @@
 {
     "Environment": {
-        "Skybox": ["Assets/Textures/Skyboxes/blue/right.png", "Assets/Textures/Skyboxes/blue/left.png", "Assets/Textures/Skyboxes/blue/top.png", "Assets/Textures/Skyboxes/blue/bottom.png", "Assets/Textures/Skyboxes/blue/front.png", "Assets/Textures/Skyboxes/blue/back.png"]
+        "Skybox": ["../Assets/Textures/Skyboxes/blue/right.png", "../Assets/Textures/Skyboxes/blue/left.png", "../Assets/Textures/Skyboxes/blue/top.png", "../Assets/Textures/Skyboxes/blue/bottom.png", "../Assets/Textures/Skyboxes/blue/front.png", "../Assets/Textures/Skyboxes/blue/back.png"]
     },
     "Entities": [{
-            "Tag": "Camera",
-            "TransformComponent": {
-                "Position": [0.0, 0.0, 10.0],
-                "Rotation": [0.0, 0.0, 0.0],
-                "Scale": [1.0, 1.0, 1.0]
-            }
-        }, {
-            "Tag": "Directional Light",
-            "TransformComponent": {
-                "Position": [0.0, 3.0, 0.0],
-                "Rotation": [0.0, 0.0, 0.0],
-                "Scale": [1.0, 1.0, 1.0]
-            },
-            "LightComponent": {
-                "Type": "DIRECTIONAL",
-                "Color": [1.0, 1.0, 1.0, 1.0]
-            }
-        }, {
-            "Tag": "Test Sphere",
-            "TransformComponent": {
-                "Position": [2.0, 0.0, 0.0],
-                "Rotation": [0.0, 0.0, 0.0],
-                "Scale": [1.0, 1.0, 1.0]
-            },
-            "MeshComponent": {
-                "Mesh": "../../Assets/Models/primitives/sphere.fbx"
-            }
-        }, {
             "Tag": "Test Cube",
             "TransformComponent": {
                 "Position": [-2.0, 0.0, 0.0],
@@ -38,7 +10,35 @@
                 "Scale": [1.0, 1.0, 1.0]
             },
             "MeshComponent": {
-                "Mesh": "../../Assets/Models/primitives/cube.fbx"
+                "Mesh": "../Assets/Models/primitives/cube.fbx"
+            }
+        }, {
+            "Tag": "Camera",
+            "TransformComponent": {
+                "Position": [0.0, 0.0, 10.0],
+                "Rotation": [0.0, 0.0, 0.0],
+                "Scale": [1.0, 1.0, 1.0]
+            }
+        }, {
+            "Tag": "Test Sphere",
+            "TransformComponent": {
+                "Position": [2.0, 0.0, 0.0],
+                "Rotation": [0.0, -0.0, 0.0],
+                "Scale": [1.0, 1.0, 1.0]
+            },
+            "MeshComponent": {
+                "Mesh": "../Assets/Models/primitives/sphere.fbx"
+            }
+        }, {
+            "Tag": "Directional Light",
+            "TransformComponent": {
+                "Position": [0.0, 3.0, 0.0],
+                "Rotation": [0.0, -0.0, 0.0],
+                "Scale": [1.0, 1.0, 1.0]
+            },
+            "LightComponent": {
+                "Type": "DIRECTIONAL",
+                "Color": [0.0, 0.7838616371154785, 1.0, 1.0]
             }
         }]
 }
