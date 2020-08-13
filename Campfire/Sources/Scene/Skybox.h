@@ -29,6 +29,7 @@ public:
     void OnUpdate(float dt);
     void OnImGuiRender();
 
+    std::vector<std::string> GetFacePaths() { return facePaths; }
     void Load(Face face, const std::string& filepath);
     void Load(const std::vector<std::string>& filepaths);
 

@@ -50,10 +50,23 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
 
     fclose(fp);
 
-    const Value& sceneObjects = document["SceneObjects"];
-    assert(sceneObjects.IsArray());
-
     SharedPtr<Scene> scene = CreateSharedPtr<Scene>(false);
+
+    const Value& environment = document["Environment"];
+    assert(environment.IsArray());
+    std::vector<std::string> faces;
+    for (SizeType i = 0; i < environment.Size(); ++i)
+    {
+        std::string face = std::string(environment[i].GetString());
+        faces.push_back(face);
+    }
+
+    SharedPtr<Skybox> skybox = CreateSharedPtr<Skybox>();
+    skybox->Load(faces);
+    scene->SetSkybox(skybox);
+
+    const Value& sceneObjects = document["Entities"];
+    assert(sceneObjects.IsArray());
 
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
@@ -170,9 +183,20 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
 
     Document doc;
     doc.SetObject();
-    Value myArray(kArrayType);
     Document::AllocatorType& allocator = doc.GetAllocator();
 
+    // Environment
+    Value skyboxArray(kArrayType);
+    auto skybox = scene->GetSkybox();
+    std::vector<std::string> facePaths = skybox->GetFacePaths();
+    for (int i = 0; i < facePaths.size(); ++i)
+    {
+        skyboxArray.PushBack(Value().SetString(StringRef(facePaths[i].c_str())), allocator);
+    }
+    doc.AddMember("Environment", skyboxArray, allocator);
+
+    // Entities
+    Value myArray(kArrayType);
     for (auto entityPair : scene->GetEntityMap())
     {
         auto entity = entityPair.second;
@@ -313,7 +337,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
         myArray.PushBack(objValue, allocator);
     }
 
-    doc.AddMember("SceneObjects", myArray, allocator);
+    doc.AddMember("Entities", myArray, allocator);
 
     StringBuffer buffer;
     PrettyWriter<StringBuffer> writer(buffer);

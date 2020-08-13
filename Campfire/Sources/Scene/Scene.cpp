@@ -321,6 +321,12 @@ void Scene::SetSkybox(SharedPtr<TextureCube> skyboxTex)
     //skybox->Load()
 }
 
+void Scene::SetSkybox(SharedPtr<Skybox> newSkybox)
+{
+    skybox = newSkybox;
+}
+
+
 Entity Scene::CreateEntity(const std::string& name)
 {
     auto entity = Entity(registry.create(), this);

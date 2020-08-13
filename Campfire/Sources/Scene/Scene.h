@@ -30,7 +30,9 @@ public:
 
     void Clear() { registry.clear(); }
 
+    SharedPtr<Skybox> GetSkybox() { return skybox; }
     void SetSkybox(SharedPtr<TextureCube> skyboxTex);
+    void SetSkybox(SharedPtr<Skybox> newSkybox);
 
     Entity CreateEntity(const std::string& name);
     void RemoveEntity(Entity entity);
@@ -53,7 +55,7 @@ private:
 
     SharedPtr<UniformBuffer> uboCamera;
     SharedPtr<UniformBuffer> uboLights;
-    UniquePtr<Skybox> skybox;
+    SharedPtr<Skybox> skybox;
 
     entt::entity entity;
     entt::registry registry;
