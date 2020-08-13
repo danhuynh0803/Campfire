@@ -341,6 +341,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
 
     StringBuffer buffer;
     PrettyWriter<StringBuffer> writer(buffer);
+    writer.SetFormatOptions(PrettyFormatOptions::kFormatSingleLineArray);
     doc.Accept(writer);
 
     std::ofstream out(savePath);
