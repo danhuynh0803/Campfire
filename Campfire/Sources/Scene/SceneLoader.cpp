@@ -53,14 +53,14 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
     SharedPtr<Scene> scene = CreateSharedPtr<Scene>(false);
 
     const Value& environment = document["Environment"];
-    assert(environment.IsArray());
+    const Value& skyboxArray = environment.FindMember("Skybox")->value;
+    assert(skyboxArray.IsArray());
     std::vector<std::string> faces;
-    for (SizeType i = 0; i < environment.Size(); ++i)
+    for (SizeType i = 0; i < skyboxArray.Size(); ++i)
     {
-        std::string face = std::string(environment[i].GetString());
+        std::string face = std::string(skyboxArray[i].GetString());
         faces.push_back(face);
     }
-
     SharedPtr<Skybox> skybox = CreateSharedPtr<Skybox>();
     skybox->Load(faces);
     scene->SetSkybox(skybox);
@@ -186,6 +186,9 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     Document::AllocatorType& allocator = doc.GetAllocator();
 
     // Environment
+    Value envValue;
+    envValue.SetObject();
+
     Value skyboxArray(kArrayType);
     auto skybox = scene->GetSkybox();
     std::vector<std::string> facePaths = skybox->GetFacePaths();
@@ -193,7 +196,8 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     {
         skyboxArray.PushBack(Value().SetString(StringRef(facePaths[i].c_str())), allocator);
     }
-    doc.AddMember("Environment", skyboxArray, allocator);
+    envValue.AddMember("Skybox", skyboxArray, allocator);
+    doc.AddMember("Environment", envValue, allocator);
 
     // Entities
     Value myArray(kArrayType);
@@ -348,7 +352,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     out << buffer.GetString();
     out.close();
 
-    LOG_INFO("Scene {0} has been saved", activeSceneName);
+    LOG_INFO("Scene {0} has been saved at {1}", activeSceneName, savePath);
 }
 
 void SceneLoader::DeleteScene()
