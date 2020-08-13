@@ -70,9 +70,11 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
 
     for (Value::ConstValueIterator itr = sceneObjects.Begin(); itr != sceneObjects.End(); ++itr)
     {
+        // ID
+        uint64_t ID = itr->FindMember("ID")->value.GetUint64();
         // Tag
         std::string tag = std::string(itr->FindMember("Tag")->value.GetString());
-        auto entity = scene->CreateEntity(tag);
+        auto entity = scene->CreateEntity(tag, ID);
 
         // Transform
         {
@@ -211,9 +213,9 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
         //objValue.AddMember("isActive", object->isActive, allocator);
         if (entity.HasComponent<IDComponent>())
         {
-            //auto ID = entity.GetComponent<IDComponent>().ID;
-            //Value idValue(ID);
-            //objValue.AddMember("ID", idValue, allocator);
+            uint64_t ID = entity.GetComponent<IDComponent>().ID;
+            Value idValue(ID);
+            objValue.AddMember("ID", idValue, allocator);
         }
 
         if (entity.HasComponent<TagComponent>())

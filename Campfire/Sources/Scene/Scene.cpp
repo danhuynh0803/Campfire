@@ -326,6 +326,19 @@ void Scene::SetSkybox(SharedPtr<Skybox> newSkybox)
     skybox = newSkybox;
 }
 
+Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
+{
+    auto entity = Entity(registry.create(), this);
+
+    // Default components all entities should have
+    entity.AddComponent<IDComponent>(ID);
+    entity.AddComponent<TagComponent>(name);
+    entity.AddComponent<TransformComponent>();
+
+    entityMap[ID] = entity;
+
+    return entity;
+}
 
 Entity Scene::CreateEntity(const std::string& name)
 {

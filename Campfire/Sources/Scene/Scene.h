@@ -35,6 +35,7 @@ public:
     void SetSkybox(SharedPtr<Skybox> newSkybox);
 
     Entity CreateEntity(const std::string& name);
+    Entity CreateEntity(const std::string& name, uint64_t ID);
     void RemoveEntity(Entity entity);
     //void RemoveEntityRange();
     //const std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
