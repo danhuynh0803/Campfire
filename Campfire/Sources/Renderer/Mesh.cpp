@@ -1,5 +1,7 @@
 #include "Renderer/Mesh.h"
 
+std::vector<SharedPtr<Texture>> textureCache;
+
 SharedPtr<Mesh> Mesh::Create(const std::string& filename)
 {
     return CreateSharedPtr<Mesh>(filename);
@@ -112,13 +114,13 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
-    // Process materials (if any)
     if (mesh->mMaterialIndex >= 0)
     {
         // TODO check if there exists Albedo, specular, normal, bump maps, etc
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         std::vector<SharedPtr<Texture>> diffuseMaps = LoadMaterialTextures(material,
                 aiTextureType_DIFFUSE, "texture_diffuse");
+
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
         //std::vector<SharedPtr<Texture>> specularMaps = LoadMaterialTextures(
@@ -137,14 +139,29 @@ std::vector<SharedPtr<Texture>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTe
 {
     std::vector<SharedPtr<Texture>> textures;
 
+    SharedPtr<Texture> texture;
     for (size_t i = 0; i < mat->GetTextureCount(type); ++i)
     {
         aiString str;
         mat->GetTexture(type, i, &str);
         std::string path(directory + '/' + str.C_Str());
-        LOG_INFO("Loading Texture from {0}", path);
-        SharedPtr<Texture> texture = Texture2D::Create(path.c_str());
-        //texture.type = typeName;
+
+        bool inCache = false;
+        for (auto tex : textureCache)
+        {
+            if (path.compare(tex->GetName()) == 0)
+            {
+                inCache = true;
+                texture = tex;
+                break;
+            }
+        }
+        if (!inCache)
+        {
+            LOG_INFO("Loading Texture from {0}", path);
+            texture = Texture2D::Create(path.c_str());
+            textureCache.push_back(texture);
+        }
 
         textures.push_back(texture);
     }

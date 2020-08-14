@@ -100,7 +100,6 @@ void Scene::Init()
     */
 
 
-
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
     std::vector<std::string> skyboxTextures =

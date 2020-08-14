@@ -47,6 +47,8 @@ public:
     // TODO
     virtual void SetData(void* data, uint32_t size) {}
 
+    virtual std::string GetName() const override { return "TODO"; }
+
 private:
     uint32_t renderID;
     uint32_t width, height;
