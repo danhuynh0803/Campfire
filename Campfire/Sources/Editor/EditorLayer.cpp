@@ -165,7 +165,7 @@ void EditorLayer::ShowMenuFile()
     }
     if (ImGui::MenuItem("Open Scene"))
     {
-        std::string loadPath = FileSystem::OpenFile("*.cf");
+        std::string loadPath = FileSystem::OpenFile("Campfire Files (*.cf)\0");
         if (!loadPath.empty())
         {
             ClearScene();
@@ -178,7 +178,7 @@ void EditorLayer::ShowMenuFile()
     }
     if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
     {
-        std::string savePath = FileSystem::SaveFile("*.cf");
+        std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
         if (!savePath.empty())
         {
             SceneLoader::SaveScene(activeScene, savePath);

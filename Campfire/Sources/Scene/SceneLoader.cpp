@@ -354,6 +354,8 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     out << buffer.GetString();
     out.close();
 
+    MessageBox(NULL, activeSceneName.c_str(), TEXT("SaveAs returned..."), MB_OK);
+
     LOG_INFO("Scene {0} has been saved at {1}", activeSceneName, savePath);
 }
 

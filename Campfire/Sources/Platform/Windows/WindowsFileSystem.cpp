@@ -23,6 +23,8 @@ std::string WSTRToStr(const std::wstring& wstr)
 
 std::string WindowsFileSystem::OpenFile(const char* filter)
 {
+    // TODO convert filter to filter and filetype
+
     HWND hwndOwner = NULL;
     OPENFILENAME ofn;
     char szFilename[MAX_PATH] = "";
@@ -64,6 +66,8 @@ std::string WindowsFileSystem::SaveFile(const char* filter, const char* fileType
     if (GetSaveFileName(&ofn))
     {
         fileNameStr = szFilename;
+        // TODO check if extension was added in file name
+        // if so don't append filetype
         fileNameStr += fileType;
         std::replace(fileNameStr.begin(), fileNameStr.end(), '\\', '/');
     }

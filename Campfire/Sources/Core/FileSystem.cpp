@@ -13,7 +13,7 @@ std::string FileSystem::OpenFile(const char* filter)
     //#endif
 
     #ifdef PLATFORM_WINDOWS
-        if(strcmp(filter,"cf"))
+        if(strcmp(filter,"cf") == 0)
             return WindowsFileSystem::OpenFile("Campfire Files(*.cf)\0*.cf");
         else
             return WindowsFileSystem::OpenFile(filter);
@@ -27,8 +27,9 @@ std::string FileSystem::OpenFile(const char* filter)
 std::string FileSystem::SaveFile(const char* filter)
 {
     #ifdef PLATFORM_WINDOWS
-    if (strcmp(filter, "*.cf"))
+        //if (strcmp(filter, "*.cf"))
         return WindowsFileSystem::SaveFile("Campfire Files(*.cf)\0*.cf", ".cf");
+        //return WindowsFileSystem::SaveFile();
     #else
         return LinuxFileSystem::SaveFile();
     #endif
