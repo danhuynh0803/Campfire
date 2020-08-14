@@ -105,6 +105,38 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
             }
         }
 
+        // Camera
+        {
+            auto foundItr = itr->FindMember("CameraComponent");
+            if (foundItr != itr->MemberEnd())
+            {
+                const Value& comp = foundItr->value;
+                bool isPerspective = comp.FindMember("IsPerspective")->value.GetBool();
+                float vFov = comp.FindMember("VerticalFOV")->value.GetDouble();
+                float nearPlane = comp.FindMember("NearPlane")->value.GetDouble();
+                float farPlane = comp.FindMember("FarPlane")->value.GetDouble();
+                float depth = comp.FindMember("Depth")->value.GetDouble();
+                float x = comp.FindMember("X")->value.GetDouble();
+                float y = comp.FindMember("Y")->value.GetDouble();
+                float width = comp.FindMember("Width")->value.GetDouble();
+                float height = comp.FindMember("Height")->value.GetDouble();
+                float size = comp.FindMember("Size")->value.GetDouble();
+
+                entity.AddComponent<CameraComponent>();
+                auto& camera = entity.GetComponent<CameraComponent>().camera;
+                camera->isPerspective = isPerspective;
+                camera->vFov = vFov;
+                camera->nearPlane = nearPlane;
+                camera->farPlane = farPlane;
+                camera->depth = depth;
+                camera->x = x;
+                camera->y = y;
+                camera->width = width;
+                camera->height = height;
+                camera->size = size;
+            }
+        }
+
         // Mesh
         {
             auto foundItr = itr->FindMember("MeshComponent");
@@ -116,30 +148,110 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
             }
         }
 
+        // Rigidbody
+        {
+            auto foundItr = itr->FindMember("RigidbodyComponent");
+            if (foundItr != itr->MemberEnd())
+            {
+                const Value& comp = foundItr->value;
+                entity.AddComponent<RigidbodyComponent>();
+
+                auto& rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
+
+                float mass = comp.FindMember("Mass")->value.GetDouble();
+                float drag = comp.FindMember("Drag")->value.GetDouble();
+                float angularDrag = comp.FindMember("AngularDrag")->value.GetDouble();
+
+                bool useGravity = comp.FindMember("UseGravity")->value.GetBool();
+                bool isDynamic = comp.FindMember("IsDynamic")->value.GetBool();
+                bool isKinematic = comp.FindMember("IsKinematic")->value.GetBool();
+
+                rb->mass = mass;
+                rb->drag = drag;
+                rb->angularDrag = angularDrag;
+
+                rb->useGravity = useGravity;
+                rb->isDynamic = isDynamic;
+                rb->isKinematic = isKinematic;
+
+                const Value& freezePos = comp.FindMember("FreezePosition")->value;
+                for (int i = 0; i < 3; ++i)
+                {
+                    rb->freezePosition[i] = freezePos[i].GetBool();
+                }
+
+                {
+                    const Value& freezeRot = comp.FindMember("FreezeRotation")->value;
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        rb->freezeRotation[i] = freezeRot[i].GetBool();
+                    }
+                }
+            }
+        }
+
+        // Collider
+        {
+            // TODO refactor collider component
+            auto foundItr = itr->FindMember("ColliderComponent");
+            if (foundItr != itr->MemberEnd())
+            {
+                const Value& comp = foundItr->value;
+                entity.AddComponent<ColliderComponent>();
+
+                // Have to load in a specific order until collider comp is refactored
+                // Since the collider component stores a ptr to the collider shape,
+                // it needs to first know what type it is before intializing the shape
+                auto& colliderComp = entity.GetComponent<ColliderComponent>();
+                colliderComp.type = static_cast<ColliderComponent::Shape>(comp.FindMember("Type")->value.GetUint());
+
+                // Now that the type is know, we can now initialize the correct collider shape
+                colliderComp.InitShape();
+
+                // With shape now initalized, set data that corresponds to that specific shape
+                switch (colliderComp.type)
+                {
+                    case ColliderComponent::Shape::Box:
+                    {
+                        auto& collider = dynamic_cast<BoxCollider&>(*colliderComp.collider);
+                        const Value& sizeArray = comp.FindMember("Size")->value;
+                        glm::vec3 size;
+                        for (int i = 0; i < 3; ++i)
+                        {
+                            size[i] = sizeArray[i].GetDouble();
+                        }
+                        collider.size = size;
+                        break;
+                    }
+                    case ColliderComponent::Shape::Sphere:
+                    {
+                        auto collider = dynamic_cast<SphereCollider&>(*colliderComp.collider);
+                        collider.radius = comp.FindMember("Radius")->value.GetDouble();
+                        break;
+                    }
+                    case ColliderComponent::Shape::Capsule:
+                    {
+                        auto collider = dynamic_cast<CapsuleCollider&>(*colliderComp.collider);
+                        collider.radius = comp.FindMember("Radius")->value.GetDouble();
+                        collider.height = comp.FindMember("Height")->value.GetDouble();
+                        break;
+                    }
+                }
+            }
+        }
+
         // Light
         {
             auto foundItr = itr->FindMember("LightComponent");
             if (foundItr != itr->MemberEnd())
             {
                 const Value& comp = foundItr->value;
-                // TODO: Create map of string and enums
-                //switch (foundItr->value.GetString())
-                //{
-                //    LightComponent::LightType type;
-                //    case "DIRECTIONAL":
-                //        type = LightComponent::LightType::DIRECTIONAL;
-                //        break;
-                //    case "POINT":
-                //        type = LightComponent::LightType::POINT;
-                //        break;
-                //    case "SPOT":
-                //        type = LightComponent::LightType::SPOT;
-                //        break;
-                //    case "AREA":
-                //        type = LightComponent::LightType::AREA;
-                //        break;
-                //}
                 entity.AddComponent<LightComponent>();
+                {
+                    const Value& type = comp.FindMember("Type")->value;
+                    assert(type.IsUint());
+                    entity.GetComponent<LightComponent>().type = static_cast<LightComponent::LightType>(type.GetUint());
+                }
                 {
                     const Value& a = comp.FindMember("Color")->value;
                     assert(a.IsArray());
@@ -257,6 +369,27 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             objValue.AddMember("TransformComponent", compValue, allocator);
         }
 
+        if (entity.HasComponent<CameraComponent>())
+        {
+            Value compValue;
+            compValue.SetObject();
+
+            auto camera = entity.GetComponent<CameraComponent>().camera;
+            compValue.AddMember("IsPerspective", camera->isPerspective, allocator);
+            compValue.AddMember("VerticalFOV", camera->vFov, allocator);
+            compValue.AddMember("NearPlane", camera->nearPlane, allocator);
+            compValue.AddMember("FarPlane", camera->farPlane, allocator);
+            compValue.AddMember("Depth", camera->depth, allocator);
+
+            compValue.AddMember("X", camera->x, allocator);
+            compValue.AddMember("Y", camera->y, allocator);
+            compValue.AddMember("Width", camera->width, allocator);
+            compValue.AddMember("Height", camera->height, allocator);
+            compValue.AddMember("Size", camera->size, allocator);
+
+            objValue.AddMember("CameraComponent", compValue, allocator);
+        }
+
         if (entity.HasComponent<MeshComponent>())
         {
             Value compValue;
@@ -271,29 +404,94 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             objValue.AddMember("MeshComponent", compValue, allocator);
         }
 
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            Value compValue;
+            compValue.SetObject();
+
+            auto rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
+
+            compValue.AddMember("Mass", rb->mass, allocator);
+            compValue.AddMember("Drag", rb->drag, allocator);
+            compValue.AddMember("AngularDrag", rb->angularDrag, allocator);
+            compValue.AddMember("UseGravity", rb->useGravity, allocator);
+            compValue.AddMember("IsDynamic", rb->isDynamic, allocator);
+            compValue.AddMember("IsKinematic", rb->isKinematic, allocator);
+
+            Value freezePositionArray(kArrayType);
+            for (int i = 0; i < 3; ++i)
+            {
+                freezePositionArray.PushBack(rb->freezePosition[i], allocator);
+            }
+            compValue.AddMember("FreezePosition", freezePositionArray, allocator);
+
+            Value freezeRotationArray(kArrayType);
+            for (int i = 0; i < 3; ++i)
+            {
+                freezeRotationArray.PushBack(rb->freezeRotation[i], allocator);
+            }
+            compValue.AddMember("FreezeRotation", freezeRotationArray, allocator);
+
+            objValue.AddMember("RigidbodyComponent", compValue, allocator);
+        }
+
+        if (entity.HasComponent<ColliderComponent>())
+        {
+            Value compValue;
+            compValue.SetObject();
+
+            auto comp = entity.GetComponent<ColliderComponent>();
+            ColliderComponent::Shape type = comp.type;
+
+            compValue.AddMember("IsTrigger", comp.collider->isTrigger, allocator);
+            Value centerArray(kArrayType);
+            for (int i = 0; i < 3; ++i)
+            {
+                centerArray.PushBack(comp.collider->center[i], allocator);
+            }
+            compValue.AddMember("Center", centerArray, allocator);
+
+            compValue.AddMember("Type", static_cast<uint32_t>(type), allocator);
+            switch (type)
+            {
+                // Each collider has specific data that is used by that particular shape.
+                // E.g. Size for box and radius for spheres
+                case ColliderComponent::Shape::Box:
+                {
+                    auto collider = dynamic_cast<BoxCollider&>(*comp.collider);
+                    Value sizeArray(kArrayType);
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        sizeArray.PushBack(collider.size[i], allocator);
+                    }
+                    compValue.AddMember("Size", sizeArray, allocator);
+                    break;
+                }
+                case ColliderComponent::Shape::Sphere:
+                {
+                    auto collider = dynamic_cast<SphereCollider&>(*comp.collider);
+                    compValue.AddMember("Radius", collider.radius, allocator);
+                    break;
+                }
+                case ColliderComponent::Shape::Capsule:
+                {
+                    auto collider = dynamic_cast<CapsuleCollider&>(*comp.collider);
+                    compValue.AddMember("Radius", collider.radius, allocator);
+                    compValue.AddMember("Height", collider.height, allocator);
+                    break;
+                }
+            }
+
+            objValue.AddMember("ColliderComponent", compValue, allocator);
+        }
+
         if (entity.HasComponent<LightComponent>())
         {
             Value lightCompValue;
             lightCompValue.SetObject();
 
             auto comp = entity.GetComponent<LightComponent>();
-            std::string type;
-            switch (comp.type)
-            {
-                case LightComponent::LightType::DIRECTIONAL:
-                    type = "DIRECTIONAL";
-                    break;
-                case LightComponent::LightType::POINT:
-                    type = "POINT";
-                    break;
-                case LightComponent::LightType::SPOT:
-                    type = "SPOT";
-                    break;
-                case LightComponent::LightType::AREA:
-                    type = "AREA";
-                    break;
-            }
-            Value lightTypeValue(type.c_str(), allocator);
+            Value lightTypeValue(Value().SetUint(static_cast<uint32_t>(comp.type)), allocator);
             lightCompValue.AddMember("Type", lightTypeValue, allocator);
 
             auto color = entity.GetComponent<LightComponent>().color;
@@ -307,25 +505,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             objValue.AddMember("LightComponent", lightCompValue, allocator);
         }
 
-        if (entity.HasComponent<RigidbodyComponent>())
-        {
-            //objValue.AddMember("mass", rb->mass, allocator);
-            //objValue.AddMember("isDynamic", rb->isDynamic, allocator);
-            //Value tempValueType(ConvertColShapeToString(rb->colShape), allocator);
-            //objValue.AddMember("shape", tempValueType, allocator);
-        }
-
-        if (entity.HasComponent<ColliderComponent>())
-        {
-
-        }
-
         if (entity.HasComponent<AudioComponent>())
-        {
-
-        }
-
-        if (entity.HasComponent<CameraComponent>())
         {
 
         }
