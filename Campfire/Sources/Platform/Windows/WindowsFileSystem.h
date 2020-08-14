@@ -4,13 +4,12 @@
 
 #include <windows.h>
 #include <string>
-#include "CDialogEventHandler.h"
 
 class WindowsFileSystem
 {
 public:
     static std::string OpenFile(const char* filter);
-    static std::string SaveFile();
+    static std::string SaveFile(const char* filter);
     static HRESULT hr;
 };
 

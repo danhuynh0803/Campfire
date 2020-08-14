@@ -21,10 +21,10 @@ std::string FileSystem::OpenFile(const char* filter)
     return "ERROR";
 }
 
-std::string FileSystem::SaveFile()
+std::string FileSystem::SaveFile(const char* filter)
 {
     #ifdef PLATFORM_WINDOWS
-        return WindowsFileSystem::SaveFile();
+        return WindowsFileSystem::SaveFile(filter);
     #else
         return LinuxFileSystem::SaveFile();
     #endif
