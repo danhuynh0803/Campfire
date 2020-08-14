@@ -46,7 +46,7 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
     return fileNameStr;
 }
 
-std::string WindowsFileSystem::SaveFile(const char* filter)
+std::string WindowsFileSystem::SaveFile(const char* filter, const char* fileType)
 {
     HWND hwndOwner = NULL;
     OPENFILENAME ofn;
@@ -56,6 +56,7 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
     ofn.nMaxFile = MAX_PATH;
     ofn.hwndOwner = hwndOwner;
     ofn.lpstrFile = szFilename;
+    ofn.lpstrFilter = filter;
     ofn.Flags = OFN_HIDEREADONLY |
         OFN_OVERWRITEPROMPT;
     std::string fileNameStr;
@@ -63,6 +64,7 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
     if (GetSaveFileName(&ofn))
     {
         fileNameStr = szFilename;
+        fileNameStr += fileType;
         std::replace(fileNameStr.begin(), fileNameStr.end(), '\\', '/');
     }
 
