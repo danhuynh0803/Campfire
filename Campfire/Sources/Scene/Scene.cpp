@@ -26,7 +26,8 @@ Scene::Scene(bool isNewScene)
     {
         { ShaderDataType::FLOAT4, "pos" },
         { ShaderDataType::FLOAT4, "color" },
-        { ShaderDataType::FLOAT4, "attenFactors" }
+        { ShaderDataType::FLOAT4, "attenFactors" },
+        { ShaderDataType::FLOAT4, "lightDir" }
     };
     uboLights->SetLayout(uboLayout, 1, 26);
     /*
@@ -70,7 +71,12 @@ void Scene::Init()
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
+    directionalLight.GetComponent<TransformComponent>().rotation = glm::vec3(90.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
+
+    auto pointLight = CreateEntity("Point Light");
+    pointLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
+    pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
 
     auto testCube = CreateEntity("Test Cube");
     testCube.GetComponent<TransformComponent>().position = glm::vec3(-2.0f, 0.0f, 0.0f);
@@ -273,25 +279,39 @@ void Scene::SubmitLights()
 
     uboLights->Bind();
 
+    uint32_t size = ( 4 * sizeof(glm::vec4) );
     for (auto entity : group)
     {
         auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
 
         glm::vec4 position = glm::vec4(transformComponent.position, 0.0f);
+
         glm::vec4 attenFactors =
             glm::vec4(
                 lightComponent.constant,
                 lightComponent.linear,
                 lightComponent.quadratic,
-                0.0f // padding
+                static_cast<uint32_t>(lightComponent.type)
             );
 
         // position
-        uboLights->SetData((void*)glm::value_ptr(position), (3 * sizeof(glm::vec4) * numLights), sizeof(glm::vec4));
+        uint32_t offset = 0;
+        uboLights->SetData((void*)glm::value_ptr(position), size*numLights + offset, sizeof(glm::vec4));
+
         // color
-        uboLights->SetData((void*)glm::value_ptr(lightComponent.color), (3 * sizeof(glm::vec4) * numLights) + sizeof(glm::vec4), sizeof(glm::vec4));
+        offset += sizeof(glm::vec4);
+        uboLights->SetData((void*)glm::value_ptr(lightComponent.color), size*numLights + offset, sizeof(glm::vec4));
+
         // attenuation factors
-        uboLights->SetData((void*)glm::value_ptr(attenFactors), (3 * sizeof(glm::vec4) * numLights) + 2*sizeof(glm::vec4), sizeof(glm::vec4));
+        offset += sizeof(glm::vec4);
+        uboLights->SetData((void*)glm::value_ptr(attenFactors), size*numLights + offset, sizeof(glm::vec4));
+
+        // lightDir
+        glm::mat4 transform = transformComponent.GetTransform();
+        offset += sizeof(glm::vec4);
+        // Based off of +Z direction
+        glm::vec4 zDir = transform * glm::vec4(0, 0, 1, 0);
+        uboLights->SetData((void*)glm::value_ptr(zDir), size*numLights + offset, sizeof(glm::vec4));
 
         numLights++;
     }
@@ -300,7 +320,7 @@ void Scene::SubmitLights()
     // 25 is max number of lights
     uboLights->SetData(
         &numLights,
-        25 * 3 * sizeof(glm::vec4),
+        25 * size,
         sizeof(uint32_t)
     );
 

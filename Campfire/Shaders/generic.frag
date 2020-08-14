@@ -8,13 +8,15 @@ struct Light
 {
     vec4 pos;
     vec4 color;
-
     /* packed into a vec4
     x: constant factor for attenuation
     y: linear factor
     z: quadratic factor
-    w: padding */
+    w: light type */
     vec4 attenFactors;
+
+    // Used for directional and spot lights
+    vec4 lightDir;
 };
 
 // =========================================
@@ -59,14 +61,25 @@ vec4 Phong()
     for (int i = 0; i < numLights; ++i)
     {
         vec4 attenFactor = lights[i].attenFactors;
-        float distance = length(lights[i].pos.xyz - position);
-        float attenuation = 1.0f / (attenFactor[0] + attenFactor[1]*distance + attenFactor[2]*(distance*distance));
 
-        ambient *= attenuation;
+        float attenuation;
+        uint type = uint(round(attenFactor.w));
+        if (type == 0)
+        {
+            vec3 lightDir = -1.0f * normalize(lights[i].lightDir.rgb);
+            diffuse = max(0.0f, dot(lightDir, normal)) * lights[i].color.rgb;
+        }
+        else if (type == 1)
+        {
+            float distance = length(lights[i].pos.xyz - position);
+            attenuation = 1.0f / (attenFactor[0] + attenFactor[1]*distance + attenFactor[2]*(distance*distance));
 
-        // Diffuse portion
-        vec3 Li = normalize(lights[i].pos.xyz - position);
-        diffuse = max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
+            // Diffuse portion
+            vec3 Li = normalize(lights[i].pos.xyz - position);
+            diffuse = max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
+
+            ambient *= attenuation;
+        }
 
         // TODO specular with spec maps
         totalColor += ambient + (diffuse + specular) * albedo;
