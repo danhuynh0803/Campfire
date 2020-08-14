@@ -8,6 +8,11 @@
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
 #include "Scene/SceneLoader.h"
+#include "Renderer/Framebuffer.h"
+#include "Renderer/Renderer2D.h"
+
+SharedPtr<Framebuffer> fbo;
+SharedPtr<Shader> postProcessShader;
 
 EditorLayer::EditorLayer()
     : Layer("Editor")
@@ -23,6 +28,10 @@ void EditorLayer::OnAttach()
             glm::vec3(0.0f, 5.0f, 10.0f),
             glm::vec3(-20.0f, 0.0f, 0.0f)
     );
+
+    fbo = Framebuffer::Create(1600, 900);
+
+    postProcessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 }
 
 void EditorLayer::OnDetach()
@@ -53,12 +62,17 @@ void EditorLayer::OnUpdate(float dt)
     {
     }
 
-    //Renderer::BeginScene(*editorCamera);
+    Renderer::BeginScene(*editorCamera);
     if (state == State::STOP)
     {
         cameraController.OnUpdate(dt);
 
+        fbo->Bind();
+        RenderCommand::SetClearColor(glm::vec4(0.1f));
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
         activeScene->OnRenderEditor(dt, *editorCamera);
+        fbo->Unbind();
     }
     else
     {
@@ -66,6 +80,10 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnRenderRuntime(dt);
     }
     Renderer::EndScene();
+
+    //RenderCommand::SetClearColor(glm::vec4(1.0f));
+    //glClear(GL_COLOR_BUFFER_BIT);
+    //Renderer2D::DrawPostProcessQuad(postProcessShader, fbo->GetColorAttachmentID());
 }
 
 void EditorLayer::OnImGuiRender()
@@ -148,6 +166,13 @@ void EditorLayer::OnImGuiRender()
     //ImGui::Begin("Scene");
     //auto viewportSize = ImGui::GetContentRegionAvail();
     //ImGui::End();
+
+
+    // Viewport
+    ImGui::Begin("Viewport");
+    ImGui::Image((ImTextureID)fbo->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
+    //ImGui::Image((ImTextureID)fbo->GetColorAttachmentID(), ImVec2(800, 450), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::End();
 }
 
 void EditorLayer::ClearScene()

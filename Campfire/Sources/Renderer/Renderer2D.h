@@ -47,6 +47,7 @@ public:
 private:
     static glm::mat4 viewMatrix;
     static SharedPtr<Shader> shader;
+    static SharedPtr<VertexArray> quadVertexArray;
 };
 
 #endif // RENDERER_2D_H

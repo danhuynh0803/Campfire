@@ -110,6 +110,7 @@ void ImGuiLayer::OnAttach()
 #else
     io.FontGlobalScale = 1.0f;
 #endif
+    io.FontGlobalScale = 1.0f;
 }
 
 void ImGuiLayer::OnEvent(Event& e)

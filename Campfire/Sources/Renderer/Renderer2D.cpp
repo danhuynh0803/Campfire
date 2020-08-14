@@ -9,6 +9,7 @@
 // TODO add tiling factor
 glm::mat4 Renderer2D::viewMatrix;
 SharedPtr<Shader> Renderer2D::shader;
+SharedPtr<VertexArray> Renderer2D::quadVertexArray;
 
 struct QuadVertexData
 {
@@ -94,6 +95,40 @@ void Renderer2D::Init()
 
     batch.vertexBuffer->Unbind();
     batch.vertexArray->Unbind();
+
+    // Create quad vertex array for post process
+    quadVertexArray = VertexArray::Create();
+    quadVertexArray->Bind();
+
+    GLfloat vertices[] =
+    {
+        -1.0f,  1.0f,   0.0f, 1.0f,
+        -1.0f, -1.0f,   0.0f, 0.0f,
+         1.0f, -1.0f,   1.0f, 0.0f,
+         1.0f,  1.0f,   1.0f, 1.0f
+    };
+    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
+    buffer->Bind();
+
+    BufferLayout quadLayout =
+    {
+        { ShaderDataType::FLOAT2, "aPos" },
+        { ShaderDataType::FLOAT2, "aUV" }
+    };
+    buffer->SetLayout(quadLayout);
+
+    uint32_t quadIndices[] =
+    {
+        0, 1, 2,
+        2, 3, 0
+    };
+    SharedPtr<IndexBuffer> quadIndexBuffer = IndexBuffer::Create(quadIndices, sizeof(quadIndices) / sizeof(uint32_t));
+
+    quadVertexArray->AddVertexBuffer(buffer);
+    quadVertexArray->SetIndexBuffer(quadIndexBuffer);
+
+    buffer->Unbind();
+    quadVertexArray->Unbind();
 }
 
 void Renderer2D::Shutdown()
@@ -174,13 +209,11 @@ void Renderer2D::DrawBillboard(const glm::vec3& position, const glm::vec3& scale
 
 void Renderer2D::DrawPostProcessQuad(const SharedPtr<Shader>& shader, uint32_t colorAttachmentID)
 {
-    // TODO need to draw this last and not part of batch
-    // or make sure its the last object within the batch
     shader->Bind();
     glBindTextureUnit(0, colorAttachmentID);
 
     glDisable(GL_DEPTH_TEST);
-    //Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
+    Renderer::Draw(shader, quadVertexArray, glm::mat4(1.0f));
     glEnable(GL_DEPTH_TEST);
 }
 

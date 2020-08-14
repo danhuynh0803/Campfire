@@ -19,5 +19,6 @@ void main()
     }
     fragColor *= 1.0f/samples;
 
+    //vec4 color = texture(tex2D, inUV);
     //fragColor = vec4(1.0f) - fragColor;
 }
