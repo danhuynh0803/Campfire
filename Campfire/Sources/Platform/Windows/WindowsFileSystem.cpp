@@ -26,7 +26,7 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
     HWND hwndOwner = NULL;
     OPENFILENAME ofn;
     char szFilename[MAX_PATH] = "";
-    ZeroMemory(&ofn, sizeof(ofn));
+    ZeroMemory(&ofn, sizeof(ofn));//=memset(&ofn, 0, sizeof(ofn));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hwndOwner;
     ofn.lpstrFilter = filter;
@@ -51,6 +51,7 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
     HWND hwndOwner = NULL;
     OPENFILENAME ofn;
     char szFilename[MAX_PATH] = "";
+    ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.nMaxFile = MAX_PATH;
     ofn.hwndOwner = hwndOwner;
