@@ -25,6 +25,7 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
+    bool OnWindowResize(WindowResizeEvent& e);
 
 
 private:

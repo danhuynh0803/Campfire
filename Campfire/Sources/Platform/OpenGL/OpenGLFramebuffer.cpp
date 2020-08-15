@@ -5,9 +5,47 @@
 
 OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t samples)
 {
-    // TODO make resizing
-    glGenTextures(1, &colorAttachmentID);
+    Resize(width, height, samples, true);
+}
 
+OpenGLFramebuffer::~OpenGLFramebuffer()
+{
+    glDeleteTextures(1, &colorAttachmentID);
+    glDeleteTextures(1, &depthAttachmentID);
+    glDeleteFramebuffers(1, &renderID);
+}
+
+void OpenGLFramebuffer::Bind() const
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, renderID);
+}
+
+void OpenGLFramebuffer::Unbind() const
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OpenGLFramebuffer::Resize(uint32_t w, uint32_t h, uint32_t samples, bool forceRecreate)
+{
+    // Dont resize if width and height haven't changed
+    if (!forceRecreate && (width == w && height == h))
+    {
+        return;
+    }
+
+    width = w;
+    height = h;
+
+    // Clear out old framebuffer data
+    if (renderID)
+    {
+        glDeleteTextures(1, &colorAttachmentID);
+        glDeleteTextures(1, &depthAttachmentID);
+        glDeleteFramebuffers(1, &renderID);
+    }
+
+    // Generate new framebuffer
+    glGenTextures(1, &colorAttachmentID);
     glCreateFramebuffers(1, &renderID);
     glBindFramebuffer(GL_FRAMEBUFFER, renderID);
 
@@ -52,22 +90,5 @@ OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t s
         LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer not complete!");
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-OpenGLFramebuffer::~OpenGLFramebuffer()
-{
-    glDeleteTextures(1, &colorAttachmentID);
-    glDeleteTextures(1, &depthAttachmentID);
-    glDeleteFramebuffers(1, &renderID);
-}
-
-void OpenGLFramebuffer::Bind() const
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, renderID);
-}
-
-void OpenGLFramebuffer::Unbind() const
-{
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

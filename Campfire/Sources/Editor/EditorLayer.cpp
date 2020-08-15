@@ -11,6 +11,7 @@
 #include "Renderer/Framebuffer.h"
 #include "Renderer/Renderer2D.h"
 
+// TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> fbo;
 SharedPtr<Shader> postProcessShader;
 
@@ -62,28 +63,21 @@ void EditorLayer::OnUpdate(float dt)
     {
     }
 
+    fbo->Bind();
+    //else
+    {
+        //activeScene->OnUpdate(dt);
+        activeScene->OnRenderRuntime(dt);
+    }
+    fbo->Unbind();
+
     Renderer::BeginScene(*editorCamera);
     if (state == State::STOP)
     {
         cameraController.OnUpdate(dt);
-
-        fbo->Bind();
-        RenderCommand::SetClearColor(glm::vec4(0.1f));
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
         activeScene->OnRenderEditor(dt, *editorCamera);
-        fbo->Unbind();
-    }
-    else
-    {
-        activeScene->OnUpdate(dt);
-        activeScene->OnRenderRuntime(dt);
     }
     Renderer::EndScene();
-
-    //RenderCommand::SetClearColor(glm::vec4(1.0f));
-    //glClear(GL_COLOR_BUFFER_BIT);
-    //Renderer2D::DrawPostProcessQuad(postProcessShader, fbo->GetColorAttachmentID());
 }
 
 void EditorLayer::OnImGuiRender()
@@ -168,8 +162,8 @@ void EditorLayer::OnImGuiRender()
     //ImGui::End();
 
 
-    // Viewport
-    ImGui::Begin("Viewport");
+    // Game Camera viewport
+    ImGui::Begin("Game");
     ImGui::Image((ImTextureID)fbo->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
     //ImGui::Image((ImTextureID)fbo->GetColorAttachmentID(), ImVec2(800, 450), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
@@ -250,10 +244,20 @@ void EditorLayer::ShowMenuWindow()
 
 void EditorLayer::OnEvent(Event& event)
 {
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(EditorLayer::OnWindowResize));
+
     if (state == State::STOP)
     {
         cameraController.OnEvent(event);
     }
+}
+
+// TODO remove later.. just for testing FBO
+bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
+{
+    fbo->Resize(e.GetWidth(), e.GetHeight(), 0, true);
+    return false;
 }
 
 void EditorLayer::ShowEditorCameraSettings(bool* isOpen)

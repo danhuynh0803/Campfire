@@ -160,8 +160,6 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
 {
     SubmitCamera(editorCamera);
 
-    Renderer::BeginScene(editorCamera);
-
     // Send light info to our UBO
     SubmitLights();
 
