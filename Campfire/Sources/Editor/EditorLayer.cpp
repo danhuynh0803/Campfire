@@ -252,10 +252,7 @@ void EditorLayer::OnEvent(Event& event)
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(EditorLayer::OnWindowResize));
 
-    if (state == State::STOP)
-    {
-        cameraController.OnEvent(event);
-    }
+    cameraController.OnEvent(event);
 }
 
 // TODO remove later.. just for testing FBO
