@@ -195,12 +195,12 @@ struct ColliderComponent
     ColliderComponent(Shape shape)
         : type(shape)
     {
-        InitShape();
+        InitShape(shape);
     }
 
-    void InitShape()
+    void InitShape(Shape shape)
     {
-        switch (type)
+        switch (shape)
         {
             case Shape::Box:
                 collider = CreateSharedPtr<BoxCollider>();

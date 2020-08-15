@@ -111,29 +111,19 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
             if (foundItr != itr->MemberEnd())
             {
                 const Value& comp = foundItr->value;
-                bool isPerspective = comp.FindMember("IsPerspective")->value.GetBool();
-                float vFov = comp.FindMember("VerticalFOV")->value.GetDouble();
-                float nearPlane = comp.FindMember("NearPlane")->value.GetDouble();
-                float farPlane = comp.FindMember("FarPlane")->value.GetDouble();
-                float depth = comp.FindMember("Depth")->value.GetDouble();
-                float x = comp.FindMember("X")->value.GetDouble();
-                float y = comp.FindMember("Y")->value.GetDouble();
-                float width = comp.FindMember("Width")->value.GetDouble();
-                float height = comp.FindMember("Height")->value.GetDouble();
-                float size = comp.FindMember("Size")->value.GetDouble();
-
                 entity.AddComponent<CameraComponent>();
                 auto& camera = entity.GetComponent<CameraComponent>().camera;
-                camera->isPerspective = isPerspective;
-                camera->vFov = vFov;
-                camera->nearPlane = nearPlane;
-                camera->farPlane = farPlane;
-                camera->depth = depth;
-                camera->x = x;
-                camera->y = y;
-                camera->width = width;
-                camera->height = height;
-                camera->size = size;
+
+                camera->isPerspective = comp.FindMember("IsPerspective")->value.GetBool();
+                camera->vFov = comp.FindMember("VerticalFOV")->value.GetDouble();
+                camera->nearPlane = comp.FindMember("NearPlane")->value.GetDouble();
+                camera->farPlane = comp.FindMember("FarPlane")->value.GetDouble();
+                camera->depth = comp.FindMember("Depth")->value.GetDouble();
+                camera->x = comp.FindMember("X")->value.GetDouble();
+                camera->y = comp.FindMember("Y")->value.GetDouble();
+                camera->width = comp.FindMember("Width")->value.GetDouble();
+                camera->height = comp.FindMember("Height")->value.GetDouble();
+                camera->size = comp.FindMember("Size")->value.GetDouble();
             }
         }
 
@@ -203,13 +193,14 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
                 // Since the collider component stores a ptr to the collider shape,
                 // it needs to first know what type it is before intializing the shape
                 auto& colliderComp = entity.GetComponent<ColliderComponent>();
-                colliderComp.type = static_cast<ColliderComponent::Shape>(comp.FindMember("Type")->value.GetUint());
+                ColliderComponent::Shape type = static_cast<ColliderComponent::Shape>(comp.FindMember("Type")->value.GetUint());
 
+                colliderComp.type = type;
                 // Now that the type is know, we can now initialize the correct collider shape
-                colliderComp.InitShape();
+                colliderComp.InitShape(type);
 
                 // With shape now initalized, set data that corresponds to that specific shape
-                switch (colliderComp.type)
+                switch (type)
                 {
                     case ColliderComponent::Shape::Box:
                     {
@@ -533,8 +524,6 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     std::ofstream out(savePath);
     out << buffer.GetString();
     out.close();
-
-    MessageBox(NULL, activeSceneName.c_str(), TEXT("SaveAs returned..."), MB_OK);
 
     LOG_INFO("Scene {0} has been saved at {1}", activeSceneName, savePath);
 }
