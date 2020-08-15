@@ -99,7 +99,6 @@ void Scene::Init()
     testCube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
     */
 
-
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
     std::vector<std::string> skyboxTextures =
@@ -156,7 +155,7 @@ void Scene::SubmitCamera(const Camera& camera)
 }
 
 // Render scene from perspective of editor camera
-void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
+void Scene::OnRenderEditor(float dt, const Camera& editorCamera, bool isPlaying)
 {
     SubmitCamera(editorCamera);
 
@@ -194,7 +193,10 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera)
             {
                 //meshComponent.mesh->OnUpdate(dt);
 
-                Renderer::SubmitMesh(meshComponent, transformComponent);
+                if (isPlaying)
+                    Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
+                else
+                    Renderer::SubmitMesh(meshComponent, transformComponent);
             }
         }
     }

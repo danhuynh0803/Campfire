@@ -12,7 +12,7 @@
 #include "Renderer/Renderer2D.h"
 
 // TODO refactor task: FBOs should be handled by a renderer
-SharedPtr<Framebuffer> fbo;
+SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Shader> postProcessShader;
 
 EditorLayer::EditorLayer()
@@ -30,7 +30,7 @@ void EditorLayer::OnAttach()
             glm::vec3(-20.0f, 0.0f, 0.0f)
     );
 
-    fbo = Framebuffer::Create(1600, 900);
+    gameCamFBO = Framebuffer::Create(1600, 900);
 
     postProcessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 }
@@ -63,19 +63,24 @@ void EditorLayer::OnUpdate(float dt)
     {
     }
 
-    fbo->Bind();
-    //else
+    if (state != State::STOP)
     {
-        //activeScene->OnUpdate(dt);
+        activeScene->OnUpdate(dt);
+    }
+
+    gameCamFBO->Bind();
+    // TODO refactor to a scene renderer that
+    // just renders same scene but at diff views
+    {
         activeScene->OnRenderRuntime(dt);
     }
-    fbo->Unbind();
+    gameCamFBO->Unbind();
 
     Renderer::BeginScene(*editorCamera);
-    if (state == State::STOP)
+    //if (state == State::STOP)
     {
         cameraController.OnUpdate(dt);
-        activeScene->OnRenderEditor(dt, *editorCamera);
+        activeScene->OnRenderEditor(dt, *editorCamera, (state != State::STOP));
     }
     Renderer::EndScene();
 }
@@ -161,11 +166,9 @@ void EditorLayer::OnImGuiRender()
     //auto viewportSize = ImGui::GetContentRegionAvail();
     //ImGui::End();
 
-
     // Game Camera viewport
     ImGui::Begin("Game");
-    ImGui::Image((ImTextureID)fbo->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
-    //ImGui::Image((ImTextureID)fbo->GetColorAttachmentID(), ImVec2(800, 450), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }
 
@@ -256,7 +259,8 @@ void EditorLayer::OnEvent(Event& event)
 // TODO remove later.. just for testing FBO
 bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
-    fbo->Resize(e.GetWidth(), e.GetHeight(), 0, true);
+    gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
+    //sceneCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     return false;
 }
 

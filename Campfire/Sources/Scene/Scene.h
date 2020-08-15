@@ -24,7 +24,9 @@ public:
     void OnUpdate(float dt);
 
     void OnRender(float dt);
-    void OnRenderEditor(float dt, const Camera& editorCamera);
+    // TODO refactor to be one render call with
+    // diff view and play state params?
+    void OnRenderEditor(float dt, const Camera& editorCamera, bool isPlaying = false);
     void OnRenderRuntime(float dt);
     void OnImGuiRender();
 
