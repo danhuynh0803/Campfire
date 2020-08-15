@@ -25,6 +25,11 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
+    // Use a separate bool instead of "useSnap" directly as this allows
+    // snap to be toggled with a hotkey and/or turned on/off in the tool's settings
+    bool isSnapOn = useSnap;
+    if (Input::GetMod(MOD_CONTROL)) { isSnapOn = true; }
+
     float* viewMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetViewMatrix()));
     float* projMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetProjMatrix()));
 
@@ -38,7 +43,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
         mode,
         transform,
         nullptr,                                // delta matrix
-        useSnap ? &snap[0] : nullptr,           // snap
+        isSnapOn ? &snap[0] : nullptr,          // snap
         boundSizing ? bounds : NULL,            // local bounds
         boundSizingSnap ? boundsSnap : NULL     // bounds snap
     );
@@ -72,7 +77,6 @@ void TransformWidget::ShowTransformSettings(bool* isOpen)
 
     ImGui::Text("Snap Settings (Enable with CTRL)");
     ImGui::Checkbox("", &useSnap);
-    useSnap = (Input::GetMod(MOD_CONTROL)) ? true : false;
     ImGui::SameLine();
     switch (operation)
     {
