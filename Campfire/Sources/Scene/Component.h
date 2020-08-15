@@ -133,6 +133,28 @@ struct MeshComponent
     operator SharedPtr<Mesh>& () { return mesh; }
 };
 
+struct SpriteComponent
+{
+    SpriteComponent()
+        : color(glm::vec4(1.0f))
+    {
+        // Initialize to default white color texture
+        sprite = Texture2D::Create(1, 1);
+        uint32_t whiteTextureData = 0xffffffff;
+        sprite->SetData(&whiteTextureData, sizeof(uint32_t));
+    }
+
+    SpriteComponent(const std::string& texPath, const glm::vec4& tint = glm::vec4(1.0f))
+        : color(tint)
+    {
+        sprite = Texture2D::Create(texPath);
+    }
+
+    SharedPtr<Texture2D> sprite;
+    glm::vec4 color;
+    bool flip[2] = { false, false };
+};
+
 struct LightComponent
 {
     enum class LightType

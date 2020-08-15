@@ -110,6 +110,28 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Sprite
+    if (entity.HasComponent<SpriteComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Sprite"))
+        {
+            auto& comp = entity.GetComponent<SpriteComponent>();
+            if (ImGui::ImageButton((ImTextureID)comp.sprite->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
+            {
+                std::string path = FileSystem::OpenFile();
+                if (!path.empty())
+                {
+                    comp.sprite = Texture2D::Create(path);
+                }
+            }
+            ImGui::ColorEdit4("Color", (float*)&comp.color);
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
     // Collider
     if (entity.HasComponent<ColliderComponent>())
     {
@@ -243,11 +265,16 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         ImGui::EndMenu();
     }
 
-    if (!entity.HasComponent<MeshComponent>())
+    // The object should either be a sprite or a mesh
+    if (!entity.HasComponent<MeshComponent>() && !entity.HasComponent<SpriteComponent>())
     {
         if (ImGui::MenuItem("Mesh"))
         {
             entity.AddComponent<MeshComponent>();
+        }
+        else if (ImGui::MenuItem("Sprite"))
+        {
+            entity.AddComponent<SpriteComponent>();
         }
     }
 

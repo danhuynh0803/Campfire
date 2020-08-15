@@ -74,7 +74,9 @@ void EditorLayer::OnUpdate(float dt)
     {
         activeScene->OnRenderRuntime(dt);
     }
+    Renderer::EndScene();
     gameCamFBO->Unbind();
+
 
     Renderer::BeginScene(*editorCamera);
     //if (state == State::STOP)

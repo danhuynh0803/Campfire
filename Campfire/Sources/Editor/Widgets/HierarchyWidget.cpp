@@ -132,6 +132,8 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
     {
         if (ImGui::MenuItem("Sprite"))
         {
+            auto entity = activeScene->CreateEntity("Sprite");
+            entity.AddComponent<SpriteComponent>();
         }
         ImGui::EndMenu();
     }

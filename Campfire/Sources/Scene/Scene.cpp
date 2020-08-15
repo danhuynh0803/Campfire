@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include "Renderer/Renderer.h"
+#include "Renderer/Renderer2D.h"
 #include "Physics/PhysicsManager.h"
 
 Scene::Scene(bool isNewScene)
@@ -182,6 +183,17 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera, bool isPlaying)
         }
     }
 
+    // Render sprites
+    {
+        auto group = registry.group<SpriteComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, spriteComponent] = group.get<TransformComponent, SpriteComponent>(entity);
+
+            Renderer2D::SubmitQuad(transformComponent, spriteComponent.sprite, spriteComponent.color);
+        }
+    }
+
     // Render opaque meshes
     {
         // Only render objects that have mesh components
@@ -245,6 +257,17 @@ void Scene::OnRenderRuntime(float dt)
                 particleSystemComponent.ps->OnUpdate(dt, cameraPos);
                 particleSystemComponent.ps->Draw(transformComponent);
             }
+        }
+    }
+
+    // Render sprites
+    {
+        auto group = registry.group<SpriteComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, spriteComponent] = group.get<TransformComponent, SpriteComponent>(entity);
+
+            Renderer2D::SubmitQuad(transformComponent.runtimeTransform, spriteComponent.sprite, spriteComponent.color);
         }
     }
 

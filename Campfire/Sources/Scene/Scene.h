@@ -38,6 +38,7 @@ public:
 
     Entity CreateEntity(const std::string& name);
     Entity CreateEntity(const std::string& name, uint64_t ID);
+    Entity DuplicateEntity(const Entity& entity);
     void RemoveEntity(Entity entity);
     //void RemoveEntityRange();
     //const std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
