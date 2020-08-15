@@ -1,4 +1,5 @@
 #ifdef _WIN32
+
 #ifndef WINDOWS_FILE_SYSTEM_H
 #define WINDOWS_FILE_SYSTEM_H
 
@@ -9,9 +10,9 @@ class WindowsFileSystem
 {
 public:
     static std::string OpenFile(const char* filter);
-    static std::string SaveFile(const char* filter, const char* fileType);
-    static HRESULT hr;
+    static std::string SaveFile(const char* filter);
 };
 
 #endif // WINDOWS_FILE_SYSTEM_H
-#endif
+
+#endif // _WIN32
