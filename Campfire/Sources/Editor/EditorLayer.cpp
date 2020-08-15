@@ -190,7 +190,7 @@ void EditorLayer::ShowMenuFile()
     }
     if (ImGui::MenuItem("Open Scene"))
     {
-        std::string loadPath = FileSystem::OpenFile("Campfire Files (*.cf)\0");
+        std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
         if (!loadPath.empty())
         {
             ClearScene();

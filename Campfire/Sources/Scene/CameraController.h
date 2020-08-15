@@ -19,7 +19,6 @@ public:
     bool OnMouseMoved(MouseMovedEvent& e);
 
 public:
-    float maxSpeed = 15.0f;
     float normalSpeed = 2.5f;
     float movementSpeed = normalSpeed;
     float mouseSensitivity = 0.1f;

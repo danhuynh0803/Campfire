@@ -170,7 +170,7 @@ struct RigidbodyComponent
 
 struct ColliderComponent
 {
-    enum Shape
+    enum class Shape
     {
         // Primitive shapes
         Box = 0,
@@ -190,22 +190,31 @@ struct ColliderComponent
 //        ConvexPointCloud
     };
 
+    ColliderComponent() = default;
+
     ColliderComponent(Shape shape)
+        : type(shape)
+    {
+        InitShape(shape);
+    }
+
+    void InitShape(Shape shape)
     {
         switch (shape)
         {
-            case Box:
+            case Shape::Box:
                 collider = CreateSharedPtr<BoxCollider>();
                 break;
-            case Sphere:
+            case Shape::Sphere:
                 collider = CreateSharedPtr<SphereCollider>();
                 break;
-            case Capsule:
+            case Shape::Capsule:
                 collider = CreateSharedPtr<CapsuleCollider>();
                 break;
         }
     }
 
+    Shape type;
     SharedPtr<Collider> collider;
     operator SharedPtr<Collider>& () { return collider; }
 };

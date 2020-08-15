@@ -41,7 +41,7 @@ std::string LinuxFileSystem::OpenFile(const char* filter)
     return outputString;
 }
 
-std::string LinuxFileSystem::SaveFile()
+std::string LinuxFileSystem::SaveFile(const char* filter)
 {
-    return "TODO";
+    return "";
 }

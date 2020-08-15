@@ -26,16 +26,19 @@ void CameraController::OnEvent(Event& e)
 
 void CameraController::OnUpdate(float dt)
 {
-    movementSpeed = (Input::GetKey(KEY_LEFT_SHIFT)) ? maxSpeed : normalSpeed;
+    movementSpeed = (Input::GetKey(KEY_LEFT_SHIFT)) ? (normalSpeed * 2.0f) : normalSpeed;
 
-    if (Input::GetKey(KEY_W))
-        ProcessKeyboard(FORWARD, dt);
-    if (Input::GetKey(KEY_A))
-        ProcessKeyboard(LEFT, dt);
-    if (Input::GetKey(KEY_S))
-        ProcessKeyboard(BACKWARD, dt);
-    if (Input::GetKey(KEY_D))
-        ProcessKeyboard(RIGHT, dt);
+    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    {
+        if (Input::GetKey(KEY_W))
+            ProcessKeyboard(FORWARD, dt);
+        if (Input::GetKey(KEY_A))
+            ProcessKeyboard(LEFT, dt);
+        if (Input::GetKey(KEY_S))
+            ProcessKeyboard(BACKWARD, dt);
+        if (Input::GetKey(KEY_D))
+            ProcessKeyboard(RIGHT, dt);
+    }
 
     UpdateCameraVectors();
     activeCamera->RecalculateViewMatrix(position, front, up);
@@ -43,12 +46,19 @@ void CameraController::OnUpdate(float dt)
 
 bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 {
-    if (fov >= 1.0f && fov <= 60.0f)
-        fov -= e.GetYOffset();
-    if (fov <= 1.0f)
-        fov = 1.0f;
-    if (fov >= 60.0f)
-        fov = 60.0f;
+    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    {
+        normalSpeed = std::clamp(normalSpeed += e.GetYOffset(), 0.1f, 50.0f);
+    }
+    else
+    {
+        if (fov >= 1.0f && fov <= 60.0f)
+            fov -= e.GetYOffset();
+        if (fov <= 1.0f)
+            fov = 1.0f;
+        if (fov >= 60.0f)
+            fov = 60.0f;
+    }
 
     activeCamera->vFov = fov;
     activeCamera->SetProjection();
