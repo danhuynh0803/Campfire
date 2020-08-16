@@ -229,10 +229,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     }
 
     ImGui::NewLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2 / 7.0f, 0.6f, 0.6f));
     if (ImGui::Button("Add Component"))
     {
         ImGui::OpenPopup("ComponentMenuPopup");
     }
+    ImGui::PopStyleColor(1);
     if (ImGui::BeginPopup("ComponentMenuPopup"))
     {
         ShowComponentMenu(entity);

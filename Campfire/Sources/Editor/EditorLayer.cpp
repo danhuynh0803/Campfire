@@ -169,7 +169,7 @@ void EditorLayer::OnImGuiRender()
     //ImGui::End();
 
     // Game Camera viewport
-    ImGui::Begin("Game");
+    ImGui::Begin("Game Preview");
     ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }

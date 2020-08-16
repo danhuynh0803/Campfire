@@ -30,10 +30,13 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
             );
 
     // Create new entity
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2 / 7.0f, 0.6f, 0.6f));
     if (ImGui::Button("+"))
     {
         ImGui::OpenPopup("NewEntityPopup");
     }
+    ImGui::PopStyleColor(1);
+
     // Also open New Entity menu when right clicking into hierarchy
     if (ImGui::BeginPopupContextWindow(0, 1, false))
     {
