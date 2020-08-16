@@ -137,8 +137,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         auto& colliderComponent = entity.GetComponent<ColliderComponent>();
-        std::string colliderName = colliderComponent.GetShapeTypeString().append(" Collider");
-        if (ImGui::TreeNode(colliderName.c_str()))
+        if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
         {
             auto& collider = colliderComponent.collider;
             ImGui::Checkbox("Is Trigger", &collider->isTrigger);

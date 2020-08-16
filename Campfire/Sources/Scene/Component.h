@@ -252,7 +252,7 @@ struct ColliderComponent
                 shapeTypeName = ShapeTypes[2];
                 break;
         }
-        return shapeTypeName;
+        return shapeTypeName.append(" Collider");
     }
 
     Shape type;
