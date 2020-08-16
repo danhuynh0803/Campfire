@@ -9,8 +9,6 @@
 #include "Core/Base.h"
 #include "Scene/Camera.h"
 #include "Renderer/Texture.h"
-
-#include "Scene/Entity.h"
 #include "Scene/Skybox.h"
 
 class Entity;
@@ -54,9 +52,6 @@ private:
     void SubmitLights();
 
 private:
-    friend class Entity;
-    friend class Skybox;
-
     SharedPtr<UniformBuffer> uboCamera;
     SharedPtr<UniformBuffer> uboLights;
     SharedPtr<Skybox> skybox;
@@ -65,6 +60,9 @@ private:
     entt::registry registry;
     //std::unordered_map<uint64_t, Entity> entityMap;
     std::map<uint64_t, Entity> entityMap;
+
+    friend class Entity;
+    friend class Skybox;
 };
 
 #endif // SCENE_H

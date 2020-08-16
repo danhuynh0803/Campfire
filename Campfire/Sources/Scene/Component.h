@@ -9,11 +9,12 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "Core/Base.h"
 #include "Renderer/Mesh.h"
-#include "Scene/Camera.h"
 #include "Particles/ParticleSystem.h"
 #include "Physics/Rigidbody.h"
+#include "Scene/Camera.h"
+#include "Scene/Entity.h"
+#include "Scene/ScriptableEntity.h"
 
 struct IDComponent
 {
@@ -244,6 +245,33 @@ struct ColliderComponent
 struct AudioComponent
 {
     AudioComponent() = default;
+};
+
+class ScriptableEntity;
+struct NativeScriptComponent
+{
+    NativeScriptComponent() = default;
+
+    ScriptableEntity* instance = nullptr;
+
+    std::function<void()> InstantiateFunction;
+    std::function<void()> DestroyInstanceFunction;
+
+    std::function<void(ScriptableEntity*)> OnCreateFunction;
+    std::function<void(ScriptableEntity*)> OnDestroyFunction;
+    std::function<void(ScriptableEntity*, float dt)> OnUpdateFunction;
+
+    template <typename T>
+    void Bind()
+    {
+        InstantiateFunction = [&]() { instance = new T(); };
+        DestroyInstanceFunction = [&]() { delete (T*)instance; instance = nullptr; };
+
+        OnCreateFunction  = [&](ScriptableEntity* instance) { ((T*)instance)->OnCreate(); };
+        OnDestroyFunction = [&](ScriptableEntity* instance) { ((T*)instance)->OnDestroy(); };
+        OnUpdateFunction = [&](ScriptableEntity* instance, float dt) { ((T*)instance)->OnUpdate(dt); };
+    }
+
 };
 
 struct ScriptComponent

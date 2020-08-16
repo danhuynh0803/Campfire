@@ -5,6 +5,7 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/Renderer2D.h"
 #include "Physics/PhysicsManager.h"
+#include "Scripting/CameraController.h"
 
 Scene::Scene(bool isNewScene)
 {
@@ -69,6 +70,7 @@ void Scene::Init()
     auto mainCamera = CreateEntity("Camera");
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
+    mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
@@ -117,17 +119,21 @@ void Scene::Init()
 void Scene::OnUpdate(float dt)
 {
     // Update all entities
-    // Based on the lua script attached
+    // TODO Based on the lua script attached
     // also if theres a rigidbody attached
+    // Test with native c++ script
+    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
     {
-        auto group = registry.group<ScriptComponent>(entt::get<TransformComponent>);
-        for (auto entity : group)
+        if (!nsc.instance)
         {
-            //auto [transformComponent, scriptComponent] = group.get<TransformComponent, ScriptComponent>(entity);
-
-            //script->OnUpdate(dt);
+            nsc.InstantiateFunction();
+            nsc.instance->entity = Entity(entity, this);
+            nsc.OnCreateFunction(nsc.instance);
         }
-    }
+
+        nsc.OnUpdateFunction(nsc.instance, dt);
+    });
+
 
     PhysicsManager::OnUpdate(dt);
 
@@ -402,7 +408,7 @@ Entity Scene::CreateEntity(const std::string& name)
 void Scene::RemoveEntity(Entity entity)
 {
     entityMap.erase(entity.GetComponent<IDComponent>());
-    registry.destroy(entity.GetHandle());
+    //registry.destroy(entity);
 }
 
 
