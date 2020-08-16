@@ -14,7 +14,6 @@
 #include "Physics/Rigidbody.h"
 #include "Scene/Camera.h"
 #include "Scene/Entity.h"
-#include "Scene/ScriptableEntity.h"
 
 struct IDComponent
 {
