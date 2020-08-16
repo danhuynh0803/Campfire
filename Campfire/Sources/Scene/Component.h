@@ -236,6 +236,25 @@ struct ColliderComponent
         }
     }
 
+    std::string GetShapeTypeString()
+    {
+        std::string ShapeTypes[] = {"Box","Sphere","Capsule"};
+        std::string shapeTypeName;
+        switch (type)
+        {
+            case Shape::Box:
+                shapeTypeName = ShapeTypes[0];
+                break;
+            case Shape::Sphere:
+                shapeTypeName = ShapeTypes[1];
+                break;
+            case Shape::Capsule:
+                shapeTypeName = ShapeTypes[2];
+                break;
+        }
+        return shapeTypeName;
+    }
+
     Shape type;
     SharedPtr<Collider> collider;
     operator SharedPtr<Collider>& () { return collider; }
