@@ -261,6 +261,30 @@ void EditorLayer::ShowMenuCampfire()
             ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire", NULL, NULL, SW_SHOWDEFAULT);
         #endif //  _WIN32
     }
+    if (ImGui::MenuItem("Troubleshoot/Report Issues"))
+    {
+        #ifdef  _WIN32
+            ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/issues", NULL, NULL, SW_SHOWDEFAULT);
+        #endif //  _WIN32
+    }
+    if (ImGui::MenuItem("Documentation/Wiki"))
+    {
+        #ifdef  _WIN32
+            ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/wiki", NULL, NULL, SW_SHOWDEFAULT);
+        #endif //  _WIN32
+    }
+    if (ImGui::MenuItem("Contact us"))
+    {
+        #ifdef  _WIN32
+            //ShellExecuteA(0, "open", ":name@domain.com?subject=Hello&Cc=xxx@domai%20n.com&bcc=xxx@domain.com.&body=Hello%20world", 0, 0, 1);
+            ShellExecuteA(0, "open", "mailto:ray810815@gmail.com?subject=Hello&Cc=jane@domai%20n.com&bcc=joe@domain.com.&body=Hello%20", 0, 0, 1);
+        #endif //  _WIN32
+    }
+    ImGui::Separator();
+    if (ImGui::MenuItem("About"))
+    {
+
+    }
 }
 
 void EditorLayer::OnEvent(Event& event)
