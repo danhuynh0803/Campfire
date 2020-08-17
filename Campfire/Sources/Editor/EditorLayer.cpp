@@ -277,7 +277,7 @@ void EditorLayer::ShowMenuCampfire()
     {
         #ifdef  _WIN32
             //ShellExecuteA(0, "open", ":name@domain.com?subject=Hello&Cc=xxx@domai%20n.com&bcc=xxx@domain.com.&body=Hello%20world", 0, 0, 1);
-            ShellExecuteA(0, "open", "mailto:ray810815@gmail.com?subject=Hello&Cc=jane@domai%20n.com&bcc=joe@domain.com.&body=Hello%20", 0, 0, 1);
+            ShellExecuteA(0, "open", "mailto:ray810815@gmail.com?subject=Campfire&body=Hello%20", 0, 0, 1);
         #endif //  _WIN32
     }
     ImGui::Separator();
