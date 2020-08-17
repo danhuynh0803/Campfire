@@ -12,7 +12,10 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
         return;
     }
 
-    if (!Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+    if (!io.WantCaptureKeyboard && !Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
     {
         if (Input::GetKeyDown(KEY_W))
             operation = ImGuizmo::TRANSLATE;
@@ -21,9 +24,6 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
         if (Input::GetKeyDown(KEY_R))
             operation = ImGuizmo::SCALE;
     }
-
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
     // Use a separate bool instead of "useSnap" directly as this allows
     // snap to be toggled with a hotkey and/or turned on/off in the tool's settings

@@ -1,4 +1,6 @@
 #include <imgui.h>
+#include <imgui_stdlib.h>
+
 #include "Editor/Widgets/InspectorWidget.h"
 #include "Core/FileSystem.h"
 
@@ -8,13 +10,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.6f, 0.2f, 1.0f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(0.6f, 0.2f, 1.0f, 1.0f));
     ImGui::Begin("Inspector", isOpen);
-    // Tag
+
     if (entity.HasComponent<TagComponent>())
     {
-        char tag[128];
-        strcpy(tag, entity.GetComponent<TagComponent>().tag.c_str());
-        ImGui::InputText("", tag, IM_ARRAYSIZE(tag));
-        entity.GetComponent<TagComponent>().tag.assign(tag);
+        auto& tagComp = entity.GetComponent<TagComponent>();
+        // FIXME text field losing focus
+        ImGui::InputText("Name", &tagComp.tag);
 
         ImGui::Separator();
     }

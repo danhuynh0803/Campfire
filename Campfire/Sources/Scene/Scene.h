@@ -47,6 +47,9 @@ public:
     template <typename T>
     auto GetAllEntitiesWith() { return registry.view<T>(); }
 
+    // TODO
+    //auto GetAllEntitiesWithTag(const std::string& tag) { return registry.view<T>(); }
+
 private:
     void SubmitCamera(const Camera& camera);
     void SubmitLights();

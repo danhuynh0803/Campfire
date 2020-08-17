@@ -122,7 +122,7 @@ void EditorLayer::OnImGuiRender()
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
     }
-    if (wHierarchy.hasSelectedEntity && state == State::STOP)
+    if (wHierarchy.hasSelectedEntity)
     {
         auto& entity = wHierarchy.GetSelectedEntity();
 
@@ -137,9 +137,12 @@ void EditorLayer::OnImGuiRender()
         }
 
         // FIXME: figure out a way to draw colliders without submitting to bullet each time
-        PhysicsManager::ClearLists();
-        PhysicsManager::SubmitEntity(entity);
-        PhysicsManager::DebugDraw();
+        if (state == State::STOP)
+        {
+            PhysicsManager::ClearLists();
+            PhysicsManager::SubmitEntity(entity);
+            PhysicsManager::DebugDraw();
+        }
     }
 
     if (showTransformSettings)

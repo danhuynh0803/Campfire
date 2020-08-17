@@ -72,7 +72,7 @@ void Renderer2D::Init()
         samplers[i] = i;
     }
 
-    shader = ShaderManager::Create("quad", "../Campfire/Shaders/quad.vert", "../Campfire/Shaders/quad.frag");
+    shader = ShaderManager::Create("quad", "../Campfire/Shaders/sprite_default.vert", "../Campfire/Shaders/sprite_default.frag");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
     shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);

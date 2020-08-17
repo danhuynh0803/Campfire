@@ -164,12 +164,12 @@ inline std::ostream& operator<<(std::ostream& os, KeyCode keyCode)
 
 
 // Modifier macros
-#define MOD_SHIFT           Mod::ModShift
-#define MOD_CONTROL         Mod::ModControl
-#define MOD_ALT             Mod::ModAlt
-#define MOD_SUPER           Mod::ModSuper
-#define MOD_CAPSLOCK        Mod::ModCapsLock
-#define MOD_NUMLOCK         Mod::ModNumLock
+#define MOD_KEY_SHIFT           Mod::ModShift
+#define MOD_KEY_CONTROL         Mod::ModControl
+#define MOD_KEY_ALT             Mod::ModAlt
+#define MOD_KEY_SUPER           Mod::ModSuper
+#define MOD_KEY_CAPSLOCK        Mod::ModCapsLock
+#define MOD_KEY_NUMLOCK         Mod::ModNumLock
 
 // From glfw3.h
 #define KEY_SPACE           Key::Space

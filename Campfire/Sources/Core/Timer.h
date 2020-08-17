@@ -26,12 +26,13 @@ struct Timer
         start = std::chrono::high_resolution_clock::now();
     }
 
-    void GetTime()
+    double GetTime()
     {
         end = std::chrono::high_resolution_clock::now();
         duration = end - start;
         double ms = duration.count() * 1000.0f;
 
+        return ms;
         //LOG_TRACE("Timer: {0}: {1}ms", msg, ms);
     }
 };
