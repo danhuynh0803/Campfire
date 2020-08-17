@@ -64,11 +64,13 @@ vec4 Phong()
 
         float attenuation;
         uint type = uint(round(attenFactor.w));
+        // Directional
         if (type == 0)
         {
             vec3 lightDir = -1.0f * normalize(lights[i].lightDir.rgb);
             diffuse = max(0.0f, dot(lightDir, normal)) * lights[i].color.rgb;
         }
+        // Point
         else if (type == 1)
         {
             float distance = length(lights[i].pos.xyz - position);
@@ -79,6 +81,16 @@ vec4 Phong()
             diffuse = max(0.0f, dot(Li, normal)) * lights[i].color.rgb * attenuation;
 
             ambient *= attenuation;
+        }
+        // Spot
+        else if (type == 2)
+        {
+
+        }
+        // Area
+        else if (type == 3)
+        {
+
         }
 
         // TODO specular with spec maps
