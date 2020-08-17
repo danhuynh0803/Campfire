@@ -39,6 +39,7 @@ private:
 
     void ShowMenuFile();
     void ShowMenuWindow();
+    void ShowMenuCampfire();
 
     // Widgets
     HierarchyWidget wHierarchy;

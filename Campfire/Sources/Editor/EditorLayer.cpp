@@ -104,6 +104,12 @@ void EditorLayer::OnImGuiRender()
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Campfire"))
+        {
+            ShowMenuCampfire();
+            ImGui::EndMenu();
+        }
+
         ImGui::EndMainMenuBar();
     }
 
@@ -244,6 +250,16 @@ void EditorLayer::ShowMenuWindow()
         ImGui::MenuItem("Settings", NULL, &showAudioSettings);
 
         ImGui::EndMenu();
+    }
+}
+
+void EditorLayer::ShowMenuCampfire()
+{
+    if (ImGui::MenuItem("GitHub Repo"))
+    {
+        #ifdef  _WIN32
+            ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire", NULL, NULL, SW_SHOWDEFAULT);
+        #endif //  _WIN32
     }
 }
 
