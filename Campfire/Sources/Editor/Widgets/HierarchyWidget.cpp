@@ -17,7 +17,12 @@ static void HelpMarker(const char* desc)
 
 void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
 {
+    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
     ImGui::Begin("Scene Hierarchy", isOpen);
+    ImGui::PopStyleColor(1);
 
     // TODO cleanup later
     static ImGuiTextFilter filter;
@@ -85,7 +90,7 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
     {
        wInspector.ShowInspector(selectedEntity, isOpen);
     }
-
+    ImGui::PopStyleColor(3);
     ImGui::End();
 }
 
