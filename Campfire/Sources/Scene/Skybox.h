@@ -33,6 +33,7 @@ public:
     void Load(Face face, const std::string& filepath);
     void Load(const std::vector<std::string>& filepaths);
 
+    SharedPtr<TextureCube> GetTextureCube() { return textureCube; }
     void DrawSkybox();
 
 private:

@@ -1,0 +1,143 @@
+#version 450 core
+
+const float PI = 3.141592653589793;
+
+// =========================================
+const int MAX_NUM_LIGHTS = 25;
+
+// =========================================
+struct Light
+{
+    vec4 pos;
+    vec4 color;
+    /* packed into a vec4
+    x: constant factor for attenuation
+    y: linear factor
+    z: quadratic factor
+    w: light type */
+    vec4 attenFactors;
+
+    // Used for directional and spot lights
+    vec4 lightDir;
+};
+
+// =========================================
+layout (std140, binding = 1) uniform LightBuffer
+{
+    Light lights[MAX_NUM_LIGHTS];
+    uint numLights;
+};
+
+// =========================================
+uniform sampler2D texDiffuse;
+uniform sampler2D texSpecular;
+uniform sampler2D texNormals;
+uniform sampler2D texBump;
+uniform samplerCube skybox;
+
+uniform vec3 albedo;
+uniform float metallic;
+uniform float roughness;
+uniform float ao;
+
+// =========================================
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec3 inNormal;
+layout (location = 3) in vec3 inCamPos;
+
+// =========================================
+out vec4 fragColor;
+
+float NormalDistributionGGX(vec3 N, vec3 H, float a)
+{
+    float a2 = a*a;
+    float NdotH = max(dot(N, H), 0.0f);
+    float NdotH2 = NdotH * NdotH;
+
+    float denom = PI * pow((NdotH2 * (a2 - 1) + 1), 2);
+
+    return a2 / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float denom = NdotV * (1 - k) + k;
+
+    return NdotV / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0f);
+    float NdotL = max(dot(N, L), 0.0f);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0f - F0) * pow((1.0f - cosTheta), 5.0f);
+}
+
+// =========================================
+void main()
+{
+    vec3 N = normalize(inNormal);
+    vec3 V = normalize(inCamPos - inPos);
+
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
+
+    // reflectance equation
+    vec3 Lo = vec3(0.0f);
+    for (int i = 0; i < numLights; ++i)
+    {
+        vec3 L = normalize(lights[i].pos.rgb - inPos);
+        uint type = uint(round(lights[i].attenFactors.w));
+        if (type == 0)
+        {
+            L = -1.0f * normalize(lights[i].lightDir.xyz);
+        }
+        vec3 H = normalize(L + V);
+
+        float attenuation = 1.0f;
+        if (type == 1)
+        {
+            float distance = length(lights[i].pos.rgb - inPos);
+            attenuation = 1.0f / (distance * distance);
+        }
+        vec3 radiance = lights[i].color.rgb * attenuation;
+
+        // Cook-Torrance BRDF
+        float D = NormalDistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+        vec3 F = FresnelSchlick(max(dot(H, V), 0.0f), F0);
+
+        vec3 kS = F;
+        vec3 kD = vec3(1.0f) - kS;
+        kD *= 1.0f - metallic;
+
+        vec3 numerator = D*F*G;
+        float denom = 4 * max(dot(N, L), 0.0f) * max(dot(N, V), 0.0f);
+
+        // skybox color
+        vec3 R = reflect(-V, N);
+        vec3 skyboxColor = texture(skybox, R).rgb;
+
+        vec3 specular = numerator / max(denom, 0.001f) * skyboxColor;
+
+        Lo += (kD * albedo/PI) + (specular * radiance * max(dot(N, L), 0.0f));
+    }
+
+    vec3 ambient = vec3(0.03f) * albedo* ao;
+    vec3 color = ambient + Lo;
+
+    color = color / (color + vec3(1.0f));
+    // apply gamma correction
+    color = pow(color, vec3(1.0f/2.2f));
+
+    fragColor = vec4(color, 1.0f);
+}

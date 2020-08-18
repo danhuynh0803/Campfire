@@ -11,7 +11,7 @@ void Renderer::Init()
     RenderCommand::Init();
     Renderer2D::Init();
 
-    shader = ShaderManager::Create("generic", "../Campfire/Shaders/generic.vert", "../Campfire/Shaders/generic.frag");
+    shader = ShaderManager::Create("pbr", "../Campfire/Shaders/pbr.vert", "../Campfire/Shaders/pbr.frag");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
     shader->SetUniformBlock("LightBuffer", 1);
@@ -42,10 +42,58 @@ void Renderer::EndScene()
     Renderer2D::EndScene();
 }
 
+void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<TextureCube> texCube, SharedPtr<Material> overrideMaterial)
+{
+    shader->Bind();
+    shader->SetMat4("model", transform);
+
+    shader->SetFloat3("albedo", mesh->albedo);
+    shader->SetFloat("metallic", mesh->metallic);
+    shader->SetFloat("roughness", mesh->roughness);
+    shader->SetFloat("ao", mesh->ao);
+
+    texCube->Bind();
+
+    // TODO Replace with Materials
+    for (auto submesh : mesh->GetSubmeshes())
+    {
+        // Load default white texture of model had no textures
+        if (submesh.textures.size() == 0)
+        {
+            //LOG_WARN("{0}::Warning: No material found, defaulting to white texture", mesh->GetName());
+            shader->SetFloat("texDiffuse", 0);
+            whiteTexture->Bind();
+        }
+        else
+        {
+            for(size_t i = 0; i < submesh.textures.size(); ++i)
+            {
+                auto texture = submesh.textures[i];
+                if (texture)
+                {
+                    shader->SetFloat("texDiffuse", i);
+                    submesh.textures[i]->Bind(i);
+                }
+            }
+        }
+
+        RenderCommand::DrawIndexed(submesh.vertexArray);
+    }
+
+}
+
+
 void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<Material> overrideMaterial)
 {
     shader->Bind();
     shader->SetMat4("model", transform);
+
+    shader->SetFloat3("albedo", mesh->albedo);
+    shader->SetFloat("metallic", mesh->metallic);
+    shader->SetFloat("roughness", mesh->roughness);
+    shader->SetFloat("ao", mesh->ao);
+
+
 
     // TODO Replace with Materials
     for (auto submesh : mesh->GetSubmeshes())

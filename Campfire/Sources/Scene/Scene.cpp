@@ -16,7 +16,8 @@ Scene::Scene(bool isNewScene)
     {
         { ShaderDataType::MAT4, "view" },
         { ShaderDataType::MAT4, "proj" },
-        { ShaderDataType::MAT4, "viewProj" }
+        { ShaderDataType::MAT4, "viewProj" },
+        { ShaderDataType::FLOAT4, "pos" }
     };
     uboCamera->SetLayout(uboLayout, 0);
     //==============================================
@@ -73,25 +74,55 @@ void Scene::Init()
     mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
 
     auto directionalLight = CreateEntity("Directional Light");
-    directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 3.0f, 0.0f);
-    directionalLight.GetComponent<TransformComponent>().rotation = glm::vec3(90.0f, 0.0f, 0.0f);
+    directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 5.0f, 2.0f);
+    directionalLight.GetComponent<TransformComponent>().rotation = glm::vec3(120.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 
-    auto pointLight = CreateEntity("Point Light");
-    pointLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
-    pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
 
-    auto testCube = CreateEntity("Test Cube");
-    testCube.GetComponent<TransformComponent>().position = glm::vec3(-2.0f, 0.0f, 0.0f);
-    testCube.AddComponent<RigidbodyComponent>();
-    testCube.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
-    testCube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+    int totalRow = 2;
+    int totalCol = 2;
+    float xDisp = 3.0f;
+    float yDisp = 3.0f;
+//    for (int y = 0; y <= totalCol; ++y)
+//    {
+//        for (int x = 0; x <= totalRow; ++x)
+//        {
+//            auto pointLight = CreateEntity("Point Light");
+//            glm::vec3 pos = glm::vec3((x - totalRow/2.0f)*xDisp, (y - totalCol/2.0f)*yDisp, 0.5f);
+//            pointLight.GetComponent<TransformComponent>().position = pos;
+//            pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+//            //pointLight.AddComponent<LightComponent>(LightComponent::LightType::DIRECTIONAL);
+//        }
+//    }
+//
+    totalRow = 7;
+    totalCol = 7;
+    xDisp = 2.5f;
+    yDisp = 2.5f;
+    for (int y = 0; y <= totalCol; ++y)
+    {
+        for (int x = 0; x <= totalRow; ++x)
+        {
+            std::string name = "Sphere (" + std::to_string(x) + ", " + std::to_string(y) + ")";
+            auto sphere = CreateEntity(name);
 
-    auto testSphere = CreateEntity("Test Sphere");
-    testSphere.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, 0.0f);
-    testSphere.AddComponent<RigidbodyComponent>();
-    testSphere.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
-    testSphere.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+            glm::vec3 pos = glm::vec3((x - totalRow/2.0f)*xDisp, (y - totalCol/2.0f)*yDisp, 0.0f);
+            sphere.GetComponent<TransformComponent>().position = pos;
+            sphere.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+            sphere.AddComponent<RigidbodyComponent>();
+            sphere.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
+            sphere.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+
+            // Differ the material values
+            auto& mesh = sphere.GetComponent<MeshComponent>().mesh;
+            //mesh->albedo = glm::vec3((float)x/totalRow*0.01f + 0.5f, (float)y/totalCol*0.01f + 0.5f, 1.0f);
+            //mesh->albedo = glm::vec3(0.05f, 0.1f, 0.8f);
+            mesh->albedo = glm::vec3(0.0f, 1.0f, 0.1f);
+            mesh->albedo = glm::vec3(1.0f);
+            mesh->metallic = std::max((float)y / (float)totalCol, 0.01f);
+            mesh->roughness = std::max((float)x / (float)totalRow, 0.01f);
+        }
+    }
 
     /*
     auto testFloor = CreateEntity("Test Floor");
@@ -112,6 +143,13 @@ void Scene::Init()
         "../Assets/Textures/Skyboxes/blue/bottom.png",
         "../Assets/Textures/Skyboxes/blue/front.png",
         "../Assets/Textures/Skyboxes/blue/back.png"
+
+        //"../Assets/Textures/Skyboxes/Lake/right.jpg",
+        //"../Assets/Textures/Skyboxes/Lake/left.jpg",
+        //"../Assets/Textures/Skyboxes/Lake/top.jpg",
+        //"../Assets/Textures/Skyboxes/Lake/bottom.jpg",
+        //"../Assets/Textures/Skyboxes/Lake/front.jpg",
+        //"../Assets/Textures/Skyboxes/Lake/back.jpg"
     };
     skybox->Load(skyboxTextures);
 }
@@ -158,6 +196,7 @@ void Scene::SubmitCamera(const Camera& camera)
     uboCamera->SetData((void*)glm::value_ptr(camera.GetViewMatrix()), 0, sizeof(glm::mat4));
     uboCamera->SetData((void*)glm::value_ptr(camera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
     uboCamera->SetData((void*)glm::value_ptr(camera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(camera.pos), 3*sizeof(glm::mat4), sizeof(glm::vec4));
     uboCamera->Unbind();
 }
 
@@ -212,9 +251,11 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera, bool isPlaying)
                 //meshComponent.mesh->OnUpdate(dt);
 
                 if (isPlaying)
-                    Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
+                {
+                    //Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
+                }
                 else
-                    Renderer::SubmitMesh(meshComponent, transformComponent);
+                    Renderer::SubmitMesh(meshComponent, transformComponent, GetSkybox()->GetTextureCube());
             }
         }
     }
@@ -232,6 +273,7 @@ void Scene::OnRenderRuntime(float dt)
 
         auto gameCamera = cameraComponent.camera;
         cameraPos = transformComponent.position;
+        gameCamera->pos = cameraPos;
         gameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.rotation);
         gameCamera->SetProjection();
         // TODO change function signature to use camera ptr instead of constantly dereferencing
@@ -288,7 +330,7 @@ void Scene::OnRenderRuntime(float dt)
             {
                 //meshComponent.mesh->OnUpdate(dt);
 
-                Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
+                //Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
             }
         }
     }

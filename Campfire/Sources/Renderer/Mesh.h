@@ -83,6 +83,12 @@ public:
     std::string GetFilePath() { return filepath; }
     std::string GetName() const { return name; }
 
+    // TODO material system
+    glm::vec3 albedo = glm::vec3(0.7f);
+    float metallic = 0.5f;
+    float roughness = 0.5f;
+    float ao = 0.5f;
+
 private:
     void LoadModel(const std::string& path);
     void ProcessNode(aiNode* node, const aiScene* scene);

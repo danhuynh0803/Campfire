@@ -87,7 +87,8 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh"))
         {
-            auto& mesh = entity.GetComponent<MeshComponent>().mesh;
+            auto& meshComp = entity.GetComponent<MeshComponent>();
+            auto& mesh = meshComp.mesh;
             if (ImGui::Button("Load Mesh"))
             {
                 std::string newPath = FileSystem::OpenFile();
@@ -106,6 +107,18 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             else
             {
                 ImGui::Text("Empty Mesh");
+            }
+
+            ImGui::Separator();
+
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode("Material"))
+            {
+                ImGui::ColorEdit3("Albedo", (float*)&mesh->albedo);
+                ImGui::SliderFloat("Metallic", &mesh->metallic, 0.0f, 1.0f);
+                ImGui::SliderFloat("Roughness", &mesh->roughness, 0.0f, 1.0f);
+                ImGui::SliderFloat("Ambient Occlusion", &mesh->ao, 0.0f, 1.0f);
+                ImGui::TreePop();
             }
 
             ImGui::TreePop();
