@@ -124,8 +124,9 @@ void main()
         float attenuation = 1.0f;
         if (type == 1)
         {
+            vec4 attenFactor = lights[i].attenFactors;
             float distance = length(lights[i].pos.xyz - inPos);
-            attenuation = 1.0f / (distance * distance);
+            attenuation = 1.0f / (attenFactor[0] + attenFactor[1]*distance + attenFactor[2]*(distance*distance));
         }
         vec3 radiance = lights[i].color.rgb * attenuation;
 

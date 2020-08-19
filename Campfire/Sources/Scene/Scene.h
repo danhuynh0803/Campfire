@@ -1,15 +1,14 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-//#include <unordered_map>
 #include <map>
 #include <utility>
 #include <entt.hpp>
 
 #include "Core/Base.h"
 #include "Scene/Camera.h"
-#include "Renderer/Texture.h"
 #include "Scene/Skybox.h"
+#include "Renderer/SceneRenderer.h"
 
 class Entity;
 
@@ -19,53 +18,33 @@ public:
     Scene(bool isNewScene = true);
     void Init();
     void OnEvent(Event& e);
+
     void OnUpdate(float dt);
-
-    void OnRender(float dt);
-    // TODO refactor to be one render call with
-    // diff view and play state params?
-    void OnRenderEditor(float dt, const Camera& editorCamera, bool isPlaying = false);
+    void OnRenderEditor(float dt, const Camera& camera);
     void OnRenderRuntime(float dt);
-    void OnImGuiRender();
-
-    void Clear() { registry.clear(); }
-
-    SharedPtr<Skybox> GetSkybox() { return skybox; }
-    void SetSkybox(SharedPtr<TextureCube> skyboxTex);
-    void SetSkybox(SharedPtr<Skybox> newSkybox);
-
-    Entity CreateEntity(const std::string& name);
-    Entity CreateEntity(const std::string& name, uint64_t ID);
-    Entity DuplicateEntity(const Entity& entity);
-    void RemoveEntity(Entity entity);
-    //void RemoveEntityRange();
-    //const std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
-    //std::unordered_map<uint64_t, Entity> GetEntityMap() { return entityMap; }
-
-    const std::map<uint64_t, Entity> GetEntityMap() { return entityMap; }
 
     template <typename T>
     auto GetAllEntitiesWith() { return registry.view<T>(); }
 
-    // TODO
     //auto GetAllEntitiesWithTag(const std::string& tag) { return registry.view<T>(); }
+    Entity CreateEntity(const std::string& name);
+    Entity CreateEntity(const std::string& name, uint64_t ID);
+    Entity DuplicateEntity(const Entity& entity);
+    void RemoveEntity(Entity entity);
+    void Clear() { registry.clear(); }
 
-private:
-    void SubmitCamera(const Camera& camera);
-    void SubmitLights();
+    const std::map<uint64_t, Entity> GetEntityMap() { return entityMap; }
 
-private:
-    SharedPtr<UniformBuffer> uboCamera;
-    SharedPtr<UniformBuffer> uboLights;
+public:
     SharedPtr<Skybox> skybox;
-
-    entt::entity entity;
-    entt::registry registry;
-    //std::unordered_map<uint64_t, Entity> entityMap;
-    std::map<uint64_t, Entity> entityMap;
-
+private:
     friend class Entity;
     friend class Skybox;
+    friend class SceneRenderer;
+
+    entt::entity sceneEntity;
+    entt::registry registry;
+    std::map<uint64_t, Entity> entityMap;
 };
 
 #endif // SCENE_H

@@ -4,12 +4,11 @@
 #include "Core/Time.h"
 #include "Core/Log.h"
 #include "Audio/AudioSystem.h"
-#include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
 #include "Scene/SceneLoader.h"
 #include "Renderer/Framebuffer.h"
-#include "Renderer/Renderer2D.h"
+#include "Renderer/SceneRenderer.h"
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -72,19 +71,15 @@ void EditorLayer::OnUpdate(float dt)
     // TODO refactor to a scene renderer that
     // just renders same scene but at diff views
     {
-        activeScene->OnRenderRuntime(dt);
+        //activeScene->OnRenderRuntime(dt);
     }
-    Renderer::EndScene();
+    //Renderer::EndScene();
     gameCamFBO->Unbind();
 
-
-    Renderer::BeginScene(*editorCamera);
-    //if (state == State::STOP)
-    {
-        cameraController.OnUpdate(dt);
-        activeScene->OnRenderEditor(dt, *editorCamera, (state != State::STOP));
-    }
-    Renderer::EndScene();
+    SceneRenderer::BeginScene(activeScene, *editorCamera);
+    cameraController.OnUpdate(dt);
+    activeScene->OnRenderEditor(dt, *editorCamera);
+    SceneRenderer::EndScene();
 }
 
 void EditorLayer::OnImGuiRender()

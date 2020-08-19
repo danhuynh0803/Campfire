@@ -63,7 +63,7 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
     }
     SharedPtr<Skybox> skybox = CreateSharedPtr<Skybox>();
     skybox->Load(faces);
-    scene->SetSkybox(skybox);
+    scene->skybox = skybox;
 
     const Value& sceneObjects = document["Entities"];
     assert(sceneObjects.IsArray());
@@ -295,7 +295,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
     envValue.SetObject();
 
     Value skyboxArray(kArrayType);
-    auto skybox = scene->GetSkybox();
+    auto skybox = scene->skybox;
     std::vector<std::string> facePaths = skybox->GetFacePaths();
     for (int i = 0; i < facePaths.size(); ++i)
     {

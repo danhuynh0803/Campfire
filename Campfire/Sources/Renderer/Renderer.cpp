@@ -11,6 +11,7 @@ void Renderer::Init()
     RenderCommand::Init();
     Renderer2D::Init();
 
+    // TODO should be part of material
     shader = ShaderManager::Create("pbr", "../Campfire/Shaders/pbr.vert", "../Campfire/Shaders/pbr.frag");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
