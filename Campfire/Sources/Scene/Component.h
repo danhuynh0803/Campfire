@@ -10,6 +10,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "Renderer/Mesh.h"
+#include "Renderer/Material.h"
 #include "Particles/ParticleSystem.h"
 #include "Physics/Rigidbody.h"
 #include "Scene/Camera.h"
@@ -101,6 +102,7 @@ struct MeshComponent
     MeshComponent(const std::string& meshPath)
     {
         mesh = Mesh::Create(meshPath);
+        material = CreateSharedPtr<Material>();
     }
 
     MeshComponent(Geometry geometry)
@@ -126,9 +128,11 @@ struct MeshComponent
                 mesh = Mesh::Create("../Assets/Models/primitives/cylinder.fbx");
                 break;
         }
+        material = CreateSharedPtr<Material>();
     }
 
     SharedPtr<Mesh> mesh;
+    SharedPtr<Material> material;
 
     operator SharedPtr<Mesh>& () { return mesh; }
 };

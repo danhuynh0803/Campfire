@@ -78,51 +78,73 @@ void Scene::Init()
     directionalLight.GetComponent<TransformComponent>().rotation = glm::vec3(120.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 
+    auto model = CreateEntity("Model");
+    model.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+    auto& material = model.GetComponent<MeshComponent>().material;
+    std::string directory = "../Assets/Textures/pbr/rusted_iron/";
+    //std::string directory = "../Assets/Textures/pbr/gold/";
+    material->albedoMap           = Texture2D::Create(directory + "albedo.png");
+    material->specularMap         = Texture2D::Create(directory + "metallic.png");
+    material->normalMap           = Texture2D::Create(directory + "normal.png");
+    material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
+    material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
 
-    int totalRow = 2;
-    int totalCol = 2;
-    float xDisp = 3.0f;
-    float yDisp = 3.0f;
+    {
+        auto pointLight = CreateEntity("Point Light");
+        glm::vec3 pos = glm::vec3(-1.5f, 0.0f, 0.0f);
+        pointLight.GetComponent<TransformComponent>().position = pos;
+        pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+        glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        pointLight.GetComponent<LightComponent>().color = color;
+    }
+    {
+        auto pointLight = CreateEntity("Point Light");
+        glm::vec3 pos = glm::vec3(1.5f, 0.0f, 0.0f);
+        pointLight.GetComponent<TransformComponent>().position = pos;
+        pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+        glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+        pointLight.GetComponent<LightComponent>().color = color;
+    }
+    {
+        auto pointLight = CreateEntity("Point Light");
+        glm::vec3 pos = glm::vec3(0.0f, 0.0f, 1.5f);
+        pointLight.GetComponent<TransformComponent>().position = pos;
+        pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+        glm::vec4 color = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+        pointLight.GetComponent<LightComponent>().color = color;
+    }
+
+//
+//    totalRow = 2;
+//    totalCol = 2;
+//    xDisp = 2.5f;
+//    yDisp = 2.5f;
 //    for (int y = 0; y <= totalCol; ++y)
 //    {
 //        for (int x = 0; x <= totalRow; ++x)
 //        {
-//            auto pointLight = CreateEntity("Point Light");
-//            glm::vec3 pos = glm::vec3((x - totalRow/2.0f)*xDisp, (y - totalCol/2.0f)*yDisp, 0.5f);
-//            pointLight.GetComponent<TransformComponent>().position = pos;
-//            pointLight.AddComponent<LightComponent>(LightComponent::LightType::POINT);
-//            //pointLight.AddComponent<LightComponent>(LightComponent::LightType::DIRECTIONAL);
+//            std::string name = "Sphere (" + std::to_string(x) + ", " + std::to_string(y) + ")";
+//            auto sphere = CreateEntity(name);
+//
+//            glm::vec3 pos = glm::vec3((x - totalRow/2.0f)*xDisp, (y - totalCol/2.0f)*yDisp, 0.0f);
+//            sphere.GetComponent<TransformComponent>().position = pos;
+//            sphere.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+//            sphere.AddComponent<RigidbodyComponent>();
+//            sphere.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
+//            sphere.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+//
+//            // Differ the material values
+//            auto& mesh = sphere.GetComponent<MeshComponent>().mesh;
+//            //mesh->albedo = glm::vec3((float)x/totalRow*0.01f + 0.5f, (float)y/totalCol*0.01f + 0.5f, 1.0f);
+//            mesh->albedo = glm::vec3(0.01f, 0.01f, 0.95f);
+//            //mesh->albedo = glm::vec3(0.0f, 1.0f, 0.1f);
+//            //mesh->albedo = glm::vec3(1.0f);
+//            mesh->metallic = std::max((float)y / (float)totalCol, 0.01f);
+//            mesh->roughness = std::max((float)x / (float)totalRow, 0.01f);
 //        }
 //    }
-//
-    totalRow = 7;
-    totalCol = 7;
-    xDisp = 2.5f;
-    yDisp = 2.5f;
-    for (int y = 0; y <= totalCol; ++y)
-    {
-        for (int x = 0; x <= totalRow; ++x)
-        {
-            std::string name = "Sphere (" + std::to_string(x) + ", " + std::to_string(y) + ")";
-            auto sphere = CreateEntity(name);
 
-            glm::vec3 pos = glm::vec3((x - totalRow/2.0f)*xDisp, (y - totalCol/2.0f)*yDisp, 0.0f);
-            sphere.GetComponent<TransformComponent>().position = pos;
-            sphere.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-            sphere.AddComponent<RigidbodyComponent>();
-            sphere.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
-            sphere.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
 
-            // Differ the material values
-            auto& mesh = sphere.GetComponent<MeshComponent>().mesh;
-            //mesh->albedo = glm::vec3((float)x/totalRow*0.01f + 0.5f, (float)y/totalCol*0.01f + 0.5f, 1.0f);
-            //mesh->albedo = glm::vec3(0.05f, 0.1f, 0.8f);
-            mesh->albedo = glm::vec3(0.0f, 1.0f, 0.1f);
-            mesh->albedo = glm::vec3(1.0f);
-            mesh->metallic = std::max((float)y / (float)totalCol, 0.01f);
-            mesh->roughness = std::max((float)x / (float)totalRow, 0.01f);
-        }
-    }
 
     /*
     auto testFloor = CreateEntity("Test Floor");
@@ -255,7 +277,7 @@ void Scene::OnRenderEditor(float dt, const Camera& editorCamera, bool isPlaying)
                     //Renderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform);
                 }
                 else
-                    Renderer::SubmitMesh(meshComponent, transformComponent, GetSkybox()->GetTextureCube());
+                    Renderer::SubmitMesh(meshComponent, transformComponent, GetSkybox()->GetTextureCube(), meshComponent.material);
             }
         }
     }

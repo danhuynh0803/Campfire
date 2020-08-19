@@ -29,16 +29,12 @@ layout (std140, binding = 1) uniform LightBuffer
 };
 
 // =========================================
-uniform sampler2D texDiffuse;
-uniform sampler2D texSpecular;
-uniform sampler2D texNormals;
-uniform sampler2D texBump;
+uniform sampler2D albedoMap;
+uniform sampler2D specularMap;
+uniform sampler2D normalMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D ambientOcclusionMap;
 uniform samplerCube skybox;
-
-uniform vec3 albedo;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
 
 // =========================================
 layout (location = 0) in vec3 inPos;
@@ -82,10 +78,32 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0f - F0) * pow((1.0f - cosTheta), 5.0f);
 }
 
+vec3 GetNormalFromMap()
+{
+    vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0f - 1.0f;
+
+    vec3 q1  = dFdx(inPos);
+    vec3 q2  = dFdy(inPos);
+    vec2 st1 = dFdx(inUV);
+    vec2 st2 = dFdy(inUV);
+
+    vec3 N = normalize(inNormal);
+    vec3 T = normalize(q1*st2.t - q2*st1.t);
+    vec3 B = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
+
 // =========================================
 void main()
 {
-    vec3 N = normalize(inNormal);
+    vec3 albedo = pow(texture(albedoMap, inUV).rgb, vec3(2.2));
+    float metallic = texture(specularMap, inUV).r;
+    float roughness = texture(roughnessMap, inUV).r;
+    float ao = texture(ambientOcclusionMap, inUV).r;
+
+    vec3 N = GetNormalFromMap();
     vec3 V = normalize(inCamPos - inPos);
 
     vec3 F0 = vec3(0.04);
@@ -106,7 +124,7 @@ void main()
         float attenuation = 1.0f;
         if (type == 1)
         {
-            float distance = length(lights[i].pos.rgb - inPos);
+            float distance = length(lights[i].pos.xyz - inPos);
             attenuation = 1.0f / (distance * distance);
         }
         vec3 radiance = lights[i].color.rgb * attenuation;
@@ -115,6 +133,7 @@ void main()
         float D = NormalDistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         vec3 F = FresnelSchlick(max(dot(H, V), 0.0f), F0);
+
 
         vec3 kS = F;
         vec3 kD = vec3(1.0f) - kS;
@@ -127,9 +146,10 @@ void main()
         vec3 R = reflect(-V, N);
         vec3 skyboxColor = texture(skybox, R).rgb;
 
-        vec3 specular = numerator / max(denom, 0.001f) * skyboxColor;
+        vec3 specular = (numerator / (denom + 0.001f)) * skyboxColor;
 
-        Lo += (kD * albedo/PI) + (specular * radiance * max(dot(N, L), 0.0f));
+        float NdotL = max(dot(N, L), 0.0f);
+        Lo += (kD * albedo/PI + specular) * radiance * NdotL;
     }
 
     vec3 ambient = vec3(0.03f) * albedo* ao;

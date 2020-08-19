@@ -10,17 +10,22 @@
 class Material
 {
 public:
+    Material() = default;
     Material(const std::string& shaderPath);
     Material(const Shader& _shader);
+
     ~Material() = default;
 
-    template <typename T>
-    void SetValue(const std::string& uniform, T value);
+    glm::vec3 albedo = glm::vec3(0.7f);
 
-    void SetTexture(const Texture& texture);
+    SharedPtr<Shader> shader = nullptr;
 
-private:
-    SharedPtr<Shader> shader;
+    SharedPtr<Texture2D> albedoMap = nullptr;
+    SharedPtr<Texture2D> specularMap = nullptr;
+    SharedPtr<Texture2D> normalMap = nullptr;
+    SharedPtr<Texture2D> roughnessMap = nullptr;
+    SharedPtr<Texture2D> ambientOcclusionMap = nullptr;
+    SharedPtr<Texture2D> opacityMap = nullptr;
 };
 
 #endif // MATERIAL_H

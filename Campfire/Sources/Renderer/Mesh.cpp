@@ -123,9 +123,13 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
 
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-        //std::vector<SharedPtr<Texture>> specularMaps = LoadMaterialTextures(
-        //        material, aiTextureType_SPECULAR, "texture_specular");
-        //textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        std::vector<SharedPtr<Texture>> specularMaps = LoadMaterialTextures(
+                material, aiTextureType_SPECULAR, "texture_specular");
+        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+        std::vector<SharedPtr<Texture>> normalMaps = LoadMaterialTextures(
+                material, aiTextureType_NORMALS, "texture_normal");
+        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     }
     else
     {

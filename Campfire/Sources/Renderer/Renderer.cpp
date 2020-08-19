@@ -47,12 +47,42 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
     shader->Bind();
     shader->SetMat4("model", transform);
 
-    shader->SetFloat3("albedo", mesh->albedo);
-    shader->SetFloat("metallic", mesh->metallic);
-    shader->SetFloat("roughness", mesh->roughness);
-    shader->SetFloat("ao", mesh->ao);
+    if (overrideMaterial)
+    {
+        shader->SetInt("albedoMap", 0);
+        shader->SetInt("specularMap", 1);
+        shader->SetInt("normalMap", 2);
+        shader->SetInt("roughnessMap", 3);
+        shader->SetInt("ambientOcclusionMap", 4);
+        shader->SetInt("skybox", 5);
 
-    texCube->Bind();
+        if (overrideMaterial->albedoMap)
+        {
+            overrideMaterial->albedoMap->Bind(0);
+        }
+
+        if (overrideMaterial->specularMap)
+        {
+            overrideMaterial->specularMap->Bind(1);
+        }
+
+        if (overrideMaterial->normalMap)
+        {
+            overrideMaterial->normalMap->Bind(2);
+        }
+
+        if (overrideMaterial->roughnessMap)
+        {
+            overrideMaterial->roughnessMap->Bind(3);
+        }
+
+        if (overrideMaterial->ambientOcclusionMap)
+        {
+            overrideMaterial->ambientOcclusionMap->Bind(4);
+        }
+    }
+
+    texCube->Bind(5);
 
     // TODO Replace with Materials
     for (auto submesh : mesh->GetSubmeshes())
@@ -61,20 +91,20 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
         if (submesh.textures.size() == 0)
         {
             //LOG_WARN("{0}::Warning: No material found, defaulting to white texture", mesh->GetName());
-            shader->SetFloat("texDiffuse", 0);
-            whiteTexture->Bind();
+            //shader->SetFloat("texDiffuse", 0);
+            //whiteTexture->Bind();
         }
         else
         {
-            for(size_t i = 0; i < submesh.textures.size(); ++i)
-            {
-                auto texture = submesh.textures[i];
-                if (texture)
-                {
-                    shader->SetFloat("texDiffuse", i);
-                    submesh.textures[i]->Bind(i);
-                }
-            }
+//            for(size_t i = 0; i < submesh.textures.size(); ++i)
+//            {
+//                auto texture = submesh.textures[i];
+//                if (texture)
+//                {
+//                    shader->SetFloat("texDiffuse", i);
+//                    submesh.textures[i]->Bind(i);
+//                }
+//            }
         }
 
         RenderCommand::DrawIndexed(submesh.vertexArray);
@@ -87,13 +117,6 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
 {
     shader->Bind();
     shader->SetMat4("model", transform);
-
-    shader->SetFloat3("albedo", mesh->albedo);
-    shader->SetFloat("metallic", mesh->metallic);
-    shader->SetFloat("roughness", mesh->roughness);
-    shader->SetFloat("ao", mesh->ao);
-
-
 
     // TODO Replace with Materials
     for (auto submesh : mesh->GetSubmeshes())
