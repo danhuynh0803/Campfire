@@ -311,6 +311,7 @@ struct CameraComponent
         camera = CreateSharedPtr<Camera>();
     }
 
+    bool isMain = false;
     operator SharedPtr<Camera>& () { return camera; }
 };
 

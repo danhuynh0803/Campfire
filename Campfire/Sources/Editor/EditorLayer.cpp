@@ -67,14 +67,31 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnUpdate(dt);
     }
 
-    gameCamFBO->Bind();
-    // TODO refactor to a scene renderer that
-    // just renders same scene but at diff views
+    auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent>();
+    SharedPtr<Camera> mainGameCamera = nullptr;
+    for (auto entity : group)
     {
-        //activeScene->OnRenderRuntime(dt);
+        auto cameraComp = group.get<CameraComponent>(entity);
+        if (cameraComp.isMain)
+        {
+            auto transform = group.get<TransformComponent>(entity);
+            mainGameCamera = cameraComp.camera;
+
+            mainGameCamera->pos = transform.position;
+            mainGameCamera->RecalculateViewMatrix(transform.position, transform.rotation);
+            mainGameCamera->SetProjection();
+            break;
+        }
     }
-    //Renderer::EndScene();
-    gameCamFBO->Unbind();
+
+    if (mainGameCamera)
+    {
+        gameCamFBO->Bind();
+        SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+        cameraController.OnUpdate(dt);
+        activeScene->OnRenderEditor(dt, *mainGameCamera);
+        gameCamFBO->Unbind();
+    }
 
     SceneRenderer::BeginScene(activeScene, *editorCamera);
     cameraController.OnUpdate(dt);

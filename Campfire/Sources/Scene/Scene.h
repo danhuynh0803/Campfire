@@ -23,8 +23,8 @@ public:
     void OnRenderEditor(float dt, const Camera& camera);
     void OnRenderRuntime(float dt);
 
-    template <typename T>
-    auto GetAllEntitiesWith() { return registry.view<T>(); }
+    template <typename T, typename... Args>
+    auto GetAllEntitiesWith() { return registry.view<T, Args...>(); }
 
     //auto GetAllEntitiesWithTag(const std::string& tag) { return registry.view<T>(); }
     Entity CreateEntity(const std::string& name);
