@@ -20,8 +20,7 @@ public:
     void OnEvent(Event& e);
 
     void OnUpdate(float dt);
-    void OnRenderEditor(float dt, const Camera& camera);
-    void OnRenderRuntime(float dt);
+    void OnRender(float dt, const Camera& camera, bool isPlaying = false);
 
     template <typename T, typename... Args>
     auto GetAllEntitiesWith() { return registry.view<T, Args...>(); }

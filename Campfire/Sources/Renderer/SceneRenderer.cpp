@@ -81,7 +81,8 @@ void SceneRenderer::BeginScene(const SharedPtr<Scene>& scene, const Camera& came
 
 void SceneRenderer::EndScene()
 {
-    // Where we actually render
+    // Where we actually render all scene sprites via batching
+    Renderer2D::EndScene();
 }
 
 void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<Material> overrideMaterial)

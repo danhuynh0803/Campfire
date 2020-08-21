@@ -89,13 +89,14 @@ void EditorLayer::OnUpdate(float dt)
         gameCamFBO->Bind();
         SceneRenderer::BeginScene(activeScene, *mainGameCamera);
         cameraController.OnUpdate(dt);
-        activeScene->OnRenderEditor(dt, *mainGameCamera);
+        activeScene->OnRender(dt, *mainGameCamera, state == State::PLAY);
+        SceneRenderer::EndScene();
         gameCamFBO->Unbind();
     }
 
     SceneRenderer::BeginScene(activeScene, *editorCamera);
     cameraController.OnUpdate(dt);
-    activeScene->OnRenderEditor(dt, *editorCamera);
+    activeScene->OnRender(dt, *editorCamera, state == State::PLAY);
     SceneRenderer::EndScene();
 }
 
