@@ -56,7 +56,9 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Camera"))
         {
-            auto& camera = entity.GetComponent<CameraComponent>().camera;
+            auto& comp = entity.GetComponent<CameraComponent>();
+            ImGui::Checkbox("Main Camera", &comp.isMain);
+            auto& camera = comp.camera;
             bool prevState = camera->isPerspective;
             ImGui::Checkbox("Is Perspective", &camera->isPerspective);
             if (prevState != camera->isPerspective)
@@ -401,6 +403,14 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
 
     if (ImGui::MenuItem("New Script"))
     {
+    }
+
+    if (!entity.HasComponent<CameraComponent>())
+    {
+        if (ImGui::MenuItem("Camera"))
+        {
+            entity.AddComponent<CameraComponent>();
+        }
     }
 }
 

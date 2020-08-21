@@ -198,4 +198,10 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
     {
         ImGui::EndMenu();
     }
+
+    if (ImGui::MenuItem("Camera"))
+    {
+        auto entity = activeScene->CreateEntity("Camera");
+        entity.AddComponent<CameraComponent>();
+    }
 }
