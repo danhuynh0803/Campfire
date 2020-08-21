@@ -42,7 +42,7 @@ void EditorLayer::OnUpdate(float dt)
 {
     Time::timeScale = (state == State::PAUSE) ? 0.0f : 1.0f;
 
-    if (Input::GetMod(MOD_CONTROL) && Input::GetKeyDown(KEY_R))
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
     {
         ShaderManager::ReloadShaders();
     }

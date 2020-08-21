@@ -28,7 +28,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     // Use a separate bool instead of "useSnap" directly as this allows
     // snap to be toggled with a hotkey and/or turned on/off in the tool's settings
     bool isSnapOn = useSnap;
-    if (Input::GetMod(MOD_CONTROL)) { isSnapOn = true; }
+    if (Input::GetMod(MOD_KEY_CONTROL)) { isSnapOn = true; }
 
     float* viewMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetViewMatrix()));
     float* projMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetProjMatrix()));
