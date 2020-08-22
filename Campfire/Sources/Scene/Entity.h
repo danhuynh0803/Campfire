@@ -39,6 +39,7 @@ public:
     }
 
     operator bool() const { return entityHandle != entt::null; }
+    operator entt::entity() const { return entityHandle; }
 
 private:
     entt::entity entityHandle{ entt::null };

@@ -22,7 +22,6 @@ void Scene::Init()
        Scene should be initialized with the following:
        1) Camera
        2) Directional light
-       3) Test cube
     */
     auto mainCamera = CreateEntity("Camera");
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -207,7 +206,7 @@ Entity Scene::CreateEntity(const std::string& name)
 void Scene::RemoveEntity(Entity entity)
 {
     entityMap.erase(entity.GetComponent<IDComponent>());
-    //registry.destroy(entity);
+    registry.destroy(entity);
 }
 
 
