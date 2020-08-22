@@ -41,7 +41,7 @@ void Scene::Init()
         model.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         // TODO: rb runtime transform isn't submitting correct rotation
         model.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-        model.AddComponent<RigidbodyComponent>();
+        //model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material = model.GetComponent<MeshComponent>().material;
         std::string directory = "../Assets/Textures/pbr/wall/";
@@ -59,7 +59,7 @@ void Scene::Init()
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         model.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
         model.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-        model.AddComponent<RigidbodyComponent>();
+        //model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
         auto& material = model.GetComponent<MeshComponent>().material;
         std::string directory = "../Assets/Textures/pbr/wall/";
@@ -276,6 +276,12 @@ void Scene::RemoveEntity(Entity entity)
         // TODO rewrite to destroy without passing itself
         entity.GetComponent<NativeScriptComponent>().DestroyScript(&entity.GetComponent<NativeScriptComponent>());
     }
+
+    if (entity.HasComponent<RigidbodyComponent>())
+    {
+        PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
+    }
+
     entityMap.erase(entity.GetComponent<IDComponent>());
     registry.destroy(entity);
 }

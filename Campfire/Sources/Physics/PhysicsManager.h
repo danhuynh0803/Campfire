@@ -14,7 +14,8 @@ public:
     static void Shutdown();
 
     static void SubmitEntity(Entity& entity);
-    //static void RemoveEntity(btRigidBody* rigidBody);
+    static void RemoveEntity(btRigidBody* rigidBody);
+
     //static void UpdateColliders();
     static void ClearLists();
     static void UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp);

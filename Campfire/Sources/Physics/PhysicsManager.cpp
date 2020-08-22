@@ -27,6 +27,15 @@ void PhysicsManager::SubmitEntity(Entity& entity)
 {
     auto transformComponent = entity.GetComponent<TransformComponent>();
 
+//    if (!entity.HasComponent<RigidbodyComponent>())
+//    {
+//        // Although entity does not have a rigidbody component, we must create one in order
+//        // for bullet's collisions to simulate.
+//        entity.AddComponent<RigidbodyComponent>();
+//        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+//        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
+//    }
+
     if (entity.HasComponent<ColliderComponent>() && entity.HasComponent<RigidbodyComponent>())
     {
         auto collider = entity.GetComponent<ColliderComponent>().collider;
@@ -48,13 +57,15 @@ void PhysicsManager::SubmitEntity(Entity& entity)
 
         // Although entity does not have a rigidbody component, we must create one in order
         // for bullet's collisions to simulate.
-        Rigidbody rigidbody;
-        rigidbody.Construct(transformComponent.position, transformComponent.rotation, collider);
+        entity.AddComponent<RigidbodyComponent>();
+        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+        rigidbody->mass = 0.0f;
+        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
 
         // No rigidbody present so we want to have collisions applied but disable all physics interactions.
         // This is done by setting mass of the rb to 0.
-        dynamicsWorld->addRigidBody(rigidbody.GetBulletRigidbody());
-        rigidbody.GetBulletRigidbody()->setMassProps(0, btVector3(0, 0, 0));
+        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+        rigidbody->GetBulletRigidbody()->setMassProps(0, btVector3(0, 0, 0));
     }
     else if (entity.HasComponent<RigidbodyComponent>())
     {
@@ -73,7 +84,6 @@ void PhysicsManager::SubmitEntity(Entity& entity)
 
 }
 
-/*
 void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
 {
     if (rigidBody)
@@ -84,7 +94,6 @@ void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
         delete rigidBody;
     }
 }
-*/
 
 void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp)
 {

@@ -8,11 +8,6 @@
 class Rigidbody
 {
 public:
-    ~Rigidbody()
-    {
-        //PhysicsManager::RemoveEntity(bulletRigidbody);
-    }
-
     void Construct(const glm::vec3& pos, const glm::vec3& euler, const SharedPtr<Collider>& collider);
     btRigidBody* GetBulletRigidbody();
 
