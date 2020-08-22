@@ -22,7 +22,7 @@ public:
     void DeepCopy(const SharedPtr<Scene>& other);
     void OnStart();
     void OnUpdate(float dt);
-    void OnRender(float dt, const Camera& camera, bool isPlaying = false);
+    void OnRender(float dt, const Camera& camera);
 
     template <typename T, typename... Args>
     auto GetAllEntitiesWith() { return registry.view<T, Args...>(); }

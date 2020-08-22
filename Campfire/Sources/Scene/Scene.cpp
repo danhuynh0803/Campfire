@@ -191,7 +191,7 @@ void Scene::OnUpdate(float dt)
 }
 
 // Render scene from perspective of editor camera
-void Scene::OnRender(float dt, const Camera& camera, bool isPlaying)
+void Scene::OnRender(float dt, const Camera& camera)
 {
     // Render particles first since they're transparent
     {
