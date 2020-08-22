@@ -47,25 +47,3 @@ private:
     // Scene that this entity belongs to
     Scene* scene = nullptr;
 };
-
-class ScriptableEntity
-{
-public:
-    virtual ~ScriptableEntity() {}
-
-    template <typename T>
-    T& GetComponent()
-    {
-        return entity.GetComponent<T>();
-    }
-
-protected:
-    virtual void Start() {}
-    virtual void Destroy() {}
-    virtual void Update(float dt) {}
-    //virtual void OnTriggerEnter(Collider) {}
-
-private:
-    Entity entity;
-    friend class Scene;
-};

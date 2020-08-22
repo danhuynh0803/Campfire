@@ -1,4 +1,5 @@
 #include "Scene/Entity.h"
+#include "Scene/ScriptableEntity.h"
 #include "Core/Input.h"
 
 namespace Script
