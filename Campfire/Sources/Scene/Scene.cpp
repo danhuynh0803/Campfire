@@ -6,6 +6,7 @@
 #include "Renderer/Renderer2D.h"
 #include "Physics/PhysicsManager.h"
 #include "Scripting/CameraController.h"
+#include "Scripting/PlayerController.h"
 
 Scene::Scene(bool isNewScene)
 {
@@ -49,6 +50,8 @@ void Scene::Init()
         material->normalMap           = Texture2D::Create(directory + "normal.png");
         material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
         material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+
+        model.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
     {
@@ -66,7 +69,6 @@ void Scene::Init()
         material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
         material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
     }
-
 
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
@@ -87,6 +89,64 @@ void Scene::Init()
         "../Assets/Textures/Skyboxes/Lake/back.jpg"
     };
     skybox->Load(skyboxTextures);
+}
+
+template<typename T>
+static void CopyComponent(entt::registry& dstRegistry, entt::registry& srcRegistry, const std::map<uint64_t, entt::entity>& enttMap)
+{
+    auto components = srcRegistry.view<T>();
+    for (auto srcEntity : components)
+    {
+        entt::entity destEntity = enttMap.at(srcRegistry.get<IDComponent>(srcEntity).ID);
+
+        auto& srcComponent = srcRegistry.get<T>(srcEntity);
+        auto& destComponent = dstRegistry.emplace_or_replace<T>(destEntity, srcComponent);
+    }
+}
+
+template<typename T>
+static void CopyComponentIfExists(entt::entity dst, entt::entity src, entt::registry& registry)
+{
+    if (registry.has<T>(src))
+    {
+        auto& srcComponent = registry.get<T>(src);
+        registry.emplace_or_replace<T>(dst, srcComponent);
+    }
+}
+
+void Scene::DeepCopy(const SharedPtr<Scene>& other)
+{
+    // First clear out current scene contents
+    Clear();
+
+    // Copy skybox
+    skybox = other->skybox;
+
+    // Copy all entities
+    std::map<uint64_t, entt::entity> enttMap;
+    auto idComps = other->registry.view<IDComponent>();
+    for (auto entity : idComps)
+    {
+        uint64_t id = other->registry.get<IDComponent>(entity).ID;
+        Entity e = CreateEntity("", id);
+        enttMap[id] = e;
+    }
+
+    if (!enttMap.empty())
+    {
+        CopyComponent<TagComponent>(registry, other->registry, enttMap);
+        CopyComponent<TransformComponent>(registry, other->registry, enttMap);
+        CopyComponent<MeshComponent>(registry, other->registry, enttMap);
+        CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
+        CopyComponent<LightComponent>(registry, other->registry, enttMap);
+        CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
+        CopyComponent<ColliderComponent>(registry, other->registry, enttMap);
+        CopyComponent<CameraComponent>(registry, other->registry, enttMap);
+        CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
+        CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
+    }
+    // TODO
+    //CopyComponent<AudioComponent>(registry, other->registry, enttMap);
 }
 
 void Scene::OnStart()
@@ -169,6 +229,7 @@ void Scene::OnRender(float dt, const Camera& camera, bool isPlaying)
         auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
         if (meshComponent.mesh)
         {
+            // TODO use just one runtime
             //meshComponent.mesh->OnUpdate(dt);
             if (isPlaying)
             {
@@ -219,6 +280,11 @@ Entity Scene::CreateEntity(const std::string& name)
 
 void Scene::RemoveEntity(Entity entity)
 {
+    if (entity.HasComponent<NativeScriptComponent>())
+    {
+        // TODO rewrite to destroy without passing itself
+        entity.GetComponent<NativeScriptComponent>().DestroyScript(&entity.GetComponent<NativeScriptComponent>());
+    }
     entityMap.erase(entity.GetComponent<IDComponent>());
     registry.destroy(entity);
 }

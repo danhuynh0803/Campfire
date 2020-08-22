@@ -27,13 +27,19 @@ public:
     virtual void OnEvent(Event& event) override;
     bool OnWindowResize(WindowResizeEvent& e);
 
+private:
+    void OnRenderEditor();
+    void OnRenderRuntime();
 
 private:
     bool startScene = false;
     bool stopScene = true;
     void ClearScene();
 
+    SharedPtr<Scene> editorScene;
+    SharedPtr<Scene> runtimeScene;
     SharedPtr<Scene> activeScene;
+
     SharedPtr<Camera> editorCamera;
     CameraController cameraController;
 

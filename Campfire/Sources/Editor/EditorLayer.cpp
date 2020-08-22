@@ -17,7 +17,9 @@ SharedPtr<Shader> postProcessShader;
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
-    activeScene = CreateSharedPtr<Scene>();
+    editorScene = CreateSharedPtr<Scene>();
+    runtimeScene = CreateSharedPtr<Scene>(false);
+    activeScene = editorScene;
 }
 
 void EditorLayer::OnAttach()
@@ -49,16 +51,18 @@ void EditorLayer::OnUpdate(float dt)
 
     if (startScene)
     {
+        runtimeScene->DeepCopy(editorScene);
+        activeScene = runtimeScene;
         activeScene->OnStart();
     }
-
     else if (stopScene)
     {
+        activeScene = editorScene;
     }
 
     if (state != State::STOP)
     {
-        activeScene->OnUpdate(dt);
+        runtimeScene->OnUpdate(dt);
     }
 
     auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent>();

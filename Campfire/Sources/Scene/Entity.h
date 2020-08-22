@@ -42,7 +42,10 @@ public:
     operator entt::entity() const { return entityHandle; }
 
 private:
-    entt::entity entityHandle{ entt::null };
+    friend class Scene;
+    friend class ScriptableEntity;
+
+    entt::entity entityHandle { entt::null };
 
     // Scene that this entity belongs to
     Scene* scene = nullptr;

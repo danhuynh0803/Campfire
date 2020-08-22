@@ -13,8 +13,13 @@ public:
         return entity.GetComponent<T>();
     }
 
-    //Entity Instantiate(Entity);
-    //Entity Instantiate(Entity, glm::vec3 position);
+    Entity Instantiate(Entity);
+    Entity Instantiate(Entity, glm::vec3 position);
+
+    void Destroy(ScriptableEntity* other)
+    {
+        entity.scene->RemoveEntity(other->entity);
+    }
 
 protected:
     virtual void Start() {}
