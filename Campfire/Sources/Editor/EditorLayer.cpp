@@ -76,7 +76,7 @@ void EditorLayer::OnUpdate(float dt)
             mainGameCamera = cameraComp.camera;
 
             mainGameCamera->pos = transform.position;
-            mainGameCamera->RecalculateViewMatrix(transform.position, transform.rotation);
+            mainGameCamera->RecalculateViewMatrix(transform.position, transform.eulerAngles);
             mainGameCamera->SetProjection();
             break;
         }

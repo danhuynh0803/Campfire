@@ -34,7 +34,8 @@ struct TagComponent
 struct TransformComponent
 {
     glm::vec3 position = glm::vec3(0.0f);
-    glm::vec3 rotation = glm::vec3(0.0f);
+    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 eulerAngles = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
     glm::mat4 transform = glm::mat4(1.0f);
 
@@ -44,16 +45,15 @@ struct TransformComponent
 
         transform = glm::translate(transform,position);
 
-        glm::quat quaternion = glm::quat(
-                glm::vec3(
-                    glm::radians(rotation.x),
-                    glm::radians(rotation.y),
-                    glm::radians(rotation.z)
-                    )
-                );
-        glm::mat4 rotation = glm::toMat4(quaternion);
-        transform = transform * rotation;
-
+        rotation = glm::quat(
+            glm::vec3(
+                glm::radians(eulerAngles.x),
+                glm::radians(eulerAngles.y),
+                glm::radians(eulerAngles.z)
+            )
+        );
+        glm::mat4 rotationMat = glm::toMat4(rotation);
+        transform = transform * rotationMat;
         transform = glm::scale(transform, scale);
     }
 

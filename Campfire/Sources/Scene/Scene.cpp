@@ -32,7 +32,7 @@ void Scene::Init()
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 5.0f, 2.0f);
-    directionalLight.GetComponent<TransformComponent>().rotation = glm::vec3(120.0f, 0.0f, 0.0f);
+    directionalLight.GetComponent<TransformComponent>().eulerAngles = glm::vec3(120.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 
     {
@@ -40,7 +40,7 @@ void Scene::Init()
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         model.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         // TODO: rb runtime transform isn't submitting correct rotation
-        model.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+        model.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         //model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material = model.GetComponent<MeshComponent>().material;
@@ -58,7 +58,7 @@ void Scene::Init()
         auto model = CreateEntity("Model2");
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         model.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
-        model.GetComponent<TransformComponent>().rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+        model.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         //model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
         auto& material = model.GetComponent<MeshComponent>().material;

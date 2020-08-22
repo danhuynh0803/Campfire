@@ -53,7 +53,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     float newTranslation[3], newRotation[3], newScale[3];
     ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation, newScale);
     transformComp.position = glm::make_vec3(newTranslation);
-    transformComp.rotation = glm::make_vec3(newRotation);
+    transformComp.eulerAngles = glm::make_vec3(newRotation);
     transformComp.scale    = glm::make_vec3(newScale);
 }
 

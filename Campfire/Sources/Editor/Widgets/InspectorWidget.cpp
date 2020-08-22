@@ -29,7 +29,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         {
             auto& transform = entity.GetComponent<TransformComponent>();
             ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
-            ImGui::DragFloat3("Rotation", (float*)&transform.rotation, 0.01f);
+            ImGui::DragFloat3("Rotation", (float*)&transform.eulerAngles, 0.01f);
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
             //if (ImGui::Button("..."))
             //{

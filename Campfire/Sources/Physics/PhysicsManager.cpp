@@ -42,7 +42,7 @@ void PhysicsManager::SubmitEntity(Entity& entity)
         collider->UpdateShape();
 
         auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
+        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
         if (!rigidbody->useGravity)
@@ -60,7 +60,7 @@ void PhysicsManager::SubmitEntity(Entity& entity)
         entity.AddComponent<RigidbodyComponent>();
         auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
         rigidbody->mass = 0.0f;
-        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
+        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
 
         // No rigidbody present so we want to have collisions applied but disable all physics interactions.
         // This is done by setting mass of the rb to 0.
@@ -70,7 +70,7 @@ void PhysicsManager::SubmitEntity(Entity& entity)
     else if (entity.HasComponent<RigidbodyComponent>())
     {
         auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.rotation, nullptr);
+        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, nullptr);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
 
@@ -123,7 +123,8 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
     glm::decompose(glTransform, scale, orientation, translation, skew, perspective);
 
     transComp.position = translation;
-    transComp.rotation = glm::degrees(glm::eulerAngles(orientation));
+    transComp.rotation = orientation;
+    transComp.eulerAngles = glm::degrees(glm::eulerAngles(orientation));
     transComp.scale = scale;
 
 }
