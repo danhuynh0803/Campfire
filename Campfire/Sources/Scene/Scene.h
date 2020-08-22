@@ -19,6 +19,7 @@ public:
     void Init();
     void OnEvent(Event& e);
 
+    void OnStart();
     void OnUpdate(float dt);
     void OnRender(float dt, const Camera& camera, bool isPlaying = false);
 

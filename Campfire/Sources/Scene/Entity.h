@@ -51,15 +51,19 @@ private:
 class ScriptableEntity
 {
 public:
-//    virtual void OnCreate() {}
-//    virtual void OnDestroy() {}
-//    virtual void OnUpdate(float dt) {}
+    virtual ~ScriptableEntity() {}
 
     template <typename T>
     T& GetComponent()
     {
         return entity.GetComponent<T>();
     }
+
+protected:
+    virtual void Start() {}
+    virtual void Destroy() {}
+    virtual void Update(float dt) {}
+    //virtual void OnTriggerEnter(Collider) {}
 
 private:
     Entity entity;

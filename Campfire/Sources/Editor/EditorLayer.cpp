@@ -49,13 +49,7 @@ void EditorLayer::OnUpdate(float dt)
 
     if (startScene)
     {
-        // Submit all entities with rbs to Physics
-        PhysicsManager::ClearLists();
-        //auto rbEntities = activeScene->GetAllEntitiesWith<RigidbodyComponent>();
-        for (auto entityPair : activeScene->GetEntityMap())
-        {
-            PhysicsManager::SubmitEntity(entityPair.second);
-        }
+        activeScene->OnStart();
     }
 
     else if (stopScene)

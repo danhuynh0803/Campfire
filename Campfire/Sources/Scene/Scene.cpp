@@ -89,22 +89,36 @@ void Scene::Init()
     skybox->Load(skyboxTextures);
 }
 
-void Scene::OnUpdate(float dt)
+void Scene::OnStart()
 {
-    // Update with Native C++ scripts
+    // Initialize scripts and run their Start()
     registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
     {
         if (!nsc.instance)
         {
-            nsc.InstantiateFunction();
+            nsc.instance = nsc.InstantiateScript();
             nsc.instance->entity = Entity(entity, this);
-            nsc.OnCreateFunction(nsc.instance);
         }
-
-        nsc.OnUpdateFunction(nsc.instance, dt);
+        nsc.instance->Start();
     });
 
+    // Submit all entities with rbs to Physics
+    PhysicsManager::ClearLists();
+    for (auto entityPair : entityMap)
+    {
+        PhysicsManager::SubmitEntity(entityPair.second);
+    }
+}
+
+void Scene::OnUpdate(float dt)
+{
     PhysicsManager::OnUpdate(dt);
+
+    // Update with Native C++ scripts
+    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+    {
+        nsc.instance->Update(dt);
+    });
 
     // Update rigidbodies
     auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);

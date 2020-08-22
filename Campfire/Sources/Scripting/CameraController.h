@@ -6,9 +6,20 @@ namespace Script
     class CameraController : public ScriptableEntity
     {
     public:
-        void OnCreate() {}
-        void OnDestroy() {}
-        void OnUpdate(float dt)
+        // TODO have this affect runtime transform instead
+        void Start()
+        {
+            LOG_INFO("Camera Controller start");
+            auto& transform = GetComponent<TransformComponent>();
+            transform.position = glm::vec3(0.0f, 0.0f, 10.0f);
+        }
+
+        void Destroy()
+        {
+
+        }
+
+        void Update(float dt)
         {
             auto& transform = GetComponent<TransformComponent>();
             float speed = 5.0f;
