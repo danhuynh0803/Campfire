@@ -141,10 +141,8 @@ void EditorLayer::OnImGuiRender()
 
         if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
         {
-            auto transform = entity.GetComponent<TransformComponent>().GetTransform();
             auto camera = entity.GetComponent<CameraComponent>().camera;
-
-            camera->DrawFrustum(transform);
+            camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
 
         // FIXME: figure out a way to draw colliders without submitting to bullet each time

@@ -1,5 +1,6 @@
 #include "Physics/PhysicsManager.h"
 #include "Physics/BulletDebugDrawer.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 btDefaultCollisionConfiguration* PhysicsManager::collisionConfiguration;
 btCollisionDispatcher* PhysicsManager::dispatcher;
@@ -72,6 +73,19 @@ void PhysicsManager::SubmitEntity(Entity& entity)
 
 }
 
+/*
+void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
+{
+    if (rigidBody)
+    {
+        delete rigidBody->getMotionState();
+        delete rigidBody->getCollisionShape();
+        dynamicsWorld->removeRigidBody(rigidBody);
+        delete rigidBody;
+    }
+}
+*/
+
 void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp)
 {
     btRigidBody* body = rb->GetBulletRigidbody();
@@ -89,9 +103,19 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
     // Update transform
     btScalar m[16];
     trans.getOpenGLMatrix(m);
-    transComp.runtimeTransform = glm::make_mat4x4(m);
-    // Apply scale separately since bullet doesn't convey that info
-    transComp.runtimeTransform = glm::scale(transComp.runtimeTransform, transComp.scale);
+
+    glm::mat4 glTransform = glm::make_mat4x4(m);
+    glm::vec3 scale;
+    glm::quat orientation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    glm::decompose(glTransform, scale, orientation, translation, skew, perspective);
+
+    transComp.position = translation;
+    transComp.rotation = glm::degrees(glm::eulerAngles(orientation));
+    transComp.scale = scale;
 
 }
 

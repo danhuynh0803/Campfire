@@ -205,7 +205,7 @@ void SceneRenderer::SubmitLights(const SharedPtr<Scene>& scene)
         uboLights->SetData((void*)glm::value_ptr(attenFactors), size*numLights + offset, sizeof(glm::vec4));
 
         // lightDir
-        glm::mat4 transform = transformComponent.GetTransform();
+        glm::mat4 transform = transformComponent;
         offset += sizeof(glm::vec4);
         // Based off of +Z direction
         glm::vec4 zDir = transform * glm::vec4(0, 0, 1, 0);

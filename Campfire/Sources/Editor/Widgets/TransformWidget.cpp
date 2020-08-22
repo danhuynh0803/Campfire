@@ -34,7 +34,8 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     float* projMatrix = const_cast<float*>(glm::value_ptr(editorCamera.GetProjMatrix()));
 
     auto& transformComp = entity.GetComponent<TransformComponent>();
-    float* transform = const_cast<float*>(glm::value_ptr(transformComp.GetTransform()));
+    glm::mat4& transformMat = entity.GetComponent<TransformComponent>();
+    float* transform = const_cast<float*>(glm::value_ptr(transformMat));
 
     ImGuizmo::Manipulate(
         viewMatrix,

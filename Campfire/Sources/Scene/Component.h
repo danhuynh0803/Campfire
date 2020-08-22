@@ -36,53 +36,32 @@ struct TransformComponent
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 rotation = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
-
     glm::mat4 transform = glm::mat4(1.0f);
-    glm::mat4 runtimeTransform = glm::mat4(1.0f);
 
-    glm::mat4 GetTransform()
+    void Override()
     {
         transform = glm::mat4(1.0f);
 
         transform = glm::translate(transform,position);
 
         glm::quat quaternion = glm::quat(
-            glm::vec3(
-                glm::radians(rotation.x),
-                glm::radians(rotation.y),
-                glm::radians(rotation.z)
-            )
-        );
+                glm::vec3(
+                    glm::radians(rotation.x),
+                    glm::radians(rotation.y),
+                    glm::radians(rotation.z)
+                    )
+                );
         glm::mat4 rotation = glm::toMat4(quaternion);
         transform = transform * rotation;
 
         transform = glm::scale(transform, scale);
-
-        return transform;
     }
 
     operator glm::mat4& ()
     {
-        transform = glm::mat4(1.0f);
-
-        transform = glm::translate(transform,position);
-
-        glm::quat quaternion = glm::quat(
-            glm::vec3(
-                glm::radians(rotation.x),
-                glm::radians(rotation.y),
-                glm::radians(rotation.z)
-            )
-        );
-        glm::mat4 rotation = glm::toMat4(quaternion);
-        transform = transform * rotation;
-
-        transform = glm::scale(transform, scale);
-
-        runtimeTransform = transform;
+        Override();
         return transform;
     }
-
 };
 
 struct MeshComponent

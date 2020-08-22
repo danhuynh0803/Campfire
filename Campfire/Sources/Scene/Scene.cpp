@@ -229,16 +229,7 @@ void Scene::OnRender(float dt, const Camera& camera, bool isPlaying)
         auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
         if (meshComponent.mesh)
         {
-            // TODO use just one runtime
-            //meshComponent.mesh->OnUpdate(dt);
-            if (isPlaying)
-            {
-                SceneRenderer::SubmitMesh(meshComponent, transformComponent.runtimeTransform, meshComponent.material);
-            }
-            else
-            {
-                SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
-            }
+            SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
         }
     }
 }

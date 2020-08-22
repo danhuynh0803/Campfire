@@ -3,6 +3,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include "Physics/Rigidbody.h"
 #include "Scene/Entity.h"
 
 class PhysicsManager
@@ -13,6 +14,7 @@ public:
     static void Shutdown();
 
     static void SubmitEntity(Entity& entity);
+    //static void RemoveEntity(btRigidBody* rigidBody);
     //static void UpdateColliders();
     static void ClearLists();
     static void UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp);
