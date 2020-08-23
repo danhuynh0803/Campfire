@@ -40,7 +40,7 @@ void Scene::Init()
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         model.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         model.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        model.AddComponent<RigidbodyComponent>();
+        //model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material = model.GetComponent<MeshComponent>().material;
         std::string directory = "../Assets/Textures/pbr/wall/";
@@ -53,7 +53,6 @@ void Scene::Init()
         model.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
-    /*
     {
         auto model = CreateEntity("Model2");
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
@@ -69,7 +68,6 @@ void Scene::Init()
         material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
         material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
     }
-    */
 
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();

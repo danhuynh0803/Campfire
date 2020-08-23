@@ -25,63 +25,48 @@ void PhysicsManager::Init()
 
 void PhysicsManager::SubmitEntity(Entity& entity)
 {
+    if (!entity.HasComponent<ColliderComponent>() && !entity.HasComponent<RigidbodyComponent>())
+    {
+        return;
+    }
+
     auto transformComponent = entity.GetComponent<TransformComponent>();
 
-//    if (!entity.HasComponent<RigidbodyComponent>())
-//    {
-//        // Although entity does not have a rigidbody component, we must create one in order
-//        // for bullet's collisions to simulate.
-//        entity.AddComponent<RigidbodyComponent>();
-//        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-//        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
-//    }
-
-    if (entity.HasComponent<ColliderComponent>() && entity.HasComponent<RigidbodyComponent>())
+    SharedPtr<Collider> collider = nullptr;
+    if (entity.HasComponent<ColliderComponent>())
     {
-        auto collider = entity.GetComponent<ColliderComponent>().collider;
+        collider = entity.GetComponent<ColliderComponent>().collider;
         collider->UpdateShape();
-
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
-
-        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-        if (!rigidbody->useGravity)
-        {
-            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-        }
     }
-    else if (entity.HasComponent<ColliderComponent>())
-    {
-        auto collider = entity.GetComponent<ColliderComponent>().collider;
-        collider->UpdateShape();
 
+    SharedPtr<Rigidbody> rigidbody;
+    if (!entity.HasComponent<RigidbodyComponent>())
+    {
         // Although entity does not have a rigidbody component, we must create one in order
-        // for bullet's collisions to simulate.
+        // for bullet's collisions to simulate. Add to object so we have a reference to it,
+        // when it comes time to delete object during play state.
         entity.AddComponent<RigidbodyComponent>();
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->mass = 0.0f;
-        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
 
         // No rigidbody present so we want to have collisions applied but disable all physics interactions.
         // This is done by setting mass of the rb to 0.
-        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-        rigidbody->GetBulletRigidbody()->setMassProps(0, btVector3(0, 0, 0));
+        entity.GetComponent<RigidbodyComponent>().rigidbody->mass = 0.0f;
     }
-    else if (entity.HasComponent<RigidbodyComponent>())
+    rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+    rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
+
+    dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+    rigidbody->GetBulletRigidbody()->setMassProps(rigidbody->mass, btVector3(rigidbody->angularDrag, rigidbody->angularDrag, rigidbody->angularDrag));
+
+    if (!rigidbody->useGravity)
     {
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, nullptr);
+        rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+    }
 
-        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-
-        if (!rigidbody->useGravity)
-        {
-            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-        }
+    if (!entity.HasComponent<ColliderComponent>())
+    {
         // Disable collisions since no collider is attached
         rigidbody->GetBulletRigidbody()->setCollisionFlags(rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
-
 }
 
 void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
