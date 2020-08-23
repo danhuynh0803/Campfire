@@ -25,63 +25,47 @@ void PhysicsManager::Init()
 
 void PhysicsManager::SubmitEntity(Entity& entity)
 {
+    if (!entity.HasComponent<ColliderComponent>() && !entity.HasComponent<RigidbodyComponent>())
+    {
+        return;
+    }
+
     auto transformComponent = entity.GetComponent<TransformComponent>();
 
-//    if (!entity.HasComponent<RigidbodyComponent>())
-//    {
-//        // Although entity does not have a rigidbody component, we must create one in order
-//        // for bullet's collisions to simulate.
-//        entity.AddComponent<RigidbodyComponent>();
-//        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-//        rigidbody->Construct(transformComponent.position, transformComponent.rotation, collider);
-//    }
-
-    if (entity.HasComponent<ColliderComponent>() && entity.HasComponent<RigidbodyComponent>())
+    SharedPtr<Collider> collider = nullptr;
+    if (entity.HasComponent<ColliderComponent>())
     {
-        auto collider = entity.GetComponent<ColliderComponent>().collider;
+        collider = entity.GetComponent<ColliderComponent>().collider;
         collider->UpdateShape();
-
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
-
-        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-        if (!rigidbody->useGravity)
-        {
-            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-        }
     }
-    else if (entity.HasComponent<ColliderComponent>())
-    {
-        auto collider = entity.GetComponent<ColliderComponent>().collider;
-        collider->UpdateShape();
 
+    SharedPtr<Rigidbody> rigidbody;
+    if (!entity.HasComponent<RigidbodyComponent>())
+    {
         // Although entity does not have a rigidbody component, we must create one in order
-        // for bullet's collisions to simulate.
+        // for bullet's collisions to simulate. Add to object so we have a reference to it,
+        // when it comes time to delete object during play state.
         entity.AddComponent<RigidbodyComponent>();
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->mass = 0.0f;
-        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
 
         // No rigidbody present so we want to have collisions applied but disable all physics interactions.
         // This is done by setting mass of the rb to 0.
-        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-        rigidbody->GetBulletRigidbody()->setMassProps(0, btVector3(0, 0, 0));
+        entity.GetComponent<RigidbodyComponent>().rigidbody->mass = 0.0f;
     }
-    else if (entity.HasComponent<RigidbodyComponent>())
+    rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+    rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
+
+    dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+    rigidbody->GetBulletRigidbody()->setMassProps(rigidbody->mass, btVector3(rigidbody->angularDrag, rigidbody->angularDrag, rigidbody->angularDrag));
+
+    if (!rigidbody->useGravity)
     {
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, nullptr);
+        rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+    }
 
-        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-
-        if (!rigidbody->useGravity)
-        {
-            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-        }
-        // Disable collisions since no collider is attached
+    if (!collider || collider->isTrigger)
+    {
         rigidbody->GetBulletRigidbody()->setCollisionFlags(rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
-
 }
 
 void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
@@ -137,6 +121,24 @@ void PhysicsManager::OnUpdate(float dt)
 {
     dynamicsWorld->stepSimulation(dt, 10);
 
+    int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+    for (int i = 0; i < numManifolds; ++i)
+    {
+        btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+
+        const btCollisionObject* obA = contactManifold->getBody0();
+        const btCollisionObject* obB = contactManifold->getBody1();
+
+        int numContacts = contactManifold->getNumContacts();
+        for (int j = 0; j < numContacts; ++j)
+        {
+            btManifoldPoint& pt = contactManifold->getContactPoint(j);
+            if (pt.getDistance() < 0.0f)
+            {
+
+            }
+        }
+    }
     /*
     for (size_t i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
     {
