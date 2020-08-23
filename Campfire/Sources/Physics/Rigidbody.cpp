@@ -4,6 +4,11 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+static btVector3 GlmToBtVec(glm::vec3 v)
+{
+    return btVector3(v.x, v.y, v.z);
+}
+
 void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const SharedPtr<Collider>& collider)
 {
     btTransform transform;
@@ -53,6 +58,19 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
             static_cast<int>(freezeRotation[2]) ^ 1
         )
     );
+}
+
+void Rigidbody::SetVelocity(glm::vec3 newVelocity)
+{
+    bulletRigidbody->setLinearVelocity(GlmToBtVec(newVelocity));
+}
+
+void Rigidbody::AddVelocity(glm::vec3 velocity)
+{
+    btVector3 currentVelocity = bulletRigidbody->getLinearVelocity();
+
+    glm::vec3 newVelocity = velocity + glm::vec3(currentVelocity.x(), currentVelocity.y(), currentVelocity.z());
+    bulletRigidbody->setLinearVelocity(GlmToBtVec(newVelocity));
 }
 
 btRigidBody* Rigidbody::GetBulletRigidbody()

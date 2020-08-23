@@ -21,7 +21,6 @@ public:
         entity.scene->RemoveEntity(other->entity);
     }
 
-
 protected:
     virtual void Start() {}
     virtual void Destroy() {}

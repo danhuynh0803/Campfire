@@ -14,7 +14,7 @@ void AudioLayer::OnAttach()
     // Init audio
     AudioSystem::Init();
     std::string BGM = "../Assets/Audio/test.wav";
-    AudioSystem::PlaySound(BGM);
+    //AudioSystem::PlaySound(BGM);
 }
 
 void AudioLayer::OnDetach()

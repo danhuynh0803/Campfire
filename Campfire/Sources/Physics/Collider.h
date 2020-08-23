@@ -31,7 +31,8 @@ struct BoxCollider : public Collider
         ImGui::DragFloat3("Size", (float*)&size, 0.1f);
     }
 
-    glm::vec3 size = glm::vec3(1.0f);
+    //glm::vec3 size = glm::vec3(1.0f);
+    glm::vec3 size = glm::vec3(10, 0.2, 10);
 };
 
 struct SphereCollider : public Collider

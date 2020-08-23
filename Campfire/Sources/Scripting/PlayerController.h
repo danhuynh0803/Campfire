@@ -8,11 +8,20 @@ namespace Script
     public:
         float speed = 5.0f;
         float timer = 1.0f;
+        float jumpForce = 5.0f;
+        SharedPtr<Rigidbody> rb;
+
+        // TODO put this somewhere all scripts have access to
+        // Add force to rb
+        glm::vec3 right = glm::vec3(1, 0, 0);
+        glm::vec3 up = glm::vec3(0, 1, 0);
+        glm::vec3 forward = glm::vec3(0, 0, 1);
 
     public:
         // TODO have this affect runtime transform instead
         void Start()
         {
+            rb = GetComponent<RigidbodyComponent>().rigidbody;
         }
 
         void Update(float dt)
@@ -26,19 +35,20 @@ namespace Script
 
             auto& transform = GetComponent<TransformComponent>();
 
+            float nSpeed = speed * dt;
             if (Input::GetKey(KEY_A))
-                transform.position.x -= speed * dt;
+                rb->AddVelocity(-right * nSpeed);
             else if (Input::GetKey(KEY_D))
-                transform.position.x += speed * dt;
+                rb->AddVelocity(right * nSpeed);
             if (Input::GetKey(KEY_W))
-                transform.position.y += speed * dt;
+                rb->AddVelocity(-forward * nSpeed);
             else if (Input::GetKey(KEY_S))
-                transform.position.y -= speed * dt;
+                rb->AddVelocity(forward * nSpeed);
 
             // Jump
             if (Input::GetKeyDown(KEY_SPACE))
             {
-                // Add force to rb
+                rb->AddVelocity(up * jumpForce);
             }
         }
     };

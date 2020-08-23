@@ -109,7 +109,8 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
     transComp.position = translation;
     transComp.rotation = orientation;
     transComp.eulerAngles = glm::degrees(glm::eulerAngles(orientation));
-    transComp.scale = scale;
+    // NOTE: Scale isn't updated since the rb transform doesn't get initialized with that info
+    //transComp.scale = scale;
 }
 
 void PhysicsManager::DebugDraw()

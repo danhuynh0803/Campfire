@@ -9,6 +9,10 @@ class Rigidbody
 {
 public:
     void Construct(const glm::vec3& pos, const glm::vec3& euler, const SharedPtr<Collider>& collider);
+
+    void SetVelocity(glm::vec3 newVelocity);
+    void AddVelocity(glm::vec3 velocity);
+
     btRigidBody* GetBulletRigidbody();
 
 public:
