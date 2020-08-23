@@ -62,6 +62,15 @@ struct TransformComponent
         Override();
         return transform;
     }
+
+    void Reset()
+    {
+        position = glm::vec3(0.0f);
+        rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+        eulerAngles = glm::vec3(0.0f);
+        scale = glm::vec3(1.0f);
+        transform = glm::mat4(1.0f);
+    }
 };
 
 struct MeshComponent
@@ -110,6 +119,10 @@ struct MeshComponent
         material = CreateSharedPtr<Material>();
     }
 
+    void Reset()
+    {
+    }
+
     SharedPtr<Mesh> mesh;
     SharedPtr<Material> material;
 
@@ -136,6 +149,13 @@ struct SpriteComponent
     SharedPtr<Texture2D> sprite;
     glm::vec4 color;
     bool flip[2] = { false, false };
+
+    void Reset()
+    {
+        color = glm::vec4(1.0f);
+        flip[0] = false;
+        flip[1] = false;
+    }
 };
 
 struct LightComponent
@@ -158,6 +178,15 @@ struct LightComponent
     float constant = 1.0f; // Should stay at 1.0f
     float linear = 0.09f;
     float quadratic = 0.032f;
+
+    void Reset()
+    {
+        color = glm::vec4(1.0f);
+        // TODO replace with range and more user friendly light options
+        constant = 1.0f; // Should stay at 1.0f
+        linear = 0.09f;
+        quadratic = 0.032f;
+    }
 };
 
 
@@ -168,6 +197,10 @@ struct RigidbodyComponent
     RigidbodyComponent()
     {
         rigidbody = CreateSharedPtr<Rigidbody>();
+    }
+
+    void Reset()
+    {
     }
 
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
@@ -238,14 +271,30 @@ struct ColliderComponent
         return shapeTypeName.append(" Collider");
     }
 
+    void Reset()
+    {
+    }
+
     Shape type;
     SharedPtr<Collider> collider;
     operator SharedPtr<Collider>& () { return collider; }
 };
 
+struct TriggerComponent
+{
+
+    void Reset()
+    {
+    }
+};
+
 struct AudioComponent
 {
     AudioComponent() = default;
+
+    void Reset()
+    {
+    }
 };
 
 class ScriptableEntity;
@@ -265,6 +314,9 @@ struct NativeScriptComponent
         DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->instance; nsc->instance = nullptr; };
     }
 
+    void Reset()
+    {
+    }
 };
 
 struct ScriptComponent
@@ -272,6 +324,10 @@ struct ScriptComponent
     //SharedPtr<Script> script;
 
     ScriptComponent() = default;
+
+    void Reset()
+    {
+    }
 };
 
 struct CameraComponent
@@ -284,6 +340,12 @@ struct CameraComponent
 
     bool isMain = false;
     operator SharedPtr<Camera>& () { return camera; }
+
+    void Reset()
+    {
+        isMain = false;
+        camera = CreateSharedPtr<Camera>();
+    }
 };
 
 struct ParticleSystemComponent
@@ -297,6 +359,12 @@ struct ParticleSystemComponent
     SharedPtr<ParticleSystem> ps;
 
     operator SharedPtr<ParticleSystem>& () { return ps; }
+
+    void Reset()
+    {
+        ps = CreateSharedPtr<ParticleSystem>();
+        ps->Init();
+    }
 };
 
 #endif // COMPONENT_H

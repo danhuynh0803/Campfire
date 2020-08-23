@@ -12,12 +12,13 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(0.6f, 0.2f, 1.0f, 1.0f));
     ImGui::Begin("Inspector", isOpen);
 
+    // TODO change tag to be a name
+    // and tag later is an identifier for filtering objects
+    // e.g. player, enemy tags
     if (entity.HasComponent<TagComponent>())
     {
         auto& tagComp = entity.GetComponent<TagComponent>();
-        // FIXME text field losing focus
         ImGui::InputText("Name", &tagComp.tag);
-
         ImGui::Separator();
     }
 
@@ -27,24 +28,23 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Transform"))
         {
-            auto& transform = entity.GetComponent<TransformComponent>();
-            ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
-            ImGui::DragFloat3("Rotation", (float*)&transform.eulerAngles, 0.01f);
-            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
-            //if (ImGui::Button("..."))
-            //{
-            //    OpenComponentOptionsMenu();
-            //}
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
+            auto& transform = entity.GetComponent<TransformComponent>();
+            ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
+            ImGui::DragFloat3("Rotation", (float*)&transform.eulerAngles, 0.01f);
+            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
+
+            // NOTE: Popup should be put after the inspector options
+            // Since it's possible the user can remove the component
+            // hence causing a nullptr exception when viewing component fields
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {
-                ShowComponentOptionsMenu();
+                ShowComponentOptionsMenu<TransformComponent>(entity);
                 ImGui::EndPopup();
             }
-
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -56,6 +56,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Camera"))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& comp = entity.GetComponent<CameraComponent>();
             ImGui::Checkbox("Main Camera", &comp.isMain);
             auto& camera = comp.camera;
@@ -79,6 +84,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             ImGui::DragFloat("w", &camera->width, 0.1f);
             ImGui::DragFloat("h", &camera->height, 0.1f);
 
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<CameraComponent>(entity);
+                ImGui::EndPopup();
+            }
+
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -90,6 +101,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh"))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& meshComp = entity.GetComponent<MeshComponent>();
             auto& mesh = meshComp.mesh;
             if (ImGui::Button("Load Mesh"))
@@ -118,6 +134,9 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
             ImGui::SameLine();
 
+            // TODO Refactor this and move this into materials
+            // Materials should handle, since they can have different textures
+            // and such, depending on what the shader is set to
             if (mesh)
             {
                 ImGui::Text(mesh->GetName().c_str());
@@ -126,7 +145,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 {
                     ImGui::Separator();
 
-                    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                    ImGui::SetNextItemOpen(false, ImGuiCond_Once);
                     if (ImGui::TreeNode("Material"))
                     {
                         auto& material = meshComp.material;
@@ -186,6 +205,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::Text("Empty Mesh");
             }
 
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<MeshComponent>(entity);
+                ImGui::EndPopup();
+            }
+
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -197,6 +222,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Sprite"))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& comp = entity.GetComponent<SpriteComponent>();
             if (ImGui::ImageButton((ImTextureID)comp.sprite->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
             {
@@ -207,6 +237,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 }
             }
             ImGui::ColorEdit4("Color", (float*)&comp.color);
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<SpriteComponent>(entity);
+                ImGui::EndPopup();
+            }
 
             ImGui::TreePop();
         }
@@ -220,10 +256,21 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         auto& colliderComponent = entity.GetComponent<ColliderComponent>();
         if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& collider = colliderComponent.collider;
             ImGui::Checkbox("Is Trigger", &collider->isTrigger);
             collider->ShowData();
             ImGui::DragFloat3("Center", (float*)&collider->center);
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<ColliderComponent>(entity);
+                ImGui::EndPopup();
+            }
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -235,6 +282,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Rigidbody"))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
 
             ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
@@ -264,6 +316,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             ImGui::Checkbox("Z", &rigidbody->freezeRotation[2]);
             ImGui::PopID();
 
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<RigidbodyComponent>(entity);
+                ImGui::EndPopup();
+            }
+
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -275,11 +333,22 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Light"))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& color = entity.GetComponent<LightComponent>().color;
 
             ImGui::ColorEdit4("Light Color", (float*)&color);
             // TODO reorganize this with range, type, etc
             //ImGui::DragFloat("Range", &light.linear, 0.01f);
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<LightComponent>(entity);
+                ImGui::EndPopup();
+            }
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -291,9 +360,19 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Particle System"))
         {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
             auto& psPtr = entity.GetComponent<ParticleSystemComponent>().ps;
             psPtr->OnImGuiRender();
 
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<ParticleSystemComponent>(entity);
+                ImGui::EndPopup();
+            }
             ImGui::TreePop();
         }
         ImGui::Separator();
@@ -301,14 +380,58 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
 
     // Audio
-    if (entity.HasComponent<AudioComponent>())
+//    if (entity.HasComponent<AudioComponent>())
+//    {
+//        if (ImGui::Button("..."))
+//        {
+//            ImGui::OpenPopup("ComponentOptionsPopup");
+//        }
+//
+//        if (ImGui::BeginPopup("ComponentOptionsPopup"))
+//        {
+//            ShowComponentOptionsMenu<AudioComponent>(entity);
+//            ImGui::EndPopup();
+//        }
+//    }
+
+    // Native Script
+    if (entity.HasComponent<NativeScriptComponent>())
     {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Particle System"))
+        {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
+            // TODO
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<NativeScriptComponent>(entity);
+                ImGui::EndPopup();
+            }
+
+            ImGui::TreePop();
+        }
     }
 
+
     // Script
-    if (entity.HasComponent<ScriptComponent>())
-    {
-    }
+//    if (entity.HasComponent<ScriptComponent>())
+//    {
+//        if (ImGui::Button("..."))
+//        {
+//            ImGui::OpenPopup("ComponentOptionsPopup");
+//        }
+//        if (ImGui::BeginPopup("ComponentOptionsPopup"))
+//        {
+//            ShowComponentOptionsMenu<ScriptComponent>(entity);
+//            ImGui::EndPopup();
+//        }
+//    }
+
 
     ImGui::NewLine();
     ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2 / 7.0f, 0.6f, 0.6f));
@@ -414,16 +537,19 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
     }
 }
 
-void InspectorWidget::ShowComponentOptionsMenu()
+template <typename T>
+void InspectorWidget::ShowComponentOptionsMenu(Entity& entity)
 {
     if (ImGui::MenuItem("Reset"))
     {
+        entity.GetComponent<T>().Reset();
     }
 
     ImGui::Separator();
 
     if (ImGui::MenuItem("Remove Component"))
     {
+        entity.RemoveComponent<T>();
     }
     if (ImGui::MenuItem("Copy Component"))
     {

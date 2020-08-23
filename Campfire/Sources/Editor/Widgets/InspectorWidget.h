@@ -11,7 +11,9 @@ public:
 
 private:
     void ShowComponentMenu(Entity& entity);
-    void ShowComponentOptionsMenu();
+
+    template <typename T>
+    void ShowComponentOptionsMenu(Entity& entity);
 
 };
 
