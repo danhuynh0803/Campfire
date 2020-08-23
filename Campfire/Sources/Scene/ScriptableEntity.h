@@ -21,11 +21,12 @@ public:
         entity.scene->RemoveEntity(other->entity);
     }
 
+
 protected:
     virtual void Start() {}
     virtual void Destroy() {}
     virtual void Update(float dt) {}
-    //virtual void OnTriggerEnter(Collider) {}
+    virtual void OnTriggerEnter() {}
 
 private:
     Entity entity;

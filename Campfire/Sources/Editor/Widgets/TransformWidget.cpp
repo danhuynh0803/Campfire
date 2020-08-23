@@ -1,5 +1,6 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "Editor/Widgets/TransformWidget.h"
 #include "Core/Input.h"
@@ -36,6 +37,8 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     auto& transformComp = entity.GetComponent<TransformComponent>();
     glm::mat4& transformMat = entity.GetComponent<TransformComponent>();
     float* transform = const_cast<float*>(glm::value_ptr(transformMat));
+
+    std::cout << glm::to_string(transformComp.position) << '\n';
 
     ImGuizmo::Manipulate(
         viewMatrix,

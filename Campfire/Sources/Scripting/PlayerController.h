@@ -19,9 +19,9 @@ namespace Script
         {
             if ((timer -= dt) <= 0.0f)
             {
-                Destroy(this);
-                LOG_INFO("Object destroyed");
-                return;
+                //Destroy(this);
+                //LOG_INFO("Object destroyed");
+                //return;
             }
 
             auto& transform = GetComponent<TransformComponent>();

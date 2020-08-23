@@ -126,7 +126,6 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
     transComp.rotation = orientation;
     transComp.eulerAngles = glm::degrees(glm::eulerAngles(orientation));
     transComp.scale = scale;
-
 }
 
 void PhysicsManager::DebugDraw()

@@ -42,7 +42,7 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    Time::timeScale = (state == State::PAUSE) ? 0.0f : 1.0f;
+    float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
 
     if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
     {
@@ -62,7 +62,7 @@ void EditorLayer::OnUpdate(float dt)
 
     if (state != State::STOP)
     {
-        runtimeScene->OnUpdate(dt);
+        activeScene->OnUpdate(deltaTime);
     }
 
     auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent>();
@@ -86,15 +86,14 @@ void EditorLayer::OnUpdate(float dt)
     {
         gameCamFBO->Bind();
         SceneRenderer::BeginScene(activeScene, *mainGameCamera);
-        cameraController.OnUpdate(dt);
-        activeScene->OnRender(dt, *mainGameCamera);
+        activeScene->OnRender(deltaTime, *mainGameCamera);
         SceneRenderer::EndScene();
         gameCamFBO->Unbind();
     }
 
     SceneRenderer::BeginScene(activeScene, *editorCamera);
     cameraController.OnUpdate(dt);
-    activeScene->OnRender(dt, *editorCamera);
+    activeScene->OnRender(deltaTime, *editorCamera);
     SceneRenderer::EndScene();
 }
 
@@ -177,7 +176,7 @@ void EditorLayer::OnImGuiRender()
     ImGui::RadioButton("Pause", &currState, 2);
     state = static_cast<State>(currState);
 
-    startScene = (currState == 1 && prevState == 0) ? true : false;
+    startScene = (currState != 0 && prevState == 0) ? true : false;
     stopScene  = (currState == 0 && prevState != 0) ? true : false;
 
     ImGui::End();

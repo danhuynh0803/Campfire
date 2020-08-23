@@ -39,9 +39,8 @@ void Scene::Init()
         auto model = CreateEntity("Model1");
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         model.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        // TODO: rb runtime transform isn't submitting correct rotation
         model.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        //model.AddComponent<RigidbodyComponent>();
+        model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material = model.GetComponent<MeshComponent>().material;
         std::string directory = "../Assets/Textures/pbr/wall/";
@@ -54,12 +53,13 @@ void Scene::Init()
         model.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
+    /*
     {
         auto model = CreateEntity("Model2");
         model.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         model.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
         model.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        //model.AddComponent<RigidbodyComponent>();
+        model.AddComponent<RigidbodyComponent>();
         model.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
         auto& material = model.GetComponent<MeshComponent>().material;
         std::string directory = "../Assets/Textures/pbr/wall/";
@@ -69,6 +69,7 @@ void Scene::Init()
         material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
         material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
     }
+    */
 
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
@@ -236,6 +237,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
 void Scene::OnEvent(Event& e)
 {
+    // TODO do raycast on scene to get selected entity
 }
 
 Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
