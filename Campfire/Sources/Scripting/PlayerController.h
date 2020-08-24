@@ -21,7 +21,7 @@ namespace Script
         // TODO have this affect runtime transform instead
         void Start()
         {
-            rb = GetComponent<RigidbodyComponent>().rigidbody;
+            rb = GetComponent<RigidbodyComponent>();
         }
 
         void Update(float dt)

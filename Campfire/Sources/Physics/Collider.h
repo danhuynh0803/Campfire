@@ -1,8 +1,8 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
-#include <imgui.h>
 #include <glm/glm.hpp>
+#include <btBulletDynamicsCommon.h>
 
 struct Collider
 {
@@ -10,67 +10,51 @@ struct Collider
     bool isTrigger = false;
     glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
 
-    virtual void UpdateShape() = 0;
+    virtual void UpdateShape(glm::vec3 scale) = 0;
     virtual void ShowData() = 0;
+    virtual void Reset() = 0;
 };
 
 struct BoxCollider : public Collider
 {
-    BoxCollider()
+    BoxCollider();
+    virtual void UpdateShape(glm::vec3 scale);
+    virtual void ShowData();
+    virtual void Reset()
     {
-        shape = new btBoxShape(btVector3(size.x, size.y, size.z));
+        size = glm::vec3(1.0f);
+        center = glm::vec3(1.0f);
     }
 
-    virtual void UpdateShape()
-    {
-        shape = new btBoxShape(btVector3(size.x, size.y, size.z));
-    }
-
-    virtual void ShowData()
-    {
-        ImGui::DragFloat3("Size", (float*)&size, 0.1f);
-    }
-
-    //glm::vec3 size = glm::vec3(1.0f);
-    glm::vec3 size = glm::vec3(10, 0.2, 10);
+    glm::vec3 size = glm::vec3(1.0f);
 };
 
 struct SphereCollider : public Collider
 {
-    SphereCollider()
+    SphereCollider();
+    virtual void UpdateShape(glm::vec3 scale);
+    virtual void ShowData();
+    virtual void Reset()
     {
-        shape = new btSphereShape(radius);
+        radius = 1.0f;
+        center = glm::vec3(1.0f);
     }
 
-    virtual void UpdateShape()
-    {
-        shape = new btSphereShape(radius);
-    }
-
-    virtual void ShowData()
-    {
-        ImGui::DragFloat("Radius", &radius, 0.1f);
-    }
     float radius = 1.0f;
 };
 
 struct CapsuleCollider : public Collider
 {
-    CapsuleCollider()
+    CapsuleCollider();
+    virtual void UpdateShape(glm::vec3 scale);
+    virtual void ShowData();
+    virtual void Reset()
     {
-        //shape = new btCapsuleShape(radius, height, zUp);
+        radius = 1.0f;
+        height = 1.0f;
+        center = glm::vec3(1.0f);
     }
 
-    virtual void UpdateShape()
-    {
-        //shape = new btSphereShape(radius);
-    }
-
-    virtual void ShowData()
-    {
-        ImGui::DragFloat("Radius", &radius, 0.1f);
-        ImGui::DragFloat("Height", &height, 0.1f);
-    }
     float radius = 1.0f;
     float height = 1.0f;
 };

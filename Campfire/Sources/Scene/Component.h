@@ -273,6 +273,7 @@ struct ColliderComponent
 
     void Reset()
     {
+        collider->Reset();
     }
 
     Shape type;

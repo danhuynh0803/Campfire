@@ -132,7 +132,9 @@ void EditorLayer::OnImGuiRender()
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
     }
-    if (wHierarchy.hasSelectedEntity)
+    // FIXME: gizmo not moving with runtimescene transform
+    // disable in runtime, since moving in runtime causes crashes
+    if (state == State::STOP && wHierarchy.hasSelectedEntity)
     {
         auto& entity = wHierarchy.GetSelectedEntity();
 

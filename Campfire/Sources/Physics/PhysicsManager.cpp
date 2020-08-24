@@ -36,7 +36,7 @@ void PhysicsManager::SubmitEntity(Entity& entity)
     if (entity.HasComponent<ColliderComponent>())
     {
         collider = entity.GetComponent<ColliderComponent>().collider;
-        collider->UpdateShape();
+        collider->UpdateShape(transformComponent.scale);
     }
 
     SharedPtr<Rigidbody> rigidbody;
