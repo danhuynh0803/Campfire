@@ -51,12 +51,14 @@ void EditorLayer::OnUpdate(float dt)
 
     if (startScene)
     {
+        wHierarchy.Reset();
         runtimeScene->DeepCopy(editorScene);
         activeScene = runtimeScene;
         activeScene->OnStart();
     }
     else if (stopScene)
     {
+        wHierarchy.Reset();
         activeScene = editorScene;
     }
 
@@ -134,7 +136,8 @@ void EditorLayer::OnImGuiRender()
     }
     // FIXME: gizmo not moving with runtimescene transform
     // disable in runtime, since moving in runtime causes crashes
-    if (state == State::STOP && wHierarchy.hasSelectedEntity)
+    //if (state == State::STOP && wHierarchy.hasSelectedEntity)
+    if (wHierarchy.hasSelectedEntity)
     {
         auto& entity = wHierarchy.GetSelectedEntity();
 

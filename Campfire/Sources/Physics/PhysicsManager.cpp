@@ -48,23 +48,16 @@ void PhysicsManager::SubmitEntity(Entity& entity)
         entity.AddComponent<RigidbodyComponent>();
 
         // No rigidbody present so we want to have collisions applied but disable all physics interactions.
-        // This is done by setting mass of the rb to 0.
-        entity.GetComponent<RigidbodyComponent>().rigidbody->mass = 0.0f;
+        entity.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
     }
     rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
     rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
 
     dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-    rigidbody->GetBulletRigidbody()->setMassProps(rigidbody->mass, btVector3(rigidbody->angularDrag, rigidbody->angularDrag, rigidbody->angularDrag));
-
+    // NOTE: this needs to be set after its added to dynamics world
     if (!rigidbody->useGravity)
     {
         rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-    }
-
-    if (!collider || collider->isTrigger)
-    {
-        rigidbody->GetBulletRigidbody()->setCollisionFlags(rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
 }
 

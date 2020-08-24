@@ -161,8 +161,8 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
                 rb->angularDrag = angularDrag;
 
                 rb->useGravity = useGravity;
-                rb->isDynamic = isDynamic;
-                rb->isKinematic = isKinematic;
+                //rb->isDynamic = isDynamic;
+                //rb->isKinematic = isKinematic;
 
                 const Value& freezePos = comp.FindMember("FreezePosition")->value;
                 for (int i = 0; i < 3; ++i)
@@ -406,8 +406,8 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             compValue.AddMember("Drag", rb->drag, allocator);
             compValue.AddMember("AngularDrag", rb->angularDrag, allocator);
             compValue.AddMember("UseGravity", rb->useGravity, allocator);
-            compValue.AddMember("IsDynamic", rb->isDynamic, allocator);
-            compValue.AddMember("IsKinematic", rb->isKinematic, allocator);
+            //compValue.AddMember("IsDynamic", rb->isDynamic, allocator);
+            //compValue.AddMember("IsKinematic", rb->isKinematic, allocator);
 
             Value freezePositionArray(kArrayType);
             for (int i = 0; i < 3; ++i)

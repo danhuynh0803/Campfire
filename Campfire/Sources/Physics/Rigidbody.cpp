@@ -33,11 +33,7 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
     {
         shape = collider->shape;
     }
-
-    if (isDynamic)
-    {
-        shape->calculateLocalInertia(mass, localInertia);
-    }
+    shape->calculateLocalInertia(mass, localInertia);
 
     btDefaultMotionState* motionState = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
@@ -58,6 +54,30 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
             static_cast<int>(freezeRotation[2]) ^ 1
         )
     );
+
+    switch (type)
+    {
+        case (BodyType::STATIC):
+        {
+            bulletRigidbody->setMassProps(0, btVector3(0, 0, 0));
+            break;
+        }
+        case (BodyType::KINEMATIC):
+        {
+            bulletRigidbody->setActivationState(DISABLE_DEACTIVATION);
+            break;
+        }
+        case (BodyType::DYNAMIC):
+        {
+            break;
+        }
+    }
+
+    if (!collider || collider->isTrigger)
+    {
+        bulletRigidbody->setCollisionFlags(bulletRigidbody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+    }
+
 }
 
 void Rigidbody::SetVelocity(glm::vec3 newVelocity)

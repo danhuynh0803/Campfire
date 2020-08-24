@@ -289,12 +289,16 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
             auto& rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
 
+            const char* bodyTypes[] = {"Static", "Kinematic", "Dynamic"};
+            int currType = static_cast<int>(rigidbody->type);
+            ImGui::Combo("Type", &currType, bodyTypes, IM_ARRAYSIZE(bodyTypes));
+            //ImGui::SameLine(); HelpMarker("Static for non-movable objects. Kinematic for objects that player will move. Dynamic for objects that are moved by the engine.\n");
+            rigidbody->type = static_cast<Rigidbody::BodyType>(currType);
+
             ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
             ImGui::DragFloat("Drag", &rigidbody->drag, 0.1f);
             ImGui::DragFloat("Angular Drag", &rigidbody->angularDrag, 0.1f);
             ImGui::Checkbox("Use Gravity", &rigidbody->useGravity);
-            ImGui::Checkbox("Is Dynamic", &rigidbody->isDynamic);
-            //ImGui::CheckBox("Is Kinematic", &rigidbody->isKinematic);
 
             ImGui::PushID(0);
             ImGui::Text("Freeze Position");

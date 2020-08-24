@@ -2,6 +2,7 @@
 #include "Editor/Widgets/HierarchyWidget.h"
 #include "Core/Input.h"
 
+// TODO move to general header
 static void HelpMarker(const char* desc)
 {
     ImGui::TextDisabled("(?)");
@@ -115,6 +116,7 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         }
         if (ImGui::MenuItem("Plane"))
         {
+            // TODO - no plane model currently, should be like a larger quad
             auto entity = activeScene->CreateEntity("Plane");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::PLANE);
         }
@@ -156,7 +158,6 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         ImGui::EndMenu();
     }
 
-    // TODO
     if (ImGui::BeginMenu("Light"))
     {
         if (ImGui::MenuItem("Directional Light"))
@@ -169,11 +170,13 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
             auto entity = activeScene->CreateEntity("Point Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::POINT);
         }
+        // TODO
         if (ImGui::MenuItem("Spot Light"))
         {
             auto entity = activeScene->CreateEntity("Spot Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::SPOT);
         }
+        // TODO
         if (ImGui::MenuItem("Area Light"))
         {
             auto entity = activeScene->CreateEntity("Area Light");
@@ -183,6 +186,7 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         ImGui::EndMenu();
     }
 
+    // TODO
     if (ImGui::BeginMenu("Audio"))
     {
         // Just an object with an audio component attached

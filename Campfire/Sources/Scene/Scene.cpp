@@ -40,6 +40,7 @@ void Scene::Init()
     player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
     player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
     player.AddComponent<RigidbodyComponent>();
+    player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
     player.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
     auto& material = player.GetComponent<MeshComponent>().material;
     std::string directory = "../Assets/Textures/pbr/wall/";

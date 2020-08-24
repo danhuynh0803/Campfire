@@ -201,6 +201,7 @@ struct RigidbodyComponent
 
     void Reset()
     {
+        rigidbody = CreateSharedPtr<Rigidbody>();
     }
 
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
