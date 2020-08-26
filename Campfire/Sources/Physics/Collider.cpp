@@ -1,8 +1,5 @@
 #include "Physics/Collider.h"
-
-#include "Core/Base.h"
 #include <imgui.h>
-#include <algorithm>
 
 //===================================================================
 SharedPtr<Collider> Collider::Create(Collider::Shape shape)
@@ -52,9 +49,9 @@ SphereCollider::SphereCollider()
 
 void SphereCollider::UpdateShape(glm::vec3 scale)
 {
-    //float maxScale = std::max({ scale.x, scale.y, scale.z });
-    //shape = new btSphereShape(radius * maxScale);
-    shape = new btSphereShape(radius);
+    float maxScale = scale.x > scale.y ? scale.x : scale.y;
+    maxScale = scale.z > maxScale ? scale.z : maxScale;
+    shape = new btSphereShape(radius * maxScale);
 }
 
 void SphereCollider::ShowData()
@@ -76,6 +73,6 @@ void CapsuleCollider::UpdateShape(glm::vec3 scale)
 
 void CapsuleCollider::ShowData()
 {
-    ImGui::DragFloat("Radius", &radius, 0.1f);
+    //ImGui::DragFloat("Radius", &radius, 0.1f);
     //ImGui::DragFloat("Height", &height, 0.1f);
 }

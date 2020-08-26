@@ -39,9 +39,9 @@ void Scene::Init()
     player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
     player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
     player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-    player.AddComponent<TriggerComponent>();
     player.AddComponent<RigidbodyComponent>();
-    //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+    player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+    //player.AddComponent<TriggerComponent>();
     //player.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
     auto& material = player.GetComponent<MeshComponent>().material;
     std::string directory = "../Assets/Textures/pbr/wall/";
@@ -60,7 +60,8 @@ void Scene::Init()
     floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
     floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
     floor.GetComponent<TransformComponent>().eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f);
-    //floor.AddComponent<RigidbodyComponent>();
+    floor.AddComponent<RigidbodyComponent>();
+    floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
     //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
     auto& material1 = floor.GetComponent<MeshComponent>().material;
     std::string directory1 = "../Assets/Textures/pbr/snow/";
