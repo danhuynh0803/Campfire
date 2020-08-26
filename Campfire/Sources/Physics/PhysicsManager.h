@@ -17,7 +17,7 @@ public:
 
     static void SubmitEntity(Entity* entity);
     static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
-    static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger);
+    static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent&);
     static void RemoveEntity(btRigidBody* rigidBody);
     static void ClearLists();
 

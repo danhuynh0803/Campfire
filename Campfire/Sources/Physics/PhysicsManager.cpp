@@ -93,8 +93,27 @@ void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
     }
 }
 
-std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trigger)
+std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent& transformComp)
 {
+    btTransform transform;
+    transform.setIdentity();
+    glm::vec3 pos = transformComp.position;
+    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+
+    glm::vec3 euler = transformComp.eulerAngles;
+    glm::quat rotation = glm::quat(
+            glm::vec3(
+                glm::radians(euler.x),
+                glm::radians(euler.y),
+                glm::radians(euler.z)
+            )
+        );
+
+    btQuaternion quat(rotation.x, rotation.y, rotation.z, rotation.w);
+    transform.setRotation(quat);
+
+    trigger->trigger->setWorldTransform(transform);
+
     btAlignedObjectArray<btCollisionObject*> overlappingObjects;
     //overlappingObjects = trigger->trigger->getOverlappingPairs();
     std::vector<entt::entity> overlappingEntities;
@@ -227,6 +246,8 @@ void PhysicsManager::ClearLists()
         //collisionShapes[i] = 0;
         //delete shape;
     }
+
+    entityMap.clear();
 }
 
 void PhysicsManager::Shutdown()

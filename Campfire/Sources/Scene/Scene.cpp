@@ -207,7 +207,7 @@ void Scene::OnUpdate(float dt)
         // store list of rigidbodies and get the corresponding entity
         // via a map, where pointer to rb is the key
         // Then pass this into the OnTrigger functions
-        overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent);
+        overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
     }
 
     // Update with Native C++ scripts
@@ -218,7 +218,12 @@ void Scene::OnUpdate(float dt)
         for (auto entity : overlappingEntities)
         {
             Entity other(entity, this);
-            nsc.instance->OnTriggerEnter(other);
+            // Don't have the trigger apply on ourselves
+            // since the trigger and rb will always be colliding
+            if (entity != nsc.instance->entity)
+            {
+                nsc.instance->OnTriggerEnter(other);
+            }
         }
     });
 }

@@ -54,7 +54,12 @@ namespace Script
 
         void OnTriggerEnter(Entity other)
         {
+            // TODO have it process just once
+            // This is more of a OnTriggerStay
             LOG_INFO("Collider entity {0}", other.GetComponent<TagComponent>().tag);
+
+            SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
+            rb->AddVelocity(up * jumpForce);
         }
     };
 }
