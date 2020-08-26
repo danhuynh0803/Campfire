@@ -72,8 +72,8 @@ void Scene::Init()
     auto snow = CreateEntity("Snow");
     snow.AddComponent<ParticleSystemComponent>();
     snow.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 30.901f, 0.0f);
-    auto snowPS = snow.GetComponent<ParticleSystemComponent>().ps;
-    snowPS->acceleration = glm::vec3(0.0f, -0.65f, 0.0f);
+    auto& snowPS = snow.GetComponent<ParticleSystemComponent>().ps;
+    snowPS->acceleration = glm::vec3(0.0f, -0.45f, 0.0f);
     snowPS->colorOverLifeEnd = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
     snowPS->velocityRandomX = glm::vec2(-5.0f, 5.0f);
     snowPS->velocityRandomY = glm::vec2(0.0f, 0.0f);
