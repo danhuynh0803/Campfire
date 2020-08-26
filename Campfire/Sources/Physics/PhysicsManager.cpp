@@ -25,65 +25,50 @@ void PhysicsManager::Init()
     dynamicsWorld->setDebugDrawer(new BulletDebugDrawer());
 }
 
-void PhysicsManager::SubmitEntity(Entity* entity)
+void PhysicsManager::SubmitEntity(Entity entity)
 {
-    if (!entity->HasComponent<ColliderComponent>() && !entity->HasComponent<RigidbodyComponent>())
+    if (!entity.HasComponent<RigidbodyComponent>())
     {
         return;
     }
 
-    auto transformComponent = entity->GetComponent<TransformComponent>();
+    auto rbComponent = entity.GetComponent<RigidbodyComponent>();
+    auto transformComponent = entity.GetComponent<TransformComponent>();
+    SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
+    rigidbody->Construct(
+        transformComponent.position,
+        transformComponent.eulerAngles,
+        transformComponent.scale,
+        rbComponent.collider
+    );
 
-    SharedPtr<Collider> collider = nullptr;
-    if (entity->HasComponent<ColliderComponent>())
-    {
-        collider = entity->GetComponent<ColliderComponent>().collider;
-        collider->UpdateShape(transformComponent.scale);
-    }
-
-    SharedPtr<Rigidbody> rigidbody;
-    if (!entity->HasComponent<RigidbodyComponent>())
-    {
-        // Although entity does not have a rigidbody component, we must create one in order
-        // for bullet's collisions to simulate. Add to object so we have a reference to it,
-        // when it comes time to delete object during play state.
-        entity->AddComponent<RigidbodyComponent>();
-
-        // No rigidbody present so we want to have collisions applied but disable all physics interactions.
-        entity->GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
-    }
-    rigidbody = entity->GetComponent<RigidbodyComponent>().rigidbody;
-    rigidbody->Construct(transformComponent.position, transformComponent.eulerAngles, collider);
-
-    Entity* entityPtr = entity;
-    rigidbody->GetBulletRigidbody()->setUserPointer(entity);
-
-    entityMap.emplace(rigidbody->GetBulletRigidbody(), *entity);
-
-    Entity* rbEntityPtr = static_cast<Entity*>(rigidbody->GetBulletRigidbody()->getUserPointer());
-    Entity* rbEntityPtr1 = (Entity*)(rigidbody->GetBulletRigidbody()->getUserPointer());
+    // Match entt handle with rigidbody for referencing overlapping objects with triggers
+    entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
     dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+
     // NOTE: this needs to be set after its added to dynamics world
     if (!rigidbody->useGravity)
     {
         rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
     }
 
-    if (entity->HasComponent<TriggerComponent>())
+    if (entity.HasComponent<TriggerComponent>())
     {
-        auto triggerComp = entity->GetComponent<TriggerComponent>();
-        // TODO rewrite trigger comp and rb comp since they both use collision shapes
-        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale);
-        triggerComp.trigger->trigger->setUserPointer(entity);
-        dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger);
-        //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
-        dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+        // TODO
+//        auto triggerComp = entity->GetComponent<TriggerComponent>();
+//        // TODO rewrite trigger comp and rb comp since they both use collision shapes
+//        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale);
+//        triggerComp.trigger->trigger->setUserPointer(entity);
+//        dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger);
+//        //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
+//        dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     }
 }
 
 void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
 {
+    // TODO should also remove the triggerbody and rigidbody
     if (rigidBody)
     {
         delete rigidBody->getMotionState();

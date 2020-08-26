@@ -41,8 +41,8 @@ void Scene::Init()
     player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
     player.AddComponent<TriggerComponent>();
     player.AddComponent<RigidbodyComponent>();
-    player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
-    player.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
+    //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+    //player.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
     auto& material = player.GetComponent<MeshComponent>().material;
     std::string directory = "../Assets/Textures/pbr/wall/";
     material->albedoMap           = Texture2D::Create(directory + "albedo.png");
@@ -61,7 +61,7 @@ void Scene::Init()
     floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
     floor.GetComponent<TransformComponent>().eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f);
     //floor.AddComponent<RigidbodyComponent>();
-    floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+    //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
     auto& material1 = floor.GetComponent<MeshComponent>().material;
     std::string directory1 = "../Assets/Textures/pbr/snow/";
     material1->albedoMap           = Texture2D::Create(directory1 + "albedo.png");
@@ -152,7 +152,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
-        CopyComponent<ColliderComponent>(registry, other->registry, enttMap);
+        //CopyComponent<ColliderComponent>(registry, other->registry, enttMap);
         CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
@@ -168,7 +168,7 @@ void Scene::OnStart()
     PhysicsManager::ClearLists();
     for (auto entityPair : entityMap)
     {
-        PhysicsManager::SubmitEntity(&entityPair.second);
+        PhysicsManager::SubmitEntity(entityPair.second);
     }
 
     // Initialize scripts and run their Start()
@@ -193,7 +193,7 @@ void Scene::OnUpdate(float dt)
     {
         auto [transformComponent, rigidbodyComponent] = group.get<TransformComponent, RigidbodyComponent>(entity);
 
-        PhysicsManager::UpdateEntity(rigidbodyComponent.rigidbody, transformComponent);
+        PhysicsManager::UpdateEntity(rigidbodyComponent, transformComponent);
     }
 
     // Update triggers
@@ -318,7 +318,7 @@ void Scene::RemoveEntity(Entity entity)
 
     if (entity.HasComponent<RigidbodyComponent>())
     {
-        PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
+        //PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
     }
 
     entityMap.erase(entity.GetComponent<IDComponent>());

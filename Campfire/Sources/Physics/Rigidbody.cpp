@@ -9,7 +9,7 @@ static btVector3 GlmToBtVec(glm::vec3 v)
     return btVector3(v.x, v.y, v.z);
 }
 
-void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const SharedPtr<Collider>& collider)
+void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, const SharedPtr<Collider>& collider)
 {
     btTransform transform;
     transform.setIdentity();
@@ -29,8 +29,9 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
     btVector3 localInertia(angularDrag, angularDrag, angularDrag);
 
     btCollisionShape* shape = new btBoxShape(btVector3(0, 0, 0));
-    if (collider != nullptr)
+    if (collider->type != Collider::Shape::NONE)
     {
+        collider->UpdateShape(scale);
         shape = collider->shape;
     }
     shape->calculateLocalInertia(mass, localInertia);
@@ -72,12 +73,6 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const Sh
             break;
         }
     }
-
-    if (!collider || collider->isTrigger)
-    {
-        bulletRigidbody->setCollisionFlags(bulletRigidbody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-    }
-
 }
 
 void Rigidbody::SetVelocity(glm::vec3 newVelocity)

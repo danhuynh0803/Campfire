@@ -15,9 +15,10 @@ public:
     static void OnUpdate(float dt);
     static void Shutdown();
 
-    static void SubmitEntity(Entity* entity);
+    static void SubmitEntity(Entity entity);
     static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
     static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent&);
+    // TODO remove generic collision object
     static void RemoveEntity(btRigidBody* rigidBody);
     static void ClearLists();
 

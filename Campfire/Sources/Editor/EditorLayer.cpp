@@ -158,7 +158,7 @@ void EditorLayer::OnImGuiRender()
         if (state == State::STOP)
         {
             PhysicsManager::ClearLists();
-            PhysicsManager::SubmitEntity(&entity);
+            PhysicsManager::SubmitEntity(entity);
             PhysicsManager::DebugDraw();
         }
     }

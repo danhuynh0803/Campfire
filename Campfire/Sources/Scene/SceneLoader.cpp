@@ -181,6 +181,7 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
         }
 
         // Collider
+        /*
         {
             // TODO refactor collider component
             auto foundItr = itr->FindMember("ColliderComponent");
@@ -230,6 +231,7 @@ SharedPtr<Scene> SceneLoader::LoadScene(const std::string& loadPath)
                 }
             }
         }
+        */
 
         // Light
         {
@@ -426,6 +428,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
             objValue.AddMember("RigidbodyComponent", compValue, allocator);
         }
 
+        /*
         if (entity.HasComponent<ColliderComponent>())
         {
             Value compValue;
@@ -475,6 +478,7 @@ void SceneLoader::SaveScene(const SharedPtr<Scene>& scene, const std::string& sa
 
             objValue.AddMember("ColliderComponent", compValue, allocator);
         }
+        */
 
         if (entity.HasComponent<LightComponent>())
         {

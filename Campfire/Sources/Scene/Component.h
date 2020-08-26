@@ -190,14 +190,12 @@ struct LightComponent
     }
 };
 
-
 struct RigidbodyComponent
 {
-    SharedPtr<Rigidbody> rigidbody;
-
     RigidbodyComponent()
     {
         rigidbody = CreateSharedPtr<Rigidbody>();
+        collider = Collider::Create(Collider::Shape::BOX);
     }
 
     void Reset()
@@ -205,88 +203,25 @@ struct RigidbodyComponent
         rigidbody = CreateSharedPtr<Rigidbody>();
     }
 
+    SharedPtr<Rigidbody> rigidbody;
+    SharedPtr<Collider> collider;
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
 };
 
-struct ColliderShape
-{
-
-};
-
-struct ColliderComponent
-{
-    enum class Shape
-    {
-        // Primitive shapes
-        Box = 0,
-        Sphere,
-        Capsule
-//        Cylinder,
-//        Cone,
-//        Plane,
+//struct ColliderComponent
+//{
+//    ColliderComponent() = default;
 //
-//        // Complex shapes
-//        Compound,
-//        ConvexHull,
-//        TriangleMesh,
-//        Heightfield,
-//        SoftBody,
-//        MultiSphere,
-//        ConvexPointCloud
-    };
-
-    ColliderComponent() = default;
-
-    ColliderComponent(Shape shape)
-        : type(shape)
-    {
-        InitShape(shape);
-    }
-
-    void InitShape(Shape shape)
-    {
-        switch (shape)
-        {
-            case Shape::Box:
-                collider = CreateSharedPtr<BoxCollider>();
-                break;
-            case Shape::Sphere:
-                collider = CreateSharedPtr<SphereCollider>();
-                break;
-            case Shape::Capsule:
-                collider = CreateSharedPtr<CapsuleCollider>();
-                break;
-        }
-    }
-
-    std::string GetShapeTypeString()
-    {
-        std::string ShapeTypes[] = {"Box","Sphere","Capsule"};
-        std::string shapeTypeName;
-        switch (type)
-        {
-            case Shape::Box:
-                shapeTypeName = ShapeTypes[0];
-                break;
-            case Shape::Sphere:
-                shapeTypeName = ShapeTypes[1];
-                break;
-            case Shape::Capsule:
-                shapeTypeName = ShapeTypes[2];
-                break;
-        }
-        return shapeTypeName.append(" Collider");
-    }
-
-    void Reset()
-    {
-        collider->Reset();
-    }
-
-    Shape type;
-    SharedPtr<Collider> collider;
-    operator SharedPtr<Collider>& () { return collider; }
-};
+//    ColliderComponent(Shape shape)
+//        : type(shape)
+//    {
+//        InitShape(shape);
+//    }
+//
+//    Shape type;
+//    SharedPtr<Collider> collider;
+//    operator SharedPtr<Collider>& () { return collider; }
+//};
 
 struct TriggerComponent
 {
@@ -307,7 +242,7 @@ struct TriggerComponent
     }
 
     SharedPtr<Trigger> trigger;
-    //SharedPtr<Collider> collider;
+    SharedPtr<Collider> collider;
     operator SharedPtr<Trigger>& () { return trigger; }
 };
 
