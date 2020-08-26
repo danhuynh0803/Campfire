@@ -276,6 +276,34 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Trigger
+    if (entity.HasComponent<TriggerComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+//        auto& colliderComponent = entity.GetComponent<ColliderComponent>();
+        if (ImGui::TreeNode("Trigger"))
+        {
+//            if (ImGui::Button("..."))
+//            {
+//                ImGui::OpenPopup("ComponentOptionsPopup");
+//            }
+//
+//            auto& collider = colliderComponent.collider;
+//            ImGui::Checkbox("Is Trigger", &collider->isTrigger);
+//            collider->ShowData();
+//            ImGui::DragFloat3("Center", (float*)&collider->center);
+//
+//            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+//            {
+//                ShowComponentOptionsMenu<ColliderComponent>(entity);
+//                ImGui::EndPopup();
+//            }
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
+
     // Rigidbody
     if (entity.HasComponent<RigidbodyComponent>())
     {
@@ -511,6 +539,13 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("Capsule Collider"))
             {
                 entity.AddComponent<ColliderComponent>(ColliderComponent::Shape::Capsule);
+            }
+        }
+        if (!entity.HasComponent<TriggerComponent>())
+        {
+            if (ImGui::MenuItem("Box Trigger"))
+            {
+                entity.AddComponent<TriggerComponent>();
             }
         }
         ImGui::EndMenu();

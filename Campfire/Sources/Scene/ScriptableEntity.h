@@ -25,7 +25,7 @@ protected:
     virtual void Start() {}
     virtual void Destroy() {}
     virtual void Update(float dt) {}
-    virtual void OnTriggerEnter() {}
+    virtual void OnTriggerEnter(Entity other) {}
 
 private:
     Entity entity;

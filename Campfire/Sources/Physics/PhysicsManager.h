@@ -2,9 +2,11 @@
 #define PHYSICS_MANAGER_H
 
 #include <btBulletDynamicsCommon.h>
-
 #include "Physics/Rigidbody.h"
 #include "Scene/Entity.h"
+
+#include <vector>
+#include <map>
 
 class PhysicsManager
 {
@@ -13,8 +15,9 @@ public:
     static void OnUpdate(float dt);
     static void Shutdown();
 
-    static void SubmitEntity(Entity& entity);
+    static void SubmitEntity(Entity* entity);
     static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
+    static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger);
     static void RemoveEntity(btRigidBody* rigidBody);
     static void ClearLists();
 
@@ -35,6 +38,9 @@ private:
     static btSequentialImpulseConstraintSolver* solver;
     static btDiscreteDynamicsWorld* dynamicsWorld;
     static btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
+    //static std::map<btRigidBody*, Entity*> entityMap;
+    static std::map<btRigidBody*, entt::entity> entityMap;
 };
 
 #endif // PHYSICS_MANAGER_H

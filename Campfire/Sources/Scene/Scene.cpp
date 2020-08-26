@@ -35,10 +35,11 @@ void Scene::Init()
     directionalLight.GetComponent<TransformComponent>().eulerAngles = glm::vec3(120.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 
-    auto player = CreateEntity("Model1");
+    auto player = CreateEntity("Player");
     player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
     player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
     player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+    player.AddComponent<TriggerComponent>();
     player.AddComponent<RigidbodyComponent>();
     player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
     player.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
@@ -68,7 +69,7 @@ void Scene::Init()
     material1->normalMap           = Texture2D::Create(directory1 + "normal.png");
     material1->roughnessMap        = Texture2D::Create(directory1 + "roughness.png");
     material1->ambientOcclusionMap = Texture2D::Create(directory1 + "ao.png");
-    
+
     auto snow = CreateEntity("Snow");
     snow.AddComponent<ParticleSystemComponent>();
     snow.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 30.901f, 0.0f);
@@ -152,6 +153,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
         CopyComponent<ColliderComponent>(registry, other->registry, enttMap);
+        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
@@ -166,7 +168,7 @@ void Scene::OnStart()
     PhysicsManager::ClearLists();
     for (auto entityPair : entityMap)
     {
-        PhysicsManager::SubmitEntity(entityPair.second);
+        PhysicsManager::SubmitEntity(&entityPair.second);
     }
 
     // Initialize scripts and run their Start()
@@ -185,12 +187,6 @@ void Scene::OnUpdate(float dt)
 {
     PhysicsManager::OnUpdate(dt);
 
-    // Update with Native C++ scripts
-    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-    {
-        nsc.instance->Update(dt);
-    });
-
     // Update rigidbodies
     auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
     for (auto entity : group)
@@ -199,6 +195,32 @@ void Scene::OnUpdate(float dt)
 
         PhysicsManager::UpdateEntity(rigidbodyComponent.rigidbody, transformComponent);
     }
+
+    // Update triggers
+    std::vector<entt::entity> overlappingEntities;
+    auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
+    for (auto entity : triggerGroup)
+    {
+        auto [transformComponent, triggerComponent] = triggerGroup.get<TransformComponent, TriggerComponent>(entity);
+
+        // TODO
+        // store list of rigidbodies and get the corresponding entity
+        // via a map, where pointer to rb is the key
+        // Then pass this into the OnTrigger functions
+        overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent);
+    }
+
+    // Update with Native C++ scripts
+    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+    {
+        nsc.instance->Update(dt);
+
+        for (auto entity : overlappingEntities)
+        {
+            Entity other(entity, this);
+            nsc.instance->OnTriggerEnter(other);
+        }
+    });
 }
 
 // Render scene from perspective of editor camera

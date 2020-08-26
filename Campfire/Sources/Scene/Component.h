@@ -13,6 +13,7 @@
 #include "Renderer/Material.h"
 #include "Particles/ParticleSystem.h"
 #include "Physics/Rigidbody.h"
+#include "Physics/Trigger.h"
 #include "Scene/Camera.h"
 #include "Scene/Entity.h"
 
@@ -207,6 +208,11 @@ struct RigidbodyComponent
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
 };
 
+struct ColliderShape
+{
+
+};
+
 struct ColliderComponent
 {
     enum class Shape
@@ -284,10 +290,25 @@ struct ColliderComponent
 
 struct TriggerComponent
 {
+    //TriggerComponent() = default;
+    TriggerComponent()
+    {
+        trigger = CreateSharedPtr<BoxTrigger>();
+    }
+
+    //TriggerComponent(Shape shape)
+    //    : type(shape)
+    //{
+    //}
 
     void Reset()
     {
+        trigger = CreateSharedPtr<Trigger>();
     }
+
+    SharedPtr<Trigger> trigger;
+    //SharedPtr<Collider> collider;
+    operator SharedPtr<Trigger>& () { return trigger; }
 };
 
 struct AudioComponent

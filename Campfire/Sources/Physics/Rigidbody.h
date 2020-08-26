@@ -14,7 +14,7 @@ public:
     void AddVelocity(glm::vec3 velocity);
 
 public:
-    enum BodyType
+    enum class BodyType
     {
         STATIC = 0,
         KINEMATIC,

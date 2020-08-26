@@ -51,5 +51,10 @@ namespace Script
                 rb->AddVelocity(up * jumpForce);
             }
         }
+
+        void OnTriggerEnter(Entity other)
+        {
+            LOG_INFO("Collider entity {0}", other.GetComponent<TagComponent>().tag);
+        }
     };
 }
