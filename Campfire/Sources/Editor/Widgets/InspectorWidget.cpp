@@ -262,9 +262,33 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             }
 
             //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-            //entity.GetComponent<TriggerComponent>().collider->OnImGuiRender();
 
-            ImGui::Separator();
+            ImGui::NewLine();
+
+            // Collider
+            if (entity.GetComponent<RigidbodyComponent>().collider)
+            {
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                auto& collider = entity.GetComponent<RigidbodyComponent>().collider;
+                // Collider
+                //if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
+                if (ImGui::TreeNode("Collider Shape"))
+                {
+                    const char* colliderTypes[] = { "Box", "Sphere", "Capsule" };
+                    int currType = static_cast<int>(collider->type);
+                    ImGui::Combo("Type", &currType, colliderTypes, IM_ARRAYSIZE(colliderTypes));
+                    // Reinit the collider shape if it changes
+                    if (currType != static_cast<int>(collider->type))
+                    {
+                        collider = Collider::Create(static_cast<Collider::Shape>(currType));
+                    }
+
+                    collider->ShowData();
+                    ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
+
+                    ImGui::TreePop();
+                }
+            }
 
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {
@@ -328,6 +352,8 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::EndPopup();
             }
 
+            ImGui::NewLine();
+
             // Collider
             if (entity.GetComponent<RigidbodyComponent>().collider)
             {
@@ -347,12 +373,10 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                     }
 
                     collider->ShowData();
-                    ImGui::DragFloat3("Center", (float*)&collider->center);
+                    ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
 
                     ImGui::TreePop();
                 }
-
-                ImGui::Separator();
             }
 
             ImGui::TreePop();

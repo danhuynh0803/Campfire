@@ -71,17 +71,17 @@ void Scene::Init()
     material1->roughnessMap        = Texture2D::Create(directory1 + "roughness.png");
     material1->ambientOcclusionMap = Texture2D::Create(directory1 + "ao.png");
 
-    auto snow = CreateEntity("Snow");
-    snow.AddComponent<ParticleSystemComponent>();
-    snow.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 30.901f, 0.0f);
-    auto snowPS = snow.GetComponent<ParticleSystemComponent>().ps;
-    snowPS->acceleration = glm::vec3(0.0f, -0.65f, 0.0f);
-    snowPS->colorOverLifeEnd = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
-    snowPS->velocityRandomX = glm::vec2(-5.0f, 5.0f);
-    snowPS->velocityRandomY = glm::vec2(0.0f, 0.0f);
-    snowPS->velocityRandomZ = glm::vec2(-5.0f, 5.0f);
-    snowPS->pColor = COLOR_PATTERN_OVER_LIFE_TIME;
-    snowPS->lifetime = 28.1f;
+    //auto snow = CreateEntity("Snow");
+    //snow.AddComponent<ParticleSystemComponent>();
+    //snow.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 30.901f, 0.0f);
+    //auto snowPS = snow.GetComponent<ParticleSystemComponent>().ps;
+    //snowPS->acceleration = glm::vec3(0.0f, -0.65f, 0.0f);
+    //snowPS->colorOverLifeEnd = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
+    //snowPS->velocityRandomX = glm::vec2(-5.0f, 5.0f);
+    //snowPS->velocityRandomY = glm::vec2(0.0f, 0.0f);
+    //snowPS->velocityRandomZ = glm::vec2(-5.0f, 5.0f);
+    //snowPS->pColor = COLOR_PATTERN_OVER_LIFE_TIME;
+    //snowPS->lifetime = 28.1f;
 
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();

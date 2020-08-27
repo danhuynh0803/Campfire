@@ -13,7 +13,8 @@ void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const gl
 {
     btTransform transform;
     transform.setIdentity();
-    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    glm::vec3 colliderPos = pos + collider->center;
+    transform.setOrigin(GlmToBtVec(colliderPos));
 
     glm::quat rotation = glm::quat(
             glm::vec3(

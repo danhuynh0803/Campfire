@@ -27,37 +27,35 @@ void PhysicsManager::Init()
 
 void PhysicsManager::SubmitEntity(Entity entity)
 {
-    if (!entity.HasComponent<RigidbodyComponent>())
-    {
-        return;
-    }
-
-    auto rbComponent = entity.GetComponent<RigidbodyComponent>();
     auto transformComponent = entity.GetComponent<TransformComponent>();
-    SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
-    rigidbody->Construct(
-        transformComponent.position,
-        transformComponent.eulerAngles,
-        transformComponent.scale,
-        rbComponent.collider
-    );
-
-    // Match entt handle with rigidbody for referencing overlapping objects with triggers
-    entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
-
-    dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-
-    // NOTE: this needs to be set after its added to dynamics world
-    if (!rigidbody->useGravity)
+    if (entity.HasComponent<RigidbodyComponent>())
     {
-        rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+        auto rbComponent = entity.GetComponent<RigidbodyComponent>();
+        SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
+        rigidbody->Construct(
+                transformComponent.position,
+                transformComponent.eulerAngles,
+                transformComponent.scale,
+                rbComponent.collider
+                );
+
+        // Match entt handle with rigidbody for referencing overlapping objects with triggers
+        entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
+
+        dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+
+        // NOTE: this needs to be set after its added to dynamics world
+        if (!rigidbody->useGravity)
+        {
+            rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
+        }
     }
 
     if (entity.HasComponent<TriggerComponent>())
     {
         auto triggerComp = entity.GetComponent<TriggerComponent>();
         triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale, triggerComp.collider);
-        dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger);
+        dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
         //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
         dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     }
@@ -94,23 +92,19 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
     btQuaternion quat(rotation.x, rotation.y, rotation.z, rotation.w);
     transform.setRotation(quat);
 
-    trigger->trigger->setWorldTransform(transform);
+    auto ghostObject = trigger->GetBulletGhostObject();
+    ghostObject->setWorldTransform(transform);
 
     btAlignedObjectArray<btCollisionObject*> overlappingObjects;
-    //overlappingObjects = trigger->trigger->getOverlappingPairs();
     std::vector<entt::entity> overlappingEntities;
-
-    for (int i = 0; i < trigger->trigger->getNumOverlappingObjects(); ++i)
+    for (int i = 0; i < ghostObject->getNumOverlappingObjects(); ++i)
     {
-        //btRigidBody* rb = btRigidBody::upcast(overlappingObjects[i]);
-        btRigidBody* rb = btRigidBody::upcast(trigger->trigger->getOverlappingObject(i));
+        btRigidBody* rb = btRigidBody::upcast(ghostObject->getOverlappingObject(i));
         if (rb)
         {
-            //Entity* rbPtr = (Entity*)(rb->getUserPointer());
             entt::entity entity = entityMap[rb];
             overlappingEntities.push_back(entity);
         }
-
     }
 
     return overlappingEntities;
