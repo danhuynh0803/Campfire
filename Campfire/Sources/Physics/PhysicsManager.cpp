@@ -55,14 +55,11 @@ void PhysicsManager::SubmitEntity(Entity entity)
 
     if (entity.HasComponent<TriggerComponent>())
     {
-        // TODO
-//        auto triggerComp = entity->GetComponent<TriggerComponent>();
-//        // TODO rewrite trigger comp and rb comp since they both use collision shapes
-//        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale);
-//        triggerComp.trigger->trigger->setUserPointer(entity);
-//        dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger);
-//        //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
-//        dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+        auto triggerComp = entity.GetComponent<TriggerComponent>();
+        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale, triggerComp.collider);
+        dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger);
+        //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
+        dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     }
 }
 

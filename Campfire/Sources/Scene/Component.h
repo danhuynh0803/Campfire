@@ -228,13 +228,9 @@ struct TriggerComponent
     //TriggerComponent() = default;
     TriggerComponent()
     {
-        trigger = CreateSharedPtr<BoxTrigger>();
+        trigger = CreateSharedPtr<Trigger>();
+        collider = Collider::Create(Collider::Shape::BOX);
     }
-
-    //TriggerComponent(Shape shape)
-    //    : type(shape)
-    //{
-    //}
 
     void Reset()
     {
