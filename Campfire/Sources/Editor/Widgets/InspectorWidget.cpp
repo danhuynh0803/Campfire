@@ -281,8 +281,8 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                         collider = Collider::Create(static_cast<Collider::Shape>(currType));
                     }
 
-                    collider->ShowData();
                     ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
+                    collider->ShowData();
 
                     ImGui::TreePop();
                 }
@@ -344,12 +344,6 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             ImGui::Checkbox("Z", &rigidbody->freezeRotation[2]);
             ImGui::PopID();
 
-            if (ImGui::BeginPopup("ComponentOptionsPopup"))
-            {
-                ShowComponentOptionsMenu<RigidbodyComponent>(entity);
-                ImGui::EndPopup();
-            }
-
             ImGui::NewLine();
 
             auto& collider = rigidbody->collider;
@@ -369,11 +363,17 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                         collider = Collider::Create(static_cast<Collider::Shape>(currType));
                     }
 
-                    collider->ShowData();
                     ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
+                    collider->ShowData();
 
                     ImGui::TreePop();
                 }
+            }
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<RigidbodyComponent>(entity);
+                ImGui::EndPopup();
             }
 
             ImGui::TreePop();
@@ -567,7 +567,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         */
         if (!entity.HasComponent<TriggerComponent>())
         {
-            if (ImGui::MenuItem("Box Trigger"))
+            if (ImGui::MenuItem("Trigger"))
             {
                 entity.AddComponent<TriggerComponent>();
             }

@@ -35,40 +35,60 @@ void Scene::Init()
     directionalLight.GetComponent<TransformComponent>().eulerAngles = glm::vec3(120.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 
-    auto player = CreateEntity("Player");
-    player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-    player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-    player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-    player.AddComponent<RigidbodyComponent>();
-    player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
-    player.AddComponent<TriggerComponent>();
-    //player.AddComponent<ColliderComponent>(ColliderComponent::Shape::Sphere);
-    auto& material = player.GetComponent<MeshComponent>().material;
-    std::string directory = "../Assets/Textures/pbr/wall/";
-    material->albedoMap           = Texture2D::Create(directory + "albedo.png");
-    material->specularMap         = Texture2D::Create(directory + "metallic.png");
-    material->normalMap           = Texture2D::Create(directory + "normal.png");
-    material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
-    material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+    {
+        auto player = CreateEntity("Player");
+        player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+        player.AddComponent<RigidbodyComponent>();
+        player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+        player.AddComponent<TriggerComponent>();
+        auto& material = player.GetComponent<MeshComponent>().material;
+        std::string directory = "../Assets/Textures/pbr/wall/";
+        material->albedoMap           = Texture2D::Create(directory + "albedo.png");
+        material->specularMap         = Texture2D::Create(directory + "metallic.png");
+        material->normalMap           = Texture2D::Create(directory + "normal.png");
+        material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
+        material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
 
-    player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+    }
+
+    {
+        auto cube = CreateEntity("Cube");
+        cube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+        cube.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 5.0f, 0.0f);
+        cube.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+        cube.AddComponent<RigidbodyComponent>();
+        cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+        //cube.AddComponent<TriggerComponent>();
+        auto& material = cube.GetComponent<MeshComponent>().material;
+        std::string directory = "../Assets/Textures/pbr/wall/";
+        material->albedoMap           = Texture2D::Create(directory + "albedo.png");
+        material->specularMap         = Texture2D::Create(directory + "metallic.png");
+        material->normalMap           = Texture2D::Create(directory + "normal.png");
+        material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
+        material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+    }
 
 
-    auto floor = CreateEntity("Floor");
-    floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
-    floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
-    floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
-    floor.GetComponent<TransformComponent>().eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f);
-    floor.AddComponent<RigidbodyComponent>();
-    floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
-    //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
-    auto& material1 = floor.GetComponent<MeshComponent>().material;
-    std::string directory1 = "../Assets/Textures/pbr/snow/";
-    material1->albedoMap           = Texture2D::Create(directory1 + "albedo.png");
-    material1->specularMap         = Texture2D::Create(directory1 + "metallic.png");
-    material1->normalMap           = Texture2D::Create(directory1 + "normal.png");
-    material1->roughnessMap        = Texture2D::Create(directory1 + "roughness.png");
-    material1->ambientOcclusionMap = Texture2D::Create(directory1 + "ao.png");
+    {
+        auto floor = CreateEntity("Floor");
+        floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+        floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
+        floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
+        floor.GetComponent<TransformComponent>().eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f);
+        floor.AddComponent<RigidbodyComponent>();
+        floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
+        //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+        auto& material1 = floor.GetComponent<MeshComponent>().material;
+        std::string directory1 = "../Assets/Textures/pbr/snow/";
+        material1->albedoMap           = Texture2D::Create(directory1 + "albedo.png");
+        material1->specularMap         = Texture2D::Create(directory1 + "metallic.png");
+        material1->normalMap           = Texture2D::Create(directory1 + "normal.png");
+        material1->roughnessMap        = Texture2D::Create(directory1 + "roughness.png");
+        material1->ambientOcclusionMap = Texture2D::Create(directory1 + "ao.png");
+    }
 
     //auto snow = CreateEntity("Snow");
     //snow.AddComponent<ParticleSystemComponent>();

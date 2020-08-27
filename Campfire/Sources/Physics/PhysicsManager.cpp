@@ -3,6 +3,8 @@
 #include "Physics/Trigger.h"
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include <algorithm>
+
 btDefaultCollisionConfiguration* PhysicsManager::collisionConfiguration;
 btCollisionDispatcher* PhysicsManager::dispatcher;
 btBroadphaseInterface* PhysicsManager::overlappingPairCache;
@@ -107,6 +109,12 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
         }
     }
 
+    // Lists needs to be sorted before being used in set_difference
+    // prev list should always be sorted since it just copies overlappingEntities at the end
+    std::sort(overlappingEntities.begin(), overlappingEntities.end());
+
+    // If there exists an entity in overlappingEntities that isn't in prevList,
+    // then that entity has entered the trigger for the first time.
     std::vector<entt::entity> enterDiff;
     std::set_difference(
             overlappingEntities.begin(), overlappingEntities.end(),
@@ -115,6 +123,8 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
     );
     trigger->overlapEnterList = enterDiff;
 
+    // Vice versa, an entity that was in prevList but is now no longer in
+    // overlappingEntities means that it has just exitted the trigger.
     std::vector<entt::entity> exitDiff;
     std::set_difference(
             trigger->prevList.begin(), trigger->prevList.end(),
@@ -128,6 +138,7 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
     return overlappingEntities;
 }
 
+// TODO this should probably just move to a rigidbody->OnUpdate(dt)?
 void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& transComp)
 {
     btRigidBody* body = rb->GetBulletRigidbody();
@@ -237,6 +248,10 @@ void PhysicsManager::Shutdown()
 // ==============================================================
 // Primarily for picking objects in the scene with mouse click
 // ==============================================================
+// TODO: Bullet already includes a raycast feature, but this requires
+// all entities to be submitted to it. This would cause objects withouth rigidbodies to also
+// be submitted to dynamicsWorld for processing.
+// Maybe use a seperate world which adds all entities so that we can raycast to their AABB
 //bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
 //{
 //    glm::vec3 rayEnd = rayOrigin + rayDir * 10000.0f;
