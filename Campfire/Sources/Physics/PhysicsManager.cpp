@@ -33,11 +33,10 @@ void PhysicsManager::SubmitEntity(Entity entity)
         auto rbComponent = entity.GetComponent<RigidbodyComponent>();
         SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
         rigidbody->Construct(
-                transformComponent.position,
-                transformComponent.eulerAngles,
-                transformComponent.scale,
-                rbComponent.collider
-                );
+            transformComponent.position,
+            transformComponent.eulerAngles,
+            transformComponent.scale
+        );
 
         // Match entt handle with rigidbody for referencing overlapping objects with triggers
         entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
@@ -54,7 +53,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
     if (entity.HasComponent<TriggerComponent>())
     {
         auto triggerComp = entity.GetComponent<TriggerComponent>();
-        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale, triggerComp.collider);
+        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale);
         dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
         //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
         dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
@@ -78,7 +77,8 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
     btTransform transform;
     transform.setIdentity();
     glm::vec3 pos = transformComp.position;
-    transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    glm::vec3 triggerPos = pos + trigger->collider->center;
+    transform.setOrigin(btVector3(triggerPos.x, triggerPos.y, triggerPos.z));
 
     glm::vec3 euler = transformComp.eulerAngles;
     glm::quat rotation = glm::quat(
@@ -137,7 +137,9 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
 
     glm::decompose(glTransform, scale, orientation, translation, skew, perspective);
 
-    transComp.position = translation;
+    // Position needs to be offset by the collider center
+    // or the mesh will always move to where the collider is centered to
+    transComp.position = translation - rb->collider->center;
     transComp.rotation = orientation;
     transComp.eulerAngles = glm::degrees(glm::eulerAngles(orientation));
     // NOTE: Scale isn't updated since the rb transform doesn't get initialized with that info

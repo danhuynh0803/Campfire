@@ -253,7 +253,6 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     if (entity.HasComponent<TriggerComponent>())
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-//        auto& colliderComponent = entity.GetComponent<ColliderComponent>();
         if (ImGui::TreeNode("Trigger"))
         {
             if (ImGui::Button("..."))
@@ -265,11 +264,10 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
             ImGui::NewLine();
 
-            // Collider
-            if (entity.GetComponent<RigidbodyComponent>().collider)
+            auto& collider = entity.GetComponent<TriggerComponent>().trigger->collider;
+            if (collider)
             {
                 ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                auto& collider = entity.GetComponent<RigidbodyComponent>().collider;
                 // Collider
                 //if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
                 if (ImGui::TreeNode("Collider Shape"))
@@ -354,11 +352,10 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
             ImGui::NewLine();
 
-            // Collider
-            if (entity.GetComponent<RigidbodyComponent>().collider)
+            auto& collider = rigidbody->collider;
+            if (collider)
             {
                 ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                auto& collider = entity.GetComponent<RigidbodyComponent>().collider;
                 // Collider
                 //if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
                 if (ImGui::TreeNode("Collider Shape"))

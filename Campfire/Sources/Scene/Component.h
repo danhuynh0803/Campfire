@@ -195,7 +195,6 @@ struct RigidbodyComponent
     RigidbodyComponent()
     {
         rigidbody = CreateSharedPtr<Rigidbody>();
-        collider = Collider::Create(Collider::Shape::BOX);
     }
 
     void Reset()
@@ -204,32 +203,14 @@ struct RigidbodyComponent
     }
 
     SharedPtr<Rigidbody> rigidbody;
-    SharedPtr<Collider> collider;
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
 };
 
-//struct ColliderComponent
-//{
-//    ColliderComponent() = default;
-//
-//    ColliderComponent(Shape shape)
-//        : type(shape)
-//    {
-//        InitShape(shape);
-//    }
-//
-//    Shape type;
-//    SharedPtr<Collider> collider;
-//    operator SharedPtr<Collider>& () { return collider; }
-//};
-
 struct TriggerComponent
 {
-    //TriggerComponent() = default;
     TriggerComponent()
     {
         trigger = CreateSharedPtr<Trigger>();
-        collider = Collider::Create(Collider::Shape::BOX);
     }
 
     void Reset()
@@ -238,7 +219,6 @@ struct TriggerComponent
     }
 
     SharedPtr<Trigger> trigger;
-    SharedPtr<Collider> collider;
     operator SharedPtr<Trigger>& () { return trigger; }
 };
 

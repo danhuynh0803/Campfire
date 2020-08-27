@@ -96,11 +96,12 @@ void EditorLayer::OnUpdate(float dt)
     SceneRenderer::BeginScene(activeScene, *editorCamera);
     cameraController.OnUpdate(dt);
     activeScene->OnRender(deltaTime, *editorCamera);
-    // TODO options to enable/disable multiple debug options
-    if (true)
+
+    if (Input::GetKey(KEY_B))
     {
         PhysicsManager::DebugDraw();
     }
+
     SceneRenderer::EndScene();
 }
 

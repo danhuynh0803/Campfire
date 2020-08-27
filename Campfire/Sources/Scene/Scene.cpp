@@ -54,7 +54,6 @@ void Scene::Init()
     player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
 
 
-
     auto floor = CreateEntity("Floor");
     floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
     floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
@@ -204,10 +203,6 @@ void Scene::OnUpdate(float dt)
     {
         auto [transformComponent, triggerComponent] = triggerGroup.get<TransformComponent, TriggerComponent>(entity);
 
-        // TODO
-        // store list of rigidbodies and get the corresponding entity
-        // via a map, where pointer to rb is the key
-        // Then pass this into the OnTrigger functions
         overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
     }
 

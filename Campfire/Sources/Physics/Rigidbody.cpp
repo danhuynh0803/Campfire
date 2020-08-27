@@ -9,7 +9,7 @@ static btVector3 GlmToBtVec(glm::vec3 v)
     return btVector3(v.x, v.y, v.z);
 }
 
-void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, const SharedPtr<Collider>& collider)
+void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale)
 {
     btTransform transform;
     transform.setIdentity();
