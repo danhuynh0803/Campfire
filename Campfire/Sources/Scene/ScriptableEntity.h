@@ -26,6 +26,8 @@ protected:
     virtual void Destroy() {}
     virtual void Update(float dt) {}
     virtual void OnTriggerEnter(Entity other) {}
+    virtual void OnTriggerStay(Entity other) {}
+    virtual void OnTriggerExit(Entity other) {}
 
 private:
     Entity entity;

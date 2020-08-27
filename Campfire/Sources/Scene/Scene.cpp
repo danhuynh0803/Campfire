@@ -211,14 +211,37 @@ void Scene::OnUpdate(float dt)
     {
         nsc.instance->Update(dt);
 
-        for (auto entity : overlappingEntities)
+        Entity thisEntity = nsc.instance->entity;
+        if (thisEntity.HasComponent<TriggerComponent>())
         {
-            Entity other(entity, this);
-            // Don't have the trigger apply on ourselves
-            // since the trigger and rb will always be colliding
-            if (entity != nsc.instance->entity)
+            SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
+            for (auto enterEntity : trigger->overlapEnterList)
             {
-                nsc.instance->OnTriggerEnter(other);
+                Entity other(enterEntity, this);
+                // Don't have the trigger apply on ourselves
+                // since the trigger and rb will always be colliding
+                if (enterEntity != nsc.instance->entity)
+                {
+                    nsc.instance->OnTriggerEnter(other);
+                }
+            }
+
+            for (auto stayEntity : overlappingEntities)
+            {
+                Entity other(stayEntity, this);
+                if (stayEntity != nsc.instance->entity)
+                {
+                    nsc.instance->OnTriggerStay(other);
+                }
+            }
+
+            for (auto exitEntity : trigger->overlapExitList)
+            {
+                Entity other(exitEntity, this);
+                if (exitEntity != nsc.instance->entity)
+                {
+                    nsc.instance->OnTriggerExit(other);
+                }
             }
         }
     });

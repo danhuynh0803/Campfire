@@ -107,6 +107,24 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
         }
     }
 
+    std::vector<entt::entity> enterDiff;
+    std::set_difference(
+            overlappingEntities.begin(), overlappingEntities.end(),
+            trigger->prevList.begin(), trigger->prevList.end(),
+            std::inserter(enterDiff, enterDiff.begin())
+    );
+    trigger->overlapEnterList = enterDiff;
+
+    std::vector<entt::entity> exitDiff;
+    std::set_difference(
+            trigger->prevList.begin(), trigger->prevList.end(),
+            overlappingEntities.begin(), overlappingEntities.end(),
+            std::inserter(exitDiff, exitDiff.begin())
+    );
+    trigger->overlapExitList = exitDiff;
+
+    trigger->prevList = overlappingEntities;
+
     return overlappingEntities;
 }
 
@@ -173,31 +191,6 @@ void PhysicsManager::OnUpdate(float dt)
 
             }
         }
-    }
-    */
-    /*
-    for (size_t i = dynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i)
-    {
-        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
-
-        //btRigidBody* body; //objectPtr->rigidBody->body;
-        btTransform trans;
-        if (body && body->getMotionState())
-        {
-            body->getMotionState()->getWorldTransform(trans);
-        }
-        else
-        {
-            //trans = objectPtr->rigidBody->shape->getWorldTransform();
-            //std::cout << "Warning: Object missing motion state\n";
-        }
-
-        // Update transform
-        btScalar m[16];
-        trans.getOpenGLMatrix(m);
-        // Apply scale separately since bullet doesn't convey that info
-        glm::mat4 transform = glm::make_mat4x4(m);
     }
     */
 }
