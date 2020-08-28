@@ -23,7 +23,10 @@ public:
     template <typename T>
     T& GetComponent()
     {
-        return scene->registry.template get<T>(entityHandle);
+        if (HasComponent<T>())
+            return scene->registry.template get<T>(entityHandle);
+        else
+            LOG_ERROR("Component not found");
     }
 
     template <typename T>

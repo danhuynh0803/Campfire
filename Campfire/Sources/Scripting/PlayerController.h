@@ -55,7 +55,6 @@ namespace Script
         void OnTriggerEnter(Entity other)
         {
             LOG_INFO("Collider Enter {0}", other.GetComponent<TagComponent>().tag);
-
             SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
             rb->AddVelocity(up * jumpForce * 5.0f);
         }
@@ -63,7 +62,6 @@ namespace Script
         void OnTriggerStay(Entity other)
         {
             //LOG_INFO("Collider Stay {0}", other.GetComponent<TagComponent>().tag);
-
             //SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
             //rb->AddVelocity(up * jumpForce);
         }
@@ -71,7 +69,6 @@ namespace Script
         void OnTriggerExit(Entity other)
         {
             LOG_INFO("Collider Exit {0}", other.GetComponent<TagComponent>().tag);
-
             //SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
             //rb->AddVelocity(up * jumpForce);
         }

@@ -59,6 +59,10 @@ void PhysicsManager::SubmitEntity(Entity entity)
         dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
         //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
         dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+
+        triggerComp.trigger->overlapEnterList.clear();
+        triggerComp.trigger->overlapExitList.clear();
+        triggerComp.trigger->prevList.clear();
     }
 }
 

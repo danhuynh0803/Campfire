@@ -54,6 +54,7 @@ void Scene::Init()
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
+    /*
     {
         auto cube = CreateEntity("Cube");
         cube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
@@ -70,6 +71,7 @@ void Scene::Init()
         material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
         material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
     }
+    */
 
 
     {
@@ -172,7 +174,6 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
-        //CopyComponent<ColliderComponent>(registry, other->registry, enttMap);
         CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
