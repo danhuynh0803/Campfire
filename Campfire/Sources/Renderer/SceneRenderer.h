@@ -21,7 +21,7 @@ public:
     static void BeginScene(const SharedPtr<Scene>& scene, const Camera& camera);
     static void EndScene();
 
-    static void SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), SharedPtr<Material> overrideMaterial = nullptr);
+    static void SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), SharedPtr<MaterialInstance> overrideMaterial = nullptr);
 
 private:
     static void SubmitCamera(const Camera& camera);

@@ -86,7 +86,7 @@ void SceneRenderer::EndScene()
     Renderer2D::EndScene();
 }
 
-void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<Material> overrideMaterial)
+void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<MaterialInstance> overrideMaterial)
 {
     if (overrideMaterial)
     {

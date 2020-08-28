@@ -1,10 +1,10 @@
 #include "Renderer/Material.h"
 
-SharedPtr<Material> Material::Create(Material::Instance type)
+SharedPtr<MaterialInstance> MaterialInstance::Create(MaterialInstance::Type type)
 {
     switch (type)
     {
-        case (Material::Instance::PBR):
+        case (MaterialInstance::Type::PBR):
         {
             return CreateSharedPtr<PbrMaterial>();
         }
@@ -42,7 +42,7 @@ PbrMaterial::PbrMaterial()
     ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
 }
 
-void PbrMaterial::Bind()
+void PbrMaterial::Bind() const
 {
     shader->Bind();
 

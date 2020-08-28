@@ -91,7 +91,7 @@ struct MeshComponent
     MeshComponent(const std::string& meshPath)
     {
         mesh = Mesh::Create(meshPath);
-        material = Material::Create(Material::Instance::PBR);
+        material = MaterialInstance::Create(MaterialInstance::Type::PBR);
     }
 
     MeshComponent(Geometry geometry)
@@ -117,7 +117,7 @@ struct MeshComponent
                 mesh = Mesh::Create("../Assets/Models/primitives/cylinder.fbx");
                 break;
         }
-        material = Material::Create(Material::Instance::PBR);
+        material = MaterialInstance::Create(MaterialInstance::Type::PBR);
     }
 
     void Reset()
@@ -125,7 +125,7 @@ struct MeshComponent
     }
 
     SharedPtr<Mesh> mesh;
-    SharedPtr<Material> material;
+    SharedPtr<MaterialInstance> material;
 
     operator SharedPtr<Mesh>& () { return mesh; }
 };

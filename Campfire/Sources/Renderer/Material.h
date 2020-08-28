@@ -10,34 +10,32 @@
 class Material
 {
 public:
-    enum class Instance
+    virtual void Bind() const = 0;
+    virtual void OnImGuiRender() = 0;
+};
+
+class MaterialInstance : public Material
+{
+public:
+    enum Type
     {
         PBR = 0,
-        DIFFUSE,
         SPRITE,
         SPRITE_DIFFUSE
     };
 
-public:
-    //virtual Material();
-    //virtual Material(const Shader& _shader);
-    //virtual ~Material() = default;
-
-    virtual void Bind() {}
-    virtual void OnImGuiRender() {}
-    static SharedPtr<Material> Create(Material::Instance type);
-
-    virtual SharedPtr<Shader> GetShader() { return shader; }
+    static SharedPtr<MaterialInstance> Create(MaterialInstance::Type type);
+    virtual SharedPtr<Shader> GetShader() const { return shader; }
 
 protected:
     SharedPtr<Shader> shader = nullptr;
 };
 
-class PbrMaterial : public Material
+class PbrMaterial : public MaterialInstance
 {
 public:
     PbrMaterial();
-    virtual void Bind() override;
+    virtual void Bind() const override;
     virtual void OnImGuiRender() override;
 
     glm::vec4 albedo = glm::vec4(1.0f);
