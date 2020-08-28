@@ -114,29 +114,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 if (!newPath.empty())
                 {
                     mesh = Mesh::Create(newPath);
-
-                    if (!meshComp.material)
-                    {
-                        meshComp.material = CreateSharedPtr<Material>();
-
-                        SharedPtr<Texture2D> defaultTex = Texture2D::Create(1, 1);
-                        uint32_t whiteTextureData = 0xffffffff;
-                        defaultTex->SetData(&whiteTextureData, sizeof(uint32_t));
-
-                        meshComp.material->albedoMap = defaultTex;
-                        meshComp.material->specularMap = defaultTex;
-                        meshComp.material->normalMap = defaultTex;
-                        meshComp.material->roughnessMap = defaultTex;
-                        meshComp.material->ambientOcclusionMap = defaultTex;
-                    }
                 }
             }
 
             ImGui::SameLine();
 
-            // TODO Refactor this and move this into materials
-            // Materials should handle, since they can have different textures
-            // and such, depending on what the shader is set to
             if (mesh)
             {
                 ImGui::Text(mesh->GetName().c_str());
@@ -149,52 +131,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                     if (ImGui::TreeNode("Material"))
                     {
                         auto& material = meshComp.material;
-
-                        ImGui::Text("Albedo");
-                        if (ImGui::ImageButton((ImTextureID)material->albedoMap->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
-                        {
-                            std::string path = FileSystem::OpenFile();
-                            if (!path.empty())
-                            {
-                                material->albedoMap = Texture2D::Create(path);
-                            }
-                        }
-                        ImGui::Text("Specular");
-                        if (ImGui::ImageButton((ImTextureID)material->specularMap->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
-                        {
-                            std::string path = FileSystem::OpenFile();
-                            if (!path.empty())
-                            {
-                                material->specularMap = Texture2D::Create(path);
-                            }
-                        }
-                        ImGui::Text("Normals");
-                        if (ImGui::ImageButton((ImTextureID)material->normalMap->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
-                        {
-                            std::string path = FileSystem::OpenFile();
-                            if (!path.empty())
-                            {
-                                material->normalMap = Texture2D::Create(path);
-                            }
-                        }
-                        ImGui::Text("Roughness");
-                        if (ImGui::ImageButton((ImTextureID)material->roughnessMap->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
-                        {
-                            std::string path = FileSystem::OpenFile();
-                            if (!path.empty())
-                            {
-                                material->roughnessMap = Texture2D::Create(path);
-                            }
-                        }
-                        ImGui::Text("Ambient Occlusion");
-                        if (ImGui::ImageButton((ImTextureID)material->ambientOcclusionMap->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
-                        {
-                            std::string path = FileSystem::OpenFile();
-                            if (!path.empty())
-                            {
-                                material->ambientOcclusionMap = Texture2D::Create(path);
-                            }
-                        }
+                        material->OnImGuiRender();
 
                         ImGui::TreePop();
                     }

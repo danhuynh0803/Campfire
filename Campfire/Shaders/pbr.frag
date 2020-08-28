@@ -29,11 +29,16 @@ layout (std140, binding = 1) uniform LightBuffer
 };
 
 // =========================================
+uniform vec4 albedo;
+uniform float metallic;
+uniform float roughness;
+
 uniform sampler2D albedoMap;
-uniform sampler2D specularMap;
+uniform sampler2D metallicMap;
 uniform sampler2D normalMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D ambientOcclusionMap;
+
 uniform samplerCube skybox;
 
 // =========================================
@@ -99,7 +104,7 @@ vec3 GetNormalFromMap()
 void main()
 {
     vec3 albedo = pow(texture(albedoMap, inUV).rgb, vec3(2.2));
-    float metallic = texture(specularMap, inUV).r;
+    float metallic = texture(metallicMap, inUV).r;
     float roughness = texture(roughnessMap, inUV).r;
     float ao = texture(ambientOcclusionMap, inUV).r;
 

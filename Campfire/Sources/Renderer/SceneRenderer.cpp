@@ -88,42 +88,16 @@ void SceneRenderer::EndScene()
 
 void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<Material> overrideMaterial)
 {
-    shader->Bind();
-    shader->SetMat4("model", transform);
-
     if (overrideMaterial)
     {
-        shader->SetInt("albedoMap", 0);
-        shader->SetInt("specularMap", 1);
-        shader->SetInt("normalMap", 2);
-        shader->SetInt("roughnessMap", 3);
-        shader->SetInt("ambientOcclusionMap", 4);
-        shader->SetInt("skybox", 5);
-
-        if (overrideMaterial->albedoMap)
-        {
-            overrideMaterial->albedoMap->Bind(0);
-        }
-
-        if (overrideMaterial->specularMap)
-        {
-            overrideMaterial->specularMap->Bind(1);
-        }
-
-        if (overrideMaterial->normalMap)
-        {
-            overrideMaterial->normalMap->Bind(2);
-        }
-
-        if (overrideMaterial->roughnessMap)
-        {
-            overrideMaterial->roughnessMap->Bind(3);
-        }
-
-        if (overrideMaterial->ambientOcclusionMap)
-        {
-            overrideMaterial->ambientOcclusionMap->Bind(4);
-        }
+        overrideMaterial->GetShader()->Bind();
+        overrideMaterial->GetShader()->SetMat4("model", transform);
+        overrideMaterial->Bind();
+    }
+    else
+    {
+        shader->Bind();
+        shader->SetMat4("model", transform);
     }
 
     //texCube->Bind(5);

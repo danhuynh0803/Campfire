@@ -50,40 +50,7 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
 
     if (overrideMaterial)
     {
-        shader->SetInt("albedoMap", 0);
-        shader->SetInt("specularMap", 1);
-        shader->SetInt("normalMap", 2);
-        shader->SetInt("roughnessMap", 3);
-        shader->SetInt("ambientOcclusionMap", 4);
-        shader->SetInt("skybox", 5);
-
-        if (overrideMaterial->albedoMap)
-        {
-            overrideMaterial->albedoMap->Bind(0);
-        }
-
-        if (overrideMaterial->specularMap)
-        {
-            overrideMaterial->specularMap->Bind(1);
-        }
-
-        if (overrideMaterial->normalMap)
-        {
-            overrideMaterial->normalMap->Bind(2);
-        }
-
-        if (overrideMaterial->roughnessMap)
-        {
-            overrideMaterial->roughnessMap->Bind(3);
-        }
-
-        if (overrideMaterial->ambientOcclusionMap)
-        {
-            overrideMaterial->ambientOcclusionMap->Bind(4);
-        }
     }
-
-    texCube->Bind(5);
 
     // TODO Replace with Materials
     for (auto submesh : mesh->GetSubmeshes())

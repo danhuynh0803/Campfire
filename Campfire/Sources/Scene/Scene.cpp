@@ -44,13 +44,14 @@ void Scene::Init()
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         player.AddComponent<TriggerComponent>();
         auto& material = player.GetComponent<MeshComponent>().material;
+        /*
         std::string directory = "../Assets/Textures/pbr/wall/";
         material->albedoMap           = Texture2D::Create(directory + "albedo.png");
         material->specularMap         = Texture2D::Create(directory + "metallic.png");
         material->normalMap           = Texture2D::Create(directory + "normal.png");
         material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
         material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
-
+        */
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
@@ -84,12 +85,14 @@ void Scene::Init()
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material1 = floor.GetComponent<MeshComponent>().material;
+        /*
         std::string directory1 = "../Assets/Textures/pbr/snow/";
         material1->albedoMap           = Texture2D::Create(directory1 + "albedo.png");
         material1->specularMap         = Texture2D::Create(directory1 + "metallic.png");
         material1->normalMap           = Texture2D::Create(directory1 + "normal.png");
         material1->roughnessMap        = Texture2D::Create(directory1 + "roughness.png");
         material1->ambientOcclusionMap = Texture2D::Create(directory1 + "ao.png");
+        */
     }
 
     //auto snow = CreateEntity("Snow");
