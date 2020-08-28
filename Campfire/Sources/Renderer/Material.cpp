@@ -46,6 +46,17 @@ void PbrMaterial::Bind() const
 {
     shader->Bind();
 
+    shader->SetFloat4("uAlbedo", albedo);
+    shader->SetFloat("uMetallic", metallic);
+    shader->SetFloat("uRoughness", roughness);
+    shader->SetFloat("uAO", ao);
+
+    shader->SetBool("useAlbedoMap", useAlbedoMap);
+    shader->SetBool("useMetallicMap", useMetallicMap);
+    shader->SetBool("useNormalMap", useNormalMap);
+    shader->SetBool("useRoughnessMap", useRoughnessMap);
+    shader->SetBool("useOcclusionMap", useOcclusionMap);
+
     shader->SetInt("albedoMap", 0);
     shader->SetInt("metallicMap", 1);
     shader->SetInt("normalMap", 2);
@@ -81,8 +92,13 @@ void PbrMaterial::Bind() const
 
 void PbrMaterial::OnImGuiRender()
 {
+    int id = 0;
     //==============================================
     // Albedo
+    ImGui::PushID(id);
+    ImGui::Checkbox("", &useAlbedoMap); ImGui::SameLine();
+    id++;
+    ImGui::PopID();
     if (ImGui::ImageButton((ImTextureID)albedoMap->GetRenderID(), ImVec2(16, 16), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile();
@@ -91,14 +107,17 @@ void PbrMaterial::OnImGuiRender()
             albedoMap = Texture2D::Create(path);
         }
     }
-    ImGui::SameLine();
-    ImGui::ColorEdit4("Albedo", (float*)&albedo);
+    ImGui::SameLine(); ImGui::ColorEdit4("Albedo", (float*)&albedo);
     //==============================================
 
     ImGui::Separator();
 
     //==============================================
     // Normals
+    ImGui::PushID(id);
+    ImGui::Checkbox("", &useNormalMap); ImGui::SameLine();
+    id++;
+    ImGui::PopID();
     if (ImGui::ImageButton((ImTextureID)normalMap->GetRenderID(), ImVec2(16, 16), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile();
@@ -115,6 +134,10 @@ void PbrMaterial::OnImGuiRender()
 
     //==============================================
     // Metallic
+    ImGui::PushID(id);
+    ImGui::Checkbox("", &useMetallicMap); ImGui::SameLine();
+    id++;
+    ImGui::PopID();
     if (ImGui::ImageButton((ImTextureID)metallicMap->GetRenderID(), ImVec2(16, 16), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile();
@@ -131,6 +154,10 @@ void PbrMaterial::OnImGuiRender()
 
     //==============================================
     // Roughness
+    ImGui::PushID(id);
+    ImGui::Checkbox("", &useRoughnessMap); ImGui::SameLine();
+    id++;
+    ImGui::PopID();
     if (ImGui::ImageButton((ImTextureID)roughnessMap->GetRenderID(), ImVec2(16, 16), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile();
@@ -147,6 +174,10 @@ void PbrMaterial::OnImGuiRender()
 
     //==============================================
     // Occlusion
+    ImGui::PushID(id);
+    ImGui::Checkbox("", &useOcclusionMap); ImGui::SameLine();
+    id++;
+    ImGui::PopID();
     if (ImGui::ImageButton((ImTextureID)ambientOcclusionMap->GetRenderID(), ImVec2(16, 16), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
     {
         std::string path = FileSystem::OpenFile();

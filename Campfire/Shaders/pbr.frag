@@ -29,9 +29,16 @@ layout (std140, binding = 1) uniform LightBuffer
 };
 
 // =========================================
-uniform vec4 albedo;
-uniform float metallic;
-uniform float roughness;
+uniform vec4  uAlbedo;
+uniform float uMetallic;
+uniform float uRoughness;
+uniform float uAO;
+
+uniform bool useAlbedoMap;
+uniform bool useMetallicMap;
+uniform bool useNormalMap;
+uniform bool useRoughnessMap;
+uniform bool useOcclusionMap;
 
 uniform sampler2D albedoMap;
 uniform sampler2D metallicMap;
@@ -103,12 +110,12 @@ vec3 GetNormalFromMap()
 // =========================================
 void main()
 {
-    vec3 albedo = pow(texture(albedoMap, inUV).rgb, vec3(2.2));
-    float metallic = texture(metallicMap, inUV).r;
-    float roughness = texture(roughnessMap, inUV).r;
-    float ao = texture(ambientOcclusionMap, inUV).r;
+    vec3 albedo = useAlbedoMap ? pow(texture(albedoMap, inUV).rgb * uAlbedo.rgb, vec3(2.2)) : uAlbedo.rgb;
+    float metallic = useMetallicMap ? texture(metallicMap, inUV).r : uMetallic;
+    float roughness = useRoughnessMap ? texture(roughnessMap, inUV).r : uRoughness;
+    float ao = useOcclusionMap ? texture(ambientOcclusionMap, inUV).r : uAO;
+    vec3 N = useNormalMap ? GetNormalFromMap() : normalize(inNormal);
 
-    vec3 N = GetNormalFromMap();
     vec3 V = normalize(inCamPos - inPos);
 
     vec3 F0 = vec3(0.04);

@@ -43,6 +43,12 @@ public:
     float roughness = 0.0f;
     float ao = 0.0f;
 
+    bool useAlbedoMap    = false;
+    bool useMetallicMap  = false;
+    bool useNormalMap    = false;
+    bool useRoughnessMap = false;
+    bool useOcclusionMap = false;
+
     SharedPtr<Texture2D> albedoMap = nullptr;
     SharedPtr<Texture2D> metallicMap = nullptr;
     SharedPtr<Texture2D> normalMap = nullptr;
