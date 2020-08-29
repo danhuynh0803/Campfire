@@ -57,30 +57,34 @@ layout (location = 3) in vec3 inCamPos;
 // =========================================
 out vec4 fragColor;
 
-float NormalDistributionGGX(vec3 N, vec3 H, float a)
+float NormalDistributionGGX(vec3 N, vec3 H, float roughness)
 {
-    float a2 = a*a;
+    float a = roughness * roughness;
+    float a2 = a * a;
     float NdotH = max(dot(N, H), 0.0f);
     float NdotH2 = NdotH * NdotH;
 
-    float denom = PI * pow((NdotH2 * (a2 - 1) + 1), 2);
+    float denom = PI * pow((NdotH2 * (a2 - 1.0f) + 1.0f), 2);
 
     return a2 / denom;
 }
 
-float GeometrySchlickGGX(float NdotV, float k)
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    float denom = NdotV * (1 - k) + k;
+    float r = (roughness + 1.0f);
+    float k = (r*r) / 8.0f;
+
+    float denom = NdotV * (1.0f - k) + k;
 
     return NdotV / denom;
 }
 
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0f);
     float NdotL = max(dot(N, L), 0.0f);
-    float ggx1 = GeometrySchlickGGX(NdotV, k);
-    float ggx2 = GeometrySchlickGGX(NdotL, k);
+    float ggx1 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx2 = GeometrySchlickGGX(NdotL, roughness);
 
     return ggx1 * ggx2;
 }
@@ -159,7 +163,8 @@ void main()
         vec3 R = reflect(-V, N);
         vec3 skyboxColor = texture(skybox, R).rgb;
 
-        vec3 specular = (numerator / (denom + 0.001f)) * skyboxColor;
+        //vec3 specular = ( numerator / max(denom, 0.001f) ) * skyboxColor;
+        vec3 specular = ( numerator / max(denom, 0.001f) );
 
         float NdotL = max(dot(N, L), 0.0f);
         Lo += (kD * albedo/PI + specular) * radiance * NdotL;

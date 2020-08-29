@@ -167,7 +167,7 @@ void PbrMaterial::OnImGuiRender()
         }
     }
     ImGui::SameLine();
-    ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f);
+    ImGui::SliderFloat("Roughness", &roughness, 0.01f, 1.0f);
     //==============================================
 
     ImGui::Separator();

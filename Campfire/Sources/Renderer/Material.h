@@ -39,9 +39,9 @@ public:
     virtual void OnImGuiRender() override;
 
     glm::vec4 albedo = glm::vec4(1.0f);
-    float metallic = 0.0f;
-    float roughness = 0.0f;
-    float ao = 0.0f;
+    float metallic = 0.5f;
+    float roughness = 0.5f;
+    float ao = 0.5f;
 
     bool useAlbedoMap    = false;
     bool useMetallicMap  = false;
