@@ -167,9 +167,11 @@ void Scene::OnStart()
 {
     // Submit all entities with rbs to Physics
     PhysicsManager::ClearLists();
+    int index = 0;
     for (auto entityPair : entityMap)
     {
-        PhysicsManager::SubmitEntity(entityPair.second);
+        PhysicsManager::SubmitEntity(entityPair.second, index);
+        index++;
     }
 
     // Play all OnAwake sounds
@@ -196,6 +198,14 @@ void Scene::OnStart()
 
 void Scene::OnStop()
 {
+    PhysicsManager::ClearLists();
+    int index = 0;
+    for (auto entityPair : entityMap)
+    {
+        PhysicsManager::SubmitEntity(entityPair.second, index);
+        index++;
+    }
+
     AudioSystem::StopAllChannels();
 }
 

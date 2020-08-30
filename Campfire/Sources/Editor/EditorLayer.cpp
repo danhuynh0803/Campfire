@@ -22,43 +22,6 @@ EditorLayer::EditorLayer()
     activeScene = editorScene;
 }
 
-static void ScreenToWorldRay(
-        double mouseX, double mouseY,
-        int screenWidth, int screenHeight,
-        glm::mat4 viewMatrix,
-        glm::mat4 projMatrix,
-        glm::vec3& outOrigin,
-        glm::vec3& outDirection
-)
-{
-    // Get a ray from camera but converted into NDC
-    glm::vec4 rayStartNDC(
-        (mouseX/(float)screenWidth  - 0.5f) * 2.0f,
-        (mouseY/(float)screenHeight - 0.5f) * 2.0f,
-        -1.0f, // Z=-1 since near plane maps to -1 in NDC
-         1.0f
-    );
-
-    glm::vec4 rayEndNDC(
-        (mouseX/(float)screenWidth  - 0.5f) * 2.0f,
-        (mouseY/(float)screenHeight - 0.5f) * 2.0f,
-        0.0f, // Z=0 for farplane in NDC
-        1.0f
-    );
-
-    glm::mat4 worldSpaceMatrix = glm::inverse(projMatrix * viewMatrix);
-
-    glm::vec4 rayStartWorld = worldSpaceMatrix * rayStartNDC;
-    rayStartWorld /= rayStartWorld.w;
-
-    glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
-    rayEndWorld /= rayEndWorld.w;
-
-    outOrigin = rayStartWorld;
-    outDirection = glm::normalize(rayEndWorld - rayStartWorld);
-}
-
-
 void EditorLayer::OnAttach()
 {
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -195,12 +158,14 @@ void EditorLayer::OnImGuiRender()
 
         if (state == State::STOP)
         {
-            if (entity.HasComponent<RigidbodyComponent>())
-            {
-                PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
-            }
-            PhysicsManager::SubmitEntity(entity);
-            PhysicsManager::DebugDraw();
+            //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+            //{
+            //    PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
+            //    PhysicsManager::SubmitEntity(entity);
+            //}
+            //PhysicsManager::ClearLists();
+            //PhysicsManager::SubmitEntity(entity);
+            //PhysicsManager::DebugDraw();
         }
     }
 
@@ -358,6 +323,44 @@ void EditorLayer::OnEvent(Event& event)
     cameraController.OnEvent(event);
 }
 
+static void ScreenToWorldRay(
+    float mouseX, float mouseY,
+    int screenWidth, int screenHeight,
+    glm::mat4 viewMatrix,
+    glm::mat4 projMatrix,
+    glm::vec3& outOrigin,
+    glm::vec3& outDirection
+)
+{
+    // Get a ray from camera but converted into NDC
+    glm::vec4 rayStartNDC(
+        (mouseX / (float)screenWidth - 0.5f) * 2.0f,
+        // Invert since mouseY is set so that top left is (0, 0) and bottom right is (scrWidth, scrHeight)
+        -1.0f * (mouseY / (float)screenHeight - 0.5f) * 2.0f,
+        -1.0f, // Z=-1 since near plane maps to -1 in NDC
+        1.0f
+    );
+
+    glm::vec4 rayEndNDC(
+        (mouseX / (float)screenWidth - 0.5f) * 2.0f,
+        // Invert since mouseY is set so that top left is (0, 0) and bottom right is (scrWidth, scrHeight)
+        -1.0f * (mouseY / (float)screenHeight - 0.5f) * 2.0f,
+        0.0f, // Z=0 for farplane in NDC
+        1.0f
+    );
+
+    glm::mat4 worldSpaceMatrix = glm::inverse(projMatrix * viewMatrix);
+
+    glm::vec4 rayStartWorld = worldSpaceMatrix * rayStartNDC;
+    rayStartWorld /= rayStartWorld.w;
+
+    glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
+    rayEndWorld /= rayEndWorld.w;
+
+    outOrigin = rayStartWorld;
+    outDirection = glm::normalize(rayEndWorld - rayStartWorld);
+}
+
 bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -367,6 +370,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
         return false;
     }
 
+    //LOG_INFO("Mouse Button x={0}, y={1}", Input::GetMouseX(), Input::GetMouseY());
     if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
         glm::vec3 rayOrig, rayDir;
@@ -381,11 +385,20 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             rayDir
         );
 
+        //LOG_TRACE("MouseX = {0}, ScrWidth = {1}", Input::GetMouseX(), editorCamera->width);
+        //LOG_TRACE("MouseY = {0}, ScrHeight = {1}", Input::GetMouseY(), editorCamera->height);
+        //LOG_INFO("From ({0}, {1}, {2})", rayOrig.x, rayOrig.y, rayOrig.z);
+        //LOG_INFO("To ({0}, {1}, {2})", rayDir.x, rayDir.y, rayDir.z);
+
         int selected = -1;
         if (PhysicsManager::Raycast(rayOrig, rayDir, selected))
         {
-            LOG_INFO("Raycast hit");
-            //LOG_INFO("Raycast hit {0}");
+            LOG_TRACE("Has hit for {0}", selected);
+            wHierarchy.OverrideSelectedIndex(selected);
+        }
+        else
+        {
+            wHierarchy.Reset();
         }
     }
 
@@ -395,6 +408,9 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
 // TODO remove later.. just for testing FBO
 bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
+    LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
+    editorCamera->width = e.GetWidth();
+    editorCamera->height = e.GetHeight();
     gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     //sceneCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     return false;

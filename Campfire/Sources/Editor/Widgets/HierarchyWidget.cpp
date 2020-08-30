@@ -72,8 +72,12 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
             sprintf(buf, "%d. %s", i, tag.c_str());
             if (ImGui::Selectable(buf, selected == i))
             {
-                // Open inspector for selected object
                 selected = i;
+            }
+
+            if (selected == i)
+            {
+                // Open inspector for selected object
                 selectedEntity = entityPair.second;
                 hasSelectedEntity = true;
             }

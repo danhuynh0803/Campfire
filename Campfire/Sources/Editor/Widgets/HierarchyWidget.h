@@ -17,6 +17,8 @@ public:
 
     bool hasSelectedEntity = false;
     Entity& GetSelectedEntity() { return selectedEntity; }
+
+    void OverrideSelectedIndex(int index) { selected = index; }
 private:
     void ShowNewEntityMenu(SharedPtr<Scene>& activeScene);
 

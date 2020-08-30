@@ -15,6 +15,8 @@ std::map<btRigidBody*, entt::entity> PhysicsManager::entityMap;
 
 glm::vec3 PhysicsManager::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 
+static BulletDebugDrawer* debugDrawer;
+
 void PhysicsManager::Init()
 {
     collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -25,9 +27,11 @@ void PhysicsManager::Init()
     dynamicsWorld->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 
     dynamicsWorld->setDebugDrawer(new BulletDebugDrawer());
+
+    debugDrawer = new BulletDebugDrawer();
 }
 
-void PhysicsManager::SubmitEntity(Entity entity)
+void PhysicsManager::SubmitEntity(Entity entity, int index)
 {
     auto transformComponent = entity.GetComponent<TransformComponent>();
     if (entity.HasComponent<RigidbodyComponent>())
@@ -42,6 +46,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
 
         // Match entt handle with rigidbody for referencing overlapping objects with triggers
         // TODO downcast to collision object
+        rigidbody->GetBulletRigidbody()->setUserPointer((void*)index);
         entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
@@ -183,6 +188,7 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
 void PhysicsManager::DebugDraw()
 {
     dynamicsWorld->debugDrawWorld();
+    //LOG_INFO("Size of dynamicsWorld = {0}", dynamicsWorld->getNumCollisionObjects());
 }
 
 void PhysicsManager::OnUpdate(float dt)
@@ -259,10 +265,11 @@ void PhysicsManager::Shutdown()
 // Maybe use a seperate world which adds all entities so that we can raycast to their AABB
 bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
 {
-    glm::vec3 rayEnd = rayOrigin + rayDir * 100000.0f;
+    glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;
 
     btVector3 from(rayOrigin.x, rayOrigin.y, rayOrigin.z);
     btVector3 to(rayEnd.x, rayEnd.y, rayEnd.z);
+    debugDrawer->drawLine(from, to, btVector3(1, 0, 1));
 
     btCollisionWorld::ClosestRayResultCallback closestHit(
         from,
@@ -277,11 +284,12 @@ bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
 
     if (closestHit.hasHit())
     {
-        // FIXME
         //index = static_cast<int>(closestHit.m_collisionObject->getUserPointer());
+        index = (int)closestHit.m_collisionObject->getUserPointer();
         return true;
     }
 
+    LOG_INFO("No closest hit");
     return false;
 }
 
