@@ -12,13 +12,15 @@ public:
     //void PlayOneShot(AudioClip, float volumeScale = 1.0f);
     void Stop();
 
+    void OnImGuiRender();
+
 public:
     std::string clipPath;
     bool mute = false;
     bool playOnAwake = false;
     bool loop = false;
 
-    uint8_t priority = 128;
+    uint32_t priority = 128;
     float volume = 1.0f;
     float pitch = 1.0f;
     float stereoPan = 0.0f;

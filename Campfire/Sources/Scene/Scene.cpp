@@ -43,15 +43,8 @@ void Scene::Init()
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         player.AddComponent<TriggerComponent>();
-        auto& material = player.GetComponent<MeshComponent>().material;
-        /*
-        std::string directory = "../Assets/Textures/pbr/wall/";
-        material->albedoMap           = Texture2D::Create(directory + "albedo.png");
-        material->specularMap         = Texture2D::Create(directory + "metallic.png");
-        material->normalMap           = Texture2D::Create(directory + "normal.png");
-        material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
-        material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
-        */
+        player.AddComponent<AudioComponent>();
+        player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
@@ -181,9 +174,8 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
+        CopyComponent<AudioComponent>(registry, other->registry, enttMap);
     }
-    // TODO
-    //CopyComponent<AudioComponent>(registry, other->registry, enttMap);
 }
 
 void Scene::OnStart()

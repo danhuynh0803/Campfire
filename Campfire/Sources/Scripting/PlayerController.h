@@ -10,6 +10,7 @@ namespace Script
         float timer = 1.0f;
         float jumpForce = 5.0f;
         SharedPtr<Rigidbody> rb;
+        SharedPtr<AudioSource> audioSource;
 
         // TODO put this somewhere all scripts have access to
         // Add force to rb
@@ -18,10 +19,11 @@ namespace Script
         glm::vec3 forward = glm::vec3(0, 0, 1);
 
     public:
-        // TODO have this affect runtime transform instead
         void Start()
         {
             rb = GetComponent<RigidbodyComponent>();
+            audioSource = GetComponent<AudioComponent>();
+            audioSource->Play();
         }
 
         void Update(float dt)

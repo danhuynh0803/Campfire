@@ -371,25 +371,33 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
 
     // Audio
-//    if (entity.HasComponent<AudioComponent>())
-//    {
-//        if (ImGui::Button("..."))
-//        {
-//            ImGui::OpenPopup("ComponentOptionsPopup");
-//        }
-//
-//        if (ImGui::BeginPopup("ComponentOptionsPopup"))
-//        {
-//            ShowComponentOptionsMenu<AudioComponent>(entity);
-//            ImGui::EndPopup();
-//        }
-//    }
+    if (entity.HasComponent<AudioComponent>())
+    {
+        if (ImGui::TreeNode("Audio Source"))
+        {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
+            auto& audioSource = entity.GetComponent<AudioComponent>().audioSource;
+            audioSource->OnImGuiRender();
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<AudioComponent>(entity);
+                ImGui::EndPopup();
+            }
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
 
     // Native Script
     if (entity.HasComponent<NativeScriptComponent>())
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Particle System"))
+        if (ImGui::TreeNode("Native Script"))
         {
             if (ImGui::Button("..."))
             {
@@ -442,12 +450,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
 void InspectorWidget::ShowComponentMenu(Entity& entity)
 {
-    // TODO
     if (!entity.HasComponent<AudioComponent>())
     {
         if (ImGui::MenuItem("Audio"))
         {
-            //entity.AddComponent<AudioComponent>();
+            entity.AddComponent<AudioComponent>();
         }
     }
 

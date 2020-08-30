@@ -5,15 +5,15 @@
 #include "Renderer/Renderer2D.h"
 #include "Core/FileSystem.h"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
-#define PI 3.14159265
-#define RADIAN(x) (x * PI/180.0f)
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include <random>
 #include <algorithm>
+
+#define PI 3.14159265
+#define RADIAN(x) (x * PI/180.0f)
 
 void ParticleSystem::Init()
 {
