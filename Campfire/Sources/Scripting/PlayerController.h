@@ -23,7 +23,6 @@ namespace Script
         {
             rb = GetComponent<RigidbodyComponent>();
             audioSource = GetComponent<AudioComponent>();
-            audioSource->Play();
         }
 
         void Update(float dt)
@@ -58,7 +57,21 @@ namespace Script
         {
             LOG_INFO("Collider Enter {0}", other.GetComponent<TagComponent>().tag);
             SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
-            rb->AddVelocity(up * jumpForce * 5.0f);
+            //rb->AddVelocity(up * jumpForce * 5.0f);
+
+            audioSource->Play();
+
+            auto material = other.GetComponent<MeshComponent>().material;
+            // FIXME material color change is being
+            // carried over to editor scene
+            // Check scene copy, maybe scenes are sharing
+            // the same material instead of creating a copy
+            material->color = glm::vec4(0, 0, 1, 1);
+
+            // FIXME crashing when restarting scene
+            // maybe has to do with referencing new object
+            // that no longer exists when scene stops
+            //Instantiate(other, glm::vec3(0, 10, 0));
         }
 
         void OnTriggerStay(Entity other)
@@ -73,6 +86,9 @@ namespace Script
             LOG_INFO("Collider Exit {0}", other.GetComponent<TagComponent>().tag);
             //SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
             //rb->AddVelocity(up * jumpForce);
+
+            auto material = other.GetComponent<MeshComponent>().material;
+            material->color = glm::vec4(1, 0, 0, 1);
         }
     };
 }

@@ -34,19 +34,19 @@ PbrMaterial::PbrMaterial()
     //uint32_t whiteTextureData = 0xffffffff;
     //whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-    std::string directory = "../Assets/Textures/pbr/snow/";
-    albedoMap           = Texture2D::Create(directory + "albedo.png");
-    metallicMap         = Texture2D::Create(directory + "metallic.png");
-    normalMap           = Texture2D::Create(directory + "normal.png");
-    roughnessMap        = Texture2D::Create(directory + "roughness.png");
-    ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+    //std::string directory = "../Assets/Textures/pbr/snow/";
+    //albedoMap           = Texture2D::Create(directory + "albedo.png");
+    //metallicMap         = Texture2D::Create(directory + "metallic.png");
+    //normalMap           = Texture2D::Create(directory + "normal.png");
+    //roughnessMap        = Texture2D::Create(directory + "roughness.png");
+    //ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
 }
 
 void PbrMaterial::Bind() const
 {
     shader->Bind();
 
-    shader->SetFloat4("uAlbedo", albedo);
+    shader->SetFloat4("uAlbedo", color);
     shader->SetFloat("uMetallic", metallic);
     shader->SetFloat("uRoughness", roughness);
     shader->SetFloat("uAO", ao);
@@ -107,7 +107,7 @@ void PbrMaterial::OnImGuiRender()
             albedoMap = Texture2D::Create(path);
         }
     }
-    ImGui::SameLine(); ImGui::ColorEdit4("Albedo", (float*)&albedo);
+    ImGui::SameLine(); ImGui::ColorEdit4("Albedo", (float*)&color);
     //==============================================
 
     ImGui::Separator();

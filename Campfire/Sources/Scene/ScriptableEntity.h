@@ -13,10 +13,25 @@ public:
         return entity.GetComponent<T>();
     }
 
-    Entity Instantiate(Entity);
-    Entity Instantiate(Entity, glm::vec3 position);
+    Entity Instantiate(Entity)
+    {
+    }
 
-    void Destroy(ScriptableEntity* other)
+    Entity Instantiate(Entity, glm::vec3 position)
+    {
+        auto& newEntity = entity.scene->CreateEntity("InstObject");
+        newEntity.GetComponent<TransformComponent>().position = position;
+        newEntity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+
+        return newEntity;
+    }
+
+    void Destroy(Entity other, float timer = 0.0f)
+    {
+        entity.scene->RemoveEntity(other);
+    }
+
+    void Destroy(ScriptableEntity* other, float timer = 0.0f)
     {
         entity.scene->RemoveEntity(other->entity);
     }

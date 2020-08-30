@@ -24,6 +24,8 @@ public:
         SPRITE_DIFFUSE
     };
 
+    glm::vec4 color = glm::vec4(1.0f);
+
     static SharedPtr<MaterialInstance> Create(MaterialInstance::Type type);
     virtual SharedPtr<Shader> GetShader() const { return shader; }
 
@@ -38,7 +40,6 @@ public:
     virtual void Bind() const override;
     virtual void OnImGuiRender() override;
 
-    glm::vec4 albedo = glm::vec4(1.0f);
     float metallic = 0.5f;
     float roughness = 0.5f;
     float ao = 0.5f;
