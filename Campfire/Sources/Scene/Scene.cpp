@@ -7,9 +7,11 @@
 #include "Physics/PhysicsManager.h"
 #include "Scripting/CameraController.h"
 #include "Scripting/PlayerController.h"
+#include "Audio/AudioSystem.h"
 
 Scene::Scene(bool isNewScene)
 {
+    AudioSystem::Init();
     SceneRenderer::Init();
 
     // Default objects within each new scene
@@ -199,8 +201,14 @@ void Scene::OnStart()
     });
 }
 
+void Scene::OnStop()
+{
+    AudioSystem::StopAllChannels();
+}
+
 void Scene::OnUpdate(float dt)
 {
+    AudioSystem::OnUpdate(dt);
     PhysicsManager::OnUpdate(dt);
 
     // Update rigidbodies

@@ -21,6 +21,7 @@ public:
 
     void DeepCopy(const SharedPtr<Scene>& other);
     void OnStart();
+    void OnStop();
     void OnUpdate(float dt);
     void OnRender(float dt, const Camera& camera);
 

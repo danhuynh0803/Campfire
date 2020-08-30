@@ -59,6 +59,7 @@ void EditorLayer::OnUpdate(float dt)
     else if (stopScene)
     {
         wHierarchy.Reset();
+        activeScene->OnStop();
         activeScene = editorScene;
     }
 

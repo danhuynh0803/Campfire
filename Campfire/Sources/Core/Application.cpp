@@ -10,7 +10,6 @@
 #include "Core/Random.h"
 
 #include "Renderer/Renderer.h"
-#include "Audio/AudioLayer.h"
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
 
@@ -25,10 +24,6 @@ Application::Application()
     instance = this;
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
-
-    // Init audio layer
-    AudioLayer* audioLayer = new AudioLayer();
-    PushLayer(audioLayer);
 
     Renderer::Init();
 
