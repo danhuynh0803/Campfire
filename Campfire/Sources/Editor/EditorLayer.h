@@ -26,6 +26,7 @@ public:
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
     bool OnWindowResize(WindowResizeEvent& e);
+    bool OnMouseClick(MouseButtonEvent& e);
 
 private:
     void OnRenderEditor();

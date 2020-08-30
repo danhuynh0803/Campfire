@@ -25,7 +25,7 @@ public:
     static void DebugDraw();
 
     // TODO Move to general picking or maybe make my own
-    //static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
+    static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
 
 public:
     //static bool isBoundingBoxOn = false;

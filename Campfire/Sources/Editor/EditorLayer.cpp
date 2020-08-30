@@ -22,6 +22,43 @@ EditorLayer::EditorLayer()
     activeScene = editorScene;
 }
 
+static void ScreenToWorldRay(
+        double mouseX, double mouseY,
+        int screenWidth, int screenHeight,
+        glm::mat4 viewMatrix,
+        glm::mat4 projMatrix,
+        glm::vec3& outOrigin,
+        glm::vec3& outDirection
+)
+{
+    // Get a ray from camera but converted into NDC
+    glm::vec4 rayStartNDC(
+        (mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        (mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        -1.0f, // Z=-1 since near plane maps to -1 in NDC
+         1.0f
+    );
+
+    glm::vec4 rayEndNDC(
+        (mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        (mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        0.0f, // Z=0 for farplane in NDC
+        1.0f
+    );
+
+    glm::mat4 worldSpaceMatrix = glm::inverse(projMatrix * viewMatrix);
+
+    glm::vec4 rayStartWorld = worldSpaceMatrix * rayStartNDC;
+    rayStartWorld /= rayStartWorld.w;
+
+    glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
+    rayEndWorld /= rayEndWorld.w;
+
+    outOrigin = rayStartWorld;
+    outDirection = glm::normalize(rayEndWorld - rayStartWorld);
+}
+
+
 void EditorLayer::OnAttach()
 {
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -156,10 +193,12 @@ void EditorLayer::OnImGuiRender()
             camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
 
-        // FIXME: figure out a way to draw colliders without submitting to bullet each time
         if (state == State::STOP)
         {
-            PhysicsManager::ClearLists();
+            if (entity.HasComponent<RigidbodyComponent>())
+            {
+                PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
+            }
             PhysicsManager::SubmitEntity(entity);
             PhysicsManager::DebugDraw();
         }
@@ -314,8 +353,43 @@ void EditorLayer::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(EditorLayer::OnWindowResize));
+    dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseClick));
 
     cameraController.OnEvent(event);
+}
+
+bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.WantCaptureKeyboard)
+    {
+        return false;
+    }
+
+    if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
+    {
+        glm::vec3 rayOrig, rayDir;
+        ScreenToWorldRay(
+            Input::GetMouseX(),
+            Input::GetMouseY(),
+            editorCamera->width,
+            editorCamera->height,
+            editorCamera->GetViewMatrix(),
+            editorCamera->GetProjMatrix(),
+            rayOrig,
+            rayDir
+        );
+
+        int selected = -1;
+        if (PhysicsManager::Raycast(rayOrig, rayDir, selected))
+        {
+            LOG_INFO("Raycast hit");
+            //LOG_INFO("Raycast hit {0}");
+        }
+    }
+
+    return true;
 }
 
 // TODO remove later.. just for testing FBO

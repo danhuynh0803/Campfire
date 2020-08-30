@@ -41,6 +41,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
         );
 
         // Match entt handle with rigidbody for referencing overlapping objects with triggers
+        // TODO downcast to collision object
         entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
@@ -256,32 +257,32 @@ void PhysicsManager::Shutdown()
 // all entities to be submitted to it. This would cause objects withouth rigidbodies to also
 // be submitted to dynamicsWorld for processing.
 // Maybe use a seperate world which adds all entities so that we can raycast to their AABB
-//bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
-//{
-//    glm::vec3 rayEnd = rayOrigin + rayDir * 10000.0f;
-//
-//    btVector3 from(rayOrigin.x, rayOrigin.y, rayOrigin.z);
-//    btVector3 to(rayEnd.x, rayEnd.y, rayEnd.z);
-//
-//    btCollisionWorld::ClosestRayResultCallback closestHit(
-//        from,
-//        to
-//    );
-//
-//    dynamicsWorld->rayTest(
-//        from,
-//        to,
-//        closestHit
-//    );
-//
-//    if (closestHit.hasHit())
-//    {
-//        // FIXME
-//        //index = static_cast<int>(closestHit.m_collisionObject->getUserPointer());
-//        return true;
-//    }
-//
-//    return false;
-//}
+bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
+{
+    glm::vec3 rayEnd = rayOrigin + rayDir * 100000.0f;
+
+    btVector3 from(rayOrigin.x, rayOrigin.y, rayOrigin.z);
+    btVector3 to(rayEnd.x, rayEnd.y, rayEnd.z);
+
+    btCollisionWorld::ClosestRayResultCallback closestHit(
+        from,
+        to
+    );
+
+    dynamicsWorld->rayTest(
+        from,
+        to,
+        closestHit
+    );
+
+    if (closestHit.hasHit())
+    {
+        // FIXME
+        //index = static_cast<int>(closestHit.m_collisionObject->getUserPointer());
+        return true;
+    }
+
+    return false;
+}
 
 
