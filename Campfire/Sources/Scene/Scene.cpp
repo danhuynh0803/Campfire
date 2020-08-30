@@ -31,6 +31,8 @@ void Scene::Init()
     mainCamera.AddComponent<CameraComponent>();
     mainCamera.GetComponent<CameraComponent>().isMain = true;
     mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
+    mainCamera.AddComponent<AudioComponent>();
+    mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 5.0f, 2.0f);
@@ -46,29 +48,18 @@ void Scene::Init()
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
-        player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
+        player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
     }
 
-    /*
     {
         auto cube = CreateEntity("Cube");
         cube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         cube.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 5.0f, 0.0f);
         cube.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         cube.AddComponent<RigidbodyComponent>();
-        cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
-        //cube.AddComponent<TriggerComponent>();
-        auto& material = cube.GetComponent<MeshComponent>().material;
-        std::string directory = "../Assets/Textures/pbr/wall/";
-        material->albedoMap           = Texture2D::Create(directory + "albedo.png");
-        material->specularMap         = Texture2D::Create(directory + "metallic.png");
-        material->normalMap           = Texture2D::Create(directory + "normal.png");
-        material->roughnessMap        = Texture2D::Create(directory + "roughness.png");
-        material->ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+        cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
     }
-    */
-
 
     {
         auto floor = CreateEntity("Floor");
@@ -80,14 +71,6 @@ void Scene::Init()
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material1 = floor.GetComponent<MeshComponent>().material;
-        /*
-        std::string directory1 = "../Assets/Textures/pbr/snow/";
-        material1->albedoMap           = Texture2D::Create(directory1 + "albedo.png");
-        material1->specularMap         = Texture2D::Create(directory1 + "metallic.png");
-        material1->normalMap           = Texture2D::Create(directory1 + "normal.png");
-        material1->roughnessMap        = Texture2D::Create(directory1 + "roughness.png");
-        material1->ambientOcclusionMap = Texture2D::Create(directory1 + "ao.png");
-        */
     }
 
     //auto snow = CreateEntity("Snow");
@@ -188,6 +171,16 @@ void Scene::OnStart()
     {
         PhysicsManager::SubmitEntity(entityPair.second);
     }
+
+    // Play all OnAwake sounds
+    registry.view<AudioComponent>().each([=](auto entity, auto &audioComp)
+    {
+        auto audioSource = audioComp.audioSource;
+        if (audioSource->playOnAwake)
+        {
+            audioSource->Play();
+        }
+    });
 
     // Initialize scripts and run their Start()
     registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
