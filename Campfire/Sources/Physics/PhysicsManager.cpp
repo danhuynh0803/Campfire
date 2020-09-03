@@ -31,7 +31,7 @@ void PhysicsManager::Init()
     debugDrawer = new BulletDebugDrawer();
 }
 
-void PhysicsManager::SubmitEntity(Entity entity, int index)
+void PhysicsManager::SubmitEntity(Entity entity)
 {
     auto transformComponent = entity.GetComponent<TransformComponent>();
     if (entity.HasComponent<RigidbodyComponent>())
@@ -46,7 +46,8 @@ void PhysicsManager::SubmitEntity(Entity entity, int index)
 
         // Match entt handle with rigidbody for referencing overlapping objects with triggers
         // TODO downcast to collision object
-        rigidbody->GetBulletRigidbody()->setUserPointer((void*)index);
+        uint64_t handle = entity.GetComponent<IDComponent>();
+        rigidbody->GetBulletRigidbody()->setUserPointer((void*)handle);
         entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
@@ -72,6 +73,7 @@ void PhysicsManager::SubmitEntity(Entity entity, int index)
     }
 }
 
+// TODO submit entity instead of just the btRB
 void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
 {
     // TODO should also remove the triggerbody and rigidbody
@@ -263,13 +265,13 @@ void PhysicsManager::Shutdown()
 // all entities to be submitted to it. This would cause objects withouth rigidbodies to also
 // be submitted to dynamicsWorld for processing.
 // Maybe use a seperate world which adds all entities so that we can raycast to their AABB
-bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
+bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, uint64_t& handle)
 {
-    glm::vec3 rayEnd = rayOrigin + rayDir * 1000.0f;
+    glm::vec3 rayEnd = rayOrigin + rayDir * 10000.0f;
 
     btVector3 from(rayOrigin.x, rayOrigin.y, rayOrigin.z);
     btVector3 to(rayEnd.x, rayEnd.y, rayEnd.z);
-    debugDrawer->drawLine(from, to, btVector3(1, 0, 1));
+    //debugDrawer->drawLine(from, to, btVector3(1, 0, 1));
 
     btCollisionWorld::ClosestRayResultCallback closestHit(
         from,
@@ -284,8 +286,8 @@ bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index)
 
     if (closestHit.hasHit())
     {
-        //index = static_cast<int>(closestHit.m_collisionObject->getUserPointer());
-        index = (int)closestHit.m_collisionObject->getUserPointer();
+        handle = (uint64_t)(closestHit.m_collisionObject->getUserPointer());
+        LOG_TRACE("Hit Index = {0}", handle);
         return true;
     }
 

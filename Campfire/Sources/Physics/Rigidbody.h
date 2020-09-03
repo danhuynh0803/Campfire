@@ -5,6 +5,8 @@
 #include "Core/Base.h"
 #include "Physics/Collider.h"
 
+class TransformComponent;
+
 class Rigidbody
 {
 public:
@@ -13,6 +15,7 @@ public:
     btRigidBody* GetBulletRigidbody();
     void SetVelocity(glm::vec3 newVelocity);
     void AddVelocity(glm::vec3 velocity);
+    void SetTransform(const TransformComponent& transformComp);
 
 public:
     enum class BodyType

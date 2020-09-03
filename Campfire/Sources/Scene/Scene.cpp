@@ -46,7 +46,7 @@ void Scene::Init()
         player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
-        player.AddComponent<TriggerComponent>();
+        //player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
@@ -167,11 +167,9 @@ void Scene::OnStart()
 {
     // Submit all entities with rbs to Physics
     PhysicsManager::ClearLists();
-    int index = 0;
     for (auto entityPair : entityMap)
     {
-        PhysicsManager::SubmitEntity(entityPair.second, index);
-        index++;
+        PhysicsManager::SubmitEntity(entityPair.second);
     }
 
     // Play all OnAwake sounds
@@ -198,13 +196,11 @@ void Scene::OnStart()
 
 void Scene::OnStop()
 {
-    PhysicsManager::ClearLists();
-    int index = 0;
-    for (auto entityPair : entityMap)
-    {
-        PhysicsManager::SubmitEntity(entityPair.second, index);
-        index++;
-    }
+    //PhysicsManager::ClearLists();
+    //for (auto entityPair : entityMap)
+    //{
+    //    PhysicsManager::SubmitEntity(entityPair.second);
+    //}
 
     AudioSystem::StopAllChannels();
 }

@@ -61,6 +61,16 @@ void EditorLayer::OnUpdate(float dt)
         wHierarchy.Reset();
         activeScene->OnStop();
         activeScene = editorScene;
+
+        // TODO Hacky way of just refreshing the colliders
+        // so that raycasting works with the original positions
+        // of the objects, instead of their runtime positions
+        PhysicsManager::ClearLists();
+        auto entityMap = activeScene->GetEntityMap();
+        for (auto entityPair : entityMap)
+        {
+            PhysicsManager::SubmitEntity(entityPair.second);
+        }
     }
 
     if (state != State::STOP)
@@ -158,11 +168,15 @@ void EditorLayer::OnImGuiRender()
 
         if (state == State::STOP)
         {
-            //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
-            //{
-            //    PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
-            //    PhysicsManager::SubmitEntity(entity);
-            //}
+            if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+            {
+                SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
+                //auto transformComp = entity.GetComponent<TransformComponent>();
+                //rb->SetTransform(transformComp);
+
+                PhysicsManager::RemoveEntity(rb->GetBulletRigidbody());
+                PhysicsManager::SubmitEntity(entity);
+            }
             //PhysicsManager::ClearLists();
             //PhysicsManager::SubmitEntity(entity);
             //PhysicsManager::DebugDraw();
@@ -385,16 +399,23 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             rayDir
         );
 
-        //LOG_TRACE("MouseX = {0}, ScrWidth = {1}", Input::GetMouseX(), editorCamera->width);
-        //LOG_TRACE("MouseY = {0}, ScrHeight = {1}", Input::GetMouseY(), editorCamera->height);
-        //LOG_INFO("From ({0}, {1}, {2})", rayOrig.x, rayOrig.y, rayOrig.z);
-        //LOG_INFO("To ({0}, {1}, {2})", rayDir.x, rayDir.y, rayDir.z);
-
-        int selected = -1;
-        if (PhysicsManager::Raycast(rayOrig, rayDir, selected))
+        uint64_t selectedHandle;
+        if (PhysicsManager::Raycast(rayOrig, rayDir, selectedHandle))
         {
-            LOG_TRACE("Has hit for {0}", selected);
-            wHierarchy.OverrideSelectedIndex(selected);
+            LOG_TRACE("Has hit for {0}", selectedHandle);
+
+            int index = 0;
+            for (auto entityPair : activeScene->GetEntityMap())
+            {
+                uint64_t entityID = entityPair.second.GetComponent<IDComponent>();
+                if (selectedHandle == entityID)
+                {
+                    selectedHandle = index;
+                    wHierarchy.OverrideSelectedIndex(index);
+                    break;
+                }
+                index++;
+            }
         }
         else
         {

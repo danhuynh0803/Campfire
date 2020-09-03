@@ -15,7 +15,7 @@ public:
     static void OnUpdate(float dt);
     static void Shutdown();
 
-    static void SubmitEntity(Entity entity, int index);
+    static void SubmitEntity(Entity entity);
     static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
     static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent&);
     // TODO remove generic collision object
@@ -25,7 +25,7 @@ public:
     static void DebugDraw();
 
     // TODO Move to general picking or maybe make my own
-    static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
+    static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, uint64_t& handle);
 
 public:
     //static bool isBoundingBoxOn = false;
@@ -38,6 +38,7 @@ private:
     static btBroadphaseInterface* overlappingPairCache;
     static btSequentialImpulseConstraintSolver* solver;
     static btDiscreteDynamicsWorld* dynamicsWorld;
+    //static btDiscreteDynamicsWorld* raycastWorld;
     static btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
     //static std::map<btRigidBody*, Entity*> entityMap;

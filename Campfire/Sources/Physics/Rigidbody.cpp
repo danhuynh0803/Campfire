@@ -9,6 +9,32 @@ static btVector3 GlmToBtVec(glm::vec3 v)
     return btVector3(v.x, v.y, v.z);
 }
 
+void Rigidbody::SetTransform(const TransformComponent& transformComp)
+{
+    btTransform transform;
+    transform.setIdentity();
+    glm::vec3 pos = transformComp.position;
+
+    LOG_INFO("RB Transform ({0}, {1}, {2})", pos.x, pos.y, pos.z);
+    transform.setOrigin(GlmToBtVec(pos));
+
+    glm::vec3 euler = transformComp.eulerAngles;
+    glm::quat rotation = glm::quat(
+            glm::vec3(
+                glm::radians(euler.x),
+                glm::radians(euler.y),
+                glm::radians(euler.z)
+            )
+        );
+
+    btQuaternion quat(rotation.x, rotation.y, rotation.z, rotation.w);
+    transform.setRotation(quat);
+
+    bulletRigidbody->setWorldTransform(transform);
+    bulletRigidbody->getMotionState()->setWorldTransform(transform);
+    bulletRigidbody->setCenterOfMassTransform(transform);
+}
+
 void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale)
 {
     btTransform transform;
