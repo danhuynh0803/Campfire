@@ -95,6 +95,7 @@ include_directories(Campfire/Sources/
                     Campfire/Vendor/rapidjson/include/
                     Campfire/Vendor/imgui
                     Campfire/Vendor/entt
+                    Campfire/Vendor/tracy
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

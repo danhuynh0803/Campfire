@@ -10,6 +10,9 @@
 #include "Renderer/Framebuffer.h"
 #include "Renderer/SceneRenderer.h"
 
+#include <Tracy.hpp>
+#define TRACY_ENABLE
+
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Shader> postProcessShader;
@@ -42,6 +45,8 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
+    ZoneScoped;
+
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
 
     if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
@@ -234,7 +239,9 @@ void EditorLayer::ShowMenuFile()
         ClearScene();
         activeScene = SceneLoader::LoadNewScene();
     }
-    if (ImGui::MenuItem("Open Scene"))
+    if (ImGui::MenuItem("Open Scene", "Ctrl+O")
+        //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_O))
+        )
     {
         std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
         if (!loadPath.empty())
@@ -243,11 +250,15 @@ void EditorLayer::ShowMenuFile()
             activeScene = SceneLoader::LoadScene(loadPath);
         }
     }
-    if (ImGui::MenuItem("Save", "Ctrl+S"))
+    if (ImGui::MenuItem("Save", "Ctrl+S")
+        //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_S))
+        )
     {
         SceneLoader::SaveCurrentScene(activeScene);
     }
-    if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
+    if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")
+        //|| ( Input::GetMod(MOD_KEY_CONTROL | MOD_KEY_SHIFT) && Input::GetKeyDown(KEY_S) )
+        )
     {
         std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
         if (!savePath.empty())
