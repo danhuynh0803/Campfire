@@ -11,7 +11,6 @@
 #include "Renderer/SceneRenderer.h"
 
 #include <Tracy.hpp>
-#define TRACY_ENABLE
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;

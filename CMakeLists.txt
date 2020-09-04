@@ -67,12 +67,16 @@ endif()
 
 if(MSVC)
     add_compile_options(/W4)
+    add_compile_options(/D TRACY_ENABLE)
+    # For multidll projects
+    #add_compile_options(/D TRACY_IMPORTS)
 elseif(APPLE)
     SET(MACOSX_DEPLOYMENT_TARGET ${DARWIN_MAJOR_SDK_VERSION}.${DARWIN_MINOR_SDK_VERSION})
     SET(CMAKE_CXX_FLAGS "--sysroot ${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_FLAGS}")
     MESSAGE("Setting MACOSX_DEPLOYMENT_TARGET to '${MACOSX_DEPLOYMENT_TARGET}'.")
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
+    #TODO tracy compile option for linux
     #find_package(PkgConfig REQUIRED)
     #PKG_CHECK_MODULES(GTK3 REQUIRED gtk+-3.0)
     #include_directories(${GTK3_INCLUDE_DIRS})
