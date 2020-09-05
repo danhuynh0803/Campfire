@@ -25,4 +25,4 @@ jobs:
       - name: Build Solution
         run: |
          ls
-         MSBuild.exe Campfire.sln
+         MSBuild.exe .\build\Campfire.sln
