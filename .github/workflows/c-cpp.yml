@@ -20,7 +20,9 @@ jobs:
       with:
         submodules: 'true'
     - name: cmake
-      run: cmake .
+      run: 
+       cmake -E make_directory build;
+       cmake -E chdir build cmake ..
     - name: make
       run: make
     #- name: make check
