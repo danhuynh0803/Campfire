@@ -32,6 +32,9 @@ option(BUILD_UNIT_TESTS OFF)
 add_subdirectory(Campfire/Vendor/bullet)
 
 
+add_subdirectory(Campfire/Vendor/freetype2)
+
+
 # FMOD
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Campfire/Vendor/fmod")
 #find_path (FMOD_INCLUDE_DIR fmod.h)
@@ -87,19 +90,21 @@ else()
     endif()
 endif()
 
-include_directories(Campfire/Sources/
-                    Campfire/Vendor/assimp/include/
-                    Campfire/Vendor/bullet/src/
-                    Campfire/Vendor/glad/include/
-                    Campfire/Vendor/glfw/include/
-                    Campfire/Vendor/glm/
-                    Campfire/Vendor/stb/
-                    Campfire/Vendor/spdlog/include/
-                    Campfire/Vendor/rapidjson/include/
-                    Campfire/Vendor/rapidjson/include/
-                    Campfire/Vendor/imgui
-                    Campfire/Vendor/entt
-                    Campfire/Vendor/tracy
+include_directories(
+    Campfire/Sources/
+    Campfire/Vendor/assimp/include/
+    Campfire/Vendor/bullet/src/
+    Campfire/Vendor/glad/include/
+    Campfire/Vendor/glfw/include/
+    Campfire/Vendor/glm/
+    Campfire/Vendor/stb/
+    Campfire/Vendor/spdlog/include/
+    Campfire/Vendor/rapidjson/include/
+    Campfire/Vendor/rapidjson/include/
+    Campfire/Vendor/imgui
+    Campfire/Vendor/entt
+    Campfire/Vendor/tracy
+    Campfire/Vendor/freetype2/include/
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -226,10 +231,14 @@ add_executable(
 
 target_link_libraries(
     ${PROJECT_NAME}
-        assimp glfw
-        ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
-        BulletDynamics BulletCollision LinearMath LuaLib
-    )
+        ${GLFW_LIBRARIES}
+        ${GLAD_LIBRARIES}
+        assimp
+        glfw
+        BulletDynamics BulletCollision LinearMath
+        LuaLib
+        freetype
+)
 
 if(MSVC)
     target_link_libraries(${PROJECT_NAME} fmod_vc fmodstudio_vc)
