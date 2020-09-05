@@ -24,7 +24,7 @@ jobs:
        cmake -E make_directory build;
        cmake -E chdir build cmake ..
     - name: make
-      run: make
+      run: make ./build
     #- name: make check
     #  run: make check
     #- name: make distcheck
