@@ -33,6 +33,8 @@
 #else
 #endif // Platform detection
 
+// TODO release mode should start the game from POV of game camera
+// and no longer load editor
 #ifdef DEBUG
     #if defined(PLATFORM_WINDOWS)
     #endif

@@ -9,6 +9,8 @@
 #include "Scripting/PlayerController.h"
 #include "Audio/AudioSystem.h"
 
+#include <Tracy.hpp>
+
 Scene::Scene(bool isNewScene)
 {
     AudioSystem::Init();
@@ -211,112 +213,129 @@ void Scene::OnUpdate(float dt)
     PhysicsManager::OnUpdate(dt);
 
     // Update rigidbodies
-    auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
-    for (auto entity : group)
     {
-        auto [transformComponent, rigidbodyComponent] = group.get<TransformComponent, RigidbodyComponent>(entity);
+        ZoneScopedN("UpdateRigidbodies");
+        auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, rigidbodyComponent] = group.get<TransformComponent, RigidbodyComponent>(entity);
 
-        PhysicsManager::UpdateEntity(rigidbodyComponent, transformComponent);
+            PhysicsManager::UpdateEntity(rigidbodyComponent, transformComponent);
+        }
     }
 
     // Update triggers
     std::vector<entt::entity> overlappingEntities;
-    auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
-    for (auto entity : triggerGroup)
     {
-        auto [transformComponent, triggerComponent] = triggerGroup.get<TransformComponent, TriggerComponent>(entity);
+        ZoneScopedN("UpdateTriggers");
+        auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
+        for (auto entity : triggerGroup)
+        {
+            auto [transformComponent, triggerComponent] = triggerGroup.get<TransformComponent, TriggerComponent>(entity);
 
-        overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
+            overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
+        }
     }
 
     // Update with Native C++ scripts
-    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
     {
-        nsc.instance->Update(dt);
-
-        Entity thisEntity = nsc.instance->entity;
-        if (thisEntity.HasComponent<TriggerComponent>())
+        ZoneScopedN("UpdateNativeScripts");
+        registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
         {
-            SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
-            for (auto enterEntity : trigger->overlapEnterList)
-            {
-                Entity other(enterEntity, this);
-                // Don't have the trigger apply on ourselves
-                // since the trigger and rb will always be colliding
-                if (enterEntity != nsc.instance->entity)
-                {
-                    nsc.instance->OnTriggerEnter(other);
-                }
-            }
+            nsc.instance->Update(dt);
 
-            for (auto stayEntity : overlappingEntities)
+            Entity thisEntity = nsc.instance->entity;
+            if (thisEntity.HasComponent<TriggerComponent>())
             {
-                Entity other(stayEntity, this);
-                if (stayEntity != nsc.instance->entity)
+                SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
+                for (auto enterEntity : trigger->overlapEnterList)
                 {
-                    nsc.instance->OnTriggerStay(other);
+                    Entity other(enterEntity, this);
+                    // Don't have the trigger apply on ourselves
+                    // since the trigger and rb will always be colliding
+                    if (enterEntity != nsc.instance->entity)
+                    {
+                        nsc.instance->OnTriggerEnter(other);
+                    }
                 }
-            }
 
-            for (auto exitEntity : trigger->overlapExitList)
-            {
-                Entity other(exitEntity, this);
-                if (exitEntity != nsc.instance->entity)
+                for (auto stayEntity : overlappingEntities)
                 {
-                    nsc.instance->OnTriggerExit(other);
+                    Entity other(stayEntity, this);
+                    if (stayEntity != nsc.instance->entity)
+                    {
+                        nsc.instance->OnTriggerStay(other);
+                    }
+                }
+
+                for (auto exitEntity : trigger->overlapExitList)
+                {
+                    Entity other(exitEntity, this);
+                    if (exitEntity != nsc.instance->entity)
+                    {
+                        nsc.instance->OnTriggerExit(other);
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 }
 
-// Render scene from perspective of editor camera
+// Render scene from perspective of designated camera
 void Scene::OnRender(float dt, const Camera& camera)
 {
     // Render particles first since they're transparent
     {
-        auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
-        for (auto entity : group)
+        ZoneScopedN("RenderParticles");
         {
-            auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
-            if (particleSystemComponent.ps)
+            auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
+            for (auto entity : group)
             {
-                particleSystemComponent.ps->position = transformComponent.position;
-                // TODO have this transparency ordering check in renderer instead of PS
-                // or swap to OIT eventually
-                particleSystemComponent.ps->OnUpdate(dt, camera.pos);
-                particleSystemComponent.ps->Draw(transformComponent);
+                auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
+                if (particleSystemComponent.ps)
+                {
+                    particleSystemComponent.ps->position = transformComponent.position;
+                    // TODO have this transparency ordering check in renderer instead of PS
+                    // or swap to OIT eventually
+                    particleSystemComponent.ps->OnUpdate(dt, camera.pos);
+                    particleSystemComponent.ps->Draw(transformComponent);
+                }
             }
         }
     }
 
     // Render sprites
     {
-        auto group = registry.group<SpriteComponent>(entt::get<TransformComponent>);
-        for (auto entity : group)
+        ZoneScopedN("RenderSprites");
         {
-            auto [transformComponent, spriteComponent] = group.get<TransformComponent, SpriteComponent>(entity);
+            auto group = registry.group<SpriteComponent>(entt::get<TransformComponent>);
+            for (auto entity : group)
+            {
+                auto [transformComponent, spriteComponent] = group.get<TransformComponent, SpriteComponent>(entity);
 
-            Renderer2D::SubmitQuad(transformComponent, spriteComponent.sprite, spriteComponent.color);
+                Renderer2D::SubmitQuad(transformComponent, spriteComponent.sprite, spriteComponent.color);
+            }
         }
     }
 
     // Render opaque meshes
-    // Only render objects that have mesh components
-    auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
-    for (auto entity : group)
     {
-        auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
-        if (meshComponent.mesh)
+        ZoneScopedN("RenderMeshes");
+        // Only render objects that have mesh components
+        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
         {
-            SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+            if (meshComponent.mesh)
+            {
+                SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+            }
         }
     }
 }
 
 void Scene::OnEvent(Event& e)
 {
-    // TODO do raycast on scene to get selected entity
 }
 
 Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
