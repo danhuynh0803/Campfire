@@ -12,10 +12,10 @@
 
 struct Character
 {
+    uint32_t renderID; // texture info
     glm::ivec2 size;
     glm::ivec2 bearing;
     uint32_t advance;
-    uint32_t renderID; // texture info
 };
 
 class Font
@@ -23,9 +23,13 @@ class Font
 public:
     virtual ~Font() = default;
     virtual std::string GetPath() const = 0;
+    static SharedPtr<Font> Create(const std::string& fontPath);
 
 protected:
     std::map<char, Character> characters;
+
+private:
+    static std::map<std::string, SharedPtr<Font>> fontCache;
 };
 
 class Text
@@ -46,9 +50,4 @@ public:
     static void Init();
     static void Shutdown();
     static void Draw(const std::string& text);
-    static SharedPtr<Font> CreateFont(const std::string& fontPath);
-
-private:
-    static FT_Library ft;
-    static std::map<std::string, SharedPtr<Font>> TextEngine::fontCache;
 };
