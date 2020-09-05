@@ -13,7 +13,9 @@ jobs:
 
     steps:
     - name: install-package
-      run: sudo apt-get install xorg-dev libglu1-mesa-dev
+      run:
+       suod apt-get update; 
+       sudo apt-get install xorg-dev libglu1-mesa-dev
     - uses: actions/checkout@v2
       with:
         submodules: 'true'
