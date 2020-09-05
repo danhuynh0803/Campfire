@@ -31,3 +31,6 @@
 [submodule "Campfire/Vendor/tracy"]
 	path = Campfire/Vendor/tracy
 	url = https://github.com/wolfpld/tracy
+[submodule "Campfire/Vendor/freetype2"]
+	path = Campfire/Vendor/freetype2
+	url = https://git.savannah.nongnu.org/git/freetype/freetype2.git
