@@ -11,6 +11,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+class Camera;
+struct TransformComponent;
+
 struct Character
 {
     //SharedPtr<Texture2D> texture;
@@ -38,7 +41,9 @@ private:
 class Text
 {
 public:
-    virtual void Draw() {}
+    // FIXME should avoid having this as a blank function
+    // maybe refactor and have abstract Text class
+    virtual void Draw(const TransformComponent& transform, const Camera& camera) {}
     void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
     SharedPtr<Font> GetFont() const { return font; }
 
@@ -48,7 +53,10 @@ public:
     bool isUI = true;
     glm::vec4 color = glm::vec4(0, 0, 0, 1);
     std::string text = "New Text";
-    uint32_t fontSize = 12;
+    uint32_t fontSize = 48;
+
+    // NDC positional values for UI
+    glm::vec2 uiPos = glm::vec2(0.5f);
 
 protected:
     SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");

@@ -169,7 +169,12 @@ void Camera::SetProjection()
         SetOrthographicProjection();
 
     // Always keep UI projMatrix in ortho
-    uiProjMatrix = glm::ortho(0.0f, width, 0.0f, height);
+    uiProjMatrix = glm::ortho(
+        0.0f,
+        width,
+        0.0f,
+        height
+    );
 }
 
 void Camera::SetPerspectiveProjection()

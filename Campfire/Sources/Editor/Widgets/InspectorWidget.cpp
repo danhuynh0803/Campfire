@@ -109,6 +109,13 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             SharedPtr<Text> textRef = entity.GetComponent<TextComponent>();
 
             ImGui::Checkbox("isUI", &textRef->isUI);
+
+            // NDC positions for UI
+            if (textRef->isUI)
+            {
+                ImGui::DragFloat2("Pos", (float*)&textRef->uiPos, 0.01f);
+            }
+
             ImGui::ColorEdit4("Color", (float*)&textRef->color);
             if ( ImGui::Button( textRef->GetFont()->GetPath().c_str() ) )
             {

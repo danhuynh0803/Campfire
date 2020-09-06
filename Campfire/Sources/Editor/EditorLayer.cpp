@@ -17,9 +17,6 @@
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Shader> postProcessShader;
 
-// Testing text
-SharedPtr<Text> textObject;
-
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
@@ -40,8 +37,6 @@ void EditorLayer::OnAttach()
     gameCamFBO = Framebuffer::Create(1600, 900);
 
     postProcessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
-
-    textObject = Text::Create("HelloWorld");
 }
 
 void EditorLayer::OnDetach()
@@ -111,7 +106,6 @@ void EditorLayer::OnUpdate(float dt)
         SceneRenderer::BeginScene(activeScene, *mainGameCamera);
         activeScene->OnRender(deltaTime, *mainGameCamera);
         SceneRenderer::EndScene();
-        textObject->Draw();
         gameCamFBO->Unbind();
     }
 
@@ -125,7 +119,6 @@ void EditorLayer::OnUpdate(float dt)
     }
 
     SceneRenderer::EndScene();
-    textObject->Draw();
 }
 
 void EditorLayer::OnImGuiRender()

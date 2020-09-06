@@ -332,6 +332,21 @@ void Scene::OnRender(float dt, const Camera& camera)
             }
         }
     }
+
+    // Render Text objects
+    {
+        ZoneScopedN("RenderText");
+        // Only render objects that have mesh components
+        auto group = registry.group<TextComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, textComponent] = group.get<TransformComponent, TextComponent>(entity);
+            if (textComponent.text)
+            {
+                textComponent.text->Draw(transformComponent, camera);
+            }
+        }
+    }
 }
 
 void Scene::OnEvent(Event& e)

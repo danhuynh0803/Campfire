@@ -19,7 +19,7 @@ class OpenGLText : public Text
 {
 public:
     OpenGLText(const std::string& newText);
-    virtual void Draw() override;
+    virtual void Draw(const TransformComponent& transform, const Camera& camera) override;
     SharedPtr<VertexArray> vertexArray;
     SharedPtr<VertexBuffer> vertexBuffer;
     SharedPtr<Shader> shader;

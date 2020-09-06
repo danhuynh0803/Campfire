@@ -111,15 +111,16 @@ OpenGLText::OpenGLText(const std::string& newText)
     shader->SetUniformBlock("Camera", 0);
 }
 
-void OpenGLText::Draw()
+void OpenGLText::Draw(const TransformComponent& transform, const Camera& camera)
 {
     shader->Bind();
     shader->SetFloat4("color", color);
     shader->SetBool("isUI", isUI);
     glActiveTexture(GL_TEXTURE0);
-    glm::vec3 pos = glm::vec3(1000.0f, 1000.0f, 0.0f);
+
+    glm::vec3 pos = isUI ? glm::vec3(uiPos.x * camera.width, uiPos.y * camera.height, 0.0f) : transform.position;
     //glm::vec3 euler = glm::vec3(0.0f);
-    glm::vec3 scale = glm::vec3(1.0f);
+    glm::vec3 scale = transform.scale;
 
     vertexArray->Bind();
 

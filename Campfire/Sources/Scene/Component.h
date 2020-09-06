@@ -76,21 +76,24 @@ struct TransformComponent
     }
 };
 
+// TODO
+// Not really needed until things like
+// anchor points for UI are figured out
 struct UITransformComponent
 {
-    // TODO
+
 };
 
 struct TextComponent
 {
     TextComponent()
     {
-        text = CreateSharedPtr<Text>();
+        text = Text::Create();
     }
 
     void Reset()
     {
-        text = CreateSharedPtr<Text>();
+        text = Text::Create();
     }
 
     SharedPtr<Text> text;

@@ -85,6 +85,9 @@ void SceneRenderer::EndScene()
 {
     // Where we actually render all scene sprites via batching
     Renderer2D::EndScene();
+
+    // TODO
+    // Draw UI objects last
 }
 
 void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<MaterialInstance> overrideMaterial)
