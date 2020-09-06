@@ -17,10 +17,12 @@ jobs:
         with:
          submodules: 'true'
       - name: Cmake
-        run: cmake .
+        run: 
+         cmake -E make_directory build;
+         cmake -E chdir build cmake ..
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build Solution
         run: |
          ls
-         MSBuild.exe Campfire.sln
+         MSBuild.exe .\build\Campfire.sln
