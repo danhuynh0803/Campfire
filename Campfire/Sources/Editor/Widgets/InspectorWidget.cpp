@@ -95,6 +95,42 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ImGui::Separator();
     }
 
+    // Text
+    if (entity.HasComponent<TextComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Text"))
+        {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
+            SharedPtr<Text> textRef = entity.GetComponent<TextComponent>();
+
+            ImGui::Checkbox("isUI", &textRef->isUI);
+            ImGui::ColorEdit4("Color", (float*)&textRef->color);
+            if ( ImGui::Button( textRef->GetFont()->GetPath().c_str() ) )
+            {
+                // TODO
+            }
+
+            int min = 0; int max = 255;
+            ImGui::DragScalar("Font Size", ImGuiDataType_U32, &textRef->fontSize, 0.03f, &min, &max);
+            ImGui::NewLine();
+            ImGui::InputText("Display Text", &textRef->text);
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<MeshComponent>(entity);
+                ImGui::EndPopup();
+            }
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+
     // Mesh
     if (entity.HasComponent<MeshComponent>())
     {

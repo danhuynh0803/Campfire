@@ -76,6 +76,27 @@ struct TransformComponent
     }
 };
 
+struct UITransformComponent
+{
+    // TODO
+};
+
+struct TextComponent
+{
+    TextComponent()
+    {
+        text = CreateSharedPtr<Text>();
+    }
+
+    void Reset()
+    {
+        text = CreateSharedPtr<Text>();
+    }
+
+    SharedPtr<Text> text;
+    operator SharedPtr<Text>& () { return text; }
+};
+
 struct MeshComponent
 {
     // Primitive models for default meshes
@@ -308,17 +329,6 @@ struct ParticleSystemComponent
         ps = CreateSharedPtr<ParticleSystem>();
         ps->Init();
     }
-};
-
-struct TextComponent
-{
-    TextComponent()
-    {
-        text = CreateSharedPtr<Text>();
-    }
-
-    SharedPtr<Text> text;
-    operator SharedPtr<Text>& () { return text; }
 };
 
 #endif // COMPONENT_H

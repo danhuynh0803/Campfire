@@ -201,9 +201,13 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         ImGui::EndMenu();
     }
 
-    // TODO
     if (ImGui::BeginMenu("UI"))
     {
+        if (ImGui::MenuItem("Text"))
+        {
+            auto entity = activeScene->CreateEntity("Text");
+            entity.AddComponent<TextComponent>();
+        }
         ImGui::EndMenu();
     }
 

@@ -27,8 +27,10 @@ public:
     virtual std::string GetPath() const = 0;
     static SharedPtr<Font> Create(const std::string& fontPath, uint32_t fontSize = 12);
     std::map<char, Character> const GetCharacterMap() { return characters; }
+
 protected:
     std::map<char, Character> characters;
+
 private:
     static std::map<std::string, SharedPtr<Font>> fontCache;
 };
@@ -36,19 +38,20 @@ private:
 class Text
 {
 public:
-    bool isUI = true;
-
-    glm::vec4 color = glm::vec4(0, 0, 0, 1);
-    std::string text = "New Text";
-    void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
     virtual void Draw() {}
+    void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
+    SharedPtr<Font> GetFont() const { return font; }
+
     static SharedPtr<Text> Create(const std::string& newText = "New Text");
 
-protected:
-    // Default font
-    SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");
-    // TODO have text scale with resolution size
+public:
+    bool isUI = true;
+    glm::vec4 color = glm::vec4(0, 0, 0, 1);
+    std::string text = "New Text";
     uint32_t fontSize = 12;
+
+protected:
+    SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");
 };
 
 // TODO setup batching for all text objects
