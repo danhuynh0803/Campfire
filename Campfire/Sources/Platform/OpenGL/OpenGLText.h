@@ -15,5 +15,6 @@ private:
 
 class OpenGLText : public Text
 {
-    
+public:
+    virtual void Draw() override;
 };

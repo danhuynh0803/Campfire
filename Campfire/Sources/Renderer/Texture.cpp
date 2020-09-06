@@ -28,7 +28,6 @@ SharedPtr<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
     return nullptr;
 }
 
-
 //SharedPtr<Texture3D> Texture3D::Create(const std::string& path)
 //{
 //    switch (RendererAPI::GetAPI())

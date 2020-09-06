@@ -1,6 +1,9 @@
 #include "Platform/OpenGL/OpenGLText.h"
-#include <glad/glad.h>
+#include "Scene/Component.h"
 
+// ===================================
+// Font
+// ===================================
 OpenGLFont::OpenGLFont(const std::string& fontPath)
     : path(fontPath)
 {
@@ -15,7 +18,6 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
     if (FT_New_Face(ft, fontPath.c_str(), 0, &face))
     {
         LOG_ERROR("OpenGLFont::Failed to load font: {0}", fontPath);
-        return;
     }
 
     // Set font's width and height parameters.
@@ -58,17 +60,31 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        SharedPtr<Texture2D> texture = Texture2D::Create(face->glyph->bitmap.width, face->glyph->bitmap.rows);
+        texture->SetData(textureID);
         // store character for later use
         Character character = {
-            textureID,
+            texture,
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
             face->glyph->advance.x
         };
+
         characters.emplace(c, character);
     }
 
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
+}
 
+// ===================================
+// Text
+// ===================================
+void OpenGLText::Draw()
+{
+    auto characters = font->GetCharacterMap();
+    for (auto c = text.begin(); c != text.end(); c++)
+    {
+        Character ch = characters[*c];
+    }
 }

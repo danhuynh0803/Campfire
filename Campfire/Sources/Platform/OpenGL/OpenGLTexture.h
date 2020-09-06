@@ -10,6 +10,7 @@ class OpenGLTexture2D : public Texture2D
 public:
     OpenGLTexture2D(const std::string& path);
     OpenGLTexture2D(uint32_t _width, uint32_t _height);
+    OpenGLTexture2D(uint32_t textureID);
     virtual ~OpenGLTexture2D();
 
     virtual uint32_t GetWidth() const override { return width; }
@@ -17,6 +18,10 @@ public:
     virtual std::string GetName() const override { return filepath; }
     virtual void Bind(uint32_t unit = 0) const override;
     virtual void SetData(void* data, uint32_t size);
+
+    // Hacky way of just overriding the renderID so we can
+    // update texture with raw gl calls
+    virtual void SetData(uint32_t newRenderID) { renderID = newRenderID; }
 
     virtual uint32_t GetRenderID() const override { return renderID; }
 
@@ -44,8 +49,8 @@ public:
     virtual uint32_t GetWidth() const override { return width; }
     virtual uint32_t GetHeight() const override { return height; }
     virtual void Bind(uint32_t unit = 0) const override;
-    // TODO
     virtual void SetData(void* data, uint32_t size) {}
+    virtual void SetData(uint32_t newRenderID) { renderID = newRenderID; }
 
     virtual std::string GetName() const override { return "TODO"; }
 
