@@ -22,7 +22,7 @@ public:
     void Push(T newEntry)
     {
         std::lock_guard<std::mutex> lock(mutex);
-        data.push(std::move(newEntry));
+        data.push_back(std::move(newEntry));
         dataCond.notify_one();
     }
 

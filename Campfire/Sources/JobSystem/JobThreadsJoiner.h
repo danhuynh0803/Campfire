@@ -6,17 +6,19 @@
 
 class JobThreadsJoiner
 {
-	std::vector<std::thread>& threads;
 public:
-	explicit JobThreadsJoiner(std::vector<std::thread>& threads_):
-		threads(threads_){}
-	~JobThreadsJoiner()
-	{
-		for (unsigned long i = 0; i < threads.size(); ++i)
-		{
-			if (threads[i].joinable())
-				threads[i].join();
-		}
-	}
+    explicit JobThreadsJoiner(std::vector<std::thread>& threads_):
+        threads(threads_){}
+    ~JobThreadsJoiner()
+    {
+        for (unsigned long i = 0; i < threads.size(); ++i)
+        {
+            if (threads[i].joinable())
+                threads[i].join();
+        }
+    }
+
+private:
+    std::vector<std::thread>& threads;
 };
 #endif

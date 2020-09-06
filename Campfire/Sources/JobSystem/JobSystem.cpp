@@ -1,17 +1,10 @@
 #include "JobSystem.h"
 #include "JobThreadsJoiner.h"
 
+UniquePtr<JobSystem> JobSystem::instance = nullptr;
+
 JobSystem::JobSystem()
     : done(false), joiner(threadPool)
-{
-}
-
-JobSystem::~JobSystem()
-{
-    done = true;
-}
-
-void JobSystem::Init()
 {
     auto numThreads = std::thread::hardware_concurrency();
 
@@ -23,7 +16,7 @@ void JobSystem::Init()
         }
         for (int i = 0; i < numThreads; ++i)
         {
-            threadPool.push_back(std::thread(&JobSystem::JobThread, this,i));
+            threadPool.push_back(std::thread(&JobSystem::JobThread, this, i));
         }
     }
     catch (...)
@@ -33,10 +26,23 @@ void JobSystem::Init()
     }
 }
 
+JobSystem::~JobSystem()
+{
+    done = true;
+}
+
+void JobSystem::Init()
+{
+    if (instance == nullptr)
+    {
+        instance = CreateUniquePtr<JobSystem>();
+    }
+}
+
 void JobSystem::JobThread(unsigned index) {
     myIndex = index;
     localJobQueue = jobStealingQueues[myIndex].get();
-    while (!done) { return Run(); }
+    Run();
 }
 
 void JobSystem::Run()
@@ -44,9 +50,10 @@ void JobSystem::Run()
     while (!done)
     {
         Job job;
-        if (PopJobFromLocalQueue(job)||
-            PopJobFromPoolQueue(job)||
-            PopJobOtherThreadQueue(job))
+        if ( PopJobFromLocalQueue(job)
+          || PopJobFromPoolQueue(job)
+          || PopJobOtherThreadQueue(job)
+            )
         {
             job();
         }

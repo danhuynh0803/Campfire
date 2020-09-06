@@ -5,6 +5,7 @@
 #include <vector>
 #include <future>
 
+#include "Core/Base.h"
 #include "ThreadSafeQueue.h"
 #include "JobStealingQueue.h"
 #include "Job.h"
@@ -13,17 +14,16 @@
 class JobSystem
 {
 public:
+    static void Init();
+    static UniquePtr<JobSystem> instance;
+
+public:
     JobSystem();
     ~JobSystem();
 
-    void Init();
-    void JobSystem::JobThread(unsigned index);
     void Run();
     void Wait();
     bool HasWork();
-    bool JobSystem::PopJobFromLocalQueue(Job& job);
-    bool PopJobFromPoolQueue(Job& job);
-    bool JobSystem::PopJobOtherThreadQueue(Job& job);
 
     template <typename FunctionType>
     std::future<typename std::result_of<FunctionType()>::type>
@@ -35,6 +35,12 @@ public:
         jobPoolQueue.Push(std::move(task));
         return res;
     }
+
+private:
+    void JobThread(unsigned index);
+    bool PopJobFromLocalQueue(Job& job);
+    bool PopJobFromPoolQueue(Job& job);
+    bool PopJobOtherThreadQueue(Job& job);
 
 private:
     std::atomic_bool done;
