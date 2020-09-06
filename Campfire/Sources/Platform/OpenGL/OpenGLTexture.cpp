@@ -8,9 +8,27 @@
 //=====================================================
 //------------------ Texture2D ------------------------
 //=====================================================
+OpenGLTexture2D::OpenGLTexture2D(uint32_t _width, uint32_t _height)
+    : width(_width), height(_height)
+{
+    internalFormat = GL_RGBA8;
+    dataFormat = GL_RGBA;
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &renderID);
+    glTextureStorage2D(renderID, 1, internalFormat, width, height);
+
+    glTexParameteri(renderID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(renderID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(renderID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(renderID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+
 OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     : filepath(path)
 {
+    stbi_set_flip_vertically_on_load(true);
+
     // TODO move this out into some resource manager to rewrite slashes for windows
     //std::replace(texturePath.begin(), texturePath.end(), '\\', '/');
 
@@ -21,22 +39,26 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     this->width = width;
     this->height = height;
 
-    // TODO some textures don't need to be flipped
-    // Figure out a way to handle this
-    stbi_set_flip_vertically_on_load(true);
-
     if (data)
     {
-        GLenum format;
-        if (nrChannels == 1)
-            format = GL_RED;
+        if (nrChannels == 4)
+        {
+            internalFormat = GL_RGBA8;
+            dataFormat = GL_RGBA;
+        }
         else if (nrChannels == 3)
-            format = GL_RGB;
-        else if (nrChannels == 4)
-            format = GL_RGBA;
+        {
+            internalFormat = GL_RGB8;
+            dataFormat = GL_RGB;
+        }
+        else if (nrChannels == 1)
+        {
+            internalFormat = GL_RED;
+            dataFormat = GL_RED;
+        }
 
         glBindTexture(GL_TEXTURE_2D, renderID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
 
         glGenerateMipmap(GL_TEXTURE_2D);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -48,7 +70,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     }
     else
     {
-        LOG_WARN("Failed to load: {0}", filepath);
+        LOG_ERROR("Failed to load: {0}", filepath);
     }
 
     stbi_image_free(data);
@@ -62,6 +84,12 @@ OpenGLTexture2D::~OpenGLTexture2D()
 void OpenGLTexture2D::Bind(uint32_t unit) const
 {
     glBindTextureUnit(unit, renderID);
+}
+
+void OpenGLTexture2D::SetData(void* data, uint32_t size)
+{
+    //uint32_t bpp = dataFormat == GL_RGBA ? 4 : 3;
+    glTextureSubImage2D(renderID, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, data);
 }
 
 //=====================================================

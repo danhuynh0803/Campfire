@@ -127,10 +127,12 @@ struct VertexBuffer
     virtual ~VertexBuffer() {}
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
+    virtual void SetData(void* data, uint32_t size) = 0;
     virtual void SetLayout(const BufferLayout& layout) = 0;
     virtual const BufferLayout& GetLayout() const = 0;
 
-    static SharedPtr<VertexBuffer> Create(float* vertices, uint32_t size);
+    static SharedPtr<VertexBuffer> Create(uint32_t size);
+    static SharedPtr<VertexBuffer> Create(void* vertices, uint32_t size);
 };
 
 struct IndexBuffer
@@ -148,22 +150,10 @@ struct UniformBuffer
     virtual ~UniformBuffer() {}
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
-    virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex) = 0;
-
-    //virtual void SubmitData() = 0;
+    virtual void SetData(void* data, uint32_t offset, uint32_t size) = 0;
+    virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count = 1) = 0;
 
     static SharedPtr<UniformBuffer> Create();
 };
-
-struct FrameBuffer
-{
-    virtual ~FrameBuffer() {}
-    virtual void Bind() const = 0;
-    virtual void Unbind() const = 0;
-
-    static SharedPtr<FrameBuffer> Create(uint32_t width, uint32_t height);
-};
-
-
 
 #endif // BUFFER_H

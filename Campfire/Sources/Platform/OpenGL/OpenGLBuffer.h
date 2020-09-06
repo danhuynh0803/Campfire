@@ -7,10 +7,12 @@
 class OpenGLVertexBuffer : public VertexBuffer
 {
 public:
+    OpenGLVertexBuffer(uint32_t size);
     OpenGLVertexBuffer(float* vertices, uint32_t size);
     virtual ~OpenGLVertexBuffer();
     virtual void Bind() const override;
     virtual void Unbind() const override;
+    virtual void SetData(void* data, uint32_t size) override;
     virtual void SetLayout(const BufferLayout& _layout) override { layout = _layout; }
     virtual const BufferLayout& GetLayout() const override { return layout; }
 
@@ -44,26 +46,12 @@ public:
     virtual void Bind() const override;
     virtual void Unbind() const override;
 
-    virtual void SetLayout(const BufferLayout& _layout, uint32_t blockIndex) override;
+    virtual void SetData(void* data, uint32_t offset, uint32_t size) override;
+    virtual void SetLayout(const BufferLayout& _layout, uint32_t blockIndex, uint32_t count = 1) override;
 
 private:
     uint32_t renderID;
     BufferLayout layout;
-};
-
-class OpenGLFrameBuffer : public FrameBuffer
-{
-public:
-    OpenGLFrameBuffer(uint32_t width, uint32_t height);
-    virtual ~OpenGLFrameBuffer();
-
-    virtual void Bind() const override;
-    virtual void Unbind() const override;
-
-private:
-    uint32_t renderID;
-    uint32_t textureID;
-    //SharedPtr<Texture> texture;
 };
 
 #endif // OPENGL_BUFFER_H

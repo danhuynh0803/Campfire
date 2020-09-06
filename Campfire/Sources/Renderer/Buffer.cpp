@@ -5,14 +5,28 @@
 #include "Core/Base.h"
 #include <stdint.h>
 
-SharedPtr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
+SharedPtr<VertexBuffer> VertexBuffer::Create(uint32_t size)
 {
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::API::None:
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return CreateSharedPtr<OpenGLVertexBuffer>(vertices, size);
+            return CreateSharedPtr<OpenGLVertexBuffer>(size);
+    }
+
+    return nullptr;
+}
+
+SharedPtr<VertexBuffer> VertexBuffer::Create(void* vertices, uint32_t size)
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            return nullptr;
+        case RendererAPI::API::OpenGL:
+            // TODO convert OpenGLBuffer to use void* data so we can pass vertex data directly without converting to float*
+            return CreateSharedPtr<OpenGLVertexBuffer>((float*)vertices, size);
     }
 
     return nullptr;
@@ -39,19 +53,6 @@ SharedPtr<UniformBuffer> UniformBuffer::Create()
             return nullptr;
         case RendererAPI::API::OpenGL:
             return CreateSharedPtr<OpenGLUniformBuffer>();
-    }
-
-    return nullptr;
-}
-
-SharedPtr<FrameBuffer> FrameBuffer::Create(uint32_t width, uint32_t height)
-{
-    switch (RendererAPI::GetAPI())
-    {
-        case RendererAPI::API::None:
-            return nullptr;
-        case RendererAPI::API::OpenGL:
-            return CreateSharedPtr<OpenGLFrameBuffer>(width, height);
     }
 
     return nullptr;

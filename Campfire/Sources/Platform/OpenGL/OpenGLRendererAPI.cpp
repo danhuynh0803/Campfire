@@ -1,6 +1,6 @@
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 void OpenGLRendererAPI::Init()
@@ -14,6 +14,8 @@ void OpenGLRendererAPI::Init()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
@@ -29,9 +31,19 @@ void OpenGLRendererAPI::Clear()
 void OpenGLRendererAPI::DrawIndexed(const SharedPtr<VertexArray>& vertexArray)
 {
     vertexArray->Bind();
-    //glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)0);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, (void*)0);
     vertexArray->Unbind();
 }
 
+void OpenGLRendererAPI::DrawIndexedLines(const SharedPtr<VertexArray>& vertexArray)
+{
+    vertexArray->Bind();
+    glDrawElements(GL_LINES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, (void*)0);
+    vertexArray->Unbind();
+}
+
+void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+{
+    glViewport(x, y, width, height);
+}
 

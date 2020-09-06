@@ -2,20 +2,21 @@
 
 // =========================================
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoords;
+layout (location = 1) in vec2 aUV;
 layout (location = 2) in vec3 aNormal;
 
 // =========================================
-layout (std140, binding = 0) uniform Matrices
-{
-    mat4 view;
-    mat4 projection;
-};
+layout (location = 0) out vec3 position;
+layout (location = 1) out vec2 uvCoords;
+layout (location = 2) out vec3 normal;
 
 // =========================================
-out vec3 position;
-out vec2 uvCoords;
-out vec3 normal;
+layout (std140, binding = 0) uniform Camera
+{
+    mat4 view;
+    mat4 proj;
+    mat4 viewProj;
+};
 
 // =========================================
 uniform mat4 model;
@@ -23,10 +24,11 @@ uniform mat4 model;
 // =========================================
 void main()
 {
-    gl_Position = projection * view * model * vec4(aPos, 1.0f);
+    gl_Position = viewProj * model * vec4(aPos, 1.0f);
     position = vec3(model*vec4(aPos, 1.0f));
-    uvCoords = aTexCoords;
+    uvCoords = aUV;
 
     // TODO find a way to not do this too often
+    // pass as uniform maybe?
     normal = mat3(transpose(inverse(model))) * aNormal;
 }

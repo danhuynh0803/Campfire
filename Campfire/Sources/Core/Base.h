@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "Core/Log.h"
+
 // TODO where to put so all files have access? Maybe a default header to be added to all other header files?
 //typedef uint_8t  UINT8
 //typedef uint_16t UINT16
@@ -25,10 +27,14 @@
     #endif
 
 #elif defined(__APPLE__) || defined(__MACH__)
+    #define PLATFORM_MAC
 #elif defined(__linux__)
+    #define PLATFORM_LINUX
 #else
 #endif // Platform detection
 
+// TODO release mode should start the game from POV of game camera
+// and no longer load editor
 #ifdef DEBUG
     #if defined(PLATFORM_WINDOWS)
     #endif

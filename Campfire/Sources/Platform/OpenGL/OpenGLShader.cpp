@@ -15,7 +15,7 @@ OpenGLShader::OpenGLShader(const std::string& filepath)
 }
 
 OpenGLShader::OpenGLShader(const std::string& _name, const std::string& vertexPath, const std::string& fragmentPath)
-    : name(_name)
+    : name(_name), vertexName(vertexPath), fragName(fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -77,33 +77,36 @@ void OpenGLShader::Compile(const std::string& vertexSrc, const std::string& frag
     glDeleteShader(fragment);
 }
 
-// TODO use enums for shader types
 void OpenGLShader::CheckCompileErrors(uint32_t id, const ShaderType& type)
 {
     int success;
     char infoLog[1024];
 
-    glGetProgramiv(id, GL_LINK_STATUS, &success);
+    //glGetProgramiv(id, GL_LINK_STATUS, &success);
+
+    //if (!success)
+    //{
+    //    glGetProgramInfoLog(id, 1024, NULL, infoLog);
+    //    std::cout << "(" << name << "): " << "ERROR::PROGRAM_LINKING_ERROR\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+    //}
+
+    std::string filename;
+    switch (type)
+    {
+        case ShaderType::VERTEX:
+            filename = vertexName;
+            break;
+        case ShaderType::FRAGMENT:
+            filename = fragName;
+            break;
+    }
+    glGetShaderiv(id, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetProgramInfoLog(id, 1024, NULL, infoLog);
-        //std::cout << "(" << vertexName << ", " << fragName << "): " << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        glGetShaderInfoLog(id, 1024, NULL, infoLog);
+        std::cout << "(" << filename << "): " << "ERROR::SHADER_COMPILATION_ERROR\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
     }
-/*
-    if (type != "PROGRAM")
-    {
-        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(id, 1024, NULL, infoLog);
-            //std::cout << "(" << vertexName << ", " << fragName << "): " << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-        }
-    }
-    else
-    {
 
-    }
-*/
 }
 
 
@@ -119,7 +122,7 @@ void OpenGLShader::SetInt(const std::string &name, int value)
 
 void OpenGLShader::SetIntArray(const std::string &name, int* values, uint32_t count)
 {
-
+    glUniform1iv(glGetUniformLocation(renderID, name.c_str()), count, values);
 }
 
 void OpenGLShader::SetFloat (const std::string &name, float value)

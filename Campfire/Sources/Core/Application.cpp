@@ -1,15 +1,17 @@
 #include "Core/Application.h"
 #include "Core/Timer.h"
 #include "ImGui/ImGuiLayer.h"
-#include "RenderLayer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Core/Log.h"
 #include "Core/Time.h"
+#include "Core/Random.h"
 
 #include "Renderer/Renderer.h"
+#include "Editor/EditorLayer.h"
+#include "Physics/PhysicsManager.h"
 
 Application* Application::instance = nullptr;
 
@@ -17,20 +19,21 @@ Application::Application()
 {
     Log::Init();
     Time::Init();
+    Random::Init();
 
     instance = this;
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    // Init renderer
     Renderer::Init();
-    RenderLayer* renderLayer = new RenderLayer();
-    PushLayer(renderLayer);
+
+    PhysicsManager::Init();
+
+    PushLayer(new EditorLayer());
 
     // Imgui overlay
     imguiLayer = new ImGuiLayer();
     PushOverlay(imguiLayer);
-
 }
 
 Application::~Application()
@@ -46,10 +49,6 @@ void Application::Run()
     {
         Time::Update();
 
-        //Renderer::BeginScene(camera);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         for (Layer* layer : layerStack)
         {
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
@@ -64,10 +63,13 @@ void Application::Run()
         }
         imguiLayer->End();
 
-        Renderer::EndScene();
-
         window->OnUpdate();
     }
+}
+
+void Application::Close()
+{
+    isRunning = false;
 }
 
 void Application::Shutdown()
@@ -91,6 +93,7 @@ void Application::OnEvent(Event& e)
 {
     EventDispatcher dispatcher(e);
 
+    dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
     for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
     {
         if (e.handled)
@@ -100,4 +103,17 @@ void Application::OnEvent(Event& e)
         }
         (*revIt)->OnEvent(e);
     }
+}
+
+bool Application::OnWindowResize(WindowResizeEvent& e)
+{
+    if (e.GetWidth() == 0 || e.GetHeight() == 0)
+    {
+        // TODO
+        // Window minimized
+        return false;
+    }
+
+    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    return false;
 }

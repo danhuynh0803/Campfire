@@ -26,6 +26,16 @@ public:
         rendererAPI->DrawIndexed(vertexArray);
     }
 
+    static void DrawIndexedLines(const SharedPtr<VertexArray>& vertexArray)
+    {
+        rendererAPI->DrawIndexedLines(vertexArray);
+    }
+
+    static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        rendererAPI->SetViewport(x, y, width, height);
+    }
+
 private:
     static UniquePtr<RendererAPI> rendererAPI;
 };

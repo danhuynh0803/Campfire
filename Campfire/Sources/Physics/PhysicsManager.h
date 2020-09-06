@@ -1,39 +1,48 @@
 #ifndef PHYSICS_MANAGER_H
 #define PHYSICS_MANAGER_H
 
-#include "btBulletDynamicsCommon.h"
-#include "GameObject.h"
-#include "BulletDebugDrawer.h"
+#include <btBulletDynamicsCommon.h>
+#include "Physics/Rigidbody.h"
+#include "Scene/Entity.h"
+
+#include <vector>
+#include <map>
 
 class PhysicsManager
 {
 public:
-    void Start();
-    void Update();
-    void Shutdown();
+    static void Init();
+    static void OnUpdate(float dt);
+    static void Shutdown();
 
-    void AddObject(GameObject*);
-    void UpdateColliders();
-    void ClearLists();
+    static void SubmitEntity(Entity entity);
+    static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
+    static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent&);
+    // TODO remove generic collision object
+    static void RemoveEntity(btRigidBody* rigidBody);
+    static void ClearLists();
 
-    void DebugDraw();
+    static void DebugDraw();
 
-    bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, int& index);
+    // TODO Move to general picking or maybe make my own
+    static bool Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, uint64_t& handle);
 
-    bool isBoundingBoxOn = false;
+public:
+    //static bool isBoundingBoxOn = false;
+    static glm::vec3 gravity;
 
 private:
-    btDefaultCollisionConfiguration* collisionConfiguration;
-    btCollisionDispatcher* dispatcher;
-    btBroadphaseInterface* overlappingPairCache;
-    btSequentialImpulseConstraintSolver* solver;
-    btDiscreteDynamicsWorld* dynamicsWorld;
-    btAlignedObjectArray<btCollisionShape*> collisionShapes;
+    // TODO make uniquePtrs for these
+    static btDefaultCollisionConfiguration* collisionConfiguration;
+    static btCollisionDispatcher* dispatcher;
+    static btBroadphaseInterface* overlappingPairCache;
+    static btSequentialImpulseConstraintSolver* solver;
+    static btDiscreteDynamicsWorld* dynamicsWorld;
+    //static btDiscreteDynamicsWorld* raycastWorld;
+    static btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    BulletDebugDrawer mydebugdrawer;
-
-    float gravity = -9.81;
-    //float gravity = 0.0f; // TODO Debug option later
+    //static std::map<btRigidBody*, Entity*> entityMap;
+    static std::map<btRigidBody*, entt::entity> entityMap;
 };
 
 #endif // PHYSICS_MANAGER_H

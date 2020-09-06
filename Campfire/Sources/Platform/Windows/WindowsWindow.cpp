@@ -6,6 +6,9 @@
 #include "Events/MouseEvent.h"
 #include "Events/KeyEvent.h"
 
+#include "Core/Input.h"
+#include "WindowsFileSystem.h"
+
 static uint8_t glfwWindowCount = 0;
 
 WindowsWindow::WindowsWindow(const WindowProps& props)
@@ -71,6 +74,8 @@ void WindowsWindow::Init(const WindowProps& props)
         [](GLFWwindow* _window, int key, int scancode, int action, int mods)
         {
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(_window);
+
+            Input::SetMod(mods); // Modifier key that is pressed
 
             switch (action)
             {

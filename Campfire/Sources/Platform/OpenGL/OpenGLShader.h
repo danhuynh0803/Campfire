@@ -35,8 +35,13 @@ public:
     virtual void Unbind() override;
 
     virtual const std::string& GetName() const override { return name; }
+    virtual const std::string& GetVertexName() const override { return vertexName; }
+    virtual const std::string& GetFragmentName() const override { return fragName; }
 
     virtual void SetUniformBlock(const std::string& name, uint32_t blockIndex) override;
+
+    virtual uint32_t GetRenderID() const override { return renderID; }
+    virtual void SetRenderID(uint32_t newRenderID) override { renderID = newRenderID; }
 
 private:
     void Compile(const std::string& vertexSrc, const std::string& fragSrc);
@@ -44,6 +49,8 @@ private:
 private:
     uint32_t renderID;
     std::string name;
+    std::string vertexName;
+    std::string fragName;
 };
 
 #endif // OPENGL_SHADER_H

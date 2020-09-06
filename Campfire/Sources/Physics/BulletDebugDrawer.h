@@ -1,8 +1,10 @@
 #ifndef BULLET_DEBUG_DRAWER_H
 #define BULLET_DEBUG_DRAWER_H
 
-#include "ShaderOld.h"
-#include "ResourceManager.h"
+#include <glad/glad.h>
+#include <vector>
+#include "Core/Base.h"
+#include "Renderer/Shader.h"
 
 class BulletDebugDrawer : public btIDebugDraw
 {
@@ -15,55 +17,38 @@ public:
 
     GLuint VBO, VAO;
     std::vector<Line> debugLines;
-    ShaderOld lineShader;
+    SharedPtr<Shader> lineShader;
 
     BulletDebugDrawer()
     {
-        lineShader =
-            ShaderOld(
-                (CORE + "Shaders/line.vert").c_str(),
-                (CORE + "Shaders/line.frag").c_str()
-            );
+        lineShader = ShaderManager::Create("lines", "../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
+        lineShader->SetUniformBlock("Camera", 0);
+
     }
 
-    void SetMatrices(glm::mat4 pViewMatrix, glm::mat4 pProjectionMatrix)
+    //void DebugDraw()
+    //{
+    //    glGenBuffers(1, &VBO);
+    //    glGenVertexArrays(1, &VAO);
+    //    glBindVertexArray(VAO);
+    //    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //    glBufferData(GL_ARRAY_BUFFER, sizeof(debugLines), &debugLines, GL_STATIC_DRAW);
+    //    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLfloat*)&this->debugLines[0]);
+    //    glEnableVertexAttribArray(0);
+    //    glBindVertexArray(0);
+
+    //    lineShader.use();
+    //    glBindVertexArray(VAO);
+    //    glDrawArrays(GL_LINES, 0, debugLines.size()*2);
+    //    glBindVertexArray(0);
+
+    //    debugLines.clear();
+    //}
+
+    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
     {
-        // TODO refactor and use global buffer
-        lineShader.use();
-        glUniformMatrix4fv(glGetUniformLocation(lineShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(pProjectionMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(lineShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(pViewMatrix));
-        glm::mat4 model = glm::mat4(1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(lineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    }
+        //LOG_INFO("Drawing Lines");
 
-    void DebugDraw()
-    {
-        glGenBuffers(1, &VBO);
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(debugLines), &debugLines, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLfloat*)&this->debugLines[0]);
-        glEnableVertexAttribArray(0);
-        glBindVertexArray(0);
-
-        lineShader.use();
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_LINES, 0, debugLines.size()*2);
-        glBindVertexArray(0);
-
-        debugLines.clear();
-    }
-
-    /*
-    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-    {
-        debugLines.push_back(Line(from, to));
-    }
-    */
-
-    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
-    {
         // Vertex data
         GLfloat points[12];
 
@@ -81,6 +66,7 @@ public:
         points[10] = color.y();
         points[11] = color.z();
 
+        // TODO get all lines and draw once
         glDeleteBuffers(1, &VBO);
         glDeleteVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -94,9 +80,12 @@ public:
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
         glBindVertexArray(0);
 
+        lineShader->Bind();
+        lineShader->SetMat4("model", glm::mat4(1.0f));
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINES, 0, 2);
         glBindVertexArray(0);
+        lineShader->Unbind();
     }
 
     virtual void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &) {}
