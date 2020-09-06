@@ -41,9 +41,8 @@ private:
 class Text
 {
 public:
-    // FIXME should avoid having this as a blank function
-    // maybe refactor and have abstract Text class
-    virtual void Draw(const TransformComponent& transform, const Camera& camera) {}
+    virtual ~Text() = default;
+    virtual void Draw(const TransformComponent& transform, const Camera& camera) = 0;
     void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
     SharedPtr<Font> GetFont() const { return font; }
 
