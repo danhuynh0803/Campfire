@@ -1,4 +1,4 @@
-#include "InterruptFlag.h"
+#include "InterruptibleThread.h"
 
 void InterruptFlag::Set()
 {
@@ -13,35 +13,4 @@ void InterruptFlag::Set()
 	{
 		threadConditionAny->notify_all();
 	}
-}
-
-template<typename Lockable>
-void InterruptFlag::Wait(std::condition_variable_any& conditionVariable, Lockable& lock)
-{
-	struct customLock
-	{
-		InterruptFlag* self;
-		Lockable& lock;
-		customLock(InterruptFlag* self_, std::condition_variable_any& cond, Lockable& lk_) :
-			self(self_), lock(lk)
-		{
-			self->setClearMutex.lock();
-			self->threadConditionAny = &cond;
-		}
-		void Unlock()
-		{
-			
-		}
-		void Lock()
-		{
-			std::lock(self->setClearMutex, lock);
-		}
-		~customLock()
-		{
-			self->threadConditionAny = 0;
-			self->setClearMutex.unlock();
-		}
-	};
-	customLock cl(this, conditionVariable, lock);
-	conditionVariable.wait(cl);
 }

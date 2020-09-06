@@ -17,20 +17,7 @@ class InterruptFlag
 {
 public:
     InterruptFlag():threadCondition(0),threadConditionAny(0){}
-    void Set()
-	{
-		//the looset memory order
-		flag.store(true, std::memory_order_relaxed);
-		std::lock_guard<std::mutex> lk(setClearMutex);
-		if (threadCondition)
-		{
-			threadCondition->notify_all();
-		}
-		else if (threadConditionAny)
-		{
-			threadConditionAny->notify_all();
-		}
-	}
+	void Set();
 
 	bool isSet() const 
 	{
@@ -97,7 +84,9 @@ private:
     std::condition_variable_any* threadConditionAny;
     std::mutex setClearMutex;
 };
+
 thread_local InterruptFlag this_thread_interrupt_flag;
+
 class InterruptibleThread
 {
 public:
