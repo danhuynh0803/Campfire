@@ -1,5 +1,6 @@
 #include "Platform/OpenGL/OpenGLText.h"
 #include "Scene/Component.h"
+#include "Renderer/Renderer2D.h"
 
 // ===================================
 // Font
@@ -11,6 +12,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
     if (FT_Init_FreeType(&ft))
     {
         LOG_ERROR("OpenGLFont::Unable to init library");
+        return;
     }
 
     FT_Face face;
@@ -18,6 +20,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
     if (FT_New_Face(ft, fontPath.c_str(), 0, &face))
     {
         LOG_ERROR("OpenGLFont::Failed to load font: {0}", fontPath);
+        return;
     }
 
     // Set font's width and height parameters.
@@ -80,11 +83,35 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
 // ===================================
 // Text
 // ===================================
+OpenGLText::OpenGLText(const std::string& newText)
+{
+    text = newText;
+}
+
 void OpenGLText::Draw()
 {
+    glm::vec3 pos = glm::vec3(0.0f);
+    glm::vec3 euler = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
+
     auto characters = font->GetCharacterMap();
     for (auto c = text.begin(); c != text.end(); c++)
     {
+        glm::mat4 model = glm::mat4(1.0f);
+
         Character ch = characters[*c];
+
+        float xpos = pos.x + ch.bearing.x * scale.x;
+        float ypos = pos.y + ch.bearing.y * scale.y;
+
+        float w = ch.size.x * scale.x;
+        float h = ch.size.y * scale.y;
+
+        model = glm::translate(model, glm::vec3(xpos, ypos, 0.0f));
+        model = glm::scale(model, glm::vec3(w, h, 1.0f));
+
+        pos.x += (ch.advance >> 6) * scale.x;
+
+        Renderer2D::SubmitQuad(model, ch.texture, color);
     }
 }

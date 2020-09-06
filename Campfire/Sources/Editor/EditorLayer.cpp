@@ -9,12 +9,16 @@
 #include "Scene/SceneLoader.h"
 #include "Renderer/Framebuffer.h"
 #include "Renderer/SceneRenderer.h"
+#include "Renderer/Text.h"
 
 #include <Tracy.hpp>
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Shader> postProcessShader;
+
+// Testing text
+SharedPtr<Text> textObject;
 
 EditorLayer::EditorLayer()
     : Layer("Editor")
@@ -36,6 +40,8 @@ void EditorLayer::OnAttach()
     gameCamFBO = Framebuffer::Create(1600, 900);
 
     postProcessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
+
+    textObject = Text::Create("A");
 }
 
 void EditorLayer::OnDetach()
@@ -104,6 +110,7 @@ void EditorLayer::OnUpdate(float dt)
         gameCamFBO->Bind();
         SceneRenderer::BeginScene(activeScene, *mainGameCamera);
         activeScene->OnRender(deltaTime, *mainGameCamera);
+        //textObject->Draw();
         SceneRenderer::EndScene();
         gameCamFBO->Unbind();
     }
@@ -117,6 +124,7 @@ void EditorLayer::OnUpdate(float dt)
         PhysicsManager::DebugDraw();
     }
 
+    textObject->Draw();
     SceneRenderer::EndScene();
 }
 

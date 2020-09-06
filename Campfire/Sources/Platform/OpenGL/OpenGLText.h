@@ -16,5 +16,6 @@ private:
 class OpenGLText : public Text
 {
 public:
+    OpenGLText(const std::string& newText);
     virtual void Draw() override;
 };

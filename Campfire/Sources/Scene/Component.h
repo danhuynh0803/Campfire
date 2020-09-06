@@ -309,4 +309,15 @@ struct ParticleSystemComponent
     }
 };
 
+struct TextComponent
+{
+//    TextComponent()
+//    {
+//        text = CreateSharedPtr<Text>();
+//    }
+//
+//    SharedPtr<Text> text;
+//    operator SharedPtr<Text>& () { return text; }
+};
+
 #endif // COMPONENT_H

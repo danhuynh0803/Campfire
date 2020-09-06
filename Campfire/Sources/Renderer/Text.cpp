@@ -27,6 +27,17 @@ SharedPtr<Font> Font::Create(const std::string& fontPath)
     return newFont;
 }
 
+SharedPtr<Text> Text::Create(const std::string& newText)
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            return nullptr;
+        case RendererAPI::API::OpenGL:
+            return CreateSharedPtr<OpenGLText>(newText);
+    }
+}
+
 
 void TextEngine::Init()
 {

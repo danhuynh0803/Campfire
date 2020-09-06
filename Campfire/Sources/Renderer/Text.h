@@ -38,12 +38,14 @@ class Text
 {
 public:
     glm::vec4 color = glm::vec4(1.0f);
-    std::string text;
+    std::string text = "New Text";
     void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
     virtual void Draw() = 0;
+    static SharedPtr<Text> Create(const std::string& newText = "New Text");
 
 protected:
-    SharedPtr<Font> font = nullptr;
+    // Default font
+    SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");
     int fontSize = 12;
 };
 
