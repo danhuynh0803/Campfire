@@ -21,6 +21,7 @@ public:
     void SetProjection();
     glm::mat4 GetViewMatrix() const { return viewMatrix; }
     glm::mat4 GetProjMatrix() const { return projMatrix; }
+    glm::mat4 GetProjUIMatrix() const { return uiProjMatrix; }
     glm::mat4 GetViewProjMatrix() const { return projMatrix * viewMatrix; }
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler);
@@ -43,6 +44,7 @@ private:
 
     glm::mat4 viewMatrix = glm::mat4(1.0f);
     glm::mat4 projMatrix = glm::mat4(1.0f);
+    glm::mat4 uiProjMatrix = glm::mat4(1.0f);
 
     SharedPtr<VertexArray> vertexArray;
     SharedPtr<VertexBuffer> vertexBuffer;

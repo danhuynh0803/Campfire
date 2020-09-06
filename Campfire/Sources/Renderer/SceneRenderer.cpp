@@ -19,6 +19,7 @@ void SceneRenderer::Init()
         { ShaderDataType::MAT4, "view" },
         { ShaderDataType::MAT4, "proj" },
         { ShaderDataType::MAT4, "viewProj" },
+        { ShaderDataType::MAT4, "projUI" },
         { ShaderDataType::FLOAT4, "pos" }
     };
     uboCamera->SetLayout(uboLayout, 0);
@@ -141,7 +142,8 @@ void SceneRenderer::SubmitCamera(const Camera& camera)
     uboCamera->SetData((void*)glm::value_ptr(camera.GetViewMatrix()), 0, sizeof(glm::mat4));
     uboCamera->SetData((void*)glm::value_ptr(camera.GetProjMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
     uboCamera->SetData((void*)glm::value_ptr(camera.GetViewProjMatrix()), 2*sizeof(glm::mat4), sizeof(glm::mat4));
-    uboCamera->SetData((void*)glm::value_ptr(camera.pos), 3*sizeof(glm::mat4), sizeof(glm::vec4));
+    uboCamera->SetData((void*)glm::value_ptr(camera.GetProjUIMatrix()), 3*sizeof(glm::mat4), sizeof(glm::mat4));
+    uboCamera->SetData((void*)glm::value_ptr(camera.pos), 4*sizeof(glm::mat4), sizeof(glm::vec4));
     uboCamera->Unbind();
 }
 

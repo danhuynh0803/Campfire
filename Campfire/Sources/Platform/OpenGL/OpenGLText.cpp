@@ -115,8 +115,9 @@ void OpenGLText::Draw()
 {
     shader->Bind();
     shader->SetFloat4("color", color);
+    shader->SetBool("isUI", isUI);
     glActiveTexture(GL_TEXTURE0);
-    glm::vec3 pos = glm::vec3(0.0f);
+    glm::vec3 pos = glm::vec3(1000.0f, 1000.0f, 0.0f);
     //glm::vec3 euler = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
 

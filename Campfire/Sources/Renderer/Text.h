@@ -36,6 +36,8 @@ private:
 class Text
 {
 public:
+    bool isUI = true;
+
     glm::vec4 color = glm::vec4(0, 0, 0, 1);
     std::string text = "New Text";
     void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
@@ -45,6 +47,7 @@ public:
 protected:
     // Default font
     SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");
+    // TODO have text scale with resolution size
     uint32_t fontSize = 12;
 };
 
