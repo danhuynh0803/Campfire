@@ -162,6 +162,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
         CopyComponent<AudioComponent>(registry, other->registry, enttMap);
+        CopyComponent<TextComponent>(registry, other->registry, enttMap);
     }
 }
 
