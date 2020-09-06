@@ -138,13 +138,13 @@ void OpenGLText::Draw(const TransformComponent& transform, const Camera& camera)
         float h = ch.size.y * scale.y;
 
         float vertices[6][5] = {
-            { xpos,     ypos + h, 0.0f,    0.0f, 0.0f },
-            { xpos,     ypos,     0.0f,    0.0f, 1.0f },
-            { xpos + w, ypos,     0.0f,    1.0f, 1.0f },
+            { xpos,     ypos + h, pos.z,    0.0f, 0.0f },
+            { xpos,     ypos,     pos.z,    0.0f, 1.0f },
+            { xpos + w, ypos,     pos.z,    1.0f, 1.0f },
 
-            { xpos,     ypos + h, 0.0f,    0.0f, 0.0f },
-            { xpos + w, ypos,     0.0f,    1.0f, 1.0f },
-            { xpos + w, ypos + h, 0.0f,    1.0f, 0.0f },
+            { xpos,     ypos + h, pos.z,    0.0f, 0.0f },
+            { xpos + w, ypos,     pos.z,    1.0f, 1.0f },
+            { xpos + w, ypos + h, pos.z,    1.0f, 0.0f },
         };
 
         //model = glm::translate(model, glm::vec3(xpos, ypos, 0.0f));

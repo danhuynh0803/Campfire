@@ -443,6 +443,7 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
     LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
     editorCamera->width = e.GetWidth();
     editorCamera->height = e.GetHeight();
+    editorCamera->SetProjection();
     gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     //sceneCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     return false;
