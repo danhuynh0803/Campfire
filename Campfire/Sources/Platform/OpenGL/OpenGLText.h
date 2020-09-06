@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Renderer/Text.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/Buffer.h"
+#include "Renderer/Shader.h"
 
 class OpenGLFont : public Font
 {
@@ -18,4 +21,7 @@ class OpenGLText : public Text
 public:
     OpenGLText(const std::string& newText);
     virtual void Draw() override;
+    SharedPtr<VertexArray> vertexArray;
+    SharedPtr<VertexBuffer> vertexBuffer;
+    SharedPtr<Shader> shader;
 };

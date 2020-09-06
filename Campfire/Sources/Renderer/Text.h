@@ -13,7 +13,8 @@
 
 struct Character
 {
-    SharedPtr<Texture2D> texture;
+    //SharedPtr<Texture2D> texture;
+    uint32_t textureID;
     glm::ivec2 size;
     glm::ivec2 bearing;
     uint32_t advance;
@@ -37,7 +38,7 @@ private:
 class Text
 {
 public:
-    glm::vec4 color = glm::vec4(1.0f);
+    glm::vec4 color = glm::vec4(0, 0, 0, 1);
     std::string text = "New Text";
     void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
     virtual void Draw() = 0;

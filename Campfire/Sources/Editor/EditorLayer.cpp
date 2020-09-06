@@ -41,7 +41,7 @@ void EditorLayer::OnAttach()
 
     postProcessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 
-    textObject = Text::Create("A");
+    textObject = Text::Create("HelloWorld");
 }
 
 void EditorLayer::OnDetach()
@@ -110,7 +110,7 @@ void EditorLayer::OnUpdate(float dt)
         gameCamFBO->Bind();
         SceneRenderer::BeginScene(activeScene, *mainGameCamera);
         activeScene->OnRender(deltaTime, *mainGameCamera);
-        //textObject->Draw();
+        textObject->Draw();
         SceneRenderer::EndScene();
         gameCamFBO->Unbind();
     }

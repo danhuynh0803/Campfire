@@ -63,11 +63,12 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        SharedPtr<Texture2D> texture = Texture2D::Create(face->glyph->bitmap.width, face->glyph->bitmap.rows);
-        texture->SetData(textureID);
+        //SharedPtr<Texture2D> texture = Texture2D::Create(face->glyph->bitmap.width, face->glyph->bitmap.rows);
+        //texture->SetData(textureID);
         // store character for later use
         Character character = {
-            texture,
+            //texture,
+            textureID,
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
             face->glyph->advance.x
@@ -86,32 +87,78 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
 OpenGLText::OpenGLText(const std::string& newText)
 {
     text = newText;
+
+    vertexArray = VertexArray::Create();
+
+    vertexArray->Bind();
+
+    vertexBuffer = VertexBuffer::Create(sizeof(float) * 6 * 5);
+    vertexBuffer->Bind();
+    BufferLayout layout =
+    {
+        { ShaderDataType::FLOAT3, "aPos" },
+        { ShaderDataType::FLOAT2, "aUV" },
+    };
+    vertexBuffer->SetLayout(layout);
+
+    vertexArray->AddVertexBuffer(vertexBuffer);
+
+    vertexBuffer->Unbind();
+    vertexArray->Unbind();
+
+    shader = ShaderManager::Create("text", "../Campfire/Shaders/text.vert", "../Campfire/Shaders/text.frag");
+    shader->Bind();
+    shader->SetUniformBlock("Camera", 0);
 }
 
 void OpenGLText::Draw()
 {
+    shader->Bind();
+    shader->SetFloat4("color", color);
+    glActiveTexture(GL_TEXTURE0);
     glm::vec3 pos = glm::vec3(0.0f);
-    glm::vec3 euler = glm::vec3(0.0f);
+    //glm::vec3 euler = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
+
+    vertexArray->Bind();
 
     auto characters = font->GetCharacterMap();
     for (auto c = text.begin(); c != text.end(); c++)
     {
-        glm::mat4 model = glm::mat4(1.0f);
+        //glm::mat4 model = glm::mat4(1.0f);
 
         Character ch = characters[*c];
 
         float xpos = pos.x + ch.bearing.x * scale.x;
-        float ypos = pos.y + ch.bearing.y * scale.y;
+        float ypos = pos.y - (ch.size.y - ch.bearing.y) * scale.y;
 
         float w = ch.size.x * scale.x;
         float h = ch.size.y * scale.y;
 
-        model = glm::translate(model, glm::vec3(xpos, ypos, 0.0f));
-        model = glm::scale(model, glm::vec3(w, h, 1.0f));
+        float vertices[6][5] = {
+            { xpos,     ypos + h, 0.0f,    0.0f, 0.0f },
+            { xpos,     ypos,     0.0f,    0.0f, 1.0f },
+            { xpos + w, ypos,     0.0f,    1.0f, 1.0f },
+
+            { xpos,     ypos + h, 0.0f,    0.0f, 0.0f },
+            { xpos + w, ypos,     0.0f,    1.0f, 1.0f },
+            { xpos + w, ypos + h, 0.0f,    1.0f, 0.0f },
+        };
+
+        //model = glm::translate(model, glm::vec3(xpos, ypos, 0.0f));
+        //model = glm::scale(model, glm::vec3(w, h, 1.0f));
+
+        glBindTexture(GL_TEXTURE_2D, ch.textureID);
+
+        vertexBuffer->Bind();
+        vertexBuffer->SetData(vertices, sizeof(vertices));
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         pos.x += (ch.advance >> 6) * scale.x;
-
-        Renderer2D::SubmitQuad(model, ch.texture, color);
+        //Renderer2D::SubmitQuad(model, ch.texture, color);
     }
+
+    vertexArray->Unbind();
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
