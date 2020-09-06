@@ -136,6 +136,9 @@ file(GLOB SRC_PHYSICS Campfire/Sources/Physics/*.h
 file(GLOB SRC_IMGUI Campfire/Sources/ImGui/*.h
                     Campfire/Sources/ImGui/*.cpp)
 
+file(GLOB SRC_JOBSYSTEM Campfire/Sources/JobSystem/*.h
+                        Campfire/Sources/JobSystem/*.cpp)
+
 file(GLOB SRC_AUDIO Campfire/Sources/Audio/*.h
                     Campfire/Sources/Audio/*.cpp)
 
@@ -192,6 +195,7 @@ source_group("Sources\\Particles"          FILES ${SRC_PARTICLES})
 source_group("Sources\\Physics"            FILES ${SRC_PHYSICS})
 source_group("Sources\\Scene"              FILES ${SRC_SCENE})
 source_group("Sources\\ImGui"              FILES ${SRC_IMGUI})
+source_group("Sources\\JobSystem"          FILES ${SRC_JOBSYSTEM})
 source_group("Sources\\Audio"              FILES ${SRC_AUDIO})
 source_group("Sources\\Scripting"          FILES ${SRC_SCRIPTING})
 source_group("Sources\\Editor"             FILES ${SRC_EDITOR})
@@ -219,6 +223,7 @@ add_executable(
         ${SRC_PHYSICS}
         ${SRC_SCENE}
         ${SRC_IMGUI}
+        ${SRC_JOBSYSTEM}
         ${SRC_AUDIO}
         ${SRC_SCRIPTING}
         ${SRC_EDITOR}
