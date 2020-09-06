@@ -35,13 +35,13 @@ public:
 		std::lock_guard<std::mutex> lk(setClearMutex);
 		threadCondition = 0;
 	}
-	struct ClearConditionVariableDestruct
-	{
-		~ClearConditionVariableDestruct()
-		{
-			this_thread_interrupt_flag.ClearConditionVariable();
-		}
-	};
+	//struct ClearConditionVariableDestruct
+	//{
+	//	~ClearConditionVariableDestruct()
+	//	{
+	//		this_thread_interrupt_flag.ClearConditionVariable();
+	//	}
+	//};
 
     template<typename Lockable>
 	void Wait(std::condition_variable_any& conditionVariable, Lockable& lockable)
@@ -122,30 +122,30 @@ void InterruptionPoint()
 	}
 }
 
-void InterruptibleWait(std::condition_variable& conditonVariable, 
-	std::unique_lock<std::mutex>& lock)
-{
-	InterruptionPoint();
-	this_thread_interrupt_flag.SetConditionVariable(conditonVariable);
-	InterruptFlag::ClearConditionVariableDestruct guard;
-	InterruptionPoint();
-	conditonVariable.wait_for(lock, std::chrono::microseconds(1));
-	InterruptionPoint();
-}
-template<typename Predicate>
-void InterruptibleWait(std::condition_variable& conditonVariable, 
-	std::unique_lock<std::mutex>& lock,
-	Predicate pred)
-{
-	InterruptionPoint();
-	this_thread_interrupt_flag.SetConditionVariable(conditonVariable);
-	InterruptFlag::ClearConditionVariableDestruct guard;
-	while (!this_thread_interrupt_flag.isSet() && !pred())
-	{
-		conditonVariable.wait_for(lock, std::chrono::microseconds(1))
-	}
-	InterruptionPoint();
-}
+//void InterruptibleWait(std::condition_variable& conditonVariable, 
+//	std::unique_lock<std::mutex>& lock)
+//{
+//	InterruptionPoint();
+//	this_thread_interrupt_flag.SetConditionVariable(conditonVariable);
+//	InterruptFlag::ClearConditionVariableDestruct guard;
+//	InterruptionPoint();
+//	conditonVariable.wait_for(lock, std::chrono::microseconds(1));
+//	InterruptionPoint();
+//}
+//template<typename Predicate>
+//void InterruptibleWait(std::condition_variable& conditonVariable, 
+//	std::unique_lock<std::mutex>& lock,
+//	Predicate pred)
+//{
+//	InterruptionPoint();
+//	this_thread_interrupt_flag.SetConditionVariable(conditonVariable);
+//	InterruptFlag::ClearConditionVariableDestruct guard;
+//	while (!this_thread_interrupt_flag.isSet() && !pred())
+//	{
+//		conditonVariable.wait_for(lock, std::chrono::microseconds(1))
+//	}
+//	InterruptionPoint();
+//}
 
 template<typename Lockable>
 void InterruptibleWait(std::condition_variable_any& conditonVariableAny, Lockable& lockable)
@@ -153,16 +153,16 @@ void InterruptibleWait(std::condition_variable_any& conditonVariableAny, Lockabl
 	this_thread_interrupt_flag.Wait(conditonVariableAny, lockable);
 }
 
-//template<typename T>
-//void InterruptibleWait(std::future<T>& uf)
-//{
-//	while (!this_thread_interrupt_flag.isSet())
-//	{
-//		if (uf.wait_for(lk,std::chrono::microseconds(1)) == std::future_status::ready)
-//			break;
-//	}
-//	InterruptionPoint();
-//}
+template<typename T>
+void InterruptibleWait(std::future<T>& uf)
+{
+	while (!this_thread_interrupt_flag.isSet())
+	{
+		if (uf.wait_for(lk,std::chrono::microseconds(1)) == std::future_status::ready)
+			break;
+	}
+	InterruptionPoint();
+}
 
 
 #endif // INTERRUPTIBLE_THREAD_H
