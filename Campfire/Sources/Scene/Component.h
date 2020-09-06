@@ -11,6 +11,7 @@
 
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
+#include "Renderer/Text.h"
 #include "Particles/ParticleSystem.h"
 #include "Physics/Rigidbody.h"
 #include "Physics/Trigger.h"
@@ -311,13 +312,13 @@ struct ParticleSystemComponent
 
 struct TextComponent
 {
-//    TextComponent()
-//    {
-//        text = CreateSharedPtr<Text>();
-//    }
-//
-//    SharedPtr<Text> text;
-//    operator SharedPtr<Text>& () { return text; }
+    TextComponent()
+    {
+        text = CreateSharedPtr<Text>();
+    }
+
+    SharedPtr<Text> text;
+    operator SharedPtr<Text>& () { return text; }
 };
 
 #endif // COMPONENT_H

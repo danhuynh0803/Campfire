@@ -110,8 +110,8 @@ void EditorLayer::OnUpdate(float dt)
         gameCamFBO->Bind();
         SceneRenderer::BeginScene(activeScene, *mainGameCamera);
         activeScene->OnRender(deltaTime, *mainGameCamera);
-        textObject->Draw();
         SceneRenderer::EndScene();
+        textObject->Draw();
         gameCamFBO->Unbind();
     }
 
@@ -124,8 +124,8 @@ void EditorLayer::OnUpdate(float dt)
         PhysicsManager::DebugDraw();
     }
 
-    textObject->Draw();
     SceneRenderer::EndScene();
+    textObject->Draw();
 }
 
 void EditorLayer::OnImGuiRender()

@@ -5,7 +5,7 @@
 // ===================================
 // Font
 // ===================================
-OpenGLFont::OpenGLFont(const std::string& fontPath)
+OpenGLFont::OpenGLFont(const std::string& fontPath, uint32_t fontSize)
     : path(fontPath)
 {
     FT_Library ft;
@@ -26,7 +26,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
     // Set font's width and height parameters.
     // Setting the width to 0, allows face to dynamically calculate
     // width based on the given height
-    FT_Set_Pixel_Sizes(face, 0, 48);
+    FT_Set_Pixel_Sizes(face, 0, fontSize);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -71,7 +71,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath)
             textureID,
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            face->glyph->advance.x
+            static_cast<uint32_t>(face->glyph->advance.x)
         };
 
         characters.emplace(c, character);
@@ -155,8 +155,10 @@ void OpenGLText::Draw()
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        // advance cursors for next glypth (advance = number of 1/64 pixels)
+        // bitshift by 6 to get value in pixels (2^6 = 64)
+        // so we get num of pixels by dividing 1/64 by 64
         pos.x += (ch.advance >> 6) * scale.x;
-        //Renderer2D::SubmitQuad(model, ch.texture, color);
     }
 
     vertexArray->Unbind();

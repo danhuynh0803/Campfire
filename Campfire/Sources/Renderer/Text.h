@@ -25,12 +25,10 @@ class Font
 public:
     virtual ~Font() = default;
     virtual std::string GetPath() const = 0;
-    static SharedPtr<Font> Create(const std::string& fontPath);
+    static SharedPtr<Font> Create(const std::string& fontPath, uint32_t fontSize = 12);
     std::map<char, Character> const GetCharacterMap() { return characters; }
-
 protected:
     std::map<char, Character> characters;
-
 private:
     static std::map<std::string, SharedPtr<Font>> fontCache;
 };
@@ -41,15 +39,16 @@ public:
     glm::vec4 color = glm::vec4(0, 0, 0, 1);
     std::string text = "New Text";
     void SetFont(SharedPtr<Font> fontPtr) { font = fontPtr; }
-    virtual void Draw() = 0;
+    virtual void Draw() {}
     static SharedPtr<Text> Create(const std::string& newText = "New Text");
 
 protected:
     // Default font
     SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");
-    int fontSize = 12;
+    uint32_t fontSize = 12;
 };
 
+// TODO setup batching for all text objects
 class TextEngine
 {
 public:

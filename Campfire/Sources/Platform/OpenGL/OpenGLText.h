@@ -8,12 +8,11 @@
 class OpenGLFont : public Font
 {
 public:
-    OpenGLFont(const std::string& fontPath);
+    OpenGLFont(const std::string& fontPath, uint32_t fontSize);
     ~OpenGLFont() = default;
     std::string GetPath() const override { return path; }
-
 private:
-    std::string path = "fonts/arial.ttf";
+    std::string path;
 };
 
 class OpenGLText : public Text

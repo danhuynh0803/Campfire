@@ -4,7 +4,7 @@
 
 std::map<std::string, SharedPtr<Font>> Font::fontCache;
 
-SharedPtr<Font> Font::Create(const std::string& fontPath)
+SharedPtr<Font> Font::Create(const std::string& fontPath, uint32_t fontSize)
 {
     // Check if font has already been loaded up prior
     if (fontCache.find(fontPath) != fontCache.end())
@@ -19,7 +19,7 @@ SharedPtr<Font> Font::Create(const std::string& fontPath)
         case RendererAPI::API::None:
             return nullptr;
         case RendererAPI::API::OpenGL:
-            newFont = CreateSharedPtr<OpenGLFont>(fontPath);
+            newFont = CreateSharedPtr<OpenGLFont>(fontPath, fontSize);
     }
 
     fontCache.emplace(fontPath, newFont);
