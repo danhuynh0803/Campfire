@@ -116,6 +116,8 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
                         selected = rootIdx;
                         childIdx = numChildren;
                     }
+
+                    curr = childEntity.GetComponent<RelationshipComponent>().next;
                 }
                 ImGui::TreePop();
             }
@@ -135,9 +137,9 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
                 Entity childEntity(curr, activeScene.get());
                 for (size_t numChildren = 0; numChildren < childIdx; ++numChildren)
                 {
-                    curr = relationshipComp.next;
+                    curr = childEntity.GetComponent<RelationshipComponent>().next;
                     childEntity = Entity(curr, activeScene.get());
-                    relationshipComp = childEntity.GetComponent<RelationshipComponent>();
+                    //relationshipComp = childEntity.GetComponent<RelationshipComponent>();
                 }
 
                 selectedEntity = childEntity;

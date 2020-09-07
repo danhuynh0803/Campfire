@@ -56,8 +56,17 @@ void Scene::Init()
         auto child = CreateEntity("Child", false);
         child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 1.0f, 0.0f);
-
         player.AddChild(child);
+
+        auto child1 = CreateEntity("Child1", false);
+        child1.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        child1.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
+        player.AddChild(child1);
+
+        auto child2 = CreateEntity("Child2", false);
+        child2.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        child2.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        player.AddChild(child2);
     }
 
     {
@@ -343,8 +352,19 @@ void Scene::OnRender(float dt, const Camera& camera)
 
                     glm::mat4 transform = glm::mat4(1.0f);
                     glm::vec3 position    = transformComponent.position + parentTransform.position;
-                    glm::vec3 eulerAngles = transformComponent.eulerAngles + parentTransform.eulerAngles;
+                    glm::vec3 eulerAngles = transformComponent.eulerAngles;
                     glm::vec3 scale = transformComponent.scale * parentTransform.scale;
+
+                    glm::vec3 parentEulerAngles = parentTransform.eulerAngles;
+                    glm::quat parentRotation = glm::quat(
+                        glm::vec3(
+                            glm::radians(parentEulerAngles.x),
+                            glm::radians(parentEulerAngles.y),
+                            glm::radians(parentEulerAngles.z)
+                        )
+                    );
+                    glm::mat4 parentRotationMat = glm::toMat4(parentRotation);
+                    transform = transform * parentRotationMat;
 
                     transform = glm::translate(transform, position);
 

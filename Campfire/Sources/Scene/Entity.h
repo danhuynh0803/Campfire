@@ -25,32 +25,39 @@ public:
 
     void AddChild(entt::entity childHandle)
     {
-        auto& comp = GetComponent<RelationshipComponent>();
+        auto& parentComp = GetComponent<RelationshipComponent>();
 
-        if (comp.numChildren == 0)
-        {
-            comp.first = childHandle;
-            auto& childRelation = scene->registry.get<RelationshipComponent>(comp.first);
-            childRelation.parent = entityHandle;
-            comp.numChildren++;
-            return;
-        }
+        auto curr = parentComp.first;
+        entt::entity prev = entt::null;
 
-        auto& curr = comp.first;
-        auto& prev = comp.prev;
         // Iterate to the end of the children list
-        for (std::size_t i {}; i < comp.numChildren-1; ++i)
+        for (std::size_t i = 0; i < parentComp.numChildren; ++i)
         {
             prev = curr;
             curr = scene->registry.get<RelationshipComponent>(curr).next;
         }
 
-        auto& currRelation = scene->registry.get<RelationshipComponent>(curr);
-        currRelation.next = childHandle;
-        auto& nextRelation = scene->registry.get<RelationshipComponent>(currRelation.next);
-        nextRelation.prev = curr;
-        nextRelation.parent = entityHandle;
-        comp.numChildren++;
+        // Add new child to end of the list
+        curr = childHandle;
+        auto& newChildRelation = scene->registry.get<RelationshipComponent>(curr);
+        newChildRelation.parent = entityHandle;
+        newChildRelation.prev = prev;
+
+        // Child is first in the list
+        // Set up link from parent to first child
+        if (prev == entt::null)
+        {
+            parentComp.first = curr;
+        }
+        // else, child is not the first in the list,
+        // then set up link to it from previous child
+        else
+        {
+            auto& prevChildRelation = scene->registry.get<RelationshipComponent>(prev);
+            prevChildRelation.next = curr;
+        }
+
+        parentComp.numChildren++;
     }
 
     template <typename T, typename... Args>
