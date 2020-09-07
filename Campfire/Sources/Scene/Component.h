@@ -19,6 +19,8 @@
 #include "Scene/Entity.h"
 #include "Audio/AudioSource.h"
 
+class Entity;
+
 struct IDComponent
 {
     uint64_t ID;

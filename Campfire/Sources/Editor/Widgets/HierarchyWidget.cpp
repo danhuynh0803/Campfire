@@ -60,30 +60,100 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
 
     ImGui::Separator();
 
+
+    static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+    ImGuiTreeNodeFlags node_flags = base_flags;
+
+    static int selection_mask = (1 << 2);
+    int node_clicked = -1;
+
     int i = 0;
     for (auto entityPair : activeScene->GetEntityMap())
     {
-        std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
-        if (filter.PassFilter(tag.c_str()))
-        {
-            char buf[128];
-            // FIXME: adding an index into tag since duplicate tags
-            // cause us to only be able to select the first of that matching tag
-            sprintf(buf, "%d. %s", i, tag.c_str());
-            if (ImGui::Selectable(buf, selected == i))
-            {
-                selected = i;
-            }
+        Entity entity = entityPair.second;
+        std::string tag = entity.GetComponent<TagComponent>().tag;
 
-            if (selected == i)
+        const bool is_selected = (selection_mask & (1 << i)) != 0;
+        if (is_selected)
+        {
+            node_flags |= ImGuiTreeNodeFlags_Selected;
+        }
+
+        RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
+        if (relationshipComp.numChildren == 0)
+        {
+            // Object contains no children, so set as selectable leaf
+            node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
+            ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%d. %s", i, tag.c_str());
+            if (ImGui::IsItemClicked())
             {
-                // Open inspector for selected object
-                selectedEntity = entityPair.second;
-                hasSelectedEntity = true;
+                node_clicked = i;
             }
         }
+        else
+        {
+            // Object contains children, so set as selectable tree
+            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%d. %s", i, tag.c_str());
+            if (ImGui::IsItemClicked())
+            {
+                node_clicked = i;
+            }
+            if (node_open)
+            {
+                entt::entity curr = relationshipComp.first;
+                for (size_t numChildren = 0; numChildren < relationshipComp.numChildren; ++numChildren)
+                {
+                    node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
+
+                    Entity childEntity(curr, activeScene.get());
+                    std::string childTag = childEntity.GetComponent<TagComponent>();
+                    ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%d. %s", i, childTag.c_str());
+                    if (ImGui::IsItemClicked())
+                    {
+                        node_clicked = i;
+                    }
+                }
+                //ImGui::TreePop();
+            }
+        }
+
         ++i;
     }
+
+    if (node_clicked != -1)
+    {
+        // Update selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
+        if (ImGui::GetIO().KeyCtrl)
+            selection_mask ^= (1 << node_clicked);          // CTRL+click to toggle
+        else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, this commented bit preserve selection when clicking on item that is part of the selection
+            selection_mask = (1 << node_clicked);           // Click to single-select
+    }
+
+
+    //for (auto entityPair : activeScene->GetEntityMap())
+    //{
+    //    std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
+    //    if (filter.PassFilter(tag.c_str()))
+    //    {
+    //        char buf[128];
+    //        // FIXME: adding an index into tag since duplicate tags
+    //        // cause us to only be able to select the first of that matching tag
+    //        sprintf(buf, "%d. %s", i, tag.c_str());
+    //        if (ImGui::Selectable(buf, selected == i))
+    //        {
+    //            selected = i;
+    //        }
+
+    //        if (selected == i)
+    //        {
+    //            // Open inspector for selected object
+    //            selectedEntity = entityPair.second;
+    //            hasSelectedEntity = true;
+    //        }
+    //    }
+    //    ++i;
+    //}
 
     if (Input::GetKeyDown(KEY_DELETE) && selected != -1)
     {

@@ -52,6 +52,12 @@ void Scene::Init()
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+
+        auto child = CreateEntity("Child", false);
+        child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+        player.AddChild(child);
     }
 
     {
@@ -354,7 +360,7 @@ void Scene::OnEvent(Event& e)
 {
 }
 
-Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
+Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
 {
     auto entity = Entity(registry.create(), this);
 
@@ -362,13 +368,17 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
     entity.AddComponent<IDComponent>(ID);
     entity.AddComponent<TagComponent>(name);
     entity.AddComponent<TransformComponent>();
+    entity.AddComponent<RelationshipComponent>();
 
-    entityMap[ID] = entity;
+    if (isRootEntity)
+    {
+        entityMap[ID] = entity;
+    }
 
     return entity;
 }
 
-Entity Scene::CreateEntity(const std::string& name)
+Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
     auto entity = Entity(registry.create(), this);
 
@@ -379,8 +389,12 @@ Entity Scene::CreateEntity(const std::string& name)
     entity.AddComponent<IDComponent>(ID);
     entity.AddComponent<TagComponent>(name);
     entity.AddComponent<TransformComponent>();
+    entity.AddComponent<RelationshipComponent>();
 
-    entityMap[ID] = entity;
+    if (isRootEntity)
+    {
+        entityMap[ID] = entity;
+    }
 
     return entity;
 }
