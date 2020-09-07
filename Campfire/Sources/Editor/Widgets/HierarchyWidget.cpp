@@ -64,11 +64,12 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
 
     static int selection_mask = (1 << 2);
 
-    int i = 0;
+    int rootIdx = 0;
+    static int childIdx = -1;
     for (auto entityPair : activeScene->GetEntityMap())
     {
         ImGuiTreeNodeFlags node_flags = base_flags;
-        const bool is_selected = (selection_mask & (1 << i)) != 0;
+        const bool is_selected = (selection_mask & (1 << rootIdx)) != 0;
 
         if (is_selected)
         {
@@ -83,47 +84,68 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
         {
             // Object contains no children, so set as selectable leaf
             node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
-            ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%d. %s", i, tag.c_str());
+            ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
             if (ImGui::IsItemClicked())
             {
-                selected = i;
-                selectedEntity = entityPair.second;
-                hasSelectedEntity = true;
+                selected = rootIdx;
+                childIdx = -1;
             }
         }
         else
         {
             // Object contains children, so set as selectable tree
-            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%d. %s", i, tag.c_str());
+            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
             if (ImGui::IsItemClicked())
             {
-                selected = i;
-                selectedEntity = entityPair.second;
-                hasSelectedEntity = true;
+                selected = rootIdx;
+                childIdx = -1;
             }
             if (node_open)
             {
                 entt::entity curr = relationshipComp.first;
                 for (size_t numChildren = 0; numChildren < relationshipComp.numChildren; ++numChildren)
                 {
-                    ++i;
                     node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
 
                     Entity childEntity(curr, activeScene.get());
                     std::string childTag = childEntity.GetComponent<TagComponent>();
-                    ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%d. %s", i, childTag.c_str());
+                    int letterIdx = numChildren + 97;
+                    ImGui::TreeNodeEx((void*)(char)letterIdx, node_flags, "%c. %s", letterIdx, childTag.c_str());
                     if (ImGui::IsItemClicked())
                     {
-                        selected = i;
-                        selectedEntity = childEntity;
-                        hasSelectedEntity = true;
+                        selected = rootIdx;
+                        childIdx = numChildren;
                     }
                 }
                 ImGui::TreePop();
             }
         }
 
-        ++i;
+        if (selected == rootIdx)
+        {
+            auto rootEntity = entityPair.second;
+            if (childIdx == -1)
+            {
+                selectedEntity = rootEntity;
+            }
+            else
+            {
+                RelationshipComponent& relationshipComp = rootEntity.GetComponent<RelationshipComponent>();
+                entt::entity curr = relationshipComp.first;
+                Entity childEntity(curr, activeScene.get());
+                for (size_t numChildren = 0; numChildren < childIdx; ++numChildren)
+                {
+                    curr = relationshipComp.next;
+                    childEntity = Entity(curr, activeScene.get());
+                    relationshipComp = childEntity.GetComponent<RelationshipComponent>();
+                }
+
+                selectedEntity = childEntity;
+            }
+            hasSelectedEntity = true;
+        }
+
+        ++rootIdx;
     }
 
     if (selected != -1)
