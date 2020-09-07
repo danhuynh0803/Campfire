@@ -169,6 +169,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
         CopyComponent<AudioComponent>(registry, other->registry, enttMap);
         CopyComponent<TextComponent>(registry, other->registry, enttMap);
+        CopyComponent<RelationshipComponent>(registry, other->registry, enttMap);
     }
 }
 
