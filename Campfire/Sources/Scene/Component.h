@@ -48,7 +48,7 @@ struct TransformComponent
     {
         transform = glm::mat4(1.0f);
 
-        transform = glm::translate(transform,position);
+        transform = glm::translate(transform, position);
 
         rotation = glm::quat(
             glm::vec3(

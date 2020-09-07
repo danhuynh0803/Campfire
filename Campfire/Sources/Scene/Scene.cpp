@@ -55,7 +55,7 @@ void Scene::Init()
 
         auto child = CreateEntity("Child", false);
         child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
+        child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 1.0f, 0.0f);
 
         player.AddChild(child);
     }
@@ -330,13 +330,41 @@ void Scene::OnRender(float dt, const Camera& camera)
     {
         ZoneScopedN("RenderMeshes");
         // Only render objects that have mesh components
-        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+        auto group = registry.group<MeshComponent>(entt::get<TransformComponent, RelationshipComponent>);
         for (auto entity : group)
         {
-            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+            auto [transformComponent, relationshipComponent, meshComponent] = group.get<TransformComponent, RelationshipComponent, MeshComponent>(entity);
             if (meshComponent.mesh)
             {
-                SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+                // If entity is a child, then apply parents transform to it
+                if (relationshipComponent.parent != entt::null)
+                {
+                    auto parentTransform = registry.get<TransformComponent>(relationshipComponent.parent);
+
+                    glm::mat4 transform = glm::mat4(1.0f);
+                    glm::vec3 position    = transformComponent.position + parentTransform.position;
+                    glm::vec3 eulerAngles = transformComponent.eulerAngles + parentTransform.eulerAngles;
+                    glm::vec3 scale = transformComponent.scale * parentTransform.scale;
+
+                    transform = glm::translate(transform, position);
+
+                    glm::quat rotation = glm::quat(
+                            glm::vec3(
+                                glm::radians(eulerAngles.x),
+                                glm::radians(eulerAngles.y),
+                                glm::radians(eulerAngles.z)
+                                )
+                            );
+                    glm::mat4 rotationMat = glm::toMat4(rotation);
+                    transform = transform * rotationMat;
+                    transform = glm::scale(transform, scale);
+
+                    SceneRenderer::SubmitMesh(meshComponent, transform, meshComponent.material);
+                }
+                else
+                {
+                    SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+                }
             }
         }
     }

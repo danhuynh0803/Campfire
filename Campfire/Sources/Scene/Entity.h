@@ -30,7 +30,8 @@ public:
         if (comp.numChildren == 0)
         {
             comp.first = childHandle;
-            comp.parent = entityHandle;
+            auto& childRelation = scene->registry.get<RelationshipComponent>(comp.first);
+            childRelation.parent = entityHandle;
             comp.numChildren++;
             return;
         }
