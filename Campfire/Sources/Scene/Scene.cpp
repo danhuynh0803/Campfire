@@ -351,7 +351,7 @@ void Scene::OnRender(float dt, const Camera& camera)
                     auto parentTransform = registry.get<TransformComponent>(relationshipComponent.parent);
 
                     glm::mat4 transform = glm::mat4(1.0f);
-                    glm::vec3 position    = transformComponent.position + parentTransform.position;
+                    //glm::vec3 position    = transformComponent.position + parentTransform.position;
                     glm::vec3 eulerAngles = transformComponent.eulerAngles;
                     glm::vec3 scale = transformComponent.scale * parentTransform.scale;
 
@@ -363,10 +363,11 @@ void Scene::OnRender(float dt, const Camera& camera)
                             glm::radians(parentEulerAngles.z)
                         )
                     );
-                    glm::mat4 parentRotationMat = glm::toMat4(parentRotation);
-                    transform = transform * parentRotationMat;
+                    //glm::mat4 parentRotationMat = glm::toMat4(parentRotation);
+                    //transform = transform * parentRotationMat;
+                    glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (transformComponent.position - parentTransform.position));
 
-                    transform = glm::translate(transform, position);
+                    transform = glm::translate(transform, rotationPosition);
 
                     glm::quat rotation = glm::quat(
                             glm::vec3(
@@ -377,6 +378,7 @@ void Scene::OnRender(float dt, const Camera& camera)
                             );
                     glm::mat4 rotationMat = glm::toMat4(rotation);
                     transform = transform * rotationMat;
+
                     transform = glm::scale(transform, scale);
 
                     SceneRenderer::SubmitMesh(meshComponent, transform, meshComponent.material);
