@@ -22,7 +22,7 @@ make -j4
 # Microsoft Windows
 cmake -G "Visual Studio 16 2019" ..
 ```
-##Library
+## Library
 Functionality           | Library
 ----------------------- | ------------------------------------------
 Mesh Loading            | [assimp](https://github.com/assimp/assimp)
