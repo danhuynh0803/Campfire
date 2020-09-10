@@ -28,7 +28,8 @@ void Scene::Init()
        1) Camera
        2) Directional light
     */
-    auto mainCamera = CreateEntity("Camera");
+    //auto mainCamera = CreateEntity("Camera");
+    auto mainCamera = CreateEntity("Camera", false);
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
     mainCamera.GetComponent<CameraComponent>().isMain = true;
@@ -45,28 +46,29 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+        //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         //player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        player.AddChild(mainCamera);
 
-        auto child = CreateEntity("Child", false);
-        child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 1.0f, 0.0f);
-        player.AddChild(child);
+        //auto child = CreateEntity("Child", false);
+        //child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        //child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 1.0f, 0.0f);
+        //player.AddChild(child);
 
-        auto child1 = CreateEntity("Child1", false);
-        child1.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        child1.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
-        player.AddChild(child1);
+        //auto child1 = CreateEntity("Child1", false);
+        //child1.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        //child1.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
+        //player.AddChild(child1);
 
-        auto child2 = CreateEntity("Child2", false);
-        child2.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        child2.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        player.AddChild(child2);
+        //auto child2 = CreateEntity("Child2", false);
+        //child2.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        //child2.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        //player.AddChild(child2);
     }
 
     {
@@ -351,7 +353,7 @@ void Scene::OnRender(float dt, const Camera& camera)
                     auto parentTransform = registry.get<TransformComponent>(relationshipComponent.parent);
 
                     glm::mat4 transform = glm::mat4(1.0f);
-                    //glm::vec3 position    = transformComponent.position + parentTransform.position;
+                    glm::vec3 position    = transformComponent.position + parentTransform.position;
                     glm::vec3 eulerAngles = transformComponent.eulerAngles;
                     glm::vec3 scale = transformComponent.scale * parentTransform.scale;
 
@@ -365,7 +367,7 @@ void Scene::OnRender(float dt, const Camera& camera)
                     );
                     //glm::mat4 parentRotationMat = glm::toMat4(parentRotation);
                     //transform = transform * parentRotationMat;
-                    glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (transformComponent.position - parentTransform.position));
+                    glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
 
                     transform = glm::translate(transform, rotationPosition);
 
