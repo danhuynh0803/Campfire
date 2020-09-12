@@ -13,6 +13,7 @@
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
 #include "JobSystem/JobSystem.h"
+#include "Platform/Vulkan/VulkanLayer.h"
 
 Application* Application::instance = nullptr;
 
@@ -31,6 +32,7 @@ Application::Application()
     Renderer::Init();
 
     PushLayer(new EditorLayer());
+    PushLayer(new VulkanLayer());
 
     // Imgui overlay
     imguiLayer = new ImGuiLayer();
