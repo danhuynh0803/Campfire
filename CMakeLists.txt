@@ -5,7 +5,7 @@ project(Campfire)
 #                 DESCRIPTION "Game Engine"
 #                 LANGUAGES CXX)
 
-SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # LUA Options
@@ -125,6 +125,9 @@ file(GLOB SRC_EVENTS Campfire/Sources/Events/*.h
 file(GLOB SRC_PLATFORM_OPENGL Campfire/Sources/Platform/OpenGL/*.h
                               Campfire/Sources/Platform/OpenGL/*.cpp)
 
+file(GLOB SRC_PLATFORM_VULKAN Campfire/Sources/Platform/Vulkan/*.h
+                              Campfire/Sources/Platform/Vulkan/*.cpp)
+
 file(GLOB SRC_RENDERER Campfire/Sources/Renderer/*.h
                        Campfire/Sources/Renderer/*.cpp)
 
@@ -194,6 +197,7 @@ source_group("Sources"                     FILES ${PROJECT_SOURCES})
 source_group("Sources\\Core"               FILES ${SRC_CORE})
 source_group("Sources\\Events"             FILES ${SRC_EVENTS})
 source_group("Sources\\Platform\\OpenGL"   FILES ${SRC_PLATFORM_OPENGL})
+source_group("Sources\\Platform\\Vulkan"   FILES ${SRC_PLATFORM_VULKAN})
 source_group("Sources\\Renderer"           FILES ${SRC_RENDERER})
 source_group("Sources\\Particles"          FILES ${SRC_PARTICLES})
 source_group("Sources\\Physics"            FILES ${SRC_PHYSICS})
@@ -220,6 +224,7 @@ add_executable(
         ${SRC_CORE}
         ${SRC_EVENTS}
         ${SRC_PLATFORM_OPENGL}
+        ${SRC_PLATFORM_VULKAN}
         ${SRC_PLATFORM_WINDOWS}
         ${SRC_PLATFORM_LINUX}
         ${SRC_RENDERER}
