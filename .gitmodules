@@ -34,3 +34,6 @@
 [submodule "Campfire/Vendor/freetype2"]
 	path = Campfire/Vendor/freetype2
 	url = https://git.savannah.nongnu.org/git/freetype/freetype2.git
+[submodule "Campfire/Vendor/Vulkan-Hpp"]
+	path = Campfire/Vendor/Vulkan-Hpp
+	url = https://github.com/KhronosGroup/Vulkan-Hpp

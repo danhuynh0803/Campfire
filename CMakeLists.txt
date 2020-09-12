@@ -31,9 +31,12 @@ option(BUILD_OPENGL3_DEMOS OFF)
 option(BUILD_UNIT_TESTS OFF)
 add_subdirectory(Campfire/Vendor/bullet)
 
-
+# Freetype2
 add_subdirectory(Campfire/Vendor/freetype2)
 
+# Vulkan
+find_package(Vulkan)
+add_subdirectory(Campfire/Vendor/Vulkan-Hpp)
 
 # FMOD
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Campfire/Vendor/fmod")
@@ -105,6 +108,7 @@ include_directories(
     Campfire/Vendor/entt
     Campfire/Vendor/tracy
     Campfire/Vendor/freetype2/include/
+    Campfire/Vendor/Vulkan-Hpp/Vulkan-Headers/include/
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -238,6 +242,7 @@ target_link_libraries(
     ${PROJECT_NAME}
         ${GLFW_LIBRARIES}
         ${GLAD_LIBRARIES}
+        ${VULKAN_LIBRARY}
         assimp
         glfw
         BulletDynamics BulletCollision LinearMath
