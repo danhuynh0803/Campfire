@@ -5,6 +5,37 @@
 VulkanContext::VulkanContext()
 {
     instance = CreateInstance();
+    physicalDevice = GetPhysicalDevice();
+
+    // Determine if device contains a graphics queue
+    queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
+
+    size_t graphicsQueueFamilyIndex = std::distance (
+            queueFamilyProperties.begin(),
+            std::find_if (
+                queueFamilyProperties.begin(), queueFamilyProperties.end(), []( vk::QueueFamilyProperties const& qfp) {
+                    return qfp.queueFlags & vk::QueueFlagBits::eGraphics;
+                }
+            )
+        );
+
+    assert( graphicsQueueFamilyIndex < queueFamilyProperties.size() );
+
+    float queuePriority = 0.0f;
+    vk::DeviceQueueCreateInfo deviceQueueCreateInfo{
+        .flags = vk::DeviceQueueCreateFlags(),
+        .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex),
+        .queueCount = 1,
+        .pQueuePriorities = &queuePriority
+    };
+
+    vk::UniqueDevice device =
+        physicalDevice.createDeviceUnique(
+            vk::DeviceCreateInfo{
+                .flags = vk::DeviceCreateFlags(),
+                .pQueueCreateInfos = &deviceQueueCreateInfo
+            }
+        );
 }
 
 VulkanContext::~VulkanContext()
@@ -37,4 +68,30 @@ vk::Instance VulkanContext::CreateInstance()
     instanceCreateInfo.enabledLayerCount = 0;
 
     return vk::createInstance(instanceCreateInfo);
+}
+
+vk::PhysicalDevice VulkanContext::GetPhysicalDevice()
+{
+    physicalDevices = instance.enumeratePhysicalDevices();
+    vk::PhysicalDevice selectedDevice;
+
+    for (const auto& device : physicalDevices)
+    {
+        if (IsDeviceSuitable(device))
+        {
+            selectedDevice = device;
+            break;
+        }
+    }
+
+    return selectedDevice;
+}
+
+bool VulkanContext::IsDeviceSuitable(vk::PhysicalDevice device)
+{
+    vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
+    vk::PhysicalDeviceFeatures deviceFeatures = device.getFeatures();
+
+    // TODO add various feature checks
+    return true;
 }
