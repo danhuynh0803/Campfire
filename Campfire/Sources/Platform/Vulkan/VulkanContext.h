@@ -20,13 +20,18 @@ private:
     vk::PhysicalDevice GetPhysicalDevice();
     bool IsDeviceSuitable(vk::PhysicalDevice device);
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
+    void CreateGraphicsPipeline();
 
 private:
-    // TODO change to uniqueInstance?
     vk::UniqueInstance instance;
 
     std::vector<vk::PhysicalDevice> physicalDevices;
     vk::PhysicalDevice physicalDevice;
+
+    vk::UniqueSurfaceKHR surface;
+    vk::UniqueSwapchainKHR swapChain;
+    std::vector<vk::Image> swapChainImages;
+    std::vector<vk::UniqueImageView> imageViews;
 
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
@@ -34,14 +39,6 @@ private:
 
     vk::UniqueCommandPool commandPool;
     vk::UniqueCommandBuffer commandBuffer;
-    vk::UniqueSurfaceKHR surface;
-    vk::UniqueSwapchainKHR swapChain;
-
-    //vk::PhysicalDeviceProperties deviceProperties;
-    //vk::PhysicalDeviceFeatures deviceFeatures;
-    //vk::PhysicalDeviceMemoryProperties deviceMemoryProperties;
-    //vks::Version version;
-    //vks::Version driverVersion;
 
     GLFWwindow* windowHandle;
 };

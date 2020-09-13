@@ -1,7 +1,11 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "VulkanContext.h"
+#include "VulkanShader.h"
+
 #include <GLFW/glfw3.h>
 #include <limits>
+#include <vector>
+#include <fstream>
 
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
@@ -125,6 +129,16 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     }
 
     vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
+    std::vector<vk::PresentModeKHR> presentModes = physicalDevice.getSurfacePresentModesKHR(surface.get());
+    for (const auto& presentMode : presentModes)
+    {
+        if (presentMode == vk::PresentModeKHR::eMailbox)
+        {
+            swapchainPresentMode = vk::PresentModeKHR::eMailbox;
+            break;
+        }
+    }
+
 
     vk::SurfaceTransformFlagBitsKHR preTransform =
         (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity)
@@ -143,7 +157,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     vk::SwapchainCreateInfoKHR swapChainCreateInfo{
         .flags = vk::SwapchainCreateFlagsKHR(),
         .surface = surface.get(),
-        .minImageCount = surfaceCapabilities.minImageCount,
+        .minImageCount = surfaceCapabilities.minImageCount + 1,
         .imageFormat = format,
         .imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear,
         .imageExtent = swapchainExtent,
@@ -169,8 +183,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     // Setup swapchain
     swapChain = device->createSwapchainKHRUnique(swapChainCreateInfo);
-    std::vector<vk::Image> swapChainImages = device->getSwapchainImagesKHR(swapChain.get());
-    std::vector<vk::UniqueImageView> imageViews;
+    swapChainImages = device->getSwapchainImagesKHR(swapChain.get());
     imageViews.reserve(swapChainImages.size());
 
     vk::ComponentMapping componentMapping {
@@ -209,6 +222,73 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     //            }
     //        ).front()
     //    );
+
+    CreateGraphicsPipeline();
+}
+
+static std::vector<char> readFile(const std::string& filepath)
+{
+    std::ifstream file(filepath, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+    {
+        throw std::runtime_error("VulkanShader::Failed to open " + filepath);
+    }
+
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+
+    file.close();
+
+    return buffer;
+}
+
+void VulkanContext::CreateGraphicsPipeline()
+{
+    // Create shader modules
+    //VulkanShader vert("../Campfire/Shaders/vert.spv");
+    //VulkanShader frag("../Campfire/Shaders/frag.spv");
+
+    std::vector<char> vert = readFile("../Campfire/Shaders/vert.spv");
+    std::vector<char> frag = readFile("../Campfire/Shaders/frag.spv");
+
+    vk::ShaderModuleCreateInfo vertexCreateInfo{
+        .flags = vk::ShaderModuleCreateFlags(),
+        .codeSize = vert.size(),
+        .pCode = reinterpret_cast<const uint32_t*>(vert.data())
+        //.codeSize = vert.GetBuffer().size(),
+        //.pCode = reinterpret_cast<const uint32_t*>(vert.GetBuffer().data())
+    };
+    vk::UniqueShaderModule vertShaderModule = device->createShaderModuleUnique(vertexCreateInfo);
+
+    vk::ShaderModuleCreateInfo fragCreateInfo{
+        .flags = vk::ShaderModuleCreateFlags(),
+        .codeSize = frag.size(),
+        .pCode = reinterpret_cast<const uint32_t*>(frag.data())
+        //.codeSize = frag.GetBuffer().size(),
+        //.pCode = reinterpret_cast<const uint32_t*>(frag.GetBuffer().data())
+    };
+    vk::UniqueShaderModule fragShaderModule = device->createShaderModuleUnique(fragCreateInfo);
+
+    // Create pipeline
+    vk::PipelineShaderStageCreateInfo vertShaderStageInfo
+    {
+        .stage = vk::ShaderStageFlagBits::eVertex,
+        .module = vertShaderModule.get(),
+        .pName = "main"
+    };
+
+    vk::PipelineShaderStageCreateInfo fragShaderStageInfo
+    {
+        .stage = vk::ShaderStageFlagBits::eFragment,
+        .module = fragShaderModule.get(),
+        .pName = "main"
+    };
+
+    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 }
 
 VulkanContext::~VulkanContext()
