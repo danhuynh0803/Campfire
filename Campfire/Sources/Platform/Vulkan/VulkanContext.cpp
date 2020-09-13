@@ -400,6 +400,31 @@ void VulkanContext::CreateGraphicsPipeline()
         , .attachmentCount = 1
         , .pAttachments = &colorBlendAttachment
     };
+
+    // Setup dynamic state - these can be changed without recreating the pipeline
+    std::vector<vk::DynamicState> dynamicStates =
+    {
+        vk::DynamicState::eViewport
+        , vk::DynamicState::eLineWidth
+    };
+
+    vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo
+    {
+        .flags = vk::PipelineDynamicStateCreateFlags()
+        , .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size())
+        , .pDynamicStates = dynamicStates.data()
+    };
+
+    // Setup pipeline layout
+    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo
+    {
+        .setLayoutCount = 0
+        , .pSetLayouts = nullptr
+        , .pushConstantRangeCount = 0
+        , .pPushConstantRanges = nullptr
+    };
+    pipelineLayout = device->createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+
 }
 
 VulkanContext::~VulkanContext()

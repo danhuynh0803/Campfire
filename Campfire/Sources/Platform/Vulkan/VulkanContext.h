@@ -41,5 +41,7 @@ private:
     vk::UniqueCommandPool commandPool;
     vk::UniqueCommandBuffer commandBuffer;
 
+    vk::UniquePipelineLayout pipelineLayout;
+
     GLFWwindow* windowHandle;
 };
