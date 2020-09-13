@@ -29,12 +29,30 @@ VulkanContext::VulkanContext()
         .pQueuePriorities = &queuePriority
     };
 
-    vk::UniqueDevice device =
+    device =
         physicalDevice.createDeviceUnique(
             vk::DeviceCreateInfo{
                 .flags = vk::DeviceCreateFlags(),
                 .pQueueCreateInfos = &deviceQueueCreateInfo
             }
+        );
+
+    commandPool = device->createCommandPoolUnique(
+        vk::CommandPoolCreateInfo {
+            .flags = vk::CommandPoolCreateFlags(),
+            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
+        }
+    );
+
+    commandBuffer =
+        std::move(
+            device->allocateCommandBuffersUnique(
+                vk::CommandBufferAllocateInfo{
+                    .commandPool = commandPool.get(),
+                    .level = vk::CommandBufferLevel::ePrimary,
+                    .commandBufferCount = 1
+                }
+            ).front()
         );
 }
 

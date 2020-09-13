@@ -23,6 +23,11 @@ private:
 
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
+    vk::UniqueDevice device;
+
+    vk::UniqueCommandPool commandPool;
+    vk::UniqueCommandBuffer commandBuffer;
+
     //vk::PhysicalDeviceProperties deviceProperties;
     //vk::PhysicalDeviceFeatures deviceFeatures;
     //vk::PhysicalDeviceMemoryProperties deviceMemoryProperties;
