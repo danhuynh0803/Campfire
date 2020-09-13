@@ -10,9 +10,12 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     // Setup VkSurfaceKHR
     {
         VkSurfaceKHR surfaceTmp;
-        glfwCreateWindowSurface( VkInstance(instance.get()), window, nullptr, &surfaceTmp );
+        if (glfwCreateWindowSurface(VkInstance(instance.get()), window, nullptr, &surfaceTmp) != VK_SUCCESS)
+        {
+            std::cout << "Could not init window\n";
+        }
         vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
-        surface = vk::UniqueSurfaceKHR( vk::SurfaceKHR(surfaceTmp), _deleter );
+        surface = vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
     }
 
     physicalDevice = GetPhysicalDevice();
@@ -30,6 +33,50 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         );
 
     assert( graphicsQueueFamilyIndex < queueFamilyProperties.size() );
+
+    // Get queueFamilyIndex that supports present
+    // First check if graphicsQueueFamilyIndex is good enough
+    size_t presentQueueFamilyIndex =
+        physicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>(graphicsQueueFamilyIndex), surface.get() )
+            ? graphicsQueueFamilyIndex
+            : queueFamilyProperties.size();
+
+    if (presentQueueFamilyIndex == queueFamilyProperties.size())
+    {
+        // the graphicsQueueFamilyIndex doesn't support present -> look for an other family index that supports both
+        // graphics and present
+        for (size_t i = 0; i < queueFamilyProperties.size(); i++)
+        {
+            if ((queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) &&
+                physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get()))
+            {
+                //graphicsQueueFamilyIndex = vk::su::checked_cast<uint32_t>(i);
+                graphicsQueueFamilyIndex = i;
+                presentQueueFamilyIndex = i;
+                std::cout << "Queue supports both graphics and present\n";
+                break;
+            }
+        }
+        if (presentQueueFamilyIndex == queueFamilyProperties.size())
+        {
+            // there's nothing like a single family index that supports both graphics and present -> look for an other
+            // family index that supports present
+            for (size_t i = 0; i < queueFamilyProperties.size(); i++)
+            {
+                if (physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get()))
+                {
+                    std::cout << "Found queue that supports present\n";
+                    presentQueueFamilyIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+    if ((graphicsQueueFamilyIndex == queueFamilyProperties.size()) ||
+        (presentQueueFamilyIndex == queueFamilyProperties.size()))
+    {
+        throw std::runtime_error("Could not find a queue for graphics or present -> terminating");
+    }
 
     float queuePriority = 0.0f;
     vk::DeviceQueueCreateInfo deviceQueueCreateInfo{
