@@ -34,6 +34,7 @@ private:
     vk::UniqueCommandPool commandPool;
     vk::UniqueCommandBuffer commandBuffer;
     vk::UniqueSurfaceKHR surface;
+    vk::UniqueSwapchainKHR swapChain;
 
     //vk::PhysicalDeviceProperties deviceProperties;
     //vk::PhysicalDeviceFeatures deviceFeatures;

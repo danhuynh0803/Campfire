@@ -1,6 +1,7 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "VulkanContext.h"
 #include <GLFW/glfw3.h>
+#include <limits>
 
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
@@ -94,6 +95,60 @@ VulkanContext::VulkanContext(GLFWwindow* window)
             }
         );
 
+    // Get supported formats
+    std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
+    assert(!formats.empty());
+    vk::Format format =
+        ( formats[0].format == vk::Format::eUndefined ) ? vk::Format::eB8G8R8A8Unorm : formats[0].format;
+
+    vk::SurfaceCapabilitiesKHR surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface.get());
+    vk::Extent2D swapchainExtent;
+    if (surfaceCapabilities.currentExtent.width == (std::numeric_limits<uint32_t>::max)())
+    {
+        // If the surface size is undefined, the size is set to the size of the images requested
+        // FIXME hardcode for now
+        swapchainExtent.width = 1600;
+        swapchainExtent.height = 900;
+    }
+    else
+    {
+        // if surface size is defined, the swap chain size must match
+        swapchainExtent = surfaceCapabilities.currentExtent;
+    }
+
+    vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
+
+    vk::SurfaceTransformFlagBitsKHR preTransform =
+        (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity)
+        ? vk::SurfaceTransformFlagBitsKHR::eIdentity
+        : surfaceCapabilities.currentTransform;
+
+    vk::CompositeAlphaFlagBitsKHR compositeAlpha =
+        ( surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePreMultiplied )
+            ? vk::CompositeAlphaFlagBitsKHR::ePreMultiplied
+            : ( surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePostMultiplied )
+                ? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied
+                : ( surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit )
+                    ? vk::CompositeAlphaFlagBitsKHR::eInherit
+                    : vk::CompositeAlphaFlagBitsKHR::eOpaque;
+
+    vk::SwapchainCreateInfoKHR swapChainCreateInfo{
+        .flags = vk::SwapchainCreateFlagsKHR(),
+        .surface = surface.get(),
+        .minImageCount = surfaceCapabilities.minImageCount,
+        .imageFormat = format,
+        .imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear,
+        .imageExtent = swapchainExtent,
+        .imageArrayLayers = 1,
+        .imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
+        .imageSharingMode = vk::SharingMode::eExclusive,
+        .preTransform = preTransform,
+        .compositeAlpha = compositeAlpha,
+        .presentMode = swapchainPresentMode,
+        .clipped = true,
+        .oldSwapchain = nullptr
+    };
+
     commandPool = device->createCommandPoolUnique(
         vk::CommandPoolCreateInfo {
             .flags = vk::CommandPoolCreateFlags(),
@@ -111,6 +166,30 @@ VulkanContext::VulkanContext(GLFWwindow* window)
                 }
             ).front()
         );
+
+    // Setup swapchain
+    swapChain = device->createSwapchainKHRUnique(swapChainCreateInfo);
+    std::vector<vk::Image> swapChainImages = device->getSwapchainImagesKHR(swapChain.get());
+    std::vector<vk::UniqueImageView> imageViews;
+    imageViews.reserve(swapChainImages.size());
+
+    vk::ComponentMapping componentMapping {
+        vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA
+    };
+
+    vk::ImageSubresourceRange subresourceRange{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 };
+    for (auto image : swapChainImages)
+    {
+        vk::ImageViewCreateInfo imageViewCreateInfo {
+            .flags = vk::ImageViewCreateFlags(),
+            .image = image,
+            .viewType = vk::ImageViewType::e2D,
+            .format = format,
+            .components = componentMapping,
+            .subresourceRange = subresourceRange
+        };
+        imageViews.emplace_back( device->createImageViewUnique(imageViewCreateInfo) );
+    }
 
 }
 
