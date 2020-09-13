@@ -254,7 +254,8 @@ void VulkanContext::CreateGraphicsPipeline()
     std::vector<char> vert = readFile("../Campfire/Shaders/vert.spv");
     std::vector<char> frag = readFile("../Campfire/Shaders/frag.spv");
 
-    vk::ShaderModuleCreateInfo vertexCreateInfo{
+    vk::ShaderModuleCreateInfo vertexCreateInfo
+    {
         .flags = vk::ShaderModuleCreateFlags(),
         .codeSize = vert.size(),
         .pCode = reinterpret_cast<const uint32_t*>(vert.data())
@@ -263,7 +264,8 @@ void VulkanContext::CreateGraphicsPipeline()
     };
     vk::UniqueShaderModule vertShaderModule = device->createShaderModuleUnique(vertexCreateInfo);
 
-    vk::ShaderModuleCreateInfo fragCreateInfo{
+    vk::ShaderModuleCreateInfo fragCreateInfo
+    {
         .flags = vk::ShaderModuleCreateFlags(),
         .codeSize = frag.size(),
         .pCode = reinterpret_cast<const uint32_t*>(frag.data())
@@ -295,7 +297,8 @@ void VulkanContext::CreateGraphicsPipeline()
     // Binds = spacing btw data and whether data is per-vertex or per-instance
     // Attribute descriptions = type of the attribs passed to vertex shader,
     // including which binding to load them from and at which offset
-    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
+    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo
+    {
         .flags = vk::PipelineVertexInputStateCreateFlags(),
         .vertexBindingDescriptionCount = 0,
         .pVertexBindingDescriptions = nullptr,
@@ -304,14 +307,16 @@ void VulkanContext::CreateGraphicsPipeline()
     };
 
     // Input assembly
-    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo {
+    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
+    {
         .flags = vk::PipelineInputAssemblyStateCreateFlags(),
         .topology = vk::PrimitiveTopology::eTriangleList,
-        .primitiveRestartEnable = false
+        .primitiveRestartEnable = VK_FALSE
     };
 
     // Setup viewports and scissor rect
-    vk::Viewport viewport {
+    vk::Viewport viewport
+    {
         .x = 0.0f,
         .y = 0.0f,
         .width = static_cast<float>(swapChainExtent.width),
@@ -320,12 +325,14 @@ void VulkanContext::CreateGraphicsPipeline()
         .maxDepth = 1.0f
     };
 
-    vk::Rect2D scissors {
+    vk::Rect2D scissors
+    {
         .offset = {0, 0},
         .extent = swapChainExtent
     };
 
-    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo {
+    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo
+    {
         .flags = vk::PipelineViewportStateCreateFlags(),
         .viewportCount = 1,
         .pViewports = &viewport,
@@ -333,6 +340,66 @@ void VulkanContext::CreateGraphicsPipeline()
         .pScissors = &scissors
     };
 
+    // Setup rasterizer
+    // Note: depthClampEnable: if true, fragments beyond
+    // near and far planes will be clamped instead of being discard
+    vk::PipelineRasterizationStateCreateInfo rasterizationStateCreateInfo
+    {
+        .flags = vk::PipelineRasterizationStateCreateFlags()
+        , .depthClampEnable = VK_FALSE
+        , .rasterizerDiscardEnable = VK_FALSE
+        , .polygonMode = vk::PolygonMode::eFill
+        , .cullMode = vk::CullModeFlagBits::eBack
+        , .frontFace = vk::FrontFace::eCounterClockwise
+        , .depthBiasEnable = VK_FALSE
+        , .depthBiasConstantFactor = 0.0f
+        , .depthBiasClamp = 0.0f
+        , .depthBiasSlopeFactor = 0.0f
+        , .lineWidth = 1.0f
+    };
+
+    // Enable multisampling
+    vk::PipelineMultisampleStateCreateInfo multisampleCreateInfo
+    {
+        .flags = vk::PipelineMultisampleStateCreateFlags()
+        , .rasterizationSamples = vk::SampleCountFlagBits::e1
+        , .sampleShadingEnable = VK_FALSE
+        , .minSampleShading = 1.0f
+        , .pSampleMask = nullptr
+        , .alphaToCoverageEnable = VK_FALSE
+        , .alphaToOneEnable = VK_FALSE
+    };
+
+    // TODO Setup depth and stencil testing
+    vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo
+    {
+    };
+
+    // Setup color blending
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment
+    {
+        .blendEnable = VK_FALSE
+        , .srcColorBlendFactor = vk::BlendFactor::eOne
+        , .dstColorBlendFactor = vk::BlendFactor::eZero
+        , .colorBlendOp = vk::BlendOp::eAdd
+        , .srcAlphaBlendFactor = vk::BlendFactor::eOne
+        , .dstAlphaBlendFactor = vk::BlendFactor::eZero
+        , .alphaBlendOp = vk::BlendOp::eAdd
+        , .colorWriteMask =
+            vk::ColorComponentFlagBits::eR
+            | vk::ColorComponentFlagBits::eG
+            | vk::ColorComponentFlagBits::eB
+            | vk::ColorComponentFlagBits::eA
+    };
+
+    vk::PipelineColorBlendStateCreateInfo colorBlendCreateInfo
+    {
+        .flags = vk::PipelineColorBlendStateCreateFlags()
+        , .logicOpEnable = VK_FALSE
+        , .logicOp = vk::LogicOp::eCopy
+        , .attachmentCount = 1
+        , .pAttachments = &colorBlendAttachment
+    };
 }
 
 VulkanContext::~VulkanContext()
