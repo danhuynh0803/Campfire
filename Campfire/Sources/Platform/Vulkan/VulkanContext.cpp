@@ -114,18 +114,17 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         ( formats[0].format == vk::Format::eUndefined ) ? vk::Format::eB8G8R8A8Unorm : formats[0].format;
 
     vk::SurfaceCapabilitiesKHR surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface.get());
-    vk::Extent2D swapchainExtent;
     if (surfaceCapabilities.currentExtent.width == (std::numeric_limits<uint32_t>::max)())
     {
         // If the surface size is undefined, the size is set to the size of the images requested
         // FIXME hardcode for now
-        swapchainExtent.width = 1600;
-        swapchainExtent.height = 900;
+        swapChainExtent.width = 1600;
+        swapChainExtent.height = 900;
     }
     else
     {
         // if surface size is defined, the swap chain size must match
-        swapchainExtent = surfaceCapabilities.currentExtent;
+        swapChainExtent = surfaceCapabilities.currentExtent;
     }
 
     vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
@@ -160,7 +159,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         .minImageCount = surfaceCapabilities.minImageCount + 1,
         .imageFormat = format,
         .imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear,
-        .imageExtent = swapchainExtent,
+        .imageExtent = swapChainExtent,
         .imageArrayLayers = 1,
         .imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
         .imageSharingMode = vk::SharingMode::eExclusive,
@@ -289,6 +288,51 @@ void VulkanContext::CreateGraphicsPipeline()
     };
 
     vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+    // Setup fixed function part of pipeline
+
+    // Vertex input
+    // Binds = spacing btw data and whether data is per-vertex or per-instance
+    // Attribute descriptions = type of the attribs passed to vertex shader,
+    // including which binding to load them from and at which offset
+    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
+        .flags = vk::PipelineVertexInputStateCreateFlags(),
+        .vertexBindingDescriptionCount = 0,
+        .pVertexBindingDescriptions = nullptr,
+        .vertexAttributeDescriptionCount = 0,
+        .pVertexAttributeDescriptions = nullptr
+    };
+
+    // Input assembly
+    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo {
+        .flags = vk::PipelineInputAssemblyStateCreateFlags(),
+        .topology = vk::PrimitiveTopology::eTriangleList,
+        .primitiveRestartEnable = false
+    };
+
+    // Setup viewports and scissor rect
+    vk::Viewport viewport {
+        .x = 0.0f,
+        .y = 0.0f,
+        .width = static_cast<float>(swapChainExtent.width),
+        .height = static_cast<float>(swapChainExtent.height),
+        .minDepth = 0.0f,
+        .maxDepth = 1.0f
+    };
+
+    vk::Rect2D scissors {
+        .offset = {0, 0},
+        .extent = swapChainExtent
+    };
+
+    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo {
+        .flags = vk::PipelineViewportStateCreateFlags(),
+        .viewportCount = 1,
+        .pViewports = &viewport,
+        .scissorCount = 1,
+        .pScissors = &scissors
+    };
+
 }
 
 VulkanContext::~VulkanContext()

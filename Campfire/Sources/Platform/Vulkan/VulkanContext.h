@@ -30,6 +30,7 @@ private:
 
     vk::UniqueSurfaceKHR surface;
     vk::UniqueSwapchainKHR swapChain;
+    vk::Extent2D swapChainExtent;
     std::vector<vk::Image> swapChainImages;
     std::vector<vk::UniqueImageView> imageViews;
 
