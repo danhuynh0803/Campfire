@@ -96,6 +96,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         physicalDevice.createDeviceUnique(
             vk::DeviceCreateInfo{
                 .flags = vk::DeviceCreateFlags(),
+                .queueCreateInfoCount = 1,
                 .pQueueCreateInfos = &deviceQueueCreateInfo,
                 .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
                 .ppEnabledExtensionNames = deviceExtensions.data()
@@ -191,23 +192,23 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     }
 
     // Setup command pool
-    commandPool = device->createCommandPoolUnique(
-        vk::CommandPoolCreateInfo{
-            .flags = vk::CommandPoolCreateFlags(),
-            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
-        }
-    );
+    //commandPool = device->createCommandPoolUnique(
+    //    vk::CommandPoolCreateInfo{
+    //        .flags = vk::CommandPoolCreateFlags(),
+    //        .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
+    //    }
+    //);
 
-    commandBuffer =
-        std::move(
-            device->allocateCommandBuffersUnique(
-                vk::CommandBufferAllocateInfo{
-                    .commandPool = commandPool.get(),
-                    .level = vk::CommandBufferLevel::ePrimary,
-                    .commandBufferCount = 1
-                }
-            ).front()
-        );
+    //commandBuffer =
+    //    std::move(
+    //        device->allocateCommandBuffersUnique(
+    //            vk::CommandBufferAllocateInfo{
+    //                .commandPool = commandPool.get(),
+    //                .level = vk::CommandBufferLevel::ePrimary,
+    //                .commandBufferCount = 1
+    //            }
+    //        ).front()
+    //    );
 }
 
 VulkanContext::~VulkanContext()
@@ -236,6 +237,22 @@ vk::UniqueInstance VulkanContext::CreateInstance()
         .apiVersion = VK_API_VERSION_1_2
     };
 
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
+    // Enable validation layers
+    const std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    if (enableValidationLayers && !CheckValidationLayerSupport(validationLayers))
+    {
+        throw std::runtime_error("Validation layers enabled, but not available");
+    }
+
     vk::InstanceCreateInfo instanceCreateInfo {
         .pApplicationInfo = &appInfo
     };
@@ -248,9 +265,42 @@ vk::UniqueInstance VulkanContext::CreateInstance()
     instanceCreateInfo.enabledExtensionCount = glfwExtensionCount;
     instanceCreateInfo.ppEnabledExtensionNames = glfwExtensions;
 
-    instanceCreateInfo.enabledLayerCount = 0;
+    if (enableValidationLayers)
+    {
+        instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+    }
+    else
+    {
+        instanceCreateInfo.enabledLayerCount = 0;
+    }
 
     return vk::createInstanceUnique(instanceCreateInfo);
+}
+
+bool VulkanContext::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
+{
+    std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+    for (const char* layerName : validationLayers)
+    {
+        bool layerFound = false;
+
+        for (const auto& layerProperties : availableLayers)
+        {
+            if (strcmp(layerName, layerProperties.layerName) == 0)
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 vk::PhysicalDevice VulkanContext::GetPhysicalDevice()

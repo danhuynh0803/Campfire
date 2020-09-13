@@ -19,6 +19,7 @@ private:
     vk::UniqueInstance CreateInstance();
     vk::PhysicalDevice GetPhysicalDevice();
     bool IsDeviceSuitable(vk::PhysicalDevice device);
+    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
 private:
     // TODO change to uniqueInstance?
