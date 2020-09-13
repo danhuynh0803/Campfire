@@ -116,6 +116,6 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         return false;
     }
 
-    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }

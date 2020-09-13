@@ -87,11 +87,18 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         .pQueuePriorities = &queuePriority
     };
 
+    const std::vector<const char*> deviceExtensions =
+    {
+        "VK_KHR_swapchain"
+    };
+
     device =
         physicalDevice.createDeviceUnique(
             vk::DeviceCreateInfo{
                 .flags = vk::DeviceCreateFlags(),
-                .pQueueCreateInfos = &deviceQueueCreateInfo
+                .pQueueCreateInfos = &deviceQueueCreateInfo,
+                .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+                .ppEnabledExtensionNames = deviceExtensions.data()
             }
         );
 
@@ -149,23 +156,15 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         .oldSwapchain = nullptr
     };
 
-    commandPool = device->createCommandPoolUnique(
-        vk::CommandPoolCreateInfo {
-            .flags = vk::CommandPoolCreateFlags(),
-            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
-        }
-    );
+    uint32_t queueFamilyIndices[2] = { static_cast<uint32_t>(graphicsQueueFamilyIndex),
+                                       static_cast<uint32_t>(presentQueueFamilyIndex) };
 
-    commandBuffer =
-        std::move(
-            device->allocateCommandBuffersUnique(
-                vk::CommandBufferAllocateInfo{
-                    .commandPool = commandPool.get(),
-                    .level = vk::CommandBufferLevel::ePrimary,
-                    .commandBufferCount = 1
-                }
-            ).front()
-        );
+    if (graphicsQueueFamilyIndex != presentQueueFamilyIndex)
+    {
+        swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+        swapChainCreateInfo.queueFamilyIndexCount = 2;
+        swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+    }
 
     // Setup swapchain
     swapChain = device->createSwapchainKHRUnique(swapChainCreateInfo);
@@ -191,6 +190,24 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         imageViews.emplace_back( device->createImageViewUnique(imageViewCreateInfo) );
     }
 
+    // Setup command pool
+    commandPool = device->createCommandPoolUnique(
+        vk::CommandPoolCreateInfo{
+            .flags = vk::CommandPoolCreateFlags(),
+            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
+        }
+    );
+
+    commandBuffer =
+        std::move(
+            device->allocateCommandBuffersUnique(
+                vk::CommandBufferAllocateInfo{
+                    .commandPool = commandPool.get(),
+                    .level = vk::CommandBufferLevel::ePrimary,
+                    .commandBufferCount = 1
+                }
+            ).front()
+        );
 }
 
 VulkanContext::~VulkanContext()
