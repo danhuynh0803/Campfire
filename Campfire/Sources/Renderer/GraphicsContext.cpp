@@ -1,16 +1,17 @@
 #include <GLFW/glfw3.h>
 
+#include "Renderer/Renderer.h"
 #include "Renderer/GraphicsContext.h"
 #include "Platform/OpenGL/OpenGLContext.h"
-#include "Core/Log.h"
+#include "Platform/Vulkan/VulkanContext.h"
 
 std::unique_ptr<GraphicsContext> GraphicsContext::Create(void* window)
 {
-    // TODO create context based on which API is being used
-    //switch (Renderer::GetAPI())
-    //{
-    //    case RendererAPI::API::OpenGL: return CreateScope<OpenGLContext>(static_cast<GLFWwindow*>(window));
-    //}
-
-    return CreateUniquePtr<OpenGLContext>(static_cast<GLFWwindow*>(window));
+    switch (Renderer::GetAPI())
+    {
+        case RendererAPI::API::OpenGL:
+            return CreateUniquePtr<OpenGLContext>(static_cast<GLFWwindow*>(window));
+        case RendererAPI::API::Vulkan:
+            return CreateUniquePtr<VulkanContext>(static_cast<GLFWwindow*>(window));
+    }
 }

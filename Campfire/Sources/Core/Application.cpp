@@ -28,21 +28,21 @@ Application::Application()
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    PhysicsManager::Init();
-    Renderer::Init();
+    //PhysicsManager::Init();
+    //Renderer::Init();
 
-    PushLayer(new EditorLayer());
-    PushLayer(new VulkanLayer());
+    //PushLayer(new EditorLayer());
+    //PushLayer(new VulkanLayer());
 
     // Imgui overlay
-    imguiLayer = new ImGuiLayer();
-    PushOverlay(imguiLayer);
+    //imguiLayer = new ImGuiLayer();
+    //PushOverlay(imguiLayer);
 }
 
 Application::~Application()
 {
-    Renderer::Shutdown();
-    PhysicsManager::Shutdown();
+    //Renderer::Shutdown();
+    //PhysicsManager::Shutdown();
 }
 
 void Application::Run()
@@ -56,14 +56,14 @@ void Application::Run()
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
         }
 
-        imguiLayer->Begin();
+        //imguiLayer->Begin();
 
         // update layers in reverse
         for (Layer* layer : layerStack)
         {
-            layer->OnImGuiRender();
+            //layer->OnImGuiRender();
         }
-        imguiLayer->End();
+        //imguiLayer->End();
 
         window->OnUpdate();
     }

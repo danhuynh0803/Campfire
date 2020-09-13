@@ -2,9 +2,19 @@
 #include "VulkanContext.h"
 #include <GLFW/glfw3.h>
 
-VulkanContext::VulkanContext()
+VulkanContext::VulkanContext(GLFWwindow* window)
+    : windowHandle(window)
 {
     instance = CreateInstance();
+
+    // Setup VkSurfaceKHR
+    {
+        VkSurfaceKHR surfaceTmp;
+        glfwCreateWindowSurface( VkInstance(instance.get()), window, nullptr, &surfaceTmp );
+        vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
+        surface = vk::UniqueSurfaceKHR( vk::SurfaceKHR(surfaceTmp), _deleter );
+    }
+
     physicalDevice = GetPhysicalDevice();
 
     // Determine if device contains a graphics queue
@@ -54,14 +64,26 @@ VulkanContext::VulkanContext()
                 }
             ).front()
         );
+
 }
 
 VulkanContext::~VulkanContext()
 {
-    instance.destroy();
+    instance->destroy();
 }
 
-vk::Instance VulkanContext::CreateInstance()
+void VulkanContext::Init()
+{
+    glfwMakeContextCurrent(windowHandle);
+    LOG_INFO("Vulkan initialized");
+}
+
+void VulkanContext::SwapBuffers()
+{
+    // TODO
+}
+
+vk::UniqueInstance VulkanContext::CreateInstance()
 {
     vk::ApplicationInfo appInfo {
         .pApplicationName = "Vulkan Context",
@@ -85,12 +107,12 @@ vk::Instance VulkanContext::CreateInstance()
 
     instanceCreateInfo.enabledLayerCount = 0;
 
-    return vk::createInstance(instanceCreateInfo);
+    return vk::createInstanceUnique(instanceCreateInfo);
 }
 
 vk::PhysicalDevice VulkanContext::GetPhysicalDevice()
 {
-    physicalDevices = instance.enumeratePhysicalDevices();
+    physicalDevices = instance->enumeratePhysicalDevices();
     vk::PhysicalDevice selectedDevice;
 
     for (const auto& device : physicalDevices)

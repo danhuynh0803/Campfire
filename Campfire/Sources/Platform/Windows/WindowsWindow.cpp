@@ -35,6 +35,7 @@ void WindowsWindow::Init(const WindowProps& props)
     }
 
     {
+        // TODO window hint should vary with rendererAPI
         #if defined (DEBUG)
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         #endif
