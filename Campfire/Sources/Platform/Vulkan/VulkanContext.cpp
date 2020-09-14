@@ -223,6 +223,8 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     //    );
 
     CreateGraphicsPipeline();
+
+    CreateFramebuffers();
 }
 
 static std::vector<char> readFile(const std::string& filepath)
@@ -488,6 +490,32 @@ void VulkanContext::CreateGraphicsPipeline()
     };
 
     graphicsPipeline = device->createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+}
+
+void VulkanContext::CreateFramebuffers()
+{
+    swapChainFramebuffers.resize(imageViews.size());
+
+    for (size_t i = 0; i < imageViews.size(); ++i)
+    {
+        vk::ImageView attachments[] =
+        {
+            imageViews[i].get()
+        };
+
+        vk::FramebufferCreateInfo framebufferCreateInfo
+        {
+            .flags = vk::FramebufferCreateFlags()
+            , .renderPass = renderPass.get()
+            , .attachmentCount = 1
+            , .pAttachments = attachments
+            , .width = swapChainExtent.width
+            , .height = swapChainExtent.height
+            , .layers = 1
+        };
+
+        swapChainFramebuffers[i] = device->createFramebufferUnique(framebufferCreateInfo);
+    }
 }
 
 VulkanContext::~VulkanContext()

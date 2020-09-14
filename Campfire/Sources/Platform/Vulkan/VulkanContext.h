@@ -21,6 +21,7 @@ private:
     bool IsDeviceSuitable(vk::PhysicalDevice device);
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
     void CreateGraphicsPipeline();
+    void CreateFramebuffers();
 
 private:
     vk::UniqueInstance instance;
@@ -45,6 +46,8 @@ private:
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
     vk::UniquePipeline graphicsPipeline;
+
+    std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
 
     GLFWwindow* windowHandle;
 };
