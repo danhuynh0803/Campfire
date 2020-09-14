@@ -7,28 +7,231 @@
 #include <vector>
 #include <fstream>
 
+static size_t graphicsQueueFamilyIndex;
+static size_t presentQueueFamilyIndex;
+
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
 {
     instance = CreateInstance();
 
-    // Setup VkSurfaceKHR
-    {
-        VkSurfaceKHR surfaceTmp;
-        if (glfwCreateWindowSurface(VkInstance(instance.get()), window, nullptr, &surfaceTmp) != VK_SUCCESS)
-        {
-            std::cout << "Could not init window\n";
-        }
-        vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
-        surface = vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
-    }
+    surface = CreateSurfaceKHR(window);
 
     physicalDevice = GetPhysicalDevice();
 
+    device = CreateLogicalDevice();
+
+    graphicsQueue = device->getQueue(graphicsQueueFamilyIndex, 0);
+    presentQueue = device->getQueue(presentQueueFamilyIndex, 0);
+
+    SetupSwapChain();
+
+    CreateGraphicsPipeline();
+
+    CreateFramebuffers();
+
+    commandPool = CreateCommandPool(static_cast<uint32_t>(graphicsQueueFamilyIndex));
+
+    commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
+
+    // Start recording command buffers
+    for (size_t i = 0; i < commandBuffers.size(); ++i)
+    {
+        vk::CommandBufferBeginInfo beginInfo
+        {
+            .flags = vk::CommandBufferUsageFlags()
+            , .pInheritanceInfo = nullptr
+        };
+
+        commandBuffers[i]->begin(beginInfo);
+
+        // Start render pass
+        vk::ClearValue clearValues;
+        clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.0f, 0.0f, 0.0f, 1.0f } }));
+        // TODO
+        //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+
+        vk::Rect2D renderArea
+        {
+            .offset = {0, 0}
+            , .extent = swapChainExtent
+        };
+
+        vk::RenderPassBeginInfo renderPassBeginInfo
+        {
+            .renderPass = renderPass.get()
+            , .framebuffer = swapChainFramebuffers[i].get()
+            , .renderArea = renderArea
+            , .clearValueCount = 1
+            , .pClearValues = &clearValues
+        };
+
+        commandBuffers[i]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+        commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
+        commandBuffers[i]->draw(3, 1, 0, 0);
+        commandBuffers[i]->endRenderPass();
+        commandBuffers[i]->end();
+    }
+
+    // Create semaphores for signaling when an image is ready to render
+    // and when an image is done rendering
+    vk::SemaphoreCreateInfo semaphoreCreateInfo
+    {
+        .flags = vk::SemaphoreCreateFlags()
+    };
+
+    imageAvailableSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
+    renderFinishedSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
+}
+
+VulkanContext::~VulkanContext()
+{
+    instance->destroy();
+}
+
+void VulkanContext::Init()
+{
+    glfwMakeContextCurrent(windowHandle);
+    LOG_INFO("Vulkan initialized");
+}
+
+void VulkanContext::SwapBuffers()
+{
+    // TODO
+    // move later to renderer, but just put
+    // draw calls in here for now for quick testing
+
+    uint32_t imageIndex = device->acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+
+    vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
+    // wait to write colors to the image until it's available
+    // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
+    vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+
+    vk::SubmitInfo submitInfo
+    {
+        .waitSemaphoreCount = 1
+        , .pWaitSemaphores = waitSemaphores
+        , .pWaitDstStageMask = waitStages
+        , .commandBufferCount = 1
+        , .pCommandBuffers = &commandBuffers[imageIndex].get()
+    };
+
+    vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    graphicsQueue.submit(submitInfo, {});
+
+    vk::PresentInfoKHR presentInfo
+    {
+        .waitSemaphoreCount = 1
+        , .pWaitSemaphores = signalSemaphores
+    };
+
+    vk::SwapchainKHR swapChains[] = { swapChain.get() };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+
+    presentQueue.presentKHR(&presentInfo);
+
+    device->waitIdle();
+}
+
+vk::UniqueInstance VulkanContext::CreateInstance()
+{
+    vk::ApplicationInfo appInfo {
+        .pApplicationName = "Vulkan Context",
+        .applicationVersion = 1,
+        .pEngineName = "Campfire Engine",
+        .engineVersion = 1,
+        .apiVersion = VK_API_VERSION_1_2
+    };
+
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
+    // Enable validation layers
+    const std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    if (enableValidationLayers && !CheckValidationLayerSupport(validationLayers))
+    {
+        throw std::runtime_error("Validation layers enabled, but not available");
+    }
+
+    vk::InstanceCreateInfo instanceCreateInfo {
+        .pApplicationInfo = &appInfo
+    };
+
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    instanceCreateInfo.enabledExtensionCount = glfwExtensionCount;
+    instanceCreateInfo.ppEnabledExtensionNames = glfwExtensions;
+
+    if (enableValidationLayers)
+    {
+        instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+    }
+    else
+    {
+        instanceCreateInfo.enabledLayerCount = 0;
+    }
+
+    return vk::createInstanceUnique(instanceCreateInfo);
+}
+
+bool VulkanContext::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
+{
+    std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
+    for (const char* layerName : validationLayers)
+    {
+        bool layerFound = false;
+
+        for (const auto& layerProperties : availableLayers)
+        {
+            if (strcmp(layerName, layerProperties.layerName) == 0)
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+vk::UniqueSurfaceKHR VulkanContext::CreateSurfaceKHR(GLFWwindow* window)
+{
+    VkSurfaceKHR surfaceTmp;
+    if (glfwCreateWindowSurface(VkInstance(instance.get()), window, nullptr, &surfaceTmp) != VK_SUCCESS)
+    {
+        std::cout << "Could not init window\n";
+    }
+    vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
+    return vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
+}
+
+vk::UniqueDevice VulkanContext::CreateLogicalDevice()
+{
     // Determine if device contains a graphics queue
     queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
-    size_t graphicsQueueFamilyIndex = std::distance (
+     graphicsQueueFamilyIndex = std::distance (
             queueFamilyProperties.begin(),
             std::find_if (
                 queueFamilyProperties.begin(), queueFamilyProperties.end(), []( vk::QueueFamilyProperties const& qfp) {
@@ -41,7 +244,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     // Get queueFamilyIndex that supports present
     // First check if graphicsQueueFamilyIndex is good enough
-    size_t presentQueueFamilyIndex =
+     presentQueueFamilyIndex =
         physicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>(graphicsQueueFamilyIndex), surface.get() )
             ? graphicsQueueFamilyIndex
             : queueFamilyProperties.size();
@@ -55,7 +258,6 @@ VulkanContext::VulkanContext(GLFWwindow* window)
             if ((queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) &&
                 physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get()))
             {
-                //graphicsQueueFamilyIndex = vk::su::checked_cast<uint32_t>(i);
                 graphicsQueueFamilyIndex = i;
                 presentQueueFamilyIndex = i;
                 std::cout << "Queue supports both graphics and present\n";
@@ -96,9 +298,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         "VK_KHR_swapchain"
     };
 
-    device =
-        physicalDevice.createDeviceUnique(
-            vk::DeviceCreateInfo{
+    return physicalDevice.createDeviceUnique(
+            vk::DeviceCreateInfo
+            {
                 .flags = vk::DeviceCreateFlags(),
                 .queueCreateInfoCount = 1,
                 .pQueueCreateInfos = &deviceQueueCreateInfo,
@@ -106,11 +308,10 @@ VulkanContext::VulkanContext(GLFWwindow* window)
                 .ppEnabledExtensionNames = deviceExtensions.data()
             }
         );
+}
 
-    // Save queues for later use
-    graphicsQueue = device->getQueue(graphicsQueueFamilyIndex, 0);
-    presentQueue = device->getQueue(presentQueueFamilyIndex, 0);
-
+void VulkanContext::SetupSwapChain()
+{
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
     assert(!formats.empty());
@@ -141,7 +342,6 @@ VulkanContext::VulkanContext(GLFWwindow* window)
             break;
         }
     }
-
 
     vk::SurfaceTransformFlagBitsKHR preTransform =
         (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity)
@@ -206,97 +406,28 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         };
         imageViews.emplace_back( device->createImageViewUnique(imageViewCreateInfo) );
     }
+}
 
-    CreateGraphicsPipeline();
-
-    CreateFramebuffers();
-
-    commandPool = device->createCommandPoolUnique(
+vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex)
+{
+    return device->createCommandPoolUnique(
         vk::CommandPoolCreateInfo{
             .flags = vk::CommandPoolCreateFlags(),
-            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
+            .queueFamilyIndex = queueFamilyIndex
         }
     );
+}
 
+std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_t size)
+{
     vk::CommandBufferAllocateInfo commandBufferAllocInfo
     {
         .commandPool = commandPool.get()
         , .level = vk::CommandBufferLevel::ePrimary
-        , .commandBufferCount = static_cast<uint32_t>(swapChainFramebuffers.size())
-    };
-    commandBuffers = device->allocateCommandBuffersUnique(commandBufferAllocInfo);
-
-    // Start recording command buffers
-    for (size_t i = 0; i < commandBuffers.size(); ++i)
-    {
-        vk::CommandBufferBeginInfo beginInfo
-        {
-            .flags = vk::CommandBufferUsageFlags()
-            , .pInheritanceInfo = nullptr
-        };
-
-        commandBuffers[i]->begin(beginInfo);
-
-        // Start render pass
-        vk::ClearValue clearValues;
-        clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.0f, 0.0f, 0.0f, 1.0f } }));
-        // TODO
-        //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
-
-        vk::Rect2D renderArea
-        {
-            .offset = {0, 0}
-            , .extent = swapChainExtent
-        };
-
-        vk::RenderPassBeginInfo renderPassBeginInfo
-        {
-            .renderPass = renderPass.get()
-            , .framebuffer = swapChainFramebuffers[i].get()
-            , .renderArea = renderArea
-            , .clearValueCount = 1
-            , .pClearValues = &clearValues
-        };
-
-        commandBuffers[i]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-        commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
-        commandBuffers[i]->draw(3, 1, 0, 0);
-        commandBuffers[i]->endRenderPass();
-        commandBuffers[i]->end();
-    }
-
-    // Create semaphores for signaling when an image is ready to render
-    // and when an image is done rendering
-    vk::SemaphoreCreateInfo semaphoreCreateInfo
-    {
-        .flags = vk::SemaphoreCreateFlags()
+        , .commandBufferCount = size
     };
 
-    imageAvailableSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
-    renderFinishedSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
-}
-
-void VulkanContext::CreateCommandPool()
-{
-    /*
-    commandPool = device->createCommandPoolUnique(
-        vk::CommandPoolCreateInfo{
-            .flags = vk::CommandPoolCreateFlags(),
-            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
-        }
-    );
-
-    commandBuffer =
-        std::move(
-            device->allocateCommandBuffersUnique(
-                vk::CommandBufferAllocateInfo{
-                    .commandPool = commandPool.get(),
-                    .level = vk::CommandBufferLevel::ePrimary,
-                    .commandBufferCount = 1
-                }
-            ).front()
-        );
-    */
+    return device->allocateCommandBuffersUnique(commandBufferAllocInfo);
 }
 
 static std::vector<char> readFile(const std::string& filepath)
@@ -601,137 +732,6 @@ void VulkanContext::CreateFramebuffers()
 
         swapChainFramebuffers[i] = device->createFramebufferUnique(framebufferCreateInfo);
     }
-}
-
-VulkanContext::~VulkanContext()
-{
-    instance->destroy();
-}
-
-void VulkanContext::Init()
-{
-    glfwMakeContextCurrent(windowHandle);
-    LOG_INFO("Vulkan initialized");
-}
-
-void VulkanContext::SwapBuffers()
-{
-    // TODO
-    // move later to renderer, but just put
-    // draw calls in here for now for quick testing
-
-    uint32_t imageIndex = device->acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
-
-    vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
-    // wait to write colors to the image until it's available
-    // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
-    vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-
-    vk::SubmitInfo submitInfo
-    {
-        .waitSemaphoreCount = 1
-        , .pWaitSemaphores = waitSemaphores
-        , .pWaitDstStageMask = waitStages
-        , .commandBufferCount = 1
-        , .pCommandBuffers = &commandBuffers[imageIndex].get()
-    };
-
-    vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-
-    graphicsQueue.submit(submitInfo, {});
-
-    vk::PresentInfoKHR presentInfo
-    {
-        .waitSemaphoreCount = 1
-        , .pWaitSemaphores = signalSemaphores
-    };
-
-    vk::SwapchainKHR swapChains[] = { swapChain.get() };
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
-
-    presentQueue.presentKHR(&presentInfo);
-
-    device->waitIdle();
-}
-
-vk::UniqueInstance VulkanContext::CreateInstance()
-{
-    vk::ApplicationInfo appInfo {
-        .pApplicationName = "Vulkan Context",
-        .applicationVersion = 1,
-        .pEngineName = "Campfire Engine",
-        .engineVersion = 1,
-        .apiVersion = VK_API_VERSION_1_2
-    };
-
-#ifdef NDEBUG
-    const bool enableValidationLayers = false;
-#else
-    const bool enableValidationLayers = true;
-#endif
-
-    // Enable validation layers
-    const std::vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-    };
-
-    if (enableValidationLayers && !CheckValidationLayerSupport(validationLayers))
-    {
-        throw std::runtime_error("Validation layers enabled, but not available");
-    }
-
-    vk::InstanceCreateInfo instanceCreateInfo {
-        .pApplicationInfo = &appInfo
-    };
-
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    instanceCreateInfo.enabledExtensionCount = glfwExtensionCount;
-    instanceCreateInfo.ppEnabledExtensionNames = glfwExtensions;
-
-    if (enableValidationLayers)
-    {
-        instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
-    }
-    else
-    {
-        instanceCreateInfo.enabledLayerCount = 0;
-    }
-
-    return vk::createInstanceUnique(instanceCreateInfo);
-}
-
-bool VulkanContext::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
-{
-    std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
-    for (const char* layerName : validationLayers)
-    {
-        bool layerFound = false;
-
-        for (const auto& layerProperties : availableLayers)
-        {
-            if (strcmp(layerName, layerProperties.layerName) == 0)
-            {
-                layerFound = true;
-                break;
-            }
-        }
-
-        if (!layerFound)
-        {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 vk::PhysicalDevice VulkanContext::GetPhysicalDevice()

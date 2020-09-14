@@ -17,12 +17,23 @@ public:
 
 private:
     vk::UniqueInstance CreateInstance();
+    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
+
+    void SetupSwapChain();
+
+    vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
+
     vk::PhysicalDevice GetPhysicalDevice();
     bool IsDeviceSuitable(vk::PhysicalDevice device);
-    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
+
+    vk::UniqueDevice CreateLogicalDevice();
+
     void CreateGraphicsPipeline();
+
     void CreateFramebuffers();
-    void CreateCommandPool();
+
+    vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
+    std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
 private:
     vk::UniqueInstance instance;
