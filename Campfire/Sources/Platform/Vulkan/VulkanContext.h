@@ -28,6 +28,7 @@ private:
     std::vector<vk::PhysicalDevice> physicalDevices;
     vk::PhysicalDevice physicalDevice;
 
+    vk::Format swapChainImageFormat;
     vk::UniqueSurfaceKHR surface;
     vk::UniqueSwapchainKHR swapChain;
     vk::Extent2D swapChainExtent;
@@ -42,6 +43,8 @@ private:
     vk::UniqueCommandBuffer commandBuffer;
 
     vk::UniquePipelineLayout pipelineLayout;
+    vk::UniqueRenderPass renderPass;
+    vk::UniquePipeline graphicsPipeline;
 
     GLFWwindow* windowHandle;
 };

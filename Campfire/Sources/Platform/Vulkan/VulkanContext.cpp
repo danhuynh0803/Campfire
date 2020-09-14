@@ -110,7 +110,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
     assert(!formats.empty());
-    vk::Format format =
+    swapChainImageFormat =
         ( formats[0].format == vk::Format::eUndefined ) ? vk::Format::eB8G8R8A8Unorm : formats[0].format;
 
     vk::SurfaceCapabilitiesKHR surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface.get());
@@ -157,7 +157,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         .flags = vk::SwapchainCreateFlagsKHR(),
         .surface = surface.get(),
         .minImageCount = surfaceCapabilities.minImageCount + 1,
-        .imageFormat = format,
+        .imageFormat = swapChainImageFormat,
         .imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear,
         .imageExtent = swapChainExtent,
         .imageArrayLayers = 1,
@@ -196,7 +196,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
             .flags = vk::ImageViewCreateFlags(),
             .image = image,
             .viewType = vk::ImageViewType::e2D,
-            .format = format,
+            .format = swapChainImageFormat,
             .components = componentMapping,
             .subresourceRange = subresourceRange
         };
@@ -425,6 +425,69 @@ void VulkanContext::CreateGraphicsPipeline()
     };
     pipelineLayout = device->createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
+    // ----------- Setup Renderpasses ---------------------
+
+    // Setup loadOp and StoreOp which determines what to do
+    // with the data in the attachment before rendering and
+    // after rendering
+    vk::AttachmentDescription colorAttachment
+    {
+        .format = swapChainImageFormat
+        , .samples = vk::SampleCountFlagBits::e1
+        , .loadOp = vk::AttachmentLoadOp::eClear // Clear the values to a constant at start
+        , .storeOp = vk::AttachmentStoreOp::eStore // Rendered contents store in memory and can be read later
+        , .stencilLoadOp = vk::AttachmentLoadOp::eDontCare
+        , .stencilStoreOp = vk::AttachmentStoreOp::eDontCare
+        , .initialLayout = vk::ImageLayout::eUndefined
+        , .finalLayout = vk::ImageLayout::ePresentSrcKHR
+    };
+
+    // Setup subpasses
+    vk::AttachmentReference colorAttachmentRef
+    {
+        .attachment = 0
+        , .layout = vk::ImageLayout::eColorAttachmentOptimal
+    };
+
+    vk::SubpassDescription subpass
+    {
+        .pipelineBindPoint = vk::PipelineBindPoint::eGraphics
+        , .colorAttachmentCount = 1
+        , .pColorAttachments = &colorAttachmentRef
+    };
+
+    vk::RenderPassCreateInfo renderPassCreateInfo
+    {
+        .flags = vk::RenderPassCreateFlags()
+        , .attachmentCount = 1
+        , .pAttachments = &colorAttachment
+        , .subpassCount = 1
+        , .pSubpasses = &subpass
+    };
+    renderPass = device->createRenderPassUnique(renderPassCreateInfo);
+
+    // Create Graphics pipeline
+    vk::GraphicsPipelineCreateInfo pipelineCreateInfo
+    {
+        .flags = vk::PipelineCreateFlags()
+        , .stageCount = 2
+        , .pStages = shaderStages
+        , .pVertexInputState = &vertexInputStateCreateInfo
+        , .pInputAssemblyState = &inputAssemblyStateCreateInfo
+        , .pViewportState = &viewportStateCreateInfo
+        , .pRasterizationState = &rasterizationStateCreateInfo
+        , .pMultisampleState = &multisampleCreateInfo
+        , .pDepthStencilState = nullptr
+        , .pColorBlendState = &colorBlendCreateInfo
+        , .pDynamicState = nullptr
+        , .layout = pipelineLayout.get()
+        , .renderPass = renderPass.get()
+        , .subpass = 0
+        , .basePipelineHandle = nullptr
+        , .basePipelineIndex = -1
+    };
+
+    graphicsPipeline = device->createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
 VulkanContext::~VulkanContext()
