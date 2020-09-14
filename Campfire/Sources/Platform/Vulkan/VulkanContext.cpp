@@ -107,6 +107,10 @@ VulkanContext::VulkanContext(GLFWwindow* window)
             }
         );
 
+    // Save queues for later use
+    graphicsQueue = device->getQueue(graphicsQueueFamilyIndex, 0);
+    presentQueue = device->getQueue(presentQueueFamilyIndex, 0);
+
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
     assert(!formats.empty());
@@ -235,8 +239,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
         // Start render pass
         vk::ClearValue clearValues;
-        clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.2f, 0.2f, 0.2f } }));
-        clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+        clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.0f, 0.0f, 0.0f, 1.0f } }));
+        // TODO
+        //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
 
         vk::Rect2D renderArea
         {
@@ -257,8 +262,18 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
         commandBuffers[i]->draw(3, 1, 0, 0);
         commandBuffers[i]->endRenderPass();
+        commandBuffers[i]->end();
     }
 
+    // Create semaphores for signaling when an image is ready to render
+    // and when an image is done rendering
+    vk::SemaphoreCreateInfo semaphoreCreateInfo
+    {
+        .flags = vk::SemaphoreCreateFlags()
+    };
+
+    imageAvailableSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
+    renderFinishedSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
 }
 
 void VulkanContext::CreateCommandPool()
@@ -409,7 +424,7 @@ void VulkanContext::CreateGraphicsPipeline()
         , .rasterizerDiscardEnable = VK_FALSE
         , .polygonMode = vk::PolygonMode::eFill
         , .cullMode = vk::CullModeFlagBits::eBack
-        , .frontFace = vk::FrontFace::eCounterClockwise
+        , .frontFace = vk::FrontFace::eClockwise
         , .depthBiasEnable = VK_FALSE
         , .depthBiasConstantFactor = 0.0f
         , .depthBiasClamp = 0.0f
@@ -515,6 +530,17 @@ void VulkanContext::CreateGraphicsPipeline()
         , .pColorAttachments = &colorAttachmentRef
     };
 
+    // Setup subpass dependencies
+    vk::SubpassDependency subpassDependency
+    {
+        .srcSubpass = VK_SUBPASS_EXTERNAL
+        , .dstSubpass = 0
+        , .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput
+        , .dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput
+        , .srcAccessMask = static_cast<vk::AccessFlagBits>(0)
+        , .dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite
+    };
+
     vk::RenderPassCreateInfo renderPassCreateInfo
     {
         .flags = vk::RenderPassCreateFlags()
@@ -522,6 +548,8 @@ void VulkanContext::CreateGraphicsPipeline()
         , .pAttachments = &colorAttachment
         , .subpassCount = 1
         , .pSubpasses = &subpass
+        , .dependencyCount = 1
+        , .pDependencies = &subpassDependency
     };
     renderPass = device->createRenderPassUnique(renderPassCreateInfo);
 
@@ -589,6 +617,45 @@ void VulkanContext::Init()
 void VulkanContext::SwapBuffers()
 {
     // TODO
+    // move later to renderer, but just put
+    // draw calls in here for now for quick testing
+
+    uint32_t imageIndex = device->acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+
+    vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
+    // wait to write colors to the image until it's available
+    // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
+    vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+
+    vk::SubmitInfo submitInfo
+    {
+        .waitSemaphoreCount = 1
+        , .pWaitSemaphores = waitSemaphores
+        , .pWaitDstStageMask = waitStages
+        , .commandBufferCount = 1
+        , .pCommandBuffers = &commandBuffers[imageIndex].get()
+    };
+
+    vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    graphicsQueue.submit(submitInfo, {});
+
+    vk::PresentInfoKHR presentInfo
+    {
+        .waitSemaphoreCount = 1
+        , .pWaitSemaphores = signalSemaphores
+    };
+
+    vk::SwapchainKHR swapChains[] = { swapChain.get() };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+
+    presentQueue.presentKHR(&presentInfo);
+
+    device->waitIdle();
 }
 
 vk::UniqueInstance VulkanContext::CreateInstance()

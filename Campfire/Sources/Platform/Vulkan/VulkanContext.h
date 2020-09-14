@@ -37,6 +37,8 @@ private:
     std::vector<vk::Image> swapChainImages;
     std::vector<vk::UniqueImageView> imageViews;
 
+    vk::Queue graphicsQueue;
+    vk::Queue presentQueue;
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
     vk::UniqueDevice device;
@@ -49,6 +51,9 @@ private:
     vk::UniquePipeline graphicsPipeline;
 
     std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
+
+    vk::UniqueSemaphore imageAvailableSemaphore;
+    vk::UniqueSemaphore renderFinishedSemaphore;
 
     GLFWwindow* windowHandle;
 };
