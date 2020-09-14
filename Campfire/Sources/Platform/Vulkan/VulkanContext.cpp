@@ -203,28 +203,85 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         imageViews.emplace_back( device->createImageViewUnique(imageViewCreateInfo) );
     }
 
-    // Setup command pool
-    //commandPool = device->createCommandPoolUnique(
-    //    vk::CommandPoolCreateInfo{
-    //        .flags = vk::CommandPoolCreateFlags(),
-    //        .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
-    //    }
-    //);
-
-    //commandBuffer =
-    //    std::move(
-    //        device->allocateCommandBuffersUnique(
-    //            vk::CommandBufferAllocateInfo{
-    //                .commandPool = commandPool.get(),
-    //                .level = vk::CommandBufferLevel::ePrimary,
-    //                .commandBufferCount = 1
-    //            }
-    //        ).front()
-    //    );
-
     CreateGraphicsPipeline();
 
     CreateFramebuffers();
+
+    commandPool = device->createCommandPoolUnique(
+        vk::CommandPoolCreateInfo{
+            .flags = vk::CommandPoolCreateFlags(),
+            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
+        }
+    );
+
+    vk::CommandBufferAllocateInfo commandBufferAllocInfo
+    {
+        .commandPool = commandPool.get()
+        , .level = vk::CommandBufferLevel::ePrimary
+        , .commandBufferCount = static_cast<uint32_t>(swapChainFramebuffers.size())
+    };
+    commandBuffers = device->allocateCommandBuffersUnique(commandBufferAllocInfo);
+
+    // Start recording command buffers
+    for (size_t i = 0; i < commandBuffers.size(); ++i)
+    {
+        vk::CommandBufferBeginInfo beginInfo
+        {
+            .flags = vk::CommandBufferUsageFlags()
+            , .pInheritanceInfo = nullptr
+        };
+
+        commandBuffers[i]->begin(beginInfo);
+
+        // Start render pass
+        vk::ClearValue clearValues;
+        clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.2f, 0.2f, 0.2f } }));
+        clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+
+        vk::Rect2D renderArea
+        {
+            .offset = {0, 0}
+            , .extent = swapChainExtent
+        };
+
+        vk::RenderPassBeginInfo renderPassBeginInfo
+        {
+            .renderPass = renderPass.get()
+            , .framebuffer = swapChainFramebuffers[i].get()
+            , .renderArea = renderArea
+            , .clearValueCount = 1
+            , .pClearValues = &clearValues
+        };
+
+        commandBuffers[i]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+        commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
+        commandBuffers[i]->draw(3, 1, 0, 0);
+        commandBuffers[i]->endRenderPass();
+    }
+
+}
+
+void VulkanContext::CreateCommandPool()
+{
+    /*
+    commandPool = device->createCommandPoolUnique(
+        vk::CommandPoolCreateInfo{
+            .flags = vk::CommandPoolCreateFlags(),
+            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)
+        }
+    );
+
+    commandBuffer =
+        std::move(
+            device->allocateCommandBuffersUnique(
+                vk::CommandBufferAllocateInfo{
+                    .commandPool = commandPool.get(),
+                    .level = vk::CommandBufferLevel::ePrimary,
+                    .commandBufferCount = 1
+                }
+            ).front()
+        );
+    */
 }
 
 static std::vector<char> readFile(const std::string& filepath)

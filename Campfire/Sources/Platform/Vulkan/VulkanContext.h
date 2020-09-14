@@ -22,6 +22,7 @@ private:
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
     void CreateGraphicsPipeline();
     void CreateFramebuffers();
+    void CreateCommandPool();
 
 private:
     vk::UniqueInstance instance;
@@ -41,7 +42,7 @@ private:
     vk::UniqueDevice device;
 
     vk::UniqueCommandPool commandPool;
-    vk::UniqueCommandBuffer commandBuffer;
+    std::vector<vk::UniqueCommandBuffer> commandBuffers;
 
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
