@@ -24,12 +24,12 @@ public:
     void Run();
     void Wait();
     bool HasWork();
-
+    //Using C++ 20 invoke_result, instead of result_of
     template <typename FunctionType>
-    std::future<typename std::result_of<FunctionType()>::type>
+    std::future<typename std::invoke_result<FunctionType()>::type>
         Submit(FunctionType f)
     {
-        typedef typename std::result_of<FunctionType()>::type result_type;
+        typedef typename std::invoke_result<FunctionType()>::type result_type;
         std::packaged_task<result_type()> task(std::move(f));
         std::future<result_type> res(task.get_future());
         jobPoolQueue.Push(std::move(task));
