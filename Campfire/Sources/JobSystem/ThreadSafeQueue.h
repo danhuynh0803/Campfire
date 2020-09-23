@@ -31,7 +31,7 @@ public:
         std::unique_lock<std::mutex> lock(mutex);
         dataCond.wait(lock, [this] { return !data.empty(); });
         value = std::move(data.front());
-        data.pop();
+        data.pop_front();
     }
 
     std::shared_ptr<T> WaitAndPop()
@@ -41,7 +41,7 @@ public:
         std::shared_ptr<T> res(
             std::make_shared<T>(std::move(data.front()))
         );
-        data.pop();
+        data.pop_front();
 
         return res;
     }
@@ -56,14 +56,13 @@ public:
         return true;
     }
 
-    bool TrySteal(T& value)
+    std::shared_ptr<T> TryPop()
     {
         std::lock_guard<std::mutex> lock(mutex);
-        if (data.empty()) { return false; }
-        value = std::move(data.back());
-        data.pop_back;
-
-        return true;
+        if(data.empty()){ return std::shared_ptr<T>() }
+        std::shared_ptr<T> result(std::make_shared<T>(data.front()));
+        data.pop_front();
+        return result;
     }
 
     bool Empty() const

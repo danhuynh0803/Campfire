@@ -91,7 +91,7 @@ class InterruptibleThread
 {
 public:
 	template<typename FunctionType>
-	InterruptibleThread(FunctionType t)
+	InterruptibleThread(FunctionType f)
 	{
 		std::promise<InterruptFlag*> p;
 		internalThread = std::thread([f, &p] {
