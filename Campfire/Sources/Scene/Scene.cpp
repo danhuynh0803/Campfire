@@ -28,7 +28,8 @@ void Scene::Init()
        1) Camera
        2) Directional light
     */
-    auto mainCamera = CreateEntity("Camera");
+    //auto mainCamera = CreateEntity("Camera");
+    auto mainCamera = CreateEntity("Camera", false);
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
     mainCamera.GetComponent<CameraComponent>().isMain = true;
@@ -45,13 +46,29 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+        //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         //player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        player.AddChild(mainCamera);
+
+        //auto child = CreateEntity("Child", false);
+        //child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        //child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 1.0f, 0.0f);
+        //player.AddChild(child);
+
+        //auto child1 = CreateEntity("Child1", false);
+        //child1.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        //child1.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
+        //player.AddChild(child1);
+
+        //auto child2 = CreateEntity("Child2", false);
+        //child2.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        //child2.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        //player.AddChild(child2);
     }
 
     {
@@ -163,6 +180,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
         CopyComponent<AudioComponent>(registry, other->registry, enttMap);
         CopyComponent<TextComponent>(registry, other->registry, enttMap);
+        CopyComponent<RelationshipComponent>(registry, other->registry, enttMap);
     }
 }
 
@@ -323,13 +341,54 @@ void Scene::OnRender(float dt, const Camera& camera)
     {
         ZoneScopedN("RenderMeshes");
         // Only render objects that have mesh components
-        auto group = registry.group<MeshComponent>(entt::get<TransformComponent>);
+        auto group = registry.group<MeshComponent>(entt::get<TransformComponent, RelationshipComponent>);
         for (auto entity : group)
         {
-            auto [transformComponent, meshComponent] = group.get<TransformComponent, MeshComponent>(entity);
+            auto [transformComponent, relationshipComponent, meshComponent] = group.get<TransformComponent, RelationshipComponent, MeshComponent>(entity);
             if (meshComponent.mesh)
             {
-                SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+                // If entity is a child, then apply parents transform to it
+                if (relationshipComponent.parent != entt::null)
+                {
+                    auto parentTransform = registry.get<TransformComponent>(relationshipComponent.parent);
+
+                    glm::mat4 transform = glm::mat4(1.0f);
+                    glm::vec3 position    = transformComponent.position + parentTransform.position;
+                    glm::vec3 eulerAngles = transformComponent.eulerAngles;
+                    glm::vec3 scale = transformComponent.scale * parentTransform.scale;
+
+                    glm::vec3 parentEulerAngles = parentTransform.eulerAngles;
+                    glm::quat parentRotation = glm::quat(
+                        glm::vec3(
+                            glm::radians(parentEulerAngles.x),
+                            glm::radians(parentEulerAngles.y),
+                            glm::radians(parentEulerAngles.z)
+                        )
+                    );
+                    //glm::mat4 parentRotationMat = glm::toMat4(parentRotation);
+                    //transform = transform * parentRotationMat;
+                    glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
+
+                    transform = glm::translate(transform, rotationPosition);
+
+                    glm::quat rotation = glm::quat(
+                            glm::vec3(
+                                glm::radians(eulerAngles.x),
+                                glm::radians(eulerAngles.y),
+                                glm::radians(eulerAngles.z)
+                                )
+                            );
+                    glm::mat4 rotationMat = glm::toMat4(rotation);
+                    transform = transform * rotationMat;
+
+                    transform = glm::scale(transform, scale);
+
+                    SceneRenderer::SubmitMesh(meshComponent, transform, meshComponent.material);
+                }
+                else
+                {
+                    SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+                }
             }
         }
     }
@@ -354,7 +413,7 @@ void Scene::OnEvent(Event& e)
 {
 }
 
-Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
+Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
 {
     auto entity = Entity(registry.create(), this);
 
@@ -362,13 +421,17 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID)
     entity.AddComponent<IDComponent>(ID);
     entity.AddComponent<TagComponent>(name);
     entity.AddComponent<TransformComponent>();
+    entity.AddComponent<RelationshipComponent>();
 
-    entityMap[ID] = entity;
+    if (isRootEntity)
+    {
+        entityMap[ID] = entity;
+    }
 
     return entity;
 }
 
-Entity Scene::CreateEntity(const std::string& name)
+Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
     auto entity = Entity(registry.create(), this);
 
@@ -379,8 +442,12 @@ Entity Scene::CreateEntity(const std::string& name)
     entity.AddComponent<IDComponent>(ID);
     entity.AddComponent<TagComponent>(name);
     entity.AddComponent<TransformComponent>();
+    entity.AddComponent<RelationshipComponent>();
 
-    entityMap[ID] = entity;
+    if (isRootEntity)
+    {
+        entityMap[ID] = entity;
+    }
 
     return entity;
 }

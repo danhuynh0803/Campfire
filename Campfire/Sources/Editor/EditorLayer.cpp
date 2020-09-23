@@ -83,19 +83,49 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnUpdate(deltaTime);
     }
 
-    auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent>();
+    auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
     SharedPtr<Camera> mainGameCamera = nullptr;
     for (auto entity : group)
     {
         auto cameraComp = group.get<CameraComponent>(entity);
         if (cameraComp.isMain)
         {
-            auto transform = group.get<TransformComponent>(entity);
+            auto& transformComponent = group.get<TransformComponent>(entity);
             mainGameCamera = cameraComp.camera;
 
-            mainGameCamera->pos = transform.position;
-            mainGameCamera->RecalculateViewMatrix(transform.position, transform.eulerAngles);
-            mainGameCamera->SetProjection();
+            auto relationshipComponent = group.get<RelationshipComponent>(entity);
+            // If entity is a child, then apply parents transform to it
+            if (relationshipComponent.parent != entt::null)
+            {
+                Entity parent(relationshipComponent.parent, activeScene.get());
+                auto parentTransform = parent.GetComponent<TransformComponent>();
+
+                glm::mat4 transform = glm::mat4(1.0f);
+                transform = glm::mat4(1.0f);
+                glm::vec3 position    = transformComponent.position + parentTransform.position;
+                glm::vec3 eulerAngles = transformComponent.eulerAngles;
+                glm::vec3 scale = transformComponent.scale * parentTransform.scale;
+
+                glm::vec3 parentEulerAngles = parentTransform.eulerAngles;
+                glm::quat parentRotation = glm::quat(
+                        glm::vec3(
+                            glm::radians(parentEulerAngles.x),
+                            glm::radians(parentEulerAngles.y),
+                            glm::radians(parentEulerAngles.z)
+                            )
+                        );
+                glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
+
+                mainGameCamera->pos = rotationPosition;
+                mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.eulerAngles + parentEulerAngles);
+                mainGameCamera->SetProjection();
+            }
+            else
+            {
+                mainGameCamera->pos = transformComponent.position;
+                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.eulerAngles);
+                mainGameCamera->SetProjection();
+            }
             break;
         }
     }

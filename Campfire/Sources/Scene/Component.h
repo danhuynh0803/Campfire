@@ -19,6 +19,8 @@
 #include "Scene/Entity.h"
 #include "Audio/AudioSource.h"
 
+class Entity;
+
 struct IDComponent
 {
     uint64_t ID;
@@ -46,7 +48,7 @@ struct TransformComponent
     {
         transform = glm::mat4(1.0f);
 
-        transform = glm::translate(transform,position);
+        transform = glm::translate(transform, position);
 
         rotation = glm::quat(
             glm::vec3(
