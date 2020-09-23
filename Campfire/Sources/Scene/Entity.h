@@ -7,12 +7,23 @@
 #include "Scene/Scene.h"
 #include "Scene/Component.h"
 
+struct RelationshipComponent
+{
+    std::size_t numChildren = 0;
+    entt::entity first{ entt::null };
+    entt::entity prev{ entt::null };
+    entt::entity next{ entt::null };
+    entt::entity parent{ entt::null };
+};
+
 class Entity
 {
 public:
     Entity() = default;
     Entity(entt::entity handle, Scene* _scene);
     ~Entity() = default;
+
+    void AddChild(entt::entity childHandle);
 
     template <typename T, typename... Args>
     T& AddComponent(Args&&... args)

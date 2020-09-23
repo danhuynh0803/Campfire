@@ -29,8 +29,8 @@ public:
     auto GetAllEntitiesWith() { return registry.view<T, Args...>(); }
 
     //auto GetAllEntitiesWithTag(const std::string& tag) { return registry.view<T>(); }
-    Entity CreateEntity(const std::string& name);
-    Entity CreateEntity(const std::string& name, uint64_t ID);
+    Entity CreateEntity(const std::string& name, bool isRootEntity = true);
+    Entity CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity = true);
     Entity DuplicateEntity(const Entity& entity);
     void RemoveEntity(Entity entity);
     void Clear() { registry.clear(); }
