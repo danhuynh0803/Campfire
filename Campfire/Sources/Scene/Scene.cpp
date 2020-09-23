@@ -28,8 +28,8 @@ void Scene::Init()
        1) Camera
        2) Directional light
     */
-    //auto mainCamera = CreateEntity("Camera");
-    auto mainCamera = CreateEntity("Camera", false);
+    auto mainCamera = CreateEntity("Camera");
+    //auto mainCamera = CreateEntity("Camera", false); // false for not setting it as a root object in entityMap
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
     mainCamera.GetComponent<CameraComponent>().isMain = true;
@@ -53,7 +53,7 @@ void Scene::Init()
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
-        player.AddChild(mainCamera);
+        //player.AddChild(mainCamera);
 
         //auto child = CreateEntity("Child", false);
         //child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
@@ -180,7 +180,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
         CopyComponent<AudioComponent>(registry, other->registry, enttMap);
         CopyComponent<TextComponent>(registry, other->registry, enttMap);
-        CopyComponent<RelationshipComponent>(registry, other->registry, enttMap);
+        //CopyComponent<RelationshipComponent>(registry, other->registry, enttMap);
     }
 }
 
