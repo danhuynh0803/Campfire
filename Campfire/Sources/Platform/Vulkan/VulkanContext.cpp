@@ -26,7 +26,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     SetupSwapChain();
 
-    CreateGraphicsPipeline();
+    graphicsPipeline = CreateGraphicsPipeline();
 
     CreateFramebuffers();
 
@@ -73,6 +73,12 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         commandBuffers[i]->end();
     }
 
+    imageAvailableSemaphore = CreateSemaphore();
+    renderFinishedSemaphore = CreateSemaphore();
+}
+
+vk::UniqueSemaphore VulkanContext::CreateSemaphore()
+{
     // Create semaphores for signaling when an image is ready to render
     // and when an image is done rendering
     vk::SemaphoreCreateInfo semaphoreCreateInfo
@@ -80,8 +86,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         .flags = vk::SemaphoreCreateFlags()
     };
 
-    imageAvailableSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
-    renderFinishedSemaphore = device->createSemaphoreUnique(semaphoreCreateInfo);
+    return device->createSemaphoreUnique(semaphoreCreateInfo);
 }
 
 VulkanContext::~VulkanContext()
@@ -450,7 +455,7 @@ static std::vector<char> readFile(const std::string& filepath)
     return buffer;
 }
 
-void VulkanContext::CreateGraphicsPipeline()
+vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
 {
     // Create shader modules
     //VulkanShader vert("../Campfire/Shaders/vert.spv");
@@ -705,7 +710,7 @@ void VulkanContext::CreateGraphicsPipeline()
         , .basePipelineIndex = -1
     };
 
-    graphicsPipeline = device->createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    return device->createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
 void VulkanContext::CreateFramebuffers()

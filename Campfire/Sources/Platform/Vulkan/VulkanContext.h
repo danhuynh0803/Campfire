@@ -16,31 +16,43 @@ public:
     virtual void SwapBuffers() override;
 
 private:
+    // Instance
     vk::UniqueInstance CreateInstance();
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
-    void SetupSwapChain();
-
-    vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
-
+    // PhysicalDevice
     vk::PhysicalDevice GetPhysicalDevice();
     bool IsDeviceSuitable(vk::PhysicalDevice device);
 
+    // SwapChain
+    vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
+    void SetupSwapChain();
+
+    // Logical device
     vk::UniqueDevice CreateLogicalDevice();
 
-    void CreateGraphicsPipeline();
+    // Graphics pipeline
+    vk::UniquePipeline CreateGraphicsPipeline();
 
+    // Framebuffers
     void CreateFramebuffers();
 
+    // Command pool/buffer
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
+    // Semaphores
+    vk::UniqueSemaphore CreateSemaphore();
+
 private:
+    // Instance
     vk::UniqueInstance instance;
 
+    // PhysicalDevice
     std::vector<vk::PhysicalDevice> physicalDevices;
     vk::PhysicalDevice physicalDevice;
 
+    // SwapChain
     vk::Format swapChainImageFormat;
     vk::UniqueSurfaceKHR surface;
     vk::UniqueSwapchainKHR swapChain;
@@ -48,21 +60,27 @@ private:
     std::vector<vk::Image> swapChainImages;
     std::vector<vk::UniqueImageView> imageViews;
 
+    // Queues
     vk::Queue graphicsQueue;
     vk::Queue presentQueue;
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
+    // Logical device
     vk::UniqueDevice device;
 
-    vk::UniqueCommandPool commandPool;
-    std::vector<vk::UniqueCommandBuffer> commandBuffers;
-
+    // Graphics pipeline
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
     vk::UniquePipeline graphicsPipeline;
 
+    // Framebuffers
     std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
 
+    // Command pool/buffer
+    vk::UniqueCommandPool commandPool;
+    std::vector<vk::UniqueCommandBuffer> commandBuffers;
+
+    // Semaphores
     vk::UniqueSemaphore imageAvailableSemaphore;
     vk::UniqueSemaphore renderFinishedSemaphore;
 
