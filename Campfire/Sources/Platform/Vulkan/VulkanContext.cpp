@@ -1,6 +1,6 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "VulkanContext.h"
-#include "VulkanShader.h"
+//#include "VulkanShader.h"
 
 #include <GLFW/glfw3.h>
 #include <limits>
