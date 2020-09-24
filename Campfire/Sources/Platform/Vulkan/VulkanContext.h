@@ -44,6 +44,8 @@ private:
     // Semaphores
     vk::UniqueSemaphore CreateSemaphore();
 
+    vk::UniqueFence CreateFence();
+
 private:
     // Instance
     vk::UniqueInstance instance;
@@ -81,8 +83,10 @@ private:
     std::vector<vk::UniqueCommandBuffer> commandBuffers;
 
     // Semaphores
-    vk::UniqueSemaphore imageAvailableSemaphore;
-    vk::UniqueSemaphore renderFinishedSemaphore;
+    std::vector<vk::UniqueSemaphore> imageAvailableSemaphores;
+    std::vector<vk::UniqueSemaphore> renderFinishedSemaphores;
+    std::vector<vk::UniqueFence> inFlightFences;
+    std::vector<vk::Fence> imagesInFlight;
 
     GLFWwindow* windowHandle;
 };

@@ -10,6 +10,8 @@
 static size_t graphicsQueueFamilyIndex;
 static size_t presentQueueFamilyIndex;
 
+static const int MAX_FRAMES_IN_FLIGHT = 2;
+
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
 {
@@ -73,8 +75,14 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         commandBuffers[i]->end();
     }
 
-    imageAvailableSemaphore = CreateSemaphore();
-    renderFinishedSemaphore = CreateSemaphore();
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        imageAvailableSemaphores.emplace_back(CreateSemaphore());
+        renderFinishedSemaphores.emplace_back(CreateSemaphore());
+        inFlightFences.emplace_back(CreateFence());
+    }
+
+    imagesInFlight.resize(swapChainImages.size());
 }
 
 vk::UniqueSemaphore VulkanContext::CreateSemaphore()
@@ -87,6 +95,16 @@ vk::UniqueSemaphore VulkanContext::CreateSemaphore()
     };
 
     return device->createSemaphoreUnique(semaphoreCreateInfo);
+}
+
+vk::UniqueFence VulkanContext::CreateFence()
+{
+    vk::FenceCreateInfo fenceCreateInfo
+    {
+        .flags = vk::FenceCreateFlagBits::eSignaled
+    };
+
+    return device->createFenceUnique(fenceCreateInfo);
 }
 
 VulkanContext::~VulkanContext()
@@ -105,8 +123,20 @@ void VulkanContext::SwapBuffers()
     // TODO
     // move later to renderer, but just put
     // draw calls in here for now for quick testing
+    static size_t currentFrame = 0;
 
+    device->waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
+
+    auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
     uint32_t imageIndex = device->acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+
+    // Check if previous frame is using this image (wait on its fence)
+    if (imagesInFlight[imageIndex])
+    {
+      //device->waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    // Mark the image as now being in use by this frame
+    imagesInFlight[imageIndex] = inFlightFences[currentFrame].get();
 
     vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
     // wait to write colors to the image until it's available
@@ -122,11 +152,14 @@ void VulkanContext::SwapBuffers()
         , .pCommandBuffers = &commandBuffers[imageIndex].get()
     };
 
+    auto& renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
     vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    graphicsQueue.submit(submitInfo, {});
+    device->resetFences(inFlightFences[currentFrame].get());
+
+    graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
 
     vk::PresentInfoKHR presentInfo
     {
@@ -141,7 +174,7 @@ void VulkanContext::SwapBuffers()
 
     presentQueue.presentKHR(&presentInfo);
 
-    device->waitIdle();
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 vk::UniqueInstance VulkanContext::CreateInstance()
