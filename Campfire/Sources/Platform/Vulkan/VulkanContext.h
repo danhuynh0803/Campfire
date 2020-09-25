@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include "Renderer/GraphicsContext.h"
+#include "VulkanBuffer.h"
 
 #include <vector>
 
@@ -17,6 +18,8 @@ public:
 
     static vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
     static vk::Device GetDevice() { return device.get(); }
+
+    SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
 
 private:
     // Instance

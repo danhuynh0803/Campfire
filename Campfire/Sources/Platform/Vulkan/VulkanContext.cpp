@@ -15,10 +15,15 @@ static size_t graphicsQueueFamilyIndex;
 static size_t presentQueueFamilyIndex;
 static const int MAX_FRAMES_IN_FLIGHT = 2;
 
-const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.5f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-    {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
+float vertices[] = {
+    // Position           // Color            // UV
+    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   0.5f, 0.0f,
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f
 };
 
 VulkanContext::VulkanContext(GLFWwindow* window)
@@ -44,6 +49,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     commandPool = CreateCommandPool(static_cast<uint32_t>(graphicsQueueFamilyIndex));
 
     commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
+
+    // TODO move to a separate layer for testing
+    vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
 
     // Start recording command buffers
     for (size_t i = 0; i < commandBuffers.size(); ++i)
@@ -78,9 +86,17 @@ VulkanContext::VulkanContext(GLFWwindow* window)
         };
 
         commandBuffers[i]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-        commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
-        commandBuffers[i]->draw(3, 1, 0, 0);
+
+            commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
+
+            vk::Buffer vertexBuffers[] = { vertexBufferPtr->buffer.get() };
+            vk::DeviceSize offsets[] = { 0 };
+            commandBuffers[i]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
+
+            commandBuffers[i]->draw(static_cast<uint32_t>(sizeof(vertices)/sizeof(VertexTest)), 1, 0, 0);
+
         commandBuffers[i]->endRenderPass();
+
         commandBuffers[i]->end();
     }
 
@@ -550,8 +566,8 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
     // Attribute descriptions = type of the attribs passed to vertex shader,
     // including which binding to load them from and at which offset
 
-    auto bindingDescription = Vertex::GetBindingDescription();
-    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+    auto bindingDescription = VertexTest::GetBindingDescription();
+    auto attributeDescriptions = VertexTest::GetAttributeDescriptions();
 
     vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo
     {

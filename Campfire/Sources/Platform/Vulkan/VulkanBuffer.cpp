@@ -35,4 +35,12 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
         .allocationSize = memoryReqs.size
         , .memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, flags)
     };
+
+    bufferMemory = VulkanContext::GetDevice().allocateMemoryUnique(allocInfo);
+
+    VulkanContext::GetDevice().bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
+
+    void* data = VulkanContext::GetDevice().mapMemory(bufferMemory.get(), 0, bufferInfo.size, vk::MemoryMapFlags());
+    memcpy(data, vertices, (size_t)bufferInfo.size);
+    VulkanContext::GetDevice().unmapMemory(bufferMemory.get());
 }
