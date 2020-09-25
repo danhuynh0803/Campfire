@@ -1,5 +1,6 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "VulkanContext.h"
+#include "VulkanBuffer.h"
 //#include "VulkanShader.h"
 
 #include <GLFW/glfw3.h>
@@ -7,9 +8,10 @@
 #include <vector>
 #include <fstream>
 
+vk::UniqueDevice VulkanContext::device;
+
 static size_t graphicsQueueFamilyIndex;
 static size_t presentQueueFamilyIndex;
-
 static const int MAX_FRAMES_IN_FLIGHT = 2;
 
 VulkanContext::VulkanContext(GLFWwindow* window)
@@ -540,13 +542,17 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
     // Binds = spacing btw data and whether data is per-vertex or per-instance
     // Attribute descriptions = type of the attribs passed to vertex shader,
     // including which binding to load them from and at which offset
+
+    auto bindingDescription = Vertex::GetBindingDescription();
+    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+
     vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo
     {
-        .flags = vk::PipelineVertexInputStateCreateFlags(),
-        .vertexBindingDescriptionCount = 0,
-        .pVertexBindingDescriptions = nullptr,
-        .vertexAttributeDescriptionCount = 0,
-        .pVertexAttributeDescriptions = nullptr
+        .flags = vk::PipelineVertexInputStateCreateFlags()
+        , .vertexBindingDescriptionCount = 1
+        , .pVertexBindingDescriptions = &bindingDescription
+        , .vertexAttributeDescriptionCount = 3
+        , .pVertexAttributeDescriptions = attributeDescriptions.data()
     };
 
     // Input assembly

@@ -15,6 +15,9 @@ public:
     virtual void Init() override;
     virtual void SwapBuffers() override;
 
+    // Logical device
+    static vk::UniqueDevice device;
+
 private:
     // Instance
     vk::UniqueInstance CreateInstance();
@@ -67,8 +70,6 @@ private:
     vk::Queue presentQueue;
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
-    // Logical device
-    vk::UniqueDevice device;
 
     // Graphics pipeline
     vk::UniquePipelineLayout pipelineLayout;
