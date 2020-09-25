@@ -551,7 +551,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         .flags = vk::PipelineVertexInputStateCreateFlags()
         , .vertexBindingDescriptionCount = 1
         , .pVertexBindingDescriptions = &bindingDescription
-        , .vertexAttributeDescriptionCount = 3
+        , .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size())
         , .pVertexAttributeDescriptions = attributeDescriptions.data()
     };
 

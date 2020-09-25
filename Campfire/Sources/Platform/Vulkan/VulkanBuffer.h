@@ -29,12 +29,12 @@ struct Vertex
         attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
-        attributeDescriptions[1].binding = 1;
+        attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
 
-        attributeDescriptions[2].binding = 2;
+        attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
         attributeDescriptions[2].format = vk::Format::eR32G32Sfloat;;
         attributeDescriptions[2].offset = offsetof(Vertex, uv);
