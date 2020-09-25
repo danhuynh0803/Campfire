@@ -3,7 +3,10 @@
 ![Windows build](https://github.com/danhuynh0803/Campfire/workflows/Windows%20build/badge.svg)
 
 ## Summary
-Campfire is an in-progress game engine intended for use in small gamejam projects. Not currently usable other than for myself due to a lot of hardcoded file paths for testing purposes. Campfire uses [Glitter](https://github.com/Polytonic/Glitter) as the starting template. Mostly developed and tested on Windows so the Linux builds may not always be reliable.
+Campfire is an in-progress game engine intended for use in small gamejam projects.
+
+## Sample Images
+![SampleScene](https://i.imgur.com/P1bg6WF.jpg)
 
 ## Build Instructions
 ```bash
