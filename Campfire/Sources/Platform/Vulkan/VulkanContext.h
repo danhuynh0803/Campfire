@@ -15,8 +15,8 @@ public:
     virtual void Init() override;
     virtual void SwapBuffers() override;
 
-    // Logical device
-    static vk::UniqueDevice device;
+    static vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
+    static vk::Device GetDevice() { return device.get(); }
 
 private:
     // Instance
@@ -24,7 +24,7 @@ private:
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
     // PhysicalDevice
-    vk::PhysicalDevice GetPhysicalDevice();
+    vk::PhysicalDevice SelectPhysicalDevice();
     bool IsDeviceSuitable(vk::PhysicalDevice device);
 
     // SwapChain
@@ -55,7 +55,10 @@ private:
 
     // PhysicalDevice
     std::vector<vk::PhysicalDevice> physicalDevices;
-    vk::PhysicalDevice physicalDevice;
+    // The selected physical device that will run vulkan
+    static vk::PhysicalDevice physicalDevice;
+    // Logical device
+    static vk::UniqueDevice device;
 
     // SwapChain
     vk::Format swapChainImageFormat;
@@ -69,6 +72,7 @@ private:
     vk::Queue graphicsQueue;
     vk::Queue presentQueue;
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
+
 
 
     // Graphics pipeline

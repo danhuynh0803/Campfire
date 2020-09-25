@@ -8,11 +8,18 @@
 #include <vector>
 #include <fstream>
 
+vk::PhysicalDevice VulkanContext::physicalDevice;
 vk::UniqueDevice VulkanContext::device;
 
 static size_t graphicsQueueFamilyIndex;
 static size_t presentQueueFamilyIndex;
 static const int MAX_FRAMES_IN_FLIGHT = 2;
+
+const std::vector<Vertex> vertices = {
+    {{0.0f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.5f, 0.0f}},
+    {{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+    {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
+};
 
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
@@ -21,7 +28,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     surface = CreateSurfaceKHR(window);
 
-    physicalDevice = GetPhysicalDevice();
+    physicalDevice = SelectPhysicalDevice();
 
     device = CreateLogicalDevice();
 
@@ -778,7 +785,7 @@ void VulkanContext::CreateFramebuffers()
     }
 }
 
-vk::PhysicalDevice VulkanContext::GetPhysicalDevice()
+vk::PhysicalDevice VulkanContext::SelectPhysicalDevice()
 {
     physicalDevices = instance->enumeratePhysicalDevices();
     vk::PhysicalDevice selectedDevice;
