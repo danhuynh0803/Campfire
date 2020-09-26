@@ -5,7 +5,7 @@
 
 uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
 
-    vk::PhysicalDeviceMemoryProperties memProperties = VulkanContext::GetPhysicalDevice().getMemoryProperties();
+    vk::PhysicalDeviceMemoryProperties memProperties = VulkanContext::GetInstance()->GetPhysicalDevice().getMemoryProperties();
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -16,6 +16,8 @@ uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 
 void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory)
 {
+    vk::Device device = VulkanContext::GetInstance()->GetDevice();
+
     vk::BufferCreateInfo bufferInfo
     {
         .flags = vk::BufferCreateFlags()
@@ -24,10 +26,10 @@ void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageF
         , .sharingMode = vk::SharingMode::eExclusive
     };
 
-    buffer = VulkanContext::GetDevice().createBufferUnique(bufferInfo);
+    buffer = device.createBufferUnique(bufferInfo);
 
     // Set memory requirements
-    vk::MemoryRequirements memoryReqs = VulkanContext::GetDevice().getBufferMemoryRequirements(buffer.get());
+    vk::MemoryRequirements memoryReqs = device.getBufferMemoryRequirements(buffer.get());
 
     vk::MemoryAllocateInfo allocInfo
     {
@@ -35,18 +37,61 @@ void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageF
         , .memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags)
     };
 
-    bufferMemory = VulkanContext::GetDevice().allocateMemoryUnique(allocInfo);
+    bufferMemory = device.allocateMemoryUnique(allocInfo);
 
-    VulkanContext::GetDevice().bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
+    device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
+}
+
+void VulkanVertexBuffer::CopyBuffer(vk::UniqueBuffer srcBuffer, vk::UniqueBuffer dstBuffer, uint32_t size)
+{
+    vk::CommandBufferAllocateInfo allocateInfo
+    {
+        .commandPool = VulkanContext::GetInstance()->GetCommandPool()
+        , .level = vk::CommandBufferLevel::ePrimary
+        , .commandBufferCount = 1
+    };
+
+    std::vector<vk::UniqueCommandBuffer> commandBuffer =
+        VulkanContext::GetInstance()->GetDevice().allocateCommandBuffersUnique(allocateInfo);
+
+    vk::CommandBufferBeginInfo beginInfo
+    {
+        .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+    };
+
+    commandBuffer[0]->begin(beginInfo);
+        vk::BufferCopy copyRegion
+        {
+            .srcOffset = 0
+            , .dstOffset = 0
+            , .size = size
+        };
+        commandBuffer[0]->copyBuffer(srcBuffer.get(), dstBuffer.get(), 1, &copyRegion);
+    commandBuffer[0]->end();
+
+    vk::SubmitInfo submitInfo
+    {
+        .commandBufferCount = 1
+        , .pCommandBuffers = &commandBuffer[0].get()
+    };
 }
 
 VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
 {
-    vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-    CreateBuffer(size, vk::BufferUsageFlagBits::eVertexBuffer, memoryProperties, buffer, bufferMemory);
+    vk::UniqueBuffer stagingBuffer;
+    vk::UniqueDeviceMemory stagingBufferMemory;
+
+    vk::BufferUsageFlags stagingUsage = vk::BufferUsageFlagBits::eTransferSrc;
+    vk::MemoryPropertyFlags stagingMemoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+    CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
 
     // Copy data over
-    void* data = VulkanContext::GetDevice().mapMemory(bufferMemory.get(), 0, size, vk::MemoryMapFlags());
-    memcpy(data, vertices, (size_t)size);
-    VulkanContext::GetDevice().unmapMemory(bufferMemory.get());
+    vk::Device device = VulkanContext::GetInstance()->GetDevice();
+    void* data = device.mapMemory(stagingBufferMemory.get(), 0, size, vk::MemoryMapFlags());
+        memcpy(data, vertices, (size_t)size);
+    device.unmapMemory(stagingBufferMemory.get());
+
+    vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer;
+    vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
+    CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
 }

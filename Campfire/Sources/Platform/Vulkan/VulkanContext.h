@@ -10,15 +10,21 @@
 class VulkanContext : public GraphicsContext
 {
 public:
+    static SharedPtr<VulkanContext> GetInstance() { return contextInstance; }
+
+    static SharedPtr<VulkanContext> contextInstance;
+
     VulkanContext(GLFWwindow* windowHandle);
     ~VulkanContext();
 
     virtual void Init() override;
     virtual void SwapBuffers() override;
 
-    static vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
-    static vk::Device GetDevice() { return device.get(); }
+    vk::CommandPool GetCommandPool() { return commandPool.get(); }
+    vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
+    vk::Device GetDevice() { return device.get(); }
 
+    // TODO move to layer for testing
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
 
 private:
@@ -59,9 +65,9 @@ private:
     // PhysicalDevice
     std::vector<vk::PhysicalDevice> physicalDevices;
     // The selected physical device that will run vulkan
-    static vk::PhysicalDevice physicalDevice;
+    vk::PhysicalDevice physicalDevice;
     // Logical device
-    static vk::UniqueDevice device;
+    vk::UniqueDevice device;
 
     // SwapChain
     vk::Format swapChainImageFormat;
@@ -75,8 +81,6 @@ private:
     vk::Queue graphicsQueue;
     vk::Queue presentQueue;
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
-
-
 
     // Graphics pipeline
     vk::UniquePipelineLayout pipelineLayout;

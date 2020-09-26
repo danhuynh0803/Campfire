@@ -8,8 +8,7 @@
 #include <vector>
 #include <fstream>
 
-vk::PhysicalDevice VulkanContext::physicalDevice;
-vk::UniqueDevice VulkanContext::device;
+SharedPtr<VulkanContext> VulkanContext::contextInstance = nullptr;
 
 static size_t graphicsQueueFamilyIndex;
 static size_t presentQueueFamilyIndex;
@@ -108,6 +107,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     }
 
     imagesInFlight.resize(swapChainImages.size());
+
+    // Store away for this vulkan context for use in other parts of the system
+    contextInstance.reset(this);
 }
 
 vk::UniqueSemaphore VulkanContext::CreateSemaphore()
@@ -474,7 +476,7 @@ void VulkanContext::SetupSwapChain()
 vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex)
 {
     return device->createCommandPoolUnique(
-        vk::CommandPoolCreateInfo{
+        vk::CommandPoolCreateInfo {
             .flags = vk::CommandPoolCreateFlags(),
             .queueFamilyIndex = queueFamilyIndex
         }
