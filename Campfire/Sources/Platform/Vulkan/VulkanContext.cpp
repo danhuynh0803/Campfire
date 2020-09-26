@@ -49,6 +49,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
 
+    // Store off instance of our created vkContext for usage in other parts of the system
+    contextInstance.reset(this);
+
     // TODO move to a separate layer for testing
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
 
@@ -107,9 +110,6 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     }
 
     imagesInFlight.resize(swapChainImages.size());
-
-    // Store away for this vulkan context for use in other parts of the system
-    contextInstance.reset(this);
 }
 
 vk::UniqueSemaphore VulkanContext::CreateSemaphore()

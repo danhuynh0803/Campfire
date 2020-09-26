@@ -42,7 +42,7 @@ void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageF
     device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
 }
 
-void VulkanVertexBuffer::CopyBuffer(vk::UniqueBuffer srcBuffer, vk::UniqueBuffer dstBuffer, uint32_t size)
+void VulkanVertexBuffer::CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size)
 {
     vk::CommandBufferAllocateInfo allocateInfo
     {
@@ -74,6 +74,10 @@ void VulkanVertexBuffer::CopyBuffer(vk::UniqueBuffer srcBuffer, vk::UniqueBuffer
         .commandBufferCount = 1
         , .pCommandBuffers = &commandBuffer[0].get()
     };
+
+    vk::Queue graphicsQueue = VulkanContext::GetInstance()->GetQueue();
+    graphicsQueue.submit(1, &submitInfo, nullptr);
+    graphicsQueue.waitIdle();
 }
 
 VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
@@ -94,4 +98,6 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
     CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
+
+    CopyBuffer(stagingBuffer, buffer, size);
 }

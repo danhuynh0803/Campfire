@@ -61,7 +61,7 @@ public:
 
 private:
     void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
-    void CopyBuffer(vk::UniqueBuffer dstBuffer, vk::UniqueBuffer srcBuffer, uint32_t size);
+    void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);
 
 private:
     uint32_t renderID;

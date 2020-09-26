@@ -23,6 +23,8 @@ public:
     vk::CommandPool GetCommandPool() { return commandPool.get(); }
     vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
     vk::Device GetDevice() { return device.get(); }
+    // TODO update to take some enum and can get various queues
+    vk::Queue GetQueue() { return graphicsQueue; }
 
     // TODO move to layer for testing
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
