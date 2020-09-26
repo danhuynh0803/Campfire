@@ -30,16 +30,16 @@ PbrMaterial::PbrMaterial()
 {
     shader = ShaderManager::Create("pbr", "../Campfire/Shaders/pbr.vert", "../Campfire/Shaders/pbr.frag");
 
-    //SharedPtr<Texture2D> whiteTexture = Texture2D::Create(1, 1);
-    //uint32_t whiteTextureData = 0xffffffff;
-    //whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+    SharedPtr<Texture2D> whiteTexture = Texture2D::Create(1, 1);
+    uint32_t whiteTextureData = 0xffffffff;
+    whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-    //std::string directory = "../Assets/Textures/pbr/snow/";
-    //albedoMap           = Texture2D::Create(directory + "albedo.png");
-    //metallicMap         = Texture2D::Create(directory + "metallic.png");
-    //normalMap           = Texture2D::Create(directory + "normal.png");
-    //roughnessMap        = Texture2D::Create(directory + "roughness.png");
-    //ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+    std::string directory = "../Assets/Textures/pbr/snow/";
+    albedoMap           = Texture2D::Create(directory + "albedo.png");
+    metallicMap         = Texture2D::Create(directory + "metallic.png");
+    normalMap           = Texture2D::Create(directory + "normal.png");
+    roughnessMap        = Texture2D::Create(directory + "roughness.png");
+    ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
 }
 
 void PbrMaterial::Bind() const
