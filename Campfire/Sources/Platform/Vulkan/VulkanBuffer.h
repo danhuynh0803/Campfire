@@ -48,7 +48,7 @@ class VulkanVertexBuffer
 {
 public:
     //VulkanVertexBuffer(uint32_t size);
-    VulkanVertexBuffer(float* vertices, uint32_t size, vk::BufferUsageFlags = vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    VulkanVertexBuffer(float* vertices, uint32_t size);
     //virtual ~VulkanVertexBuffer();
 
     //virtual void Bind() const override;
@@ -58,6 +58,9 @@ public:
     //virtual const BufferLayout& GetLayout() const override { return layout; }
 
     vk::UniqueBuffer buffer;
+
+private:
+    void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
 
 private:
     uint32_t renderID;

@@ -14,7 +14,7 @@ uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
     }
 }
 
-VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags)
+void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory)
 {
     vk::BufferCreateInfo bufferInfo
     {
@@ -38,8 +38,15 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size, vk::Buffe
     bufferMemory = VulkanContext::GetDevice().allocateMemoryUnique(allocInfo);
 
     VulkanContext::GetDevice().bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
+}
 
-    void* data = VulkanContext::GetDevice().mapMemory(bufferMemory.get(), 0, bufferInfo.size, vk::MemoryMapFlags());
-    memcpy(data, vertices, (size_t)bufferInfo.size);
+VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
+{
+    vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+    CreateBuffer(size, vk::BufferUsageFlagBits::eVertexBuffer, memoryProperties, buffer, bufferMemory);
+
+    // Copy data over
+    void* data = VulkanContext::GetDevice().mapMemory(bufferMemory.get(), 0, size, vk::MemoryMapFlags());
+    memcpy(data, vertices, (size_t)size);
     VulkanContext::GetDevice().unmapMemory(bufferMemory.get());
 }
