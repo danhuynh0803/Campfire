@@ -23,7 +23,7 @@ float vertices[] = {
 
      0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   0.5f, 0.0f,
     -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f
+     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
 };
 
 VulkanContext::VulkanContext(GLFWwindow* window)
@@ -158,7 +158,7 @@ void VulkanContext::SwapBuffers()
     // Check if previous frame is using this image (wait on its fence)
     if (imagesInFlight[imageIndex])
     {
-      //device->waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+        device->waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     }
     // Mark the image as now being in use by this frame
     imagesInFlight[imageIndex] = inFlightFences[currentFrame].get();

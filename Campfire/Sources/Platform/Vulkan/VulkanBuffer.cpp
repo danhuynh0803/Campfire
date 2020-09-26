@@ -14,13 +14,13 @@ uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
     }
 }
 
-VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
+VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags)
 {
     vk::BufferCreateInfo bufferInfo
     {
         .flags = vk::BufferCreateFlags()
         , .size = size
-        , .usage = vk::BufferUsageFlagBits::eVertexBuffer
+        , .usage = usageFlags
         , .sharingMode = vk::SharingMode::eExclusive
     };
 
@@ -29,11 +29,10 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
     // Set memory requirements
     vk::MemoryRequirements memoryReqs = VulkanContext::GetDevice().getBufferMemoryRequirements(buffer.get());
 
-    vk::MemoryPropertyFlags flags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
     vk::MemoryAllocateInfo allocInfo
     {
         .allocationSize = memoryReqs.size
-        , .memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, flags)
+        , .memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags)
     };
 
     bufferMemory = VulkanContext::GetDevice().allocateMemoryUnique(allocInfo);

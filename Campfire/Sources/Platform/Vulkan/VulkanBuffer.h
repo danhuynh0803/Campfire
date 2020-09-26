@@ -48,7 +48,7 @@ class VulkanVertexBuffer
 {
 public:
     //VulkanVertexBuffer(uint32_t size);
-    VulkanVertexBuffer(float* vertices, uint32_t size);
+    VulkanVertexBuffer(float* vertices, uint32_t size, vk::BufferUsageFlags = vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     //virtual ~VulkanVertexBuffer();
 
     //virtual void Bind() const override;
