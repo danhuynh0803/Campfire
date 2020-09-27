@@ -19,53 +19,53 @@ Camera::Camera(float w, float h, float nearplane, float farplane)
 
 void Camera::Init()
 {
-    shader = ShaderManager::Create("line", "../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
-
-    /*
-       Frustum vertices:
-
-               4--------------------7
-              -|                 -  |
-            -  |               -    |
-          -    |            -       |
-        -      |         -          |
-       0---------------3            |
-       |       5-------|------------6
-       |     -         |          -
-       |   -           |      -
-       | -             |  -
-       1---------------2
-
-    */
-
-    // Create VAO for frustum
-    uint32_t indices[] =
-    {
-        // near
-        0, 1,   1, 2,   2, 3,   3, 0,
-        // far
-        4, 5,   5, 6,   6, 7,   7, 4,
-        // connection
-        0, 4,   1, 5,   2, 6,   3, 7
-    };
-
-    vertexArray = VertexArray::Create();
-    // pos, color, and 8 vertices for frustum
-    vertexBuffer = VertexBuffer::Create(3 * 3 * 8 * sizeof(float));
-    BufferLayout layout =
-    {
-        { ShaderDataType::FLOAT3, "aPos" },
-        { ShaderDataType::FLOAT3, "aColor" }
-    };
-    vertexBuffer->SetLayout(layout);
-    vertexArray->AddVertexBuffer(vertexBuffer);
-
-    SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-
-    vertexArray->SetIndexBuffer(indexBuffer);
-
-    vertexBuffer->Unbind();
-    vertexArray->Unbind();
+//    shader = ShaderManager::Create("line", "../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
+//
+//    /*
+//       Frustum vertices:
+//
+//               4--------------------7
+//              -|                 -  |
+//            -  |               -    |
+//          -    |            -       |
+//        -      |         -          |
+//       0---------------3            |
+//       |       5-------|------------6
+//       |     -         |          -
+//       |   -           |      -
+//       | -             |  -
+//       1---------------2
+//
+//    */
+//
+//    // Create VAO for frustum
+//    uint32_t indices[] =
+//    {
+//        // near
+//        0, 1,   1, 2,   2, 3,   3, 0,
+//        // far
+//        4, 5,   5, 6,   6, 7,   7, 4,
+//        // connection
+//        0, 4,   1, 5,   2, 6,   3, 7
+//    };
+//
+//    vertexArray = VertexArray::Create();
+//    // pos, color, and 8 vertices for frustum
+//    vertexBuffer = VertexBuffer::Create(3 * 3 * 8 * sizeof(float));
+//    BufferLayout layout =
+//    {
+//        { ShaderDataType::FLOAT3, "aPos" },
+//        { ShaderDataType::FLOAT3, "aColor" }
+//    };
+//    vertexBuffer->SetLayout(layout);
+//    vertexArray->AddVertexBuffer(vertexBuffer);
+//
+//    SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+//
+//    vertexArray->SetIndexBuffer(indexBuffer);
+//
+//    vertexBuffer->Unbind();
+//    vertexArray->Unbind();
 }
 
 void Camera::DrawFrustum(glm::mat4 transform)
