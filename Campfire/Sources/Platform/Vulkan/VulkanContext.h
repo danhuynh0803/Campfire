@@ -28,6 +28,7 @@ public:
 
     // TODO move to layer for testing
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
+    SharedPtr<VulkanIndexBuffer> indexBufferPtr;
 
 private:
     // Instance

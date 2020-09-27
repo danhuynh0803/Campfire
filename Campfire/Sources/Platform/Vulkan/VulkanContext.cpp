@@ -16,13 +16,15 @@ static const int MAX_FRAMES_IN_FLIGHT = 2;
 
 float vertices[] = {
     // Position           // Color            // UV
-    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   0.5f, 0.0f,
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+};
 
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+uint32_t indices[] = {
+    0, 1, 2,
+    2, 3, 0,
 };
 
 VulkanContext::VulkanContext(GLFWwindow* window)
@@ -54,6 +56,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     // TODO move to a separate layer for testing
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
+    indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 
     // Start recording command buffers
     for (size_t i = 0; i < commandBuffers.size(); ++i)
@@ -91,11 +94,13 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
             commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
 
-            vk::Buffer vertexBuffers[] = { vertexBufferPtr->buffer.get() };
+            vk::Buffer vertexBuffers[] = { vertexBufferPtr->GetBuffer() };
             vk::DeviceSize offsets[] = { 0 };
             commandBuffers[i]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
 
-            commandBuffers[i]->draw(static_cast<uint32_t>(sizeof(vertices)/sizeof(VertexTest)), 1, 0, 0);
+            commandBuffers[i]->bindIndexBuffer(indexBufferPtr->GetBuffer(), 0, vk::IndexType::eUint32);
+
+            commandBuffers[i]->drawIndexed(static_cast<uint32_t>(sizeof(indices)/sizeof(uint32_t)), 1, 0, 0, 0);
 
         commandBuffers[i]->endRenderPass();
 

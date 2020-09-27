@@ -43,7 +43,10 @@ struct VertexTest
     }
 };
 
-//class VulkanVertexBuffer : public VertexBuffer
+void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
+
+void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);
+
 class VulkanVertexBuffer
 {
 public:
@@ -57,23 +60,27 @@ public:
     //virtual void SetLayout(const BufferLayout& _layout) override { layout = _layout; }
     //virtual const BufferLayout& GetLayout() const override { return layout; }
 
+    vk::Buffer GetBuffer() { return buffer.get(); }
+
+private:
     vk::UniqueBuffer buffer;
+    vk::UniqueDeviceMemory bufferMemory;
+    //uint32_t renderID;
+    //BufferLayout layout;
+};
+
+class VulkanIndexBuffer
+{
+public:
+    VulkanIndexBuffer(uint32_t* indices, uint32_t count);
+
+    vk::Buffer GetBuffer() { return buffer.get(); }
 
 private:
-    void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
-    void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);
-
-private:
-    uint32_t renderID;
-    BufferLayout layout;
+    vk::UniqueBuffer buffer;
     vk::UniqueDeviceMemory bufferMemory;
 };
 
-//class VulkanIndexBuffer : public IndexBuffer
-//{
-//
-//};
-//
 //class VulkanUniformBuffer : public UniformBuffer
 //{
 //

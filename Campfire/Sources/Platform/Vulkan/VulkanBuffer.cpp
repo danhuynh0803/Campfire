@@ -14,7 +14,7 @@ uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
     }
 }
 
-void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory)
+void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory)
 {
     vk::Device device = VulkanContext::GetInstance()->GetDevice();
 
@@ -42,7 +42,7 @@ void VulkanVertexBuffer::CreateBuffer(uint32_t size, vk::BufferUsageFlags usageF
     device.bindBufferMemory(buffer.get(), bufferMemory.get(), 0);
 }
 
-void VulkanVertexBuffer::CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size)
+void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size)
 {
     vk::CommandBufferAllocateInfo allocateInfo
     {
@@ -80,6 +80,9 @@ void VulkanVertexBuffer::CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffe
     graphicsQueue.waitIdle();
 }
 
+//=====================================================================
+//------------------------- Vertex Buffers ----------------------------
+//=====================================================================
 VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
 {
     vk::UniqueBuffer stagingBuffer;
@@ -96,6 +99,32 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
     device.unmapMemory(stagingBufferMemory.get());
 
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer;
+    vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
+    CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
+
+    CopyBuffer(stagingBuffer, buffer, size);
+}
+
+//=====================================================================
+//------------------------- Index Buffers -----------------------------
+//=====================================================================
+VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
+{
+    vk::UniqueBuffer stagingBuffer;
+    vk::UniqueDeviceMemory stagingBufferMemory;
+
+    uint32_t size = sizeof(uint32_t) * count;
+    vk::BufferUsageFlags stagingUsage = vk::BufferUsageFlagBits::eTransferSrc;
+    vk::MemoryPropertyFlags stagingMemoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+    CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
+
+    // Copy data over
+    vk::Device device = VulkanContext::GetInstance()->GetDevice();
+    void* data = device.mapMemory(stagingBufferMemory.get(), 0, size, vk::MemoryMapFlags());
+        memcpy(data, indices, (size_t)size);
+    device.unmapMemory(stagingBufferMemory.get());
+
+    vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
     CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
 
