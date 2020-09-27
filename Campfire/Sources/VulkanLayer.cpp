@@ -24,6 +24,17 @@ uint32_t indices[] = {
     2, 3, 0,
 };
 
+struct UniformBufferObject
+{
+    // TODO include model for now, but this should be part of the batching
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+    glm::mat4 viewProj;
+};
+
+static UniformBufferObject ubo;
+
 void VulkanLayer::OnAttach()
 {
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -33,15 +44,7 @@ void VulkanLayer::OnAttach()
         glm::vec3(-20.0f, 0.0f, 0.0f)
     );
 
-    BufferLayout uboLayout =
-    {
-        { ShaderDataType::MAT4, "view" },
-        { ShaderDataType::MAT4, "proj" },
-        { ShaderDataType::MAT4, "viewProj" },
-    };
-    uniformBufferPtr = UniformBuffer::Create();
-    uniformBufferPtr->SetLayout(uboLayout, 0);
-
+    uniformBufferPtr = CreateSharedPtr<VulkanUniformBuffer>(sizeof(UniformBufferObject));
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 }
@@ -53,7 +56,16 @@ void VulkanLayer::OnDetach()
 void VulkanLayer::OnUpdate(float dt)
 {
     cameraController.OnUpdate(dt);
-    // Update UBO from camera
+
+    // Update UBO
+    ubo.model = glm::mat4(1.0f);
+    ubo.view = editorCamera->GetViewMatrix();
+    ubo.proj = editorCamera->GetProjMatrix();
+    ubo.proj[1][1] *= -1; // invert scaling on y
+
+    ubo.viewProj = ubo.proj * ubo.view;
+
+    uniformBufferPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
 
     VulkanContext::GetInstance()->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
 }

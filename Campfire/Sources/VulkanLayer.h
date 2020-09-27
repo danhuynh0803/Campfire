@@ -20,5 +20,5 @@ public:
 private:
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanIndexBuffer> indexBufferPtr;
-    SharedPtr<UniformBuffer> uniformBufferPtr;
+    SharedPtr<VulkanUniformBuffer> uniformBufferPtr;
 };

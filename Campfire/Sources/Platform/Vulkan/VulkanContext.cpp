@@ -742,8 +742,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pBindings = &uboLayoutBinding
     };
 
-    descriptorSetLayout = VulkanContext::GetInstance()->GetDevice()
-        .createDescriptorSetLayoutUnique(layoutInfo);
+    descriptorSetLayout = device->createDescriptorSetLayoutUnique(layoutInfo);
 
     // Setup pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo

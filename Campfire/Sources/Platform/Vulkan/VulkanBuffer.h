@@ -84,7 +84,8 @@ private:
 class VulkanUniformBuffer : public UniformBuffer
 {
 public:
-    VulkanUniformBuffer();
+    VulkanUniformBuffer() = default;
+    VulkanUniformBuffer(uint32_t size);
     virtual ~VulkanUniformBuffer() {}
     virtual void Bind() const override;
     virtual void Unbind() const override;

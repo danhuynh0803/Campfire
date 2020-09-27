@@ -134,9 +134,11 @@ VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
 //=====================================================================
 //------------------------- Uniform Buffers ---------------------------
 //=====================================================================
-VulkanUniformBuffer::VulkanUniformBuffer()
+VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size)
 {
-
+    vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eUniformBuffer;
+    vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+    CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
 }
 
 void VulkanUniformBuffer::Bind() const
@@ -147,8 +149,13 @@ void VulkanUniformBuffer::Unbind() const
 {
 }
 
-void VulkanUniformBuffer::SetData(void* data, uint32_t offset, uint32_t size)
+void VulkanUniformBuffer::SetData(void* inputData, uint32_t offset, uint32_t size)
 {
+    auto device = VulkanContext::GetInstance()->GetDevice();
+
+    void* data = device.mapMemory(bufferMemory.get(), offset, size, vk::MemoryMapFlags());
+        memcpy(data, inputData, size);
+    device.unmapMemory(bufferMemory.get());
 }
 
 void VulkanUniformBuffer::SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
