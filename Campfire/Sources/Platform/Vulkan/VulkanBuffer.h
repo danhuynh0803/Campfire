@@ -94,4 +94,5 @@ public:
 private:
     vk::UniqueBuffer buffer;
     vk::UniqueDeviceMemory bufferMemory;
+    vk::UniqueDescriptorSetLayout descriptorSetLayout;
 };

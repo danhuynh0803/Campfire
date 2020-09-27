@@ -82,6 +82,7 @@ private:
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
     // Graphics pipeline
+    vk::UniqueDescriptorSetLayout descriptorSetLayout;
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
     vk::UniquePipeline graphicsPipeline;

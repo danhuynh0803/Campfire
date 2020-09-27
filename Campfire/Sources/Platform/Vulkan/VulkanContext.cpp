@@ -2,6 +2,7 @@
 #include "VulkanContext.h"
 #include "VulkanBuffer.h"
 //#include "VulkanShader.h"
+
 #include <limits>
 #include <vector>
 #include <fstream>
@@ -725,11 +726,30 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pDynamicStates = dynamicStates.data()
     };
 
+    // UBO descriptor layout
+    vk::DescriptorSetLayoutBinding uboLayoutBinding
+    {
+        .binding = 0
+        , .descriptorType = vk::DescriptorType::eUniformBuffer
+        , .descriptorCount = 1
+        , .stageFlags = vk::ShaderStageFlagBits::eVertex
+        , .pImmutableSamplers = nullptr // used for image sampling later on
+    };
+
+    vk::DescriptorSetLayoutCreateInfo layoutInfo
+    {
+        .bindingCount = 1
+        , .pBindings = &uboLayoutBinding
+    };
+
+    descriptorSetLayout = VulkanContext::GetInstance()->GetDevice()
+        .createDescriptorSetLayoutUnique(layoutInfo);
+
     // Setup pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo
     {
-        .setLayoutCount = 0
-        , .pSetLayouts = nullptr
+        .setLayoutCount = 1
+        , .pSetLayouts = &descriptorSetLayout.get()
         , .pushConstantRangeCount = 0
         , .pPushConstantRanges = nullptr
     };
