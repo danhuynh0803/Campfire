@@ -130,3 +130,27 @@ VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
 
     CopyBuffer(stagingBuffer, buffer, size);
 }
+
+//=====================================================================
+//------------------------- Uniform Buffers ---------------------------
+//=====================================================================
+VulkanUniformBuffer::VulkanUniformBuffer()
+{
+
+}
+
+void VulkanUniformBuffer::Bind() const
+{
+}
+
+void VulkanUniformBuffer::Unbind() const
+{
+}
+
+void VulkanUniformBuffer::SetData(void* data, uint32_t offset, uint32_t size)
+{
+}
+
+void VulkanUniformBuffer::SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
+{
+}

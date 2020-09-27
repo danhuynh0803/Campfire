@@ -2,8 +2,6 @@
 #include "VulkanContext.h"
 #include "VulkanBuffer.h"
 //#include "VulkanShader.h"
-
-#include <GLFW/glfw3.h>
 #include <limits>
 #include <vector>
 #include <fstream>

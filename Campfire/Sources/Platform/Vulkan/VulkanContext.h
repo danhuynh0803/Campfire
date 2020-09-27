@@ -1,11 +1,8 @@
 #pragma once
-
+#include <vector>
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include "Renderer/GraphicsContext.h"
-#include "VulkanBuffer.h"
-
-#include <vector>
 
 class VulkanContext : public GraphicsContext
 {

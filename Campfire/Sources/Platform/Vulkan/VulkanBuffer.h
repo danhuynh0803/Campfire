@@ -81,7 +81,17 @@ private:
     vk::UniqueDeviceMemory bufferMemory;
 };
 
-//class VulkanUniformBuffer : public UniformBuffer
-//{
-//
-//};
+class VulkanUniformBuffer : public UniformBuffer
+{
+public:
+    VulkanUniformBuffer();
+    virtual ~VulkanUniformBuffer() {}
+    virtual void Bind() const override;
+    virtual void Unbind() const override;
+    virtual void SetData(void* data, uint32_t offset, uint32_t size) override;
+    virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count = 1) override;
+
+private:
+    vk::UniqueBuffer buffer;
+    vk::UniqueDeviceMemory bufferMemory;
+};
