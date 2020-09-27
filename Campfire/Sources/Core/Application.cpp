@@ -49,6 +49,7 @@ void Application::Run()
 {
     while (isRunning)
     {
+        //Timer timer("FrameTime");
         Time::Update();
 
         for (Layer* layer : layerStack)

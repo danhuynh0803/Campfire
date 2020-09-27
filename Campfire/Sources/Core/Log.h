@@ -54,10 +54,16 @@ using widget_sink_mt = widget_sink<std::mutex>;
 using widget_sink_st = widget_sink<spdlog::details::null_mutex>;
 
 //=============================================================================
-#define LOG_TRACE(...)     { Log::GetCoreLogger()->trace(__VA_ARGS__);    }
-#define LOG_INFO(...)      { Log::GetCoreLogger()->info(__VA_ARGS__);     }
-#define LOG_WARN(...)      { Log::GetCoreLogger()->warn(__VA_ARGS__);     }
-#define LOG_ERROR(...)     { Log::GetCoreLogger()->error(__VA_ARGS__);    }
-#define LOG_CRITICAL(...)  { Log::GetCoreLogger()->critical(__VA_ARGS__); }
+#define LOG_TRACE(...)        { Log::GetCoreLogger()->trace(__VA_ARGS__);    }
+#define LOG_INFO(...)         { Log::GetCoreLogger()->info(__VA_ARGS__);     }
+#define LOG_WARN(...)         { Log::GetCoreLogger()->warn(__VA_ARGS__);     }
+#define LOG_ERROR(...)        { Log::GetCoreLogger()->error(__VA_ARGS__);    }
+#define LOG_CRITICAL(...)     { Log::GetCoreLogger()->critical(__VA_ARGS__); }
+
+#define CLIENT_TRACE(...)     { Log::GetClientLogger()->trace(__VA_ARGS__);    }
+#define CLIENT_INFO(...)      { Log::GetClientLogger()->info(__VA_ARGS__);     }
+#define CLIENT_WARN(...)      { Log::GetClientLogger()->warn(__VA_ARGS__);     }
+#define CLIENT_ERROR(...)     { Log::GetClientLogger()->error(__VA_ARGS__);    }
+#define CLIENT_CRITICAL(...)  { Log::GetClientLogger()->critical(__VA_ARGS__); }
 
 #endif // LOG_H
