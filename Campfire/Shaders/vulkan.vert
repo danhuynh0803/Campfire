@@ -11,15 +11,16 @@ layout (location = 0) out vec3 outColor;
 // =========================================
 layout (binding = 0) uniform Camera
 {
+    mat4 model;
     mat4 view;
     mat4 proj;
     mat4 viewProj;
-};
+} camera;
 
 // =========================================
 void main()
 {
-    gl_Position = Camera.viewProj * vec4(aPos, 1.0);
+    gl_Position = camera.viewProj * camera.model * vec4(aPos, 1.0);
 
     outColor = aColor;
 }

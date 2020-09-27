@@ -86,6 +86,8 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
     vk::DeviceSize offsets[] = { 0 };
     commandBuffers[imageIndex]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
 
+    commandBuffers[imageIndex]->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout.get(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
+
     commandBuffers[imageIndex]->bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
 
     commandBuffers[imageIndex]->drawIndexed(count, 1, 0, 0, 0);
@@ -111,7 +113,6 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
     presentQueue.presentKHR(&presentInfo);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-
 }
 
 VulkanContext::VulkanContext(GLFWwindow* window)
@@ -661,7 +662,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .rasterizerDiscardEnable = VK_FALSE
         , .polygonMode = vk::PolygonMode::eFill
         , .cullMode = vk::CullModeFlagBits::eBack
-        , .frontFace = vk::FrontFace::eClockwise
+        , .frontFace = vk::FrontFace::eCounterClockwise
         , .depthBiasEnable = VK_FALSE
         , .depthBiasConstantFactor = 0.0f
         , .depthBiasClamp = 0.0f
@@ -742,7 +743,32 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pBindings = &uboLayoutBinding
     };
 
-    descriptorSetLayout = device->createDescriptorSetLayoutUnique(layoutInfo);
+    descriptorSetLayout = device->createDescriptorSetLayoutUnique(layoutInfo);    
+
+    vk::DescriptorPoolSize poolSize
+    {
+        .descriptorCount = static_cast<uint32_t>(swapChainImages.size())
+    };
+
+    vk::DescriptorPoolCreateInfo poolInfo
+    {
+        .maxSets = static_cast<uint32_t>(swapChainImages.size())
+        , .poolSizeCount = 1
+        , .pPoolSizes = &poolSize
+    };
+
+    descriptorPool = device->createDescriptorPoolUnique(poolInfo);
+
+    // Create list of descriptor sets
+    std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout.get());
+    vk::DescriptorSetAllocateInfo allocInfo
+    {
+        .descriptorPool = descriptorPool.get()
+        , .descriptorSetCount = static_cast<uint32_t>(swapChainImages.size())
+        , .pSetLayouts = layouts.data()
+    };
+    descriptorSets.resize(swapChainImages.size());
+    descriptorSets = device->allocateDescriptorSetsUnique(allocInfo);
 
     // Setup pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo

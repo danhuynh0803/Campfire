@@ -13,10 +13,10 @@ VulkanLayer::VulkanLayer()
 
 float vertices[] = {
     // Position           // Color            // UV
-    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     1.0f, -1.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
 };
 
 uint32_t indices[] = {
@@ -44,9 +44,33 @@ void VulkanLayer::OnAttach()
         glm::vec3(-20.0f, 0.0f, 0.0f)
     );
 
-    uniformBufferPtr = CreateSharedPtr<VulkanUniformBuffer>(sizeof(UniformBufferObject));
+    for (size_t i = 0; i < 3; ++i)
+    {
+        uniformBufferPtrs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(UniformBufferObject)));
+    }
+
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
+
+    auto& descriptorSets = VulkanContext::GetInstance()->descriptorSets;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        vk::DescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = uniformBufferPtrs[i]->GetBuffer();
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
+
+        vk::WriteDescriptorSet descriptorWrite {};
+        descriptorWrite.dstSet = descriptorSets[i].get();
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+
+        VulkanContext::GetInstance()->GetDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+    }
 }
 
 void VulkanLayer::OnDetach()
@@ -65,7 +89,12 @@ void VulkanLayer::OnUpdate(float dt)
 
     ubo.viewProj = ubo.proj * ubo.view;
 
-    uniformBufferPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
+    auto& descriptorSets = VulkanContext::GetInstance()->descriptorSets;
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        uniformBufferPtrs[i]->SetData(&ubo, 0, sizeof(UniformBufferObject));
+    }
 
     VulkanContext::GetInstance()->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
 }

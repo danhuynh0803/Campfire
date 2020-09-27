@@ -22,6 +22,9 @@ public:
     vk::Device GetDevice() { return device.get(); }
     // TODO update to take some enum and can get various queues
     vk::Queue GetQueue() { return graphicsQueue; }
+    //std::vector<vk::UniqueDescriptorSet>& GetDescriptorSets { return descriptorSets; }
+
+    std::vector<vk::UniqueDescriptorSet> descriptorSets;
 
     void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
 
@@ -82,6 +85,8 @@ private:
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
 
     // Graphics pipeline
+    vk::UniqueDescriptorPool descriptorPool;
+
     vk::UniqueDescriptorSetLayout descriptorSetLayout;
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
