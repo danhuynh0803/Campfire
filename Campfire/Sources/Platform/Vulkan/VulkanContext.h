@@ -26,9 +26,7 @@ public:
     // TODO update to take some enum and can get various queues
     vk::Queue GetQueue() { return graphicsQueue; }
 
-    // TODO move to layer for testing
-    SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
-    SharedPtr<VulkanIndexBuffer> indexBufferPtr;
+    void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
 
 private:
     // Instance
@@ -79,6 +77,7 @@ private:
     vk::Extent2D swapChainExtent;
     std::vector<vk::Image> swapChainImages;
     std::vector<vk::UniqueImageView> imageViews;
+    size_t currentFrame = 0;
 
     // Queues
     vk::Queue graphicsQueue;

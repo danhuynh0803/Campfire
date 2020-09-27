@@ -14,18 +14,106 @@ static size_t graphicsQueueFamilyIndex;
 static size_t presentQueueFamilyIndex;
 static const int MAX_FRAMES_IN_FLIGHT = 2;
 
-float vertices[] = {
-    // Position           // Color            // UV
-    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-};
+void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
+{
+    device->waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
 
-uint32_t indices[] = {
-    0, 1, 2,
-    2, 3, 0,
-};
+    auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
+    uint32_t imageIndex = device->acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+
+    // Check if previous frame is using this image (wait on its fence)
+    if (imagesInFlight[imageIndex])
+    {
+        device->waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    // Mark the image as now being in use by this frame
+    imagesInFlight[imageIndex] = inFlightFences[currentFrame].get();
+
+    vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
+    // wait to write colors to the image until it's available
+    // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
+    vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+
+    vk::SubmitInfo submitInfo
+    {
+        .waitSemaphoreCount = 1
+        , .pWaitSemaphores = waitSemaphores
+        , .pWaitDstStageMask = waitStages
+        , .commandBufferCount = 1
+        , .pCommandBuffers = &commandBuffers[imageIndex].get()
+    };
+
+    auto& renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
+    vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    device->resetFences(inFlightFences[currentFrame].get());
+
+    // Start recording command buffers
+    vk::CommandBufferBeginInfo beginInfo
+    {
+        .flags = vk::CommandBufferUsageFlags()
+        , .pInheritanceInfo = nullptr
+    };
+
+    commandBuffers[imageIndex]->begin(beginInfo);
+
+    // Start render pass
+    vk::ClearValue clearValues;
+    clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.0f, 0.0f, 0.0f, 1.0f } }));
+    //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+
+    vk::Rect2D renderArea
+    {
+        .offset = {0, 0}
+        , .extent = swapChainExtent
+    };
+
+    vk::RenderPassBeginInfo renderPassBeginInfo
+    {
+        .renderPass = renderPass.get()
+        , .framebuffer = swapChainFramebuffers[imageIndex].get()
+        , .renderArea = renderArea
+        , .clearValueCount = 1
+        , .pClearValues = &clearValues
+    };
+
+    commandBuffers[imageIndex]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+
+    commandBuffers[imageIndex]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
+
+    vk::Buffer vertexBuffers[] = { vertexBuffer };
+    vk::DeviceSize offsets[] = { 0 };
+    commandBuffers[imageIndex]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
+
+    commandBuffers[imageIndex]->bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
+
+    commandBuffers[imageIndex]->drawIndexed(count, 1, 0, 0, 0);
+
+    commandBuffers[imageIndex]->endRenderPass();
+
+    commandBuffers[imageIndex]->end();
+
+
+    graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
+
+    vk::PresentInfoKHR presentInfo
+    {
+        .waitSemaphoreCount = 1
+        , .pWaitSemaphores = signalSemaphores
+    };
+
+    vk::SwapchainKHR swapChains[] = { swapChain.get() };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+
+    presentQueue.presentKHR(&presentInfo);
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+}
 
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
@@ -54,59 +142,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     // Store off instance of our created vkContext for usage in other parts of the system
     contextInstance.reset(this);
 
-    // TODO move to a separate layer for testing
-    vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
-    indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
-
-    // Start recording command buffers
-    for (size_t i = 0; i < commandBuffers.size(); ++i)
-    {
-        vk::CommandBufferBeginInfo beginInfo
-        {
-            .flags = vk::CommandBufferUsageFlags()
-            , .pInheritanceInfo = nullptr
-        };
-
-        commandBuffers[i]->begin(beginInfo);
-
-        // Start render pass
-        vk::ClearValue clearValues;
-        clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.0f, 0.0f, 0.0f, 1.0f } }));
-        // TODO
-        //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
-
-        vk::Rect2D renderArea
-        {
-            .offset = {0, 0}
-            , .extent = swapChainExtent
-        };
-
-        vk::RenderPassBeginInfo renderPassBeginInfo
-        {
-            .renderPass = renderPass.get()
-            , .framebuffer = swapChainFramebuffers[i].get()
-            , .renderArea = renderArea
-            , .clearValueCount = 1
-            , .pClearValues = &clearValues
-        };
-
-        commandBuffers[i]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-
-            commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
-
-            vk::Buffer vertexBuffers[] = { vertexBufferPtr->GetBuffer() };
-            vk::DeviceSize offsets[] = { 0 };
-            commandBuffers[i]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
-
-            commandBuffers[i]->bindIndexBuffer(indexBufferPtr->GetBuffer(), 0, vk::IndexType::eUint32);
-
-            commandBuffers[i]->drawIndexed(static_cast<uint32_t>(sizeof(indices)/sizeof(uint32_t)), 1, 0, 0, 0);
-
-        commandBuffers[i]->endRenderPass();
-
-        commandBuffers[i]->end();
-    }
-
+    // TODO refactor into separate swapchain class
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         imageAvailableSemaphores.emplace_back(CreateSemaphore());
@@ -152,10 +188,7 @@ void VulkanContext::Init()
 
 void VulkanContext::SwapBuffers()
 {
-    // TODO
-    // move later to renderer, but just put
-    // draw calls in here for now for quick testing
-    static size_t currentFrame = 0;
+    return;
 
     device->waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
 
@@ -482,7 +515,7 @@ vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex
 {
     return device->createCommandPoolUnique(
         vk::CommandPoolCreateInfo {
-            .flags = vk::CommandPoolCreateFlags(),
+            .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
             .queueFamilyIndex = queueFamilyIndex
         }
     );

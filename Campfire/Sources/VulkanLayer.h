@@ -16,4 +16,6 @@ public:
     virtual void OnEvent(Event& event) override;
 
 private:
+    SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
+    SharedPtr<VulkanIndexBuffer> indexBufferPtr;
 };
