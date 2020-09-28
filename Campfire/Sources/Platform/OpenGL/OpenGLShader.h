@@ -3,14 +3,6 @@
 
 #include "Renderer/Shader.h"
 
-enum class ShaderType
-{
-    VERTEX = 0,
-    FRAGMENT,
-    GEOMETRY,
-    TESSELATION,
-};
-
 class OpenGLShader : public Shader
 {
 public:

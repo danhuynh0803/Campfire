@@ -7,6 +7,14 @@
 
 #include "Core/Base.h"
 
+enum class ShaderType
+{
+    VERTEX = 0,
+    FRAGMENT,
+    GEOMETRY,
+    TESSELATION,
+};
+
 class Shader
 {
 public:

@@ -13,10 +13,10 @@ VulkanLayer::VulkanLayer()
 
 float vertices[] = {
     // Position           // Color            // UV
-    -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     1.0f, -1.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -5.0f,  5.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -5.0f, -5.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     5.0f, -5.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     5.0f,  5.0f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
 };
 
 uint32_t indices[] = {
@@ -44,18 +44,17 @@ void VulkanLayer::OnAttach()
         glm::vec3(-20.0f, 0.0f, 0.0f)
     );
 
-    for (size_t i = 0; i < 3; ++i)
-    {
-        uniformBufferPtrs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(UniformBufferObject)));
-    }
-
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 
     auto& descriptorSets = VulkanContext::GetInstance()->descriptorSets;
 
+    // TODO match with swapchainImages size
+    // refactor to be in SetLayout
     for (size_t i = 0; i < 3; ++i)
     {
+        uniformBufferPtrs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(UniformBufferObject)));
+
         vk::DescriptorBufferInfo bufferInfo {};
         bufferInfo.buffer = uniformBufferPtrs[i]->GetBuffer();
         bufferInfo.offset = 0;
@@ -91,9 +90,9 @@ void VulkanLayer::OnUpdate(float dt)
 
     auto& descriptorSets = VulkanContext::GetInstance()->descriptorSets;
 
-    for (size_t i = 0; i < 3; ++i)
+    for (auto& uboPtr : uniformBufferPtrs)
     {
-        uniformBufferPtrs[i]->SetData(&ubo, 0, sizeof(UniformBufferObject));
+        uboPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
     }
 
     VulkanContext::GetInstance()->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));

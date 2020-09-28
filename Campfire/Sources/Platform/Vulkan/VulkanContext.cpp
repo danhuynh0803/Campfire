@@ -1,7 +1,7 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "VulkanContext.h"
 #include "VulkanBuffer.h"
-//#include "VulkanShader.h"
+#include "VulkanShader.h"
 
 #include <limits>
 #include <vector>
@@ -131,6 +131,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     SetupSwapChain();
 
+    // Store off instance of our created vkContext for usage in other parts of the system
+    contextInstance.reset(this);
+
     graphicsPipeline = CreateGraphicsPipeline();
 
     CreateFramebuffers();
@@ -140,7 +143,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
 
     // Store off instance of our created vkContext for usage in other parts of the system
-    contextInstance.reset(this);
+    //contextInstance.reset(this);
 
     // TODO refactor into separate swapchain class
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -556,44 +559,21 @@ static std::vector<char> readFile(const std::string& filepath)
 vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
 {
     // Create shader modules
-    //VulkanShader vert("../Campfire/Shaders/vert.spv");
-    //VulkanShader frag("../Campfire/Shaders/frag.spv");
-
-    std::vector<char> vert = readFile("../Campfire/Shaders/vert.spv");
-    std::vector<char> frag = readFile("../Campfire/Shaders/frag.spv");
-
-    vk::ShaderModuleCreateInfo vertexCreateInfo
-    {
-        .flags = vk::ShaderModuleCreateFlags(),
-        .codeSize = vert.size(),
-        .pCode = reinterpret_cast<const uint32_t*>(vert.data())
-        //.codeSize = vert.GetBuffer().size(),
-        //.pCode = reinterpret_cast<const uint32_t*>(vert.GetBuffer().data())
-    };
-    vk::UniqueShaderModule vertShaderModule = device->createShaderModuleUnique(vertexCreateInfo);
-
-    vk::ShaderModuleCreateInfo fragCreateInfo
-    {
-        .flags = vk::ShaderModuleCreateFlags(),
-        .codeSize = frag.size(),
-        .pCode = reinterpret_cast<const uint32_t*>(frag.data())
-        //.codeSize = frag.GetBuffer().size(),
-        //.pCode = reinterpret_cast<const uint32_t*>(frag.GetBuffer().data())
-    };
-    vk::UniqueShaderModule fragShaderModule = device->createShaderModuleUnique(fragCreateInfo);
+    VulkanShader vert("../Campfire/Shaders/vert.spv");
+    VulkanShader frag("../Campfire/Shaders/frag.spv");
 
     // Create pipeline
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo
     {
         .stage = vk::ShaderStageFlagBits::eVertex,
-        .module = vertShaderModule.get(),
+        .module = vert.GetShaderModule(),
         .pName = "main"
     };
 
     vk::PipelineShaderStageCreateInfo fragShaderStageInfo
     {
         .stage = vk::ShaderStageFlagBits::eFragment,
-        .module = fragShaderModule.get(),
+        .module = frag.GetShaderModule(),
         .pName = "main"
     };
 
