@@ -26,5 +26,5 @@ VulkanShader::VulkanShader(const std::string& filepath)
     shaderInfo.codeSize = buffer.size();
     shaderInfo.pCode = reinterpret_cast<const uint32_t*>(buffer.data());
 
-    shaderModule = VulkanContext::GetInstance()->GetDevice().createShaderModuleUnique(shaderInfo);
+    shaderModule = VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice().createShaderModuleUnique(shaderInfo);
 }

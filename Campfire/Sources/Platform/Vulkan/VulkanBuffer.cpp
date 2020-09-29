@@ -5,7 +5,7 @@
 
 uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
 
-    vk::PhysicalDeviceMemoryProperties memProperties = VulkanContext::GetInstance()->GetPhysicalDevice().getMemoryProperties();
+    vk::PhysicalDeviceMemoryProperties memProperties = VulkanContext::GetInstance()->GetVulkanDevice()->GetPhysicalDevice().getMemoryProperties();
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -16,7 +16,7 @@ uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 
 void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory)
 {
-    vk::Device device = VulkanContext::GetInstance()->GetDevice();
+    vk::Device device = VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice();
 
     vk::BufferCreateInfo bufferInfo
     {
@@ -44,6 +44,8 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
 
 void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size)
 {
+    auto devicePtr = VulkanContext::GetInstance()->GetVulkanDevice();
+
     vk::CommandBufferAllocateInfo allocateInfo
     {
         .commandPool = VulkanContext::GetInstance()->GetCommandPool()
@@ -52,7 +54,7 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
     };
 
     std::vector<vk::UniqueCommandBuffer> commandBuffer =
-        VulkanContext::GetInstance()->GetDevice().allocateCommandBuffersUnique(allocateInfo);
+        devicePtr->GetDevice().allocateCommandBuffersUnique(allocateInfo);
 
     vk::CommandBufferBeginInfo beginInfo
     {
@@ -75,7 +77,7 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
         , .pCommandBuffers = &commandBuffer[0].get()
     };
 
-    vk::Queue graphicsQueue = VulkanContext::GetInstance()->GetQueue();
+    vk::Queue graphicsQueue = devicePtr->GetGraphicsQueue();
     graphicsQueue.submit(1, &submitInfo, nullptr);
     graphicsQueue.waitIdle();
 }
@@ -93,7 +95,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
     CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
 
     // Copy data over
-    vk::Device device = VulkanContext::GetInstance()->GetDevice();
+    auto device = VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice();
     void* data = device.mapMemory(stagingBufferMemory.get(), 0, size, vk::MemoryMapFlags());
         memcpy(data, vertices, (size_t)size);
     device.unmapMemory(stagingBufferMemory.get());
@@ -119,7 +121,7 @@ VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
     CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
 
     // Copy data over
-    vk::Device device = VulkanContext::GetInstance()->GetDevice();
+    auto device = VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice();
     void* data = device.mapMemory(stagingBufferMemory.get(), 0, size, vk::MemoryMapFlags());
         memcpy(data, indices, (size_t)size);
     device.unmapMemory(stagingBufferMemory.get());
@@ -151,7 +153,7 @@ void VulkanUniformBuffer::Unbind() const
 
 void VulkanUniformBuffer::SetData(void* inputData, uint32_t offset, uint32_t size)
 {
-    auto device = VulkanContext::GetInstance()->GetDevice();
+    auto device = VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice();
 
     void* data = device.mapMemory(bufferMemory.get(), offset, size, vk::MemoryMapFlags());
         memcpy(data, inputData, size);

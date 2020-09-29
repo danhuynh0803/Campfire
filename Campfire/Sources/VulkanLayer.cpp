@@ -68,7 +68,7 @@ void VulkanLayer::OnAttach()
         descriptorWrite.descriptorCount = 1;
         descriptorWrite.pBufferInfo = &bufferInfo;
 
-        VulkanContext::GetInstance()->GetDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+        VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
     }
 }
 

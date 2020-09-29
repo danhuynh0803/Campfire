@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include "Renderer/GraphicsContext.h"
+#include "VulkanDevice.h"
 
 class VulkanContext : public GraphicsContext
 {
@@ -18,31 +19,25 @@ public:
     virtual void SwapBuffers() override;
 
     vk::CommandPool GetCommandPool() { return commandPool.get(); }
-    vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
-    vk::Device GetDevice() { return device.get(); }
-    // TODO update to take some enum and can get various queues
-    vk::Queue GetQueue() { return graphicsQueue; }
-    //std::vector<vk::UniqueDescriptorSet>& GetDescriptorSets { return descriptorSets; }
 
     std::vector<vk::UniqueDescriptorSet> descriptorSets;
 
     void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
 
-private:
-    // Instance
-    vk::UniqueInstance CreateInstance();
-    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
+    static vk::Instance GetVulkanInstance() { return instance.get(); }
 
-    // PhysicalDevice
-    vk::PhysicalDevice SelectPhysicalDevice();
-    bool IsDeviceSuitable(vk::PhysicalDevice device);
+    static vk::SurfaceKHR GetSurface() { return surface.get(); }
+
+    SharedPtr<VulkanDevice> GetVulkanDevice() { return devicePtr; }
+
+private:
+    vk::UniqueInstance CreateInstance();
+
+    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
     // SwapChain
     vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
     void SetupSwapChain();
-
-    // Logical device
-    vk::UniqueDevice CreateLogicalDevice();
 
     // Graphics pipeline
     vk::UniquePipeline CreateGraphicsPipeline();
@@ -61,28 +56,9 @@ private:
 
 private:
     // Instance
-    vk::UniqueInstance instance;
+    static vk::UniqueInstance instance;
 
-    // PhysicalDevice
-    std::vector<vk::PhysicalDevice> physicalDevices;
-    // The selected physical device that will run vulkan
-    vk::PhysicalDevice physicalDevice;
-    // Logical device
-    vk::UniqueDevice device;
-
-    // SwapChain
-    vk::Format swapChainImageFormat;
-    vk::UniqueSurfaceKHR surface;
-    vk::UniqueSwapchainKHR swapChain;
-    vk::Extent2D swapChainExtent;
-    std::vector<vk::Image> swapChainImages;
-    std::vector<vk::UniqueImageView> imageViews;
-    size_t currentFrame = 0;
-
-    // Queues
-    vk::Queue graphicsQueue;
-    vk::Queue presentQueue;
-    std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
+    SharedPtr<VulkanDevice> devicePtr;
 
     // Graphics pipeline
     vk::UniqueDescriptorPool descriptorPool;
@@ -91,6 +67,15 @@ private:
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
     vk::UniquePipeline graphicsPipeline;
+
+    // SwapChain
+    vk::Format swapChainImageFormat;
+    static vk::UniqueSurfaceKHR surface;
+    vk::UniqueSwapchainKHR swapChain;
+    vk::Extent2D swapChainExtent;
+    std::vector<vk::Image> swapChainImages;
+    std::vector<vk::UniqueImageView> imageViews;
+    size_t currentFrame = 0;
 
     // Framebuffers
     std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;

@@ -8,22 +8,24 @@
 #include <fstream>
 
 SharedPtr<VulkanContext> VulkanContext::contextInstance = nullptr;
+vk::UniqueInstance VulkanContext::instance;
+vk::UniqueSurfaceKHR VulkanContext::surface;
 
-static size_t graphicsQueueFamilyIndex;
-static size_t presentQueueFamilyIndex;
 static const int MAX_FRAMES_IN_FLIGHT = 2;
 
+// TODO move to renderer
 void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
 {
-    device->waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
+    auto device = devicePtr->GetDevice();
+    device.waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
 
     auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
-    uint32_t imageIndex = device->acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+    uint32_t imageIndex = device.acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
 
     // Check if previous frame is using this image (wait on its fence)
     if (imagesInFlight[imageIndex])
     {
-        device->waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+        device.waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     }
     // Mark the image as now being in use by this frame
     imagesInFlight[imageIndex] = inFlightFences[currentFrame].get();
@@ -47,7 +49,7 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    device->resetFences(inFlightFences[currentFrame].get());
+    device.resetFences(inFlightFences[currentFrame].get());
 
     // Start recording command buffers
     vk::CommandBufferBeginInfo beginInfo
@@ -96,7 +98,7 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
 
     commandBuffers[imageIndex]->end();
 
-
+    auto graphicsQueue = devicePtr->GetGraphicsQueue();
     graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
 
     vk::PresentInfoKHR presentInfo
@@ -110,6 +112,7 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
+    auto presentQueue = devicePtr->GetPresentQueue();
     presentQueue.presentKHR(&presentInfo);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -122,12 +125,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     surface = CreateSurfaceKHR(window);
 
-    physicalDevice = SelectPhysicalDevice();
-
-    device = CreateLogicalDevice();
-
-    graphicsQueue = device->getQueue(graphicsQueueFamilyIndex, 0);
-    presentQueue = device->getQueue(presentQueueFamilyIndex, 0);
+    devicePtr = CreateSharedPtr<VulkanDevice>();
 
     SetupSwapChain();
 
@@ -138,12 +136,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     CreateFramebuffers();
 
-    commandPool = CreateCommandPool(static_cast<uint32_t>(graphicsQueueFamilyIndex));
+    commandPool = CreateCommandPool(static_cast<uint32_t>(devicePtr->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
 
     commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
-
-    // Store off instance of our created vkContext for usage in other parts of the system
-    //contextInstance.reset(this);
 
     // TODO refactor into separate swapchain class
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -165,7 +160,7 @@ vk::UniqueSemaphore VulkanContext::CreateSemaphore()
         .flags = vk::SemaphoreCreateFlags()
     };
 
-    return device->createSemaphoreUnique(semaphoreCreateInfo);
+    return devicePtr->GetDevice().createSemaphoreUnique(semaphoreCreateInfo);
 }
 
 vk::UniqueFence VulkanContext::CreateFence()
@@ -175,7 +170,7 @@ vk::UniqueFence VulkanContext::CreateFence()
         .flags = vk::FenceCreateFlagBits::eSignaled
     };
 
-    return device->createFenceUnique(fenceCreateInfo);
+    return devicePtr->GetDevice().createFenceUnique(fenceCreateInfo);
 }
 
 VulkanContext::~VulkanContext()
@@ -191,8 +186,7 @@ void VulkanContext::Init()
 
 void VulkanContext::SwapBuffers()
 {
-    return;
-
+/*
     device->waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
 
     auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
@@ -243,6 +237,7 @@ void VulkanContext::SwapBuffers()
     presentQueue.presentKHR(&presentInfo);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+*/
 }
 
 vk::UniqueInstance VulkanContext::CreateInstance()
@@ -332,92 +327,11 @@ vk::UniqueSurfaceKHR VulkanContext::CreateSurfaceKHR(GLFWwindow* window)
     return vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
 }
 
-vk::UniqueDevice VulkanContext::CreateLogicalDevice()
-{
-    // Determine if device contains a graphics queue
-    queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
-
-     graphicsQueueFamilyIndex = std::distance (
-            queueFamilyProperties.begin(),
-            std::find_if (
-                queueFamilyProperties.begin(), queueFamilyProperties.end(), []( vk::QueueFamilyProperties const& qfp) {
-                    return qfp.queueFlags & vk::QueueFlagBits::eGraphics;
-                }
-            )
-        );
-
-    assert( graphicsQueueFamilyIndex < queueFamilyProperties.size() );
-
-    // Get queueFamilyIndex that supports present
-    // First check if graphicsQueueFamilyIndex is good enough
-     presentQueueFamilyIndex =
-        physicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>(graphicsQueueFamilyIndex), surface.get() )
-            ? graphicsQueueFamilyIndex
-            : queueFamilyProperties.size();
-
-    if (presentQueueFamilyIndex == queueFamilyProperties.size())
-    {
-        // the graphicsQueueFamilyIndex doesn't support present -> look for an other family index that supports both
-        // graphics and present
-        for (size_t i = 0; i < queueFamilyProperties.size(); i++)
-        {
-            if ((queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) &&
-                physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get()))
-            {
-                graphicsQueueFamilyIndex = i;
-                presentQueueFamilyIndex = i;
-                std::cout << "Queue supports both graphics and present\n";
-                break;
-            }
-        }
-        if (presentQueueFamilyIndex == queueFamilyProperties.size())
-        {
-            // there's nothing like a single family index that supports both graphics and present -> look for an other
-            // family index that supports present
-            for (size_t i = 0; i < queueFamilyProperties.size(); i++)
-            {
-                if (physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get()))
-                {
-                    std::cout << "Found queue that supports present\n";
-                    presentQueueFamilyIndex = i;
-                    break;
-                }
-            }
-        }
-    }
-    if ((graphicsQueueFamilyIndex == queueFamilyProperties.size()) ||
-        (presentQueueFamilyIndex == queueFamilyProperties.size()))
-    {
-        throw std::runtime_error("Could not find a queue for graphics or present -> terminating");
-    }
-
-    float queuePriority = 0.0f;
-    vk::DeviceQueueCreateInfo deviceQueueCreateInfo{
-        .flags = vk::DeviceQueueCreateFlags(),
-        .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex),
-        .queueCount = 1,
-        .pQueuePriorities = &queuePriority
-    };
-
-    const std::vector<const char*> deviceExtensions =
-    {
-        "VK_KHR_swapchain"
-    };
-
-    return physicalDevice.createDeviceUnique(
-            vk::DeviceCreateInfo
-            {
-                .flags = vk::DeviceCreateFlags(),
-                .queueCreateInfoCount = 1,
-                .pQueueCreateInfos = &deviceQueueCreateInfo,
-                .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
-                .ppEnabledExtensionNames = deviceExtensions.data()
-            }
-        );
-}
-
 void VulkanContext::SetupSwapChain()
 {
+    auto physicalDevice = devicePtr->GetPhysicalDevice();
+    auto device = devicePtr->GetDevice();
+
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
     assert(!formats.empty());
@@ -480,6 +394,9 @@ void VulkanContext::SetupSwapChain()
         .oldSwapchain = nullptr
     };
 
+    auto graphicsQueueFamilyIndex = devicePtr->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
+    auto presentQueueFamilyIndex = devicePtr->GetQueueFamilyIndex(QueueFamilyType::PRESENT);
+
     uint32_t queueFamilyIndices[2] = { static_cast<uint32_t>(graphicsQueueFamilyIndex),
                                        static_cast<uint32_t>(presentQueueFamilyIndex) };
 
@@ -491,8 +408,8 @@ void VulkanContext::SetupSwapChain()
     }
 
     // Setup swapchain
-    swapChain = device->createSwapchainKHRUnique(swapChainCreateInfo);
-    swapChainImages = device->getSwapchainImagesKHR(swapChain.get());
+    swapChain = device.createSwapchainKHRUnique(swapChainCreateInfo);
+    swapChainImages = device.getSwapchainImagesKHR(swapChain.get());
     imageViews.reserve(swapChainImages.size());
 
     vk::ComponentMapping componentMapping {
@@ -510,13 +427,13 @@ void VulkanContext::SetupSwapChain()
             .components = componentMapping,
             .subresourceRange = subresourceRange
         };
-        imageViews.emplace_back( device->createImageViewUnique(imageViewCreateInfo) );
+        imageViews.emplace_back( device.createImageViewUnique(imageViewCreateInfo) );
     }
 }
 
 vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex)
 {
-    return device->createCommandPoolUnique(
+    return devicePtr->GetDevice().createCommandPoolUnique(
         vk::CommandPoolCreateInfo {
             .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
             .queueFamilyIndex = queueFamilyIndex
@@ -533,27 +450,7 @@ std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_
         , .commandBufferCount = size
     };
 
-    return device->allocateCommandBuffersUnique(commandBufferAllocInfo);
-}
-
-static std::vector<char> readFile(const std::string& filepath)
-{
-    std::ifstream file(filepath, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open())
-    {
-        throw std::runtime_error("VulkanShader::Failed to open " + filepath);
-    }
-
-    size_t fileSize = (size_t)file.tellg();
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
-    return buffer;
+    return devicePtr->GetDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
 }
 
 vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
@@ -723,7 +620,8 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pBindings = &uboLayoutBinding
     };
 
-    descriptorSetLayout = device->createDescriptorSetLayoutUnique(layoutInfo);    
+    auto device = devicePtr->GetDevice();
+    descriptorSetLayout = device.createDescriptorSetLayoutUnique(layoutInfo);
 
     vk::DescriptorPoolSize poolSize
     {
@@ -737,7 +635,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pPoolSizes = &poolSize
     };
 
-    descriptorPool = device->createDescriptorPoolUnique(poolInfo);
+    descriptorPool = device.createDescriptorPoolUnique(poolInfo);
 
     // Create list of descriptor sets
     std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout.get());
@@ -748,7 +646,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pSetLayouts = layouts.data()
     };
     descriptorSets.resize(swapChainImages.size());
-    descriptorSets = device->allocateDescriptorSetsUnique(allocInfo);
+    descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
 
     // Setup pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo
@@ -758,7 +656,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pushConstantRangeCount = 0
         , .pPushConstantRanges = nullptr
     };
-    pipelineLayout = device->createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+    pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     // ----------- Setup Renderpasses ---------------------
 
@@ -812,7 +710,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .dependencyCount = 1
         , .pDependencies = &subpassDependency
     };
-    renderPass = device->createRenderPassUnique(renderPassCreateInfo);
+    renderPass = device.createRenderPassUnique(renderPassCreateInfo);
 
     // Create Graphics pipeline
     vk::GraphicsPipelineCreateInfo pipelineCreateInfo
@@ -835,7 +733,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .basePipelineIndex = -1
     };
 
-    return device->createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    return device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
 void VulkanContext::CreateFramebuffers()
@@ -860,32 +758,6 @@ void VulkanContext::CreateFramebuffers()
             , .layers = 1
         };
 
-        swapChainFramebuffers[i] = device->createFramebufferUnique(framebufferCreateInfo);
+        swapChainFramebuffers[i] = devicePtr->GetDevice().createFramebufferUnique(framebufferCreateInfo);
     }
-}
-
-vk::PhysicalDevice VulkanContext::SelectPhysicalDevice()
-{
-    physicalDevices = instance->enumeratePhysicalDevices();
-    vk::PhysicalDevice selectedDevice;
-
-    for (const auto& device : physicalDevices)
-    {
-        if (IsDeviceSuitable(device))
-        {
-            selectedDevice = device;
-            break;
-        }
-    }
-
-    return selectedDevice;
-}
-
-bool VulkanContext::IsDeviceSuitable(vk::PhysicalDevice device)
-{
-    vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
-    vk::PhysicalDeviceFeatures deviceFeatures = device.getFeatures();
-
-    // TODO add various feature checks
-    return true;
 }
