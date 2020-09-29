@@ -3,8 +3,9 @@
 
 VulkanSwapChain::VulkanSwapChain()
 {
-    auto devicePtr = VulkanContext::GetInstance()->GetVulkanDevice();
-    auto physicalDevice = devicePtr->GetPhysicalDevice();
+    auto devicePtr = VulkanContext::Get()->GetDevice();
+    auto physicalDevice = devicePtr->GetVulkanPhysicalDevice();
+
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
     assert(!formats.empty());
@@ -45,10 +46,10 @@ VulkanSwapChain::VulkanSwapChain()
         (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePreMultiplied)
         ? vk::CompositeAlphaFlagBitsKHR::ePreMultiplied
         : (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePostMultiplied)
-        ? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied
-        : (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit)
-        ? vk::CompositeAlphaFlagBitsKHR::eInherit
-        : vk::CompositeAlphaFlagBitsKHR::eOpaque;
+            ? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied
+            : (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit)
+                ? vk::CompositeAlphaFlagBitsKHR::eInherit
+                : vk::CompositeAlphaFlagBitsKHR::eOpaque;
 
     vk::SwapchainCreateInfoKHR swapChainCreateInfo;
     swapChainCreateInfo.flags = vk::SwapchainCreateFlagsKHR();
@@ -66,7 +67,6 @@ VulkanSwapChain::VulkanSwapChain()
     swapChainCreateInfo.clipped = true;
     swapChainCreateInfo.oldSwapchain = nullptr;
 
-
     auto graphicsQueueFamilyIndex = devicePtr->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
     auto presentQueueFamilyIndex = devicePtr->GetQueueFamilyIndex(QueueFamilyType::PRESENT);
 
@@ -81,7 +81,7 @@ VulkanSwapChain::VulkanSwapChain()
     }
 
     // Setup swapchain
-    auto device = devicePtr->GetDevice();
+    auto device = devicePtr->GetVulkanDevice();
     swapChain = device.createSwapchainKHRUnique(swapChainCreateInfo);
     swapChainImages = device.getSwapchainImagesKHR(swapChain.get());
     imageViews.reserve(swapChainImages.size());

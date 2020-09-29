@@ -47,7 +47,7 @@ void VulkanLayer::OnAttach()
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 
-    auto& descriptorSets = VulkanContext::GetInstance()->descriptorSets;
+    auto& descriptorSets = VulkanContext::Get()->descriptorSets;
 
     // TODO match with swapchainImages size
     // refactor to be in SetLayout
@@ -68,7 +68,7 @@ void VulkanLayer::OnAttach()
         descriptorWrite.descriptorCount = 1;
         descriptorWrite.pBufferInfo = &bufferInfo;
 
-        VulkanContext::GetInstance()->GetVulkanDevice()->GetDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+        VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
     }
 }
 
@@ -88,14 +88,14 @@ void VulkanLayer::OnUpdate(float dt)
 
     ubo.viewProj = ubo.proj * ubo.view;
 
-    auto& descriptorSets = VulkanContext::GetInstance()->descriptorSets;
+    auto& descriptorSets = VulkanContext::Get()->descriptorSets;
 
     for (auto& uboPtr : uniformBufferPtrs)
     {
         uboPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
     }
 
-    VulkanContext::GetInstance()->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
+    VulkanContext::Get()->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
 }
 
 void VulkanLayer::OnImGuiRender()

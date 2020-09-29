@@ -7,16 +7,12 @@
 #include <vector>
 #include <fstream>
 
-SharedPtr<VulkanContext> VulkanContext::contextInstance = nullptr;
-vk::UniqueInstance VulkanContext::instance;
-vk::UniqueSurfaceKHR VulkanContext::surface;
-
 static const int MAX_FRAMES_IN_FLIGHT = 2;
 
 // TODO move to renderer
 void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
 {
-    auto device = devicePtr->GetDevice();
+    auto device = mDevice->GetVulkanDevice();
     device.waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
 
     auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
@@ -98,7 +94,7 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
 
     commandBuffers[imageIndex]->end();
 
-    auto graphicsQueue = devicePtr->GetGraphicsQueue();
+    auto graphicsQueue = mDevice->GetGraphicsQueue();
     graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
 
     vk::PresentInfoKHR presentInfo
@@ -112,7 +108,7 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
-    auto presentQueue = devicePtr->GetPresentQueue();
+    auto presentQueue = mDevice->GetPresentQueue();
     presentQueue.presentKHR(&presentInfo);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -121,22 +117,21 @@ void VulkanContext::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer,
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
 {
-    instance = CreateInstance();
+    sVulkanInstance = CreateInstance();
 
     surface = CreateSurfaceKHR(window);
 
-    devicePtr = CreateSharedPtr<VulkanDevice>();
+    mDevice = CreateSharedPtr<VulkanDevice>();
+
+    sVulkanContextInstance.reset(this);
 
     SetupSwapChain();
-
-    // Store off instance of our created vkContext for usage in other parts of the system
-    contextInstance.reset(this);
 
     graphicsPipeline = CreateGraphicsPipeline();
 
     CreateFramebuffers();
 
-    commandPool = CreateCommandPool(static_cast<uint32_t>(devicePtr->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
+    commandPool = CreateCommandPool(static_cast<uint32_t>(mDevice->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
 
     commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
 
@@ -160,7 +155,7 @@ vk::UniqueSemaphore VulkanContext::CreateSemaphore()
         .flags = vk::SemaphoreCreateFlags()
     };
 
-    return devicePtr->GetDevice().createSemaphoreUnique(semaphoreCreateInfo);
+    return mDevice->GetVulkanDevice().createSemaphoreUnique(semaphoreCreateInfo);
 }
 
 vk::UniqueFence VulkanContext::CreateFence()
@@ -170,12 +165,12 @@ vk::UniqueFence VulkanContext::CreateFence()
         .flags = vk::FenceCreateFlagBits::eSignaled
     };
 
-    return devicePtr->GetDevice().createFenceUnique(fenceCreateInfo);
+    return mDevice->GetVulkanDevice().createFenceUnique(fenceCreateInfo);
 }
 
 VulkanContext::~VulkanContext()
 {
-    instance->destroy();
+    sVulkanInstance->destroy();
 }
 
 void VulkanContext::Init()
@@ -319,18 +314,18 @@ bool VulkanContext::CheckValidationLayerSupport(const std::vector<const char*>& 
 vk::UniqueSurfaceKHR VulkanContext::CreateSurfaceKHR(GLFWwindow* window)
 {
     VkSurfaceKHR surfaceTmp;
-    if (glfwCreateWindowSurface(VkInstance(instance.get()), window, nullptr, &surfaceTmp) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(VkInstance(sVulkanInstance.get()), window, nullptr, &surfaceTmp) != VK_SUCCESS)
     {
         std::cout << "Could not init window\n";
     }
-    vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
+    vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(sVulkanInstance.get());
     return vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
 }
 
 void VulkanContext::SetupSwapChain()
 {
-    auto physicalDevice = devicePtr->GetPhysicalDevice();
-    auto device = devicePtr->GetDevice();
+    auto physicalDevice = mDevice->GetVulkanPhysicalDevice();
+    auto device = mDevice->GetVulkanDevice();
 
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface.get());
@@ -394,8 +389,8 @@ void VulkanContext::SetupSwapChain()
         .oldSwapchain = nullptr
     };
 
-    auto graphicsQueueFamilyIndex = devicePtr->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
-    auto presentQueueFamilyIndex = devicePtr->GetQueueFamilyIndex(QueueFamilyType::PRESENT);
+    auto graphicsQueueFamilyIndex = mDevice->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
+    auto presentQueueFamilyIndex = mDevice->GetQueueFamilyIndex(QueueFamilyType::PRESENT);
 
     uint32_t queueFamilyIndices[2] = { static_cast<uint32_t>(graphicsQueueFamilyIndex),
                                        static_cast<uint32_t>(presentQueueFamilyIndex) };
@@ -433,7 +428,7 @@ void VulkanContext::SetupSwapChain()
 
 vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex)
 {
-    return devicePtr->GetDevice().createCommandPoolUnique(
+    return mDevice->GetVulkanDevice().createCommandPoolUnique(
         vk::CommandPoolCreateInfo {
             .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
             .queueFamilyIndex = queueFamilyIndex
@@ -450,7 +445,7 @@ std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_
         , .commandBufferCount = size
     };
 
-    return devicePtr->GetDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
+    return mDevice->GetVulkanDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
 }
 
 vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
@@ -620,7 +615,7 @@ vk::UniquePipeline VulkanContext::CreateGraphicsPipeline()
         , .pBindings = &uboLayoutBinding
     };
 
-    auto device = devicePtr->GetDevice();
+    auto device = mDevice->GetVulkanDevice();
     descriptorSetLayout = device.createDescriptorSetLayoutUnique(layoutInfo);
 
     vk::DescriptorPoolSize poolSize
@@ -758,6 +753,6 @@ void VulkanContext::CreateFramebuffers()
             , .layers = 1
         };
 
-        swapChainFramebuffers[i] = devicePtr->GetDevice().createFramebufferUnique(framebufferCreateInfo);
+        swapChainFramebuffers[i] = mDevice->GetVulkanDevice().createFramebufferUnique(framebufferCreateInfo);
     }
 }

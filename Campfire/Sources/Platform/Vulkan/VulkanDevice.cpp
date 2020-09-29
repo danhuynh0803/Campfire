@@ -13,7 +13,7 @@ VulkanDevice::VulkanDevice()
 
 vk::PhysicalDevice VulkanDevice::SelectPhysicalDevice()
 {
-    physicalDevices = VulkanContext::GetVulkanInstance().enumeratePhysicalDevices();
+    physicalDevices = VulkanContext::GetInstance().enumeratePhysicalDevices();
     vk::PhysicalDevice selectedDevice;
 
     for (const auto& device : physicalDevices)

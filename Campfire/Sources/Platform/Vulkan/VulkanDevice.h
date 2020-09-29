@@ -14,8 +14,8 @@ class VulkanDevice
 public:
     VulkanDevice();
 
-    vk::PhysicalDevice GetPhysicalDevice() { return physicalDevice; }
-    vk::Device GetDevice() { return device.get(); }
+    vk::PhysicalDevice GetVulkanPhysicalDevice() { return physicalDevice; }
+    vk::Device GetVulkanDevice() { return device.get(); }
 
     // TODO have just one function with enums to select which family/queue
     vk::Queue GetGraphicsQueue() { return graphicsQueue; }

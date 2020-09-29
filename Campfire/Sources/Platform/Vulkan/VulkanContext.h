@@ -1,40 +1,47 @@
 #pragma once
+
 #include <vector>
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
-#include "Renderer/GraphicsContext.h"
+#include "Renderer/Renderer.h"
 #include "VulkanDevice.h"
 
 class VulkanContext : public GraphicsContext
 {
 public:
-    static SharedPtr<VulkanContext> GetInstance() { return contextInstance; }
-
-    static SharedPtr<VulkanContext> contextInstance;
-
     VulkanContext(GLFWwindow* windowHandle);
     ~VulkanContext();
 
     virtual void Init() override;
     virtual void SwapBuffers() override;
 
+    // TODO use this one and remove static var,
+    // but only after graphics pipeline is refactored out of context
+    //static SharedPtr<VulkanContext> Get() { return std::dynamic_pointer_cast<VulkanContext>(Renderer::GetContext()); }
+    static SharedPtr<VulkanContext> Get() { return sVulkanContextInstance; }
+    static vk::Instance GetInstance() { return sVulkanInstance.get(); }
+    static vk::SurfaceKHR GetSurface() { return surface.get(); }
+    SharedPtr<VulkanDevice> GetDevice() { return mDevice; }
+
+private:
+    vk::UniqueInstance CreateInstance();
+    inline static vk::UniqueInstance sVulkanInstance;
+    inline static SharedPtr<VulkanContext> sVulkanContextInstance;
+    SharedPtr<VulkanDevice> mDevice;
+    GLFWwindow* windowHandle;
+
+    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
+
+// ============ TODO move below to other files ================
+public:
     vk::CommandPool GetCommandPool() { return commandPool.get(); }
 
     std::vector<vk::UniqueDescriptorSet> descriptorSets;
 
+    // move to renderer
     void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
 
-    static vk::Instance GetVulkanInstance() { return instance.get(); }
-
-    static vk::SurfaceKHR GetSurface() { return surface.get(); }
-
-    SharedPtr<VulkanDevice> GetVulkanDevice() { return devicePtr; }
-
 private:
-    vk::UniqueInstance CreateInstance();
-
-    bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
-
     // SwapChain
     vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
     void SetupSwapChain();
@@ -54,12 +61,6 @@ private:
 
     vk::UniqueFence CreateFence();
 
-private:
-    // Instance
-    static vk::UniqueInstance instance;
-
-    SharedPtr<VulkanDevice> devicePtr;
-
     // Graphics pipeline
     vk::UniqueDescriptorPool descriptorPool;
 
@@ -70,7 +71,7 @@ private:
 
     // SwapChain
     vk::Format swapChainImageFormat;
-    static vk::UniqueSurfaceKHR surface;
+    inline static vk::UniqueSurfaceKHR surface;
     vk::UniqueSwapchainKHR swapChain;
     vk::Extent2D swapChainExtent;
     std::vector<vk::Image> swapChainImages;
@@ -89,6 +90,4 @@ private:
     std::vector<vk::UniqueSemaphore> renderFinishedSemaphores;
     std::vector<vk::UniqueFence> inFlightFences;
     std::vector<vk::Fence> imagesInFlight;
-
-    GLFWwindow* windowHandle;
 };
