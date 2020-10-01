@@ -6,9 +6,18 @@ class VulkanSwapChain
 {
 public:
     VulkanSwapChain();
-    ~VulkanSwapChain();
+    ~VulkanSwapChain() = default;
+    void Present();
 
-private:
+    size_t currentFrame = 0;
+    int maxFramesInFlight = 2;
+
+    void CreateFramebuffers();
+    void CreateBarriers();
+    void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
+    vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
+    std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
+
     // Command buffers
     vk::UniqueCommandPool commandPool;
     std::vector<vk::UniqueCommandBuffer> commandBuffers;
@@ -23,7 +32,6 @@ private:
     vk::Extent2D swapChainExtent;
     std::vector<vk::Image> swapChainImages;
     std::vector<vk::UniqueImageView> imageViews;
-    size_t currentFrame = 0;
 
     // Semaphores
     std::vector<vk::UniqueSemaphore> imageAvailableSemaphores;

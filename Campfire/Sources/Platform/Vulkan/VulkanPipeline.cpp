@@ -95,7 +95,8 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     };
 
     // Setup viewports and scissor rect
-    auto swapChainExtent = VulkanContext::Get()->swapChainExtent;
+    auto swapChain = VulkanContext::Get()->mSwapChain;
+    auto swapChainExtent = swapChain->swapChainExtent;
     vk::Viewport viewport
     {
         .x = 0.0f,
@@ -215,7 +216,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     descriptorSetLayout = device.createDescriptorSetLayoutUnique(layoutInfo);
 
-    auto swapChainImages = VulkanContext::Get()->swapChainImages;
+    auto swapChainImages = VulkanContext::Get()->mSwapChain->swapChainImages;
     vk::DescriptorPoolSize poolSize
     {
         .descriptorCount = static_cast<uint32_t>(swapChainImages.size())
@@ -258,7 +259,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // after rendering
     vk::AttachmentDescription colorAttachment
     {
-        .format = VulkanContext::Get()->swapChainImageFormat
+        .format = VulkanContext::Get()->mSwapChain->swapChainImageFormat
         , .samples = vk::SampleCountFlagBits::e1
         , .loadOp = vk::AttachmentLoadOp::eClear // Clear the values to a constant at start
         , .storeOp = vk::AttachmentStoreOp::eStore // Rendered contents store in memory and can be read later

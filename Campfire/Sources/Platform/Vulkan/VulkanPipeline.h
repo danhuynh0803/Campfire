@@ -12,6 +12,7 @@ class VulkanPipeline
 {
 public:
     VulkanPipeline(PipelineType pipelineType);
+    ~VulkanPipeline() = default;
     vk::Pipeline GetVulkanPipeline() { return pipeline.get(); }
     vk::PipelineLayout GetVulkanPipelineLayout() { return pipelineLayout.get(); }
     vk::RenderPass GetVulkanRenderPass() { return renderPass.get(); }

@@ -40,8 +40,8 @@ void VulkanLayer::OnAttach()
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
         editorCamera,
-        glm::vec3(0.0f, 5.0f, 10.0f),
-        glm::vec3(-20.0f, 0.0f, 0.0f)
+        glm::vec3(0.0f, 5.0f, 10.0f), // position
+        glm::vec3(-20.0f, 0.0f, 0.0f) // euler angles
     );
 
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
@@ -95,7 +95,7 @@ void VulkanLayer::OnUpdate(float dt)
         uboPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
     }
 
-    VulkanContext::Get()->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
+    VulkanContext::Get()->mSwapChain->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
 }
 
 void VulkanLayer::OnImGuiRender()
