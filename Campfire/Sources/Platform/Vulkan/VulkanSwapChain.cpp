@@ -135,7 +135,61 @@ void VulkanSwapChain::CreateBarriers()
 
 void VulkanSwapChain::Present()
 {
-    return;
+    auto mDevice = VulkanContext::Get()->GetDevice();
+    auto device = mDevice->GetVulkanDevice();
+
+    device.waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
+
+    auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
+    mImageIndex = device.acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+
+    // Check if previous frame is using this image (wait on its fence)
+    if (imagesInFlight[mImageIndex])
+    {
+        device.waitForFences(imagesInFlight[mImageIndex], VK_TRUE, UINT64_MAX);
+    }
+    // Mark the image as now being in use by this frame
+    imagesInFlight[mImageIndex] = inFlightFences[currentFrame].get();
+
+    vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
+    // wait to write colors to the image until it's available
+    // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
+    vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+
+    vk::SubmitInfo submitInfo
+    {
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = waitSemaphores,
+        .pWaitDstStageMask = waitStages,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &commandBuffers[mImageIndex].get(),
+    };
+
+    auto& renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
+    vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    device.resetFences(inFlightFences[currentFrame].get());
+
+    auto graphicsQueue = mDevice->GetGraphicsQueue();
+    graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
+
+    vk::PresentInfoKHR presentInfo
+    {
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = signalSemaphores,
+    };
+
+    vk::SwapchainKHR swapChains[] = { swapChain.get() };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &mImageIndex;
+
+    auto presentQueue = mDevice->GetPresentQueue();
+    presentQueue.presentKHR(&presentInfo);
+
+    currentFrame = (currentFrame + 1) % maxFramesInFlight;
 }
 
 vk::UniqueCommandPool VulkanSwapChain::CreateCommandPool(uint32_t queueFamilyIndex)
@@ -152,9 +206,9 @@ std::vector<vk::UniqueCommandBuffer> VulkanSwapChain::CreateCommandBuffers(uint3
 {
     vk::CommandBufferAllocateInfo commandBufferAllocInfo
     {
-        .commandPool = commandPool.get()
-        , .level = vk::CommandBufferLevel::ePrimary
-        , .commandBufferCount = size
+        .commandPool = commandPool.get(),
+        .level = vk::CommandBufferLevel::ePrimary,
+        .commandBufferCount = size,
     };
 
     return VulkanContext::Get()->GetDevice()->GetVulkanDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
@@ -173,121 +227,15 @@ void VulkanSwapChain::CreateFramebuffers()
 
         vk::FramebufferCreateInfo framebufferCreateInfo
         {
-            .flags = vk::FramebufferCreateFlags()
-            , .renderPass = VulkanContext::Get()->mGraphicsPipeline->GetVulkanRenderPass()
-            , .attachmentCount = 1
-            , .pAttachments = attachments
-            , .width = swapChainExtent.width
-            , .height = swapChainExtent.height
-            , .layers = 1
+            .flags = vk::FramebufferCreateFlags(),
+            .renderPass = VulkanContext::Get()->mGraphicsPipeline->GetVulkanRenderPass(),
+            .attachmentCount = 1,
+            .pAttachments = attachments,
+            .width = swapChainExtent.width,
+            .height = swapChainExtent.height,
+            .layers = 1,
         };
 
         swapChainFramebuffers[i] = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createFramebufferUnique(framebufferCreateInfo);
     }
-}
-
-// TODO move to renderer
-void VulkanSwapChain::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
-{
-    auto mDevice = VulkanContext::Get()->GetDevice();
-    auto device = mDevice->GetVulkanDevice();
-
-    device.waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
-
-    auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
-    uint32_t imageIndex = device.acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
-
-    // Check if previous frame is using this image (wait on its fence)
-    if (imagesInFlight[imageIndex])
-    {
-        device.waitForFences(imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-    }
-    // Mark the image as now being in use by this frame
-    imagesInFlight[imageIndex] = inFlightFences[currentFrame].get();
-
-    vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
-    // wait to write colors to the image until it's available
-    // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
-    vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-
-    vk::SubmitInfo submitInfo
-    {
-        .waitSemaphoreCount = 1
-        , .pWaitSemaphores = waitSemaphores
-        , .pWaitDstStageMask = waitStages
-        , .commandBufferCount = 1
-        , .pCommandBuffers = &commandBuffers[imageIndex].get()
-    };
-
-    auto& renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
-    vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-
-    device.resetFences(inFlightFences[currentFrame].get());
-
-    // Start recording command buffers
-    vk::CommandBufferBeginInfo beginInfo
-    {
-        .flags = vk::CommandBufferUsageFlags()
-        , .pInheritanceInfo = nullptr
-    };
-
-    commandBuffers[imageIndex]->begin(beginInfo);
-
-    // Start render pass
-    vk::ClearValue clearValues;
-    clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.0f, 0.0f, 0.0f, 1.0f } }));
-    //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
-
-    vk::Rect2D renderArea
-    {
-        .offset = {0, 0}
-        , .extent = swapChainExtent
-    };
-
-    auto graphicsPipeline = VulkanContext::Get()->mGraphicsPipeline;
-    vk::RenderPassBeginInfo renderPassBeginInfo
-    {
-        .renderPass = graphicsPipeline->GetVulkanRenderPass()
-        , .framebuffer = swapChainFramebuffers[imageIndex].get()
-        , .renderArea = renderArea
-        , .clearValueCount = 1
-        , .pClearValues = &clearValues
-    };
-
-    commandBuffers[imageIndex]->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-        commandBuffers[imageIndex]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
-
-        vk::Buffer vertexBuffers[] = { vertexBuffer };
-        vk::DeviceSize offsets[] = { 0 };
-        commandBuffers[imageIndex]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
-
-        auto& descriptorSets = graphicsPipeline->descriptorSets;
-        commandBuffers[imageIndex]->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
-
-        commandBuffers[imageIndex]->bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
-
-        commandBuffers[imageIndex]->drawIndexed(count, 1, 0, 0, 0);
-    commandBuffers[imageIndex]->endRenderPass();
-    commandBuffers[imageIndex]->end();
-
-    auto graphicsQueue = mDevice->GetGraphicsQueue();
-    graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
-
-    vk::PresentInfoKHR presentInfo
-    {
-        .waitSemaphoreCount = 1
-        , .pWaitSemaphores = signalSemaphores
-    };
-
-    vk::SwapchainKHR swapChains[] = { swapChain.get() };
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
-
-    auto presentQueue = mDevice->GetPresentQueue();
-    presentQueue.presentKHR(&presentInfo);
-
-    currentFrame = (currentFrame + 1) % maxFramesInFlight;
 }

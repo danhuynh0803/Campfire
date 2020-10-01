@@ -9,7 +9,10 @@ public:
     ~VulkanSwapChain() = default;
     void Present();
 
+    uint32_t mImageIndex = 0;
+    uint32_t GetCurrentImageIndex() { return mImageIndex; }
     size_t currentFrame = 0;
+
     int maxFramesInFlight = 2;
 
     void CreateFramebuffers();
@@ -17,6 +20,9 @@ public:
     void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
+
+    vk::CommandBuffer GetCurrentCommandBuffer() { return commandBuffers.at(mImageIndex).get(); }
+    vk::Framebuffer GetCurrentFramebuffer() { return swapChainFramebuffers.at(mImageIndex).get(); }
 
     // Command buffers
     vk::UniqueCommandPool commandPool;

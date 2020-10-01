@@ -29,7 +29,7 @@ void VulkanContext::Init()
 
 void VulkanContext::SwapBuffers()
 {
-    //mSwapChain->Present();
+    mSwapChain->Present();
 }
 
 vk::UniqueInstance VulkanContext::CreateInstance()

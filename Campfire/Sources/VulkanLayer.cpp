@@ -1,5 +1,6 @@
 #include "VulkanLayer.h"
 #include "Platform/Vulkan/VulkanContext.h"
+#include "Platform/Vulkan/VulkanRenderer.h"
 #include "Core/Input.h"
 #include "Scene/CameraController.h"
 
@@ -95,7 +96,7 @@ void VulkanLayer::OnUpdate(float dt)
         uboPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
     }
 
-    VulkanContext::Get()->mSwapChain->DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
+    VulkanRenderer::DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
 }
 
 void VulkanLayer::OnImGuiRender()
