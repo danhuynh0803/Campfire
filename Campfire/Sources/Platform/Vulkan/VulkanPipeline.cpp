@@ -55,14 +55,14 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     {
         .stage = vk::ShaderStageFlagBits::eVertex,
         .module = vert.GetShaderModule(),
-        .pName = "main"
+        .pName = "main",
     };
 
     vk::PipelineShaderStageCreateInfo fragShaderStageInfo
     {
         .stage = vk::ShaderStageFlagBits::eFragment,
         .module = frag.GetShaderModule(),
-        .pName = "main"
+        .pName = "main",
     };
 
     vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
@@ -79,11 +79,11 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo
     {
-        .flags = vk::PipelineVertexInputStateCreateFlags()
-        , .vertexBindingDescriptionCount = 1
-        , .pVertexBindingDescriptions = &bindingDescription
-        , .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size())
-        , .pVertexAttributeDescriptions = attributeDescriptions.data()
+        .flags = vk::PipelineVertexInputStateCreateFlags(),
+        .vertexBindingDescriptionCount = 1,
+        .pVertexBindingDescriptions = &bindingDescription,
+        .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
+        .pVertexAttributeDescriptions = attributeDescriptions.data(),
     };
 
     // Input assembly
@@ -91,7 +91,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     {
         .flags = vk::PipelineInputAssemblyStateCreateFlags(),
         .topology = vk::PrimitiveTopology::eTriangleList,
-        .primitiveRestartEnable = VK_FALSE
+        .primitiveRestartEnable = VK_FALSE,
     };
 
     // Setup viewports and scissor rect
@@ -104,13 +104,13 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
         .width = static_cast<float>(swapChainExtent.width),
         .height = static_cast<float>(swapChainExtent.height),
         .minDepth = 0.0f,
-        .maxDepth = 1.0f
+        .maxDepth = 1.0f,
     };
 
     vk::Rect2D scissors
     {
         .offset = {0, 0},
-        .extent = swapChainExtent
+        .extent = swapChainExtent,
     };
 
     vk::PipelineViewportStateCreateInfo viewportStateCreateInfo
@@ -119,7 +119,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
         .viewportCount = 1,
         .pViewports = &viewport,
         .scissorCount = 1,
-        .pScissors = &scissors
+        .pScissors = &scissors,
     };
 
     // Setup rasterizer
@@ -127,29 +127,29 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // near and far planes will be clamped instead of being discard
     vk::PipelineRasterizationStateCreateInfo rasterizationStateCreateInfo
     {
-        .flags = vk::PipelineRasterizationStateCreateFlags()
-        , .depthClampEnable = VK_FALSE
-        , .rasterizerDiscardEnable = VK_FALSE
-        , .polygonMode = vk::PolygonMode::eFill
-        , .cullMode = vk::CullModeFlagBits::eNone
-        , .frontFace = vk::FrontFace::eCounterClockwise
-        , .depthBiasEnable = VK_FALSE
-        , .depthBiasConstantFactor = 0.0f
-        , .depthBiasClamp = 0.0f
-        , .depthBiasSlopeFactor = 0.0f
-        , .lineWidth = 1.0f
+        .flags = vk::PipelineRasterizationStateCreateFlags(),
+        .depthClampEnable = VK_FALSE,
+        .rasterizerDiscardEnable = VK_FALSE,
+        .polygonMode = vk::PolygonMode::eFill,
+        .cullMode = vk::CullModeFlagBits::eNone,
+        .frontFace = vk::FrontFace::eCounterClockwise,
+        .depthBiasEnable = VK_FALSE,
+        .depthBiasConstantFactor = 0.0f,
+        .depthBiasClamp = 0.0f,
+        .depthBiasSlopeFactor = 0.0f,
+        .lineWidth = 1.0f,
     };
 
     // Enable multisampling
     vk::PipelineMultisampleStateCreateInfo multisampleCreateInfo
     {
-        .flags = vk::PipelineMultisampleStateCreateFlags()
-        , .rasterizationSamples = vk::SampleCountFlagBits::e1
-        , .sampleShadingEnable = VK_FALSE
-        , .minSampleShading = 1.0f
-        , .pSampleMask = nullptr
-        , .alphaToCoverageEnable = VK_FALSE
-        , .alphaToOneEnable = VK_FALSE
+        .flags = vk::PipelineMultisampleStateCreateFlags(),
+        .rasterizationSamples = vk::SampleCountFlagBits::e1,
+        .sampleShadingEnable = VK_FALSE,
+        .minSampleShading = 1.0f,
+        .pSampleMask = nullptr,
+        .alphaToCoverageEnable = VK_FALSE,
+        .alphaToOneEnable = VK_FALSE,
     };
 
     // TODO Setup depth and stencil testing
@@ -160,57 +160,58 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup color blending
     vk::PipelineColorBlendAttachmentState colorBlendAttachment
     {
-        .blendEnable = VK_FALSE
-        , .srcColorBlendFactor = vk::BlendFactor::eOne
-        , .dstColorBlendFactor = vk::BlendFactor::eZero
-        , .colorBlendOp = vk::BlendOp::eAdd
-        , .srcAlphaBlendFactor = vk::BlendFactor::eOne
-        , .dstAlphaBlendFactor = vk::BlendFactor::eZero
-        , .alphaBlendOp = vk::BlendOp::eAdd
-        , .colorWriteMask =
-            vk::ColorComponentFlagBits::eR
-            | vk::ColorComponentFlagBits::eG
-            | vk::ColorComponentFlagBits::eB
-            | vk::ColorComponentFlagBits::eA
+        .blendEnable = VK_FALSE,
+        .srcColorBlendFactor = vk::BlendFactor::eOne,
+        .dstColorBlendFactor = vk::BlendFactor::eZero,
+        .colorBlendOp = vk::BlendOp::eAdd,
+        .srcAlphaBlendFactor = vk::BlendFactor::eOne,
+        .dstAlphaBlendFactor = vk::BlendFactor::eZero,
+        .alphaBlendOp = vk::BlendOp::eAdd,
+        .colorWriteMask =
+          vk::ColorComponentFlagBits::eR
+          | vk::ColorComponentFlagBits::eG
+          | vk::ColorComponentFlagBits::eB
+          | vk::ColorComponentFlagBits::eA
+          ,
     };
 
     vk::PipelineColorBlendStateCreateInfo colorBlendCreateInfo
     {
-        .flags = vk::PipelineColorBlendStateCreateFlags()
-        , .logicOpEnable = VK_FALSE
-        , .logicOp = vk::LogicOp::eCopy
-        , .attachmentCount = 1
-        , .pAttachments = &colorBlendAttachment
+        .flags = vk::PipelineColorBlendStateCreateFlags(),
+        .logicOpEnable = VK_FALSE,
+        .logicOp = vk::LogicOp::eCopy,
+        .attachmentCount = 1,
+        .pAttachments = &colorBlendAttachment,
     };
 
     // Setup dynamic state - these can be changed without recreating the pipeline
     std::vector<vk::DynamicState> dynamicStates =
     {
-        vk::DynamicState::eViewport
-        , vk::DynamicState::eLineWidth
+        vk::DynamicState::eViewport,
+        vk::DynamicState::eLineWidth,
     };
 
     vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo
     {
-        .flags = vk::PipelineDynamicStateCreateFlags()
-        , .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size())
-        , .pDynamicStates = dynamicStates.data()
+        .flags = vk::PipelineDynamicStateCreateFlags(),
+        .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
+        .pDynamicStates = dynamicStates.data(),
     };
 
     // UBO descriptor layout
     vk::DescriptorSetLayoutBinding uboLayoutBinding
     {
-        .binding = 0
-        , .descriptorType = vk::DescriptorType::eUniformBuffer
-        , .descriptorCount = 1
-        , .stageFlags = vk::ShaderStageFlagBits::eVertex
-        , .pImmutableSamplers = nullptr // used for image sampling later on
+        .binding = 0,
+        .descriptorType = vk::DescriptorType::eUniformBuffer,
+        .descriptorCount = 1,
+        .stageFlags = vk::ShaderStageFlagBits::eVertex,
+        .pImmutableSamplers = nullptr, // used for image sampling later on
     };
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo
     {
-        .bindingCount = 1
-        , .pBindings = &uboLayoutBinding
+        .bindingCount = 1,
+        .pBindings = &uboLayoutBinding,
     };
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -219,14 +220,14 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     auto swapChainImages = VulkanContext::Get()->mSwapChain->swapChainImages;
     vk::DescriptorPoolSize poolSize
     {
-        .descriptorCount = static_cast<uint32_t>(swapChainImages.size())
+        .descriptorCount = static_cast<uint32_t>(swapChainImages.size()),
     };
 
     vk::DescriptorPoolCreateInfo poolInfo
     {
-        .maxSets = static_cast<uint32_t>(swapChainImages.size())
-        , .poolSizeCount = 1
-        , .pPoolSizes = &poolSize
+        .maxSets = static_cast<uint32_t>(swapChainImages.size()),
+        .poolSizeCount = 1,
+        .pPoolSizes = &poolSize,
     };
 
     descriptorPool = device.createDescriptorPoolUnique(poolInfo);
@@ -235,9 +236,9 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout.get());
     vk::DescriptorSetAllocateInfo allocInfo
     {
-        .descriptorPool = descriptorPool.get()
-        , .descriptorSetCount = static_cast<uint32_t>(swapChainImages.size())
-        , .pSetLayouts = layouts.data()
+        .descriptorPool = descriptorPool.get(),
+        .descriptorSetCount = static_cast<uint32_t>(swapChainImages.size()),
+        .pSetLayouts = layouts.data(),
     };
     descriptorSets.resize(swapChainImages.size());
     descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
@@ -245,10 +246,10 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo
     {
-        .setLayoutCount = 1
-        , .pSetLayouts = &descriptorSetLayout.get()
-        , .pushConstantRangeCount = 0
-        , .pPushConstantRanges = nullptr
+        .setLayoutCount = 1,
+        .pSetLayouts = &descriptorSetLayout.get(),
+        .pushConstantRangeCount = 0,
+        .pPushConstantRanges = nullptr,
     };
     pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
@@ -259,72 +260,72 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // after rendering
     vk::AttachmentDescription colorAttachment
     {
-        .format = VulkanContext::Get()->mSwapChain->swapChainImageFormat
-        , .samples = vk::SampleCountFlagBits::e1
-        , .loadOp = vk::AttachmentLoadOp::eClear // Clear the values to a constant at start
-        , .storeOp = vk::AttachmentStoreOp::eStore // Rendered contents store in memory and can be read later
-        , .stencilLoadOp = vk::AttachmentLoadOp::eDontCare
-        , .stencilStoreOp = vk::AttachmentStoreOp::eDontCare
-        , .initialLayout = vk::ImageLayout::eUndefined
-        , .finalLayout = vk::ImageLayout::ePresentSrcKHR
+        .format = VulkanContext::Get()->mSwapChain->swapChainImageFormat,
+        .samples = vk::SampleCountFlagBits::e1,
+        .loadOp = vk::AttachmentLoadOp::eClear, // Clear the values to a constant at start
+        .storeOp = vk::AttachmentStoreOp::eStore, // Rendered contents store in memory and can be read later
+        .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
+        .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+        .initialLayout = vk::ImageLayout::eUndefined,
+        .finalLayout = vk::ImageLayout::ePresentSrcKHR,
     };
 
     // Setup subpasses
     vk::AttachmentReference colorAttachmentRef
     {
-        .attachment = 0
-        , .layout = vk::ImageLayout::eColorAttachmentOptimal
+        .attachment = 0,
+        .layout = vk::ImageLayout::eColorAttachmentOptimal,
     };
 
     vk::SubpassDescription subpass
     {
-        .pipelineBindPoint = vk::PipelineBindPoint::eGraphics
-        , .colorAttachmentCount = 1
-        , .pColorAttachments = &colorAttachmentRef
+        .pipelineBindPoint = vk::PipelineBindPoint::eGraphics,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = &colorAttachmentRef,
     };
 
     // Setup subpass dependencies
     vk::SubpassDependency subpassDependency
     {
-        .srcSubpass = VK_SUBPASS_EXTERNAL
-        , .dstSubpass = 0
-        , .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput
-        , .dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput
-        , .srcAccessMask = static_cast<vk::AccessFlagBits>(0)
-        , .dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite
+        .srcSubpass = VK_SUBPASS_EXTERNAL,
+        .dstSubpass = 0,
+        .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        .dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        .srcAccessMask = static_cast<vk::AccessFlagBits>(0),
+        .dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
     };
 
     vk::RenderPassCreateInfo renderPassCreateInfo
     {
-        .flags = vk::RenderPassCreateFlags()
-        , .attachmentCount = 1
-        , .pAttachments = &colorAttachment
-        , .subpassCount = 1
-        , .pSubpasses = &subpass
-        , .dependencyCount = 1
-        , .pDependencies = &subpassDependency
+        .flags = vk::RenderPassCreateFlags(),
+        .attachmentCount = 1,
+        .pAttachments = &colorAttachment,
+        .subpassCount = 1,
+        .pSubpasses = &subpass,
+        .dependencyCount = 1,
+        .pDependencies = &subpassDependency,
     };
     renderPass = device.createRenderPassUnique(renderPassCreateInfo);
 
     // Create Graphics pipeline
     vk::GraphicsPipelineCreateInfo pipelineCreateInfo
     {
-        .flags = vk::PipelineCreateFlags()
-        , .stageCount = 2
-        , .pStages = shaderStages
-        , .pVertexInputState = &vertexInputStateCreateInfo
-        , .pInputAssemblyState = &inputAssemblyStateCreateInfo
-        , .pViewportState = &viewportStateCreateInfo
-        , .pRasterizationState = &rasterizationStateCreateInfo
-        , .pMultisampleState = &multisampleCreateInfo
-        , .pDepthStencilState = nullptr
-        , .pColorBlendState = &colorBlendCreateInfo
-        , .pDynamicState = nullptr
-        , .layout = pipelineLayout.get()
-        , .renderPass = renderPass.get()
-        , .subpass = 0
-        , .basePipelineHandle = nullptr
-        , .basePipelineIndex = -1
+        .flags = vk::PipelineCreateFlags(),
+        .stageCount = 2,
+        .pStages = shaderStages,
+        .pVertexInputState = &vertexInputStateCreateInfo,
+        .pInputAssemblyState = &inputAssemblyStateCreateInfo,
+        .pViewportState = &viewportStateCreateInfo,
+        .pRasterizationState = &rasterizationStateCreateInfo,
+        .pMultisampleState = &multisampleCreateInfo,
+        .pDepthStencilState = nullptr,
+        .pColorBlendState = &colorBlendCreateInfo,
+        .pDynamicState = nullptr,
+        .layout = pipelineLayout.get(),
+        .renderPass = renderPass.get(),
+        .subpass = 0,
+        .basePipelineHandle = nullptr,
+        .basePipelineIndex = -1,
     };
 
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
