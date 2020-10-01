@@ -4,45 +4,6 @@
 
 #include <glm/glm.hpp>
 
-struct VertexTest
-{
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 uv;
-
-    static vk::VertexInputBindingDescription GetBindingDescription()
-    {
-        vk::VertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(VertexTest);
-        bindingDescription.inputRate = vk::VertexInputRate::eVertex;
-
-        return bindingDescription;
-    }
-
-    static std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions()
-    {
-        std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
-
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[0].offset = offsetof(VertexTest, pos);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[1].offset = offsetof(VertexTest, color);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = vk::Format::eR32G32Sfloat;;
-        attributeDescriptions[2].offset = offsetof(VertexTest, uv);
-
-        return attributeDescriptions;
-    }
-};
-
 void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
 
 void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);

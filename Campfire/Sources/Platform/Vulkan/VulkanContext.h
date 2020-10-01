@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include "Renderer/Renderer.h"
 #include "VulkanDevice.h"
+#include "VulkanPipeline.h"
 
 class VulkanContext : public GraphicsContext
 {
@@ -36,18 +37,14 @@ private:
 public:
     vk::CommandPool GetCommandPool() { return commandPool.get(); }
 
-    std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    SharedPtr<VulkanPipeline> mGraphicsPipeline;
 
     // move to renderer
     void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
 
-private:
     // SwapChain
     vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
     void SetupSwapChain();
-
-    // Graphics pipeline
-    vk::UniquePipeline CreateGraphicsPipeline();
 
     // Framebuffers
     void CreateFramebuffers();
@@ -60,14 +57,6 @@ private:
     vk::UniqueSemaphore CreateSemaphore();
 
     vk::UniqueFence CreateFence();
-
-    // Graphics pipeline
-    vk::UniqueDescriptorPool descriptorPool;
-
-    vk::UniqueDescriptorSetLayout descriptorSetLayout;
-    vk::UniquePipelineLayout pipelineLayout;
-    vk::UniqueRenderPass renderPass;
-    vk::UniquePipeline graphicsPipeline;
 
     // SwapChain
     vk::Format swapChainImageFormat;

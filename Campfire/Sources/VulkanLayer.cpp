@@ -47,7 +47,7 @@ void VulkanLayer::OnAttach()
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 
-    auto& descriptorSets = VulkanContext::Get()->descriptorSets;
+    auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
 
     // TODO match with swapchainImages size
     // refactor to be in SetLayout
@@ -88,7 +88,7 @@ void VulkanLayer::OnUpdate(float dt)
 
     ubo.viewProj = ubo.proj * ubo.view;
 
-    auto& descriptorSets = VulkanContext::Get()->descriptorSets;
+    auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
 
     for (auto& uboPtr : uniformBufferPtrs)
     {
