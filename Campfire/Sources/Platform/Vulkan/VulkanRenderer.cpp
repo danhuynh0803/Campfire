@@ -16,10 +16,16 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
         .pInheritanceInfo = nullptr,
     };
 
+    vk::Extent2D extent
+    {
+        .width = VulkanContext::Get()->mSwapChain->GetWidth(),
+        .height = VulkanContext::Get()->mSwapChain->GetHeight(),
+    };
+
     vk::Rect2D renderArea
     {
         .offset = {0, 0},
-        .extent = VulkanContext::Get()->mSwapChain->swapChainExtent,
+        .extent = extent,
     };
 
     commandBuffer.begin(beginInfo);

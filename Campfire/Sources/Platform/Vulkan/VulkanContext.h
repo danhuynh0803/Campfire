@@ -22,25 +22,18 @@ public:
     //static SharedPtr<VulkanContext> Get() { return std::dynamic_pointer_cast<VulkanContext>(Renderer::GetContext()); }
     static SharedPtr<VulkanContext> Get() { return sVulkanContextInstance; }
     static vk::Instance GetInstance() { return sVulkanInstance.get(); }
-    static vk::SurfaceKHR GetSurface() { return mSurface.get(); }
+    //static SharedPtr<VulkanDevice> GetContextDevice() { return Get()->mDevice(); }
     SharedPtr<VulkanDevice> GetDevice() { return mDevice; }
 
 private:
     vk::UniqueInstance CreateInstance();
     inline static vk::UniqueInstance sVulkanInstance;
     inline static SharedPtr<VulkanContext> sVulkanContextInstance;
-    inline static vk::UniqueSurfaceKHR mSurface;
-    SharedPtr<VulkanDevice> mDevice;
     GLFWwindow* windowHandle;
-
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
-// ============ TODO move below to other files ================
 public:
-    //vk::CommandPool GetCommandPool() { return commandPool.get(); }
-
-    // Maybe move to swap chain?
-    vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
+    SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanPipeline> mGraphicsPipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };

@@ -10,10 +10,9 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
 {
     sVulkanInstance = CreateInstance();
-    mSurface = CreateSurfaceKHR(window);
     mDevice = CreateSharedPtr<VulkanDevice>();
     sVulkanContextInstance.reset(this);
-    mSwapChain = CreateSharedPtr<VulkanSwapChain>();
+    mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
     mGraphicsPipeline = CreateSharedPtr<VulkanPipeline>(PipelineType::GRAPHICS);
 
     // These need to be created post-graphics pipeline
@@ -106,15 +105,4 @@ bool VulkanContext::CheckValidationLayerSupport(const std::vector<const char*>& 
     }
 
     return true;
-}
-
-vk::UniqueSurfaceKHR VulkanContext::CreateSurfaceKHR(GLFWwindow* window)
-{
-    VkSurfaceKHR surfaceTmp;
-    if (glfwCreateWindowSurface(VkInstance(sVulkanInstance.get()), window, nullptr, &surfaceTmp) != VK_SUCCESS)
-    {
-        LOG_ERROR("Could not init window");
-    }
-    vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(sVulkanInstance.get());
-    return vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
 }

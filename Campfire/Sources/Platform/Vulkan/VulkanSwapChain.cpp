@@ -2,11 +2,58 @@
 #include "VulkanSwapChain.h"
 #include "VulkanContext.h"
 
-VulkanSwapChain::VulkanSwapChain()
+VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
 {
+    mSurface = CreateSurfaceKHR(window);
     auto devicePtr = VulkanContext::Get()->GetDevice();
     auto physicalDevice = devicePtr->GetVulkanPhysicalDevice();
-    auto surface = VulkanContext::Get()->GetSurface();
+    auto surface = mSurface.get();
+
+    // Set graphics queue to also present
+    physicalDevice.getSurfaceSupportKHR(
+        static_cast<uint32_t>(devicePtr->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)),
+        surface
+    );
+
+    //auto surface = VulkanContext::Get()->mSwapChain->GetSurface();
+    //// Get queueFamilyIndex that supports present
+    //// First check if graphicsQueueFamilyIndex is good enough
+    // presentQueueFamilyIndex =
+    //    physicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>(graphicsQueueFamilyIndex), surface )
+    //        ? graphicsQueueFamilyIndex
+    //        : queueFamilyProperties.size();
+
+    //if (presentQueueFamilyIndex == queueFamilyProperties.size())
+    //{
+    //    // the graphicsQueueFamilyIndex doesn't support present -> look for an other family index that supports both
+    //    // graphics and present
+    //    for (size_t i = 0; i < queueFamilyProperties.size(); i++)
+    //    {
+    //        if ((queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) &&
+    //            physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface))
+    //        {
+    //            graphicsQueueFamilyIndex = i;
+    //            presentQueueFamilyIndex = i;
+    //            std::cout << "Queue supports both graphics and present\n";
+    //            break;
+    //        }
+    //    }
+    //    if (presentQueueFamilyIndex == queueFamilyProperties.size())
+    //    {
+    //        // there's nothing like a single family index that supports both graphics and present,
+    //        // so look for an other family index that supports present
+    //        for (size_t i = 0; i < queueFamilyProperties.size(); i++)
+    //        {
+    //            if (physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface))
+    //            {
+    //                std::cout << "Found queue that supports present\n";
+    //                presentQueueFamilyIndex = i;
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
+
 
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface);
@@ -27,6 +74,9 @@ VulkanSwapChain::VulkanSwapChain()
         // if surface size is defined, the swap chain size must match
         swapChainExtent = surfaceCapabilities.currentExtent;
     }
+
+    mWidth = swapChainExtent.width;
+    mHeight = swapChainExtent.height;
 
     vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
     std::vector<vk::PresentModeKHR> presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
@@ -238,4 +288,16 @@ void VulkanSwapChain::CreateFramebuffers()
 
         swapChainFramebuffers[i] = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createFramebufferUnique(framebufferCreateInfo);
     }
+}
+
+vk::UniqueSurfaceKHR VulkanSwapChain::CreateSurfaceKHR(GLFWwindow* window)
+{
+    auto instance = VulkanContext::Get()->GetInstance();
+    VkSurfaceKHR surfaceTmp;
+    if (glfwCreateWindowSurface(instance, window, nullptr, &surfaceTmp) != VK_SUCCESS)
+    {
+        LOG_ERROR("Could not init window");
+    }
+    vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance);
+    return vk::UniqueSurfaceKHR(vk::SurfaceKHR(surfaceTmp), _deleter);
 }

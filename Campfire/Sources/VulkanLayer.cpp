@@ -4,6 +4,8 @@
 #include "Core/Input.h"
 #include "Scene/CameraController.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 
@@ -14,10 +16,10 @@ VulkanLayer::VulkanLayer()
 
 float vertices[] = {
     // Position           // Color            // UV
-    -5.0f,  5.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -5.0f, -5.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     5.0f, -5.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     5.0f,  5.0f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -3.0f,  3.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -3.0f, -3.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     3.0f, -3.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     3.0f,  3.0f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
 };
 
 uint32_t indices[] = {
@@ -41,8 +43,8 @@ void VulkanLayer::OnAttach()
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
         editorCamera,
-        glm::vec3(0.0f, 5.0f, 10.0f), // position
-        glm::vec3(-20.0f, 0.0f, 0.0f) // euler angles
+        glm::vec3(0.0f, 0.0f, 10.0f), // position
+        glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
@@ -79,13 +81,18 @@ void VulkanLayer::OnDetach()
 
 void VulkanLayer::OnUpdate(float dt)
 {
+    // TODO Create batch2d renderer
+    static float rotation = 0;
+    rotation += 180 * dt;
     cameraController.OnUpdate(dt);
 
     // Update UBO
-    ubo.model = glm::mat4(1.0f);
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
+    ubo.model = model;
     ubo.view = editorCamera->GetViewMatrix();
     ubo.proj = editorCamera->GetProjMatrix();
-    ubo.proj[1][1] *= -1; // invert scaling on y
+    ubo.proj[1][1] *= -1;
 
     ubo.viewProj = ubo.proj * ubo.view;
 
@@ -97,6 +104,7 @@ void VulkanLayer::OnUpdate(float dt)
     }
 
     VulkanRenderer::DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
+
 }
 
 void VulkanLayer::OnImGuiRender()

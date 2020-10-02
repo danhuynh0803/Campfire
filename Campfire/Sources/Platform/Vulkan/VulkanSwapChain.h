@@ -1,28 +1,47 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <GLFW/glfw3.h>
 
 class VulkanSwapChain
 {
 public:
-    VulkanSwapChain();
+    VulkanSwapChain(GLFWwindow* window);
     ~VulkanSwapChain() = default;
     void Present();
 
-    uint32_t mImageIndex = 0;
     uint32_t GetCurrentImageIndex() { return mImageIndex; }
-    size_t currentFrame = 0;
-
-    int maxFramesInFlight = 2;
-
+    vk::CommandBuffer GetCurrentCommandBuffer() { return commandBuffers.at(mImageIndex).get(); }
+    vk::Framebuffer GetCurrentFramebuffer() { return swapChainFramebuffers.at(mImageIndex).get(); }
+    vk::SurfaceKHR GetSurface() { return mSurface.get(); }
+    vk::CommandPool GetCommandPool() { return commandPool.get(); }
     void CreateFramebuffers();
     void CreateBarriers();
-    void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
+
+    uint32_t GetWidth() { return mWidth; }
+    uint32_t GetHeight() { return mHeight; }
+
+private:
+    vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
-    vk::CommandBuffer GetCurrentCommandBuffer() { return commandBuffers.at(mImageIndex).get(); }
-    vk::Framebuffer GetCurrentFramebuffer() { return swapChainFramebuffers.at(mImageIndex).get(); }
+private:
+    uint32_t mImageIndex = 0;
+    size_t currentFrame = 0;
+    int maxFramesInFlight = 2;
+
+    uint32_t mWidth;
+    uint32_t mHeight;
+
+public:
+    // SwapChain
+    vk::Format swapChainImageFormat;
+    vk::UniqueSurfaceKHR mSurface;
+    vk::UniqueSwapchainKHR swapChain;
+    vk::Extent2D swapChainExtent;
+    std::vector<vk::Image> swapChainImages;
+    std::vector<vk::UniqueImageView> imageViews;
 
     // Command buffers
     vk::UniqueCommandPool commandPool;
@@ -30,14 +49,6 @@ public:
 
     // Framebuffer
     std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
-
-    // SwapChain
-    vk::Format swapChainImageFormat;
-    vk::UniqueSurfaceKHR surface;
-    vk::UniqueSwapchainKHR swapChain;
-    vk::Extent2D swapChainExtent;
-    std::vector<vk::Image> swapChainImages;
-    std::vector<vk::UniqueImageView> imageViews;
 
     // Semaphores
     std::vector<vk::UniqueSemaphore> imageAvailableSemaphores;
