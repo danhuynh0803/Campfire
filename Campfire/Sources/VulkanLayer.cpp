@@ -27,16 +27,20 @@ uint32_t indices[] = {
     2, 3, 0,
 };
 
-struct UniformBufferObject
+struct CameraUBO
 {
-    // TODO include model for now, but this should be part of the batching
-    glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
     glm::mat4 viewProj;
 };
 
-static UniformBufferObject ubo;
+struct TransformUBO
+{
+    glm::mat4 model;
+};
+
+static CameraUBO cameraUBO;
+static TransformUBO transformUBO;
 
 void VulkanLayer::OnAttach()
 {
@@ -56,22 +60,43 @@ void VulkanLayer::OnAttach()
     // refactor to be in SetLayout
     for (size_t i = 0; i < 3; ++i)
     {
-        uniformBufferPtrs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(UniformBufferObject)));
+        { // Create camera UBOs
+            cameraUBOs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(CameraUBO)));
 
-        vk::DescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = uniformBufferPtrs[i]->GetBuffer();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+            vk::DescriptorBufferInfo bufferInfo {};
+            bufferInfo.buffer = cameraUBOs[i]->GetBuffer();
+            bufferInfo.offset = 0;
+            bufferInfo.range = sizeof(CameraUBO);
 
-        vk::WriteDescriptorSet descriptorWrite {};
-        descriptorWrite.dstSet = descriptorSets[i].get();
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo = &bufferInfo;
+            vk::WriteDescriptorSet descriptorWrite {};
+            descriptorWrite.dstSet = descriptorSets[i].get();
+            descriptorWrite.dstBinding = 0;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pBufferInfo = &bufferInfo;
 
-        VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+            VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+        }
+
+        { // Create Transform UBOs
+            transformUBOs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(TransformUBO)));
+
+            vk::DescriptorBufferInfo bufferInfo {};
+            bufferInfo.buffer = transformUBOs[i]->GetBuffer();
+            bufferInfo.offset = 0;
+            bufferInfo.range = sizeof(TransformUBO);
+
+            vk::WriteDescriptorSet descriptorWrite {};
+            descriptorWrite.dstSet = descriptorSets[i].get();
+            descriptorWrite.dstBinding = 1;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pBufferInfo = &bufferInfo;
+
+            VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+        }
     }
 }
 
@@ -89,18 +114,20 @@ void VulkanLayer::OnUpdate(float dt)
     // Update UBO
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
-    ubo.model = model;
-    ubo.view = editorCamera->GetViewMatrix();
-    ubo.proj = editorCamera->GetProjMatrix();
-    ubo.proj[1][1] *= -1;
+    transformUBO.model = model;
 
-    ubo.viewProj = ubo.proj * ubo.view;
+    cameraUBO.view = editorCamera->GetViewMatrix();
+    cameraUBO.proj = editorCamera->GetProjMatrix();
+    cameraUBO.proj[1][1] *= -1;
+
+    cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
 
     auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
 
-    for (auto& uboPtr : uniformBufferPtrs)
+    for (size_t i = 0; i < 3; ++i)
     {
-        uboPtr->SetData(&ubo, 0, sizeof(UniformBufferObject));
+        cameraUBOs[i]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
+        transformUBOs[i]->SetData(&transformUBO, 0, sizeof(TransformUBO));
     }
 
     VulkanRenderer::DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));

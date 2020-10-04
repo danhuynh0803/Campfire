@@ -199,19 +199,24 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     };
 
     // UBO descriptor layout
-    vk::DescriptorSetLayoutBinding uboLayoutBinding
+    std::vector<vk::DescriptorSetLayoutBinding> uboLayoutBindings;
+    for (size_t i = 0; i < 2; ++i)
     {
-        .binding = 0,
-        .descriptorType = vk::DescriptorType::eUniformBuffer,
-        .descriptorCount = 1,
-        .stageFlags = vk::ShaderStageFlagBits::eVertex,
-        .pImmutableSamplers = nullptr, // used for image sampling later on
-    };
+        vk::DescriptorSetLayoutBinding uboLayoutBinding
+        {
+            .binding = static_cast<uint32_t>(i),
+            .descriptorType = vk::DescriptorType::eUniformBuffer,
+            .descriptorCount = 1,
+            .stageFlags = vk::ShaderStageFlagBits::eVertex,
+            .pImmutableSamplers = nullptr, // used for image sampling later on
+        };
+        uboLayoutBindings.emplace_back(uboLayoutBinding);
+    }
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo
     {
-        .bindingCount = 1,
-        .pBindings = &uboLayoutBinding,
+        .bindingCount = 2,
+        .pBindings = uboLayoutBindings.data(),
     };
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();

@@ -20,5 +20,6 @@ public:
 private:
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanIndexBuffer> indexBufferPtr;
-    std::vector<SharedPtr<VulkanUniformBuffer>> uniformBufferPtrs;
+    std::vector<SharedPtr<VulkanUniformBuffer>> cameraUBOs;
+    std::vector<SharedPtr<VulkanUniformBuffer>> transformUBOs;
 };
