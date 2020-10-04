@@ -46,7 +46,7 @@ class VulkanUniformBuffer : public UniformBuffer
 {
 public:
     VulkanUniformBuffer() = default;
-    VulkanUniformBuffer(uint32_t size);
+    VulkanUniformBuffer(uint32_t size, vk::DescriptorSet descriptorSet);
     virtual ~VulkanUniformBuffer() {}
     virtual void Bind() const override;
     virtual void Unbind() const override;
@@ -59,4 +59,5 @@ private:
     vk::UniqueBuffer buffer;
     vk::UniqueDeviceMemory bufferMemory;
     vk::UniqueDescriptorSetLayout descriptorSetLayout;
+    vk::DescriptorSet mDescriptorSet;
 };

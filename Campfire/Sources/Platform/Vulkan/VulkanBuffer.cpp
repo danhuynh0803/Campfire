@@ -136,7 +136,8 @@ VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
 //=====================================================================
 //------------------------- Uniform Buffers ---------------------------
 //=====================================================================
-VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size)
+VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size, vk::DescriptorSet descriptorSet)
+    : mDescriptorSet(descriptorSet)
 {
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eUniformBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
@@ -162,4 +163,18 @@ void VulkanUniformBuffer::SetData(void* inputData, uint32_t offset, uint32_t siz
 
 void VulkanUniformBuffer::SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
 {
+    vk::DescriptorBufferInfo bufferInfo {};
+    bufferInfo.buffer = GetBuffer();
+    bufferInfo.offset = 0;
+    bufferInfo.range = layout.GetStride();
+
+    vk::WriteDescriptorSet descriptorWrite {};
+    descriptorWrite.dstSet = mDescriptorSet;
+    descriptorWrite.dstBinding = blockIndex;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 }

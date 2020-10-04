@@ -61,41 +61,35 @@ void VulkanLayer::OnAttach()
     for (size_t i = 0; i < 3; ++i)
     {
         { // Create camera UBOs
-            cameraUBOs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(CameraUBO)));
+            cameraUBOs.emplace_back(
+                CreateSharedPtr<VulkanUniformBuffer>(
+                    sizeof(CameraUBO),
+                    descriptorSets[i].get()
+                )
+            );
 
-            vk::DescriptorBufferInfo bufferInfo {};
-            bufferInfo.buffer = cameraUBOs[i]->GetBuffer();
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(CameraUBO);
-
-            vk::WriteDescriptorSet descriptorWrite {};
-            descriptorWrite.dstSet = descriptorSets[i].get();
-            descriptorWrite.dstBinding = 0;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-
-            VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+            BufferLayout cameraLayout =
+            {
+                { ShaderDataType::MAT4, "view" },
+                { ShaderDataType::MAT4, "proj" },
+                { ShaderDataType::MAT4, "viewProj" },
+            };
+            cameraUBOs[i]->SetLayout(cameraLayout, 0);
         }
 
         { // Create Transform UBOs
-            transformUBOs.emplace_back(CreateSharedPtr<VulkanUniformBuffer>(sizeof(TransformUBO)));
+            transformUBOs.emplace_back(
+                CreateSharedPtr<VulkanUniformBuffer>(
+                    sizeof(TransformUBO),
+                    descriptorSets[i].get()
+                )
+            );
 
-            vk::DescriptorBufferInfo bufferInfo {};
-            bufferInfo.buffer = transformUBOs[i]->GetBuffer();
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(TransformUBO);
-
-            vk::WriteDescriptorSet descriptorWrite {};
-            descriptorWrite.dstSet = descriptorSets[i].get();
-            descriptorWrite.dstBinding = 1;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-
-            VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+            BufferLayout transformLayout =
+            {
+                { ShaderDataType::MAT4, "model" },
+            };
+            transformUBOs[i]->SetLayout(transformLayout, 1);
         }
     }
 }
