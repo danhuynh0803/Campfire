@@ -54,7 +54,6 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     //    }
     //}
 
-
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface);
     assert(!formats.empty());

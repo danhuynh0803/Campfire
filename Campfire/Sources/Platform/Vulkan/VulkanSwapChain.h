@@ -15,6 +15,10 @@ public:
     vk::Framebuffer GetCurrentFramebuffer() { return swapChainFramebuffers.at(mImageIndex).get(); }
     vk::SurfaceKHR GetSurface() { return mSurface.get(); }
     vk::CommandPool GetCommandPool() { return commandPool.get(); }
+    vk::Format GetFormat() { return swapChainImageFormat; }
+    std::vector<vk::Image> GetImages() { return swapChainImages; }
+    vk::Extent2D GetExtent() { return swapChainExtent; }
+
     void CreateFramebuffers();
     void CreateBarriers();
 
@@ -26,7 +30,6 @@ private:
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
-private:
     uint32_t mImageIndex = 0;
     size_t currentFrame = 0;
     int maxFramesInFlight = 2;
@@ -34,14 +37,11 @@ private:
     uint32_t mWidth;
     uint32_t mHeight;
 
-public:
-    // SwapChain
+    // SwapChain - related
     vk::Format swapChainImageFormat;
     vk::UniqueSurfaceKHR mSurface;
     vk::UniqueSwapchainKHR swapChain;
     vk::Extent2D swapChainExtent;
-    std::vector<vk::Image> swapChainImages;
-    std::vector<vk::UniqueImageView> imageViews;
 
     // Command buffers
     vk::UniqueCommandPool commandPool;
@@ -49,8 +49,10 @@ public:
 
     // Framebuffer
     std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
+    std::vector<vk::Image> swapChainImages;
+    std::vector<vk::UniqueImageView> imageViews;
 
-    // Semaphores
+    // Barries
     std::vector<vk::UniqueSemaphore> imageAvailableSemaphores;
     std::vector<vk::UniqueSemaphore> renderFinishedSemaphores;
     std::vector<vk::UniqueFence> inFlightFences;

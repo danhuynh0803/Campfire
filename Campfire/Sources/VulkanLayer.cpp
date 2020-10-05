@@ -9,6 +9,20 @@
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 
+struct CameraUBO
+{
+    glm::mat4 view;
+    glm::mat4 proj;
+    glm::mat4 viewProj;
+};
+static CameraUBO cameraUBO;
+
+struct TransformUBO
+{
+    glm::mat4 model;
+};
+static TransformUBO transformUBO;
+
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
 {
@@ -27,21 +41,6 @@ uint32_t indices[] = {
     2, 3, 0,
 };
 
-struct CameraUBO
-{
-    glm::mat4 view;
-    glm::mat4 proj;
-    glm::mat4 viewProj;
-};
-
-struct TransformUBO
-{
-    glm::mat4 model;
-};
-
-static CameraUBO cameraUBO;
-static TransformUBO transformUBO;
-
 void VulkanLayer::OnAttach()
 {
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -57,7 +56,6 @@ void VulkanLayer::OnAttach()
     auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
 
     // TODO match with swapchainImages size
-    // refactor to be in SetLayout
     for (size_t i = 0; i < 3; ++i)
     {
         { // Create camera UBOs
@@ -67,7 +65,6 @@ void VulkanLayer::OnAttach()
                     descriptorSets[i].get()
                 )
             );
-
             BufferLayout cameraLayout =
             {
                 { ShaderDataType::MAT4, "view" },
@@ -84,7 +81,6 @@ void VulkanLayer::OnAttach()
                     descriptorSets[i].get()
                 )
             );
-
             BufferLayout transformLayout =
             {
                 { ShaderDataType::MAT4, "model" },
@@ -100,32 +96,29 @@ void VulkanLayer::OnDetach()
 
 void VulkanLayer::OnUpdate(float dt)
 {
-    // TODO Create batch2d renderer
-    static float rotation = 0;
-    rotation += 180 * dt;
+    // Current frame in flight
+    auto frameIdx = VulkanContext::Get()->mSwapChain->GetCurrentImageIndex();
+
+    // Update camera
     cameraController.OnUpdate(dt);
 
-    // Update UBO
+    // Update transform ubo
+    static float rotation = 0;
+    rotation += 180 * dt;
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
     transformUBO.model = model;
+    transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
 
+    // Update camera ubo
     cameraUBO.view = editorCamera->GetViewMatrix();
     cameraUBO.proj = editorCamera->GetProjMatrix();
     cameraUBO.proj[1][1] *= -1;
-
     cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
+    cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
 
-    auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
-
-    for (size_t i = 0; i < 3; ++i)
-    {
-        cameraUBOs[i]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
-        transformUBOs[i]->SetData(&transformUBO, 0, sizeof(TransformUBO));
-    }
-
+    // Draw
     VulkanRenderer::DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
-
 }
 
 void VulkanLayer::OnImGuiRender()
