@@ -106,7 +106,7 @@ void VulkanLayer::OnUpdate(float dt)
     static float rotation = 0;
     rotation += 180 * dt;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
+    //model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
     transformUBO.model = model;
     transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
 
