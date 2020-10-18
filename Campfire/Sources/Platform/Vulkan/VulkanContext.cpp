@@ -26,6 +26,21 @@ void VulkanContext::Init()
     LOG_INFO("Vulkan initialized");
 }
 
+void VulkanContext::RecreateSwapChain()
+{
+    GetDevice()->GetVulkanDevice().waitIdle();
+
+    mSwapChain.reset();
+
+    mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
+
+    mGraphicsPipeline->RecreatePipeline();
+
+    // These need to be created post-graphics pipeline
+    mSwapChain->CreateFramebuffers();
+    mSwapChain->CreateBarriers();
+}
+
 void VulkanContext::SwapBuffers()
 {
     mSwapChain->Present();

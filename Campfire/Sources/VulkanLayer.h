@@ -17,6 +17,8 @@ public:
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
 
+    bool OnWindowResize(WindowResizeEvent& e);
+
 private:
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanIndexBuffer> indexBufferPtr;

@@ -128,4 +128,18 @@ void VulkanLayer::OnImGuiRender()
 void VulkanLayer::OnEvent(Event& event)
 {
     cameraController.OnEvent(event);
+
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(VulkanLayer::OnWindowResize));
+}
+
+bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
+{
+    editorCamera->width = e.GetWidth();
+    editorCamera->height = e.GetHeight();
+    editorCamera->SetProjection();
+
+    VulkanContext::Get()->RecreateSwapChain();
+
+    return false;
 }

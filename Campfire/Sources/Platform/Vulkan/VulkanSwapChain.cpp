@@ -65,8 +65,8 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     {
         // If the surface size is undefined, the size is set to the size of the images requested
         // FIXME hardcode for now
-        swapChainExtent.width = 1600;
-        swapChainExtent.height = 900;
+        //swapChainExtent.width = 1600;
+        //swapChainExtent.height = 900;
     }
     else
     {

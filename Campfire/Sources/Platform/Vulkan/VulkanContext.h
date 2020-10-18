@@ -16,6 +16,8 @@ public:
 
     virtual void Init() override;
     virtual void SwapBuffers() override;
+    void CleanSwapChain();
+    void RecreateSwapChain();
 
     // TODO use this one and remove static var,
     // but only after graphics pipeline is refactored out of context

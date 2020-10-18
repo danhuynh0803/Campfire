@@ -11,6 +11,7 @@ enum class PipelineType
 class VulkanPipeline
 {
 public:
+    void RecreatePipeline();
     VulkanPipeline(PipelineType pipelineType);
     ~VulkanPipeline() = default;
     vk::Pipeline GetVulkanPipeline() { return pipeline.get(); }
