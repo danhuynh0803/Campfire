@@ -34,3 +34,6 @@
 [submodule "Campfire/Vendor/freetype2"]
 	path = Campfire/Vendor/freetype2
 	url = https://git.savannah.nongnu.org/git/freetype/freetype2.git
+[submodule "vendor/json"]
+	path = vendor/json
+	url = https://github.com/nlohmann/json
