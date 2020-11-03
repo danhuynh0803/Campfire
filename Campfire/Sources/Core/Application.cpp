@@ -94,7 +94,8 @@ void Application::OnEvent(Event& e)
     EventDispatcher dispatcher(e);
 
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
-    dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowsClose));
+    dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+
     for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
     {
         if (e.handled)
@@ -110,16 +111,16 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
 {
     if (e.GetWidth() == 0 || e.GetHeight() == 0)
     {
-        // TODO
-        // Window minimized
-        return false;
+        // Don't propagate event further
+        // to avoid resizing framebuffer to 0 dimensions
+        return true;
     }
 
     Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }
 
-bool Application::OnWindowsClose(WindowCloseEvent& e)
+bool Application::OnWindowClose(WindowCloseEvent& e)
 {
     isRunning = false;
     return false;

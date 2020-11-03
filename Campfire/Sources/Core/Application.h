@@ -23,7 +23,8 @@ public:
 
     void OnEvent(Event& e);
     bool OnWindowResize(WindowResizeEvent& event);
-    bool OnWindowsClose(WindowCloseEvent& event);
+    bool OnWindowClose(WindowCloseEvent& event);
+    bool OnWindowMinimize(WindowMinimizeEvent& event);
     Window& GetWindow() { return *window; }
 
 private:

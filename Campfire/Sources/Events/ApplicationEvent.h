@@ -26,6 +26,28 @@ private:
     unsigned int width, height;
 };
 
+class WindowMinimizeEvent : public Event
+{
+public:
+    WindowMinimizeEvent(bool minimized)
+        : isMinimized(minimized) {}
+
+    bool IsMinimized() const { return isMinimized; }
+
+    std::string ToString() const override
+    {
+        std::stringstream ss;
+        ss << "WindowMinimizeEvent: isMinimized = " << isMinimized;
+        return ss.str();
+    }
+
+    EVENT_CLASS_TYPE(WindowMinimize)
+    EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+private:
+    bool isMinimized;
+};
+
 class WindowCloseEvent : public Event
 {
 public:

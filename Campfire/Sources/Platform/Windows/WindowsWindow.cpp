@@ -70,6 +70,14 @@ void WindowsWindow::Init(const WindowProps& props)
             data.EventCallback(closeEvent);
         });
 
+    glfwSetWindowIconifyCallback(window,
+        [](GLFWwindow* _window, int iconified)
+        {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(_window);
+            WindowMinimizeEvent minimizeEvent(iconified);
+            data.EventCallback(minimizeEvent);
+        });
+
     glfwSetKeyCallback(window,
         [](GLFWwindow* _window, int key, int scancode, int action, int mods)
         {
