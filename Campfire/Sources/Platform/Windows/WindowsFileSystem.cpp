@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <regex>
 #include <sstream>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <Core/Application.h>
 
 wchar_t* CharToWChar(const char* text)
 {
@@ -27,7 +31,7 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
 {
     // TODO convert filter to filter and filetype
 
-    HWND hwndOwner = NULL;
+    HWND hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
     OPENFILENAME ofn;
     char szFilename[MAX_PATH] = "";
     ZeroMemory(&ofn, sizeof(ofn));//=memset(&ofn, 0, sizeof(ofn));
@@ -67,7 +71,7 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
     sFilter.push_back('\0');
     sFilter.append(insideParen.c_str());
 
-    HWND hwndOwner = NULL;
+    HWND hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
     OPENFILENAME ofn;
     char szFilename[MAX_PATH] = "";
     ZeroMemory(&ofn, sizeof(ofn));
