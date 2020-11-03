@@ -57,6 +57,10 @@ void EditorLayer::OnUpdate(float dt)
     if (startScene)
     {
         wHierarchy.Reset();
+        // FIXME: maybe better way of doing this?
+        // Reset the runtimeScene entirely to avoid leftover data from instantiation events
+        runtimeScene.reset();
+        runtimeScene = CreateSharedPtr<Scene>(false);
         runtimeScene->DeepCopy(editorScene);
         activeScene = runtimeScene;
         activeScene->OnStart();
