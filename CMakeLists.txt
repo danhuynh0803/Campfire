@@ -170,6 +170,11 @@ file(GLOB SRC_EDITOR_WIDGETS
     Campfire/Sources/Editor/Widgets/*.cpp
 )
 
+file(GLOB SRC_COMMAND
+    Campfire/Sources/Command/*.h
+    Campfire/Sources/Command/*.cpp
+)
+
 if(MSVC)
 file(GLOB SRC_PLATFORM_WINDOWS Campfire/Sources/Platform/Windows/*.h
                                Campfire/Sources/Platform/Windows/*.cpp)
@@ -200,7 +205,7 @@ source_group("Sources\\Audio"              FILES ${SRC_AUDIO})
 source_group("Sources\\Scripting"          FILES ${SRC_SCRIPTING})
 source_group("Sources\\Editor"             FILES ${SRC_EDITOR})
 source_group("Sources\\Editor\\Widgets"    FILES ${SRC_EDITOR_WIDGETS})
-
+source_group("Sources\\Command"            FILES ${SRC_COMMAND})
 # Shaders
 source_group("Shaders" FILES ${PROJECT_SHADERS})
 
@@ -228,6 +233,7 @@ add_executable(
         ${SRC_SCRIPTING}
         ${SRC_EDITOR}
         ${SRC_EDITOR_WIDGETS}
+	${SRC_COMMAND}
         ${PROJECT_SHADERS}
         ${PROJECT_CONFIGS}
         ${VENDORS_SOURCES}
