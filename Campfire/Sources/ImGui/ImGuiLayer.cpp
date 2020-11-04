@@ -84,7 +84,7 @@ void ImGuiLayer::OnAttach()
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     Application& app = Application::Get();
     // Setup Platform/Renderer bindings
@@ -116,7 +116,8 @@ void ImGuiLayer::OnAttach()
 void ImGuiLayer::OnEvent(Event& e)
 {
     ImGuiIO& io = ImGui::GetIO();
-    e.handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+    // Disable for now since viewport needs access to mouse events
+    //e.handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
     e.handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
 }
 

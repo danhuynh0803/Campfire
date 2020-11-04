@@ -70,6 +70,7 @@ private:
     bool showInspector = true;
     bool showTransformSettings = false;
     bool showEditorCameraSettings = false;
+    bool allowViewportCameraEvents = false;
 
     // Rendering
     bool showLightSettings = false;

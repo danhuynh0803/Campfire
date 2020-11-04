@@ -71,7 +71,7 @@ namespace Script
             // FIXME crashing when restarting scene
             // maybe has to do with referencing new object
             // that no longer exists when scene stops
-            //Instantiate(other, glm::vec3(0, 10, 0));
+            Instantiate(other, glm::vec3(0, 10, 0));
         }
 
         void OnTriggerStay(Entity other)
