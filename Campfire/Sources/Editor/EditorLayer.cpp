@@ -200,7 +200,7 @@ void EditorLayer::OnImGuiRender()
         ImGui::EndMainMenuBar();
     }
 
-    // Various widgets
+    // Various widget windows
     if (showLog)
     {
         Log::ShowLog(&showLog);
@@ -209,37 +209,80 @@ void EditorLayer::OnImGuiRender()
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
     }
-    // FIXME: gizmo not moving with runtimescene transform
-    // disable in runtime, since moving in runtime causes crashes
-    //if (state == State::STOP && wHierarchy.hasSelectedEntity)
-    if (wHierarchy.hasSelectedEntity)
+    if (showTransformSettings)
     {
-        auto& entity = wHierarchy.GetSelectedEntity();
+        wTransform.ShowTransformSettings(&showTransformSettings);
+    }
 
-        wTransform.EditTransform(entity, *editorCamera);
+    // Editor viewport
+    ImGui::Begin("Scene");
+    {
+        auto viewportOffset = ImGui::GetCursorPos();
+        auto viewportSize = ImGui::GetContentRegionAvail();
+        editorCamera->width = (uint32_t)viewportSize.x;
+        editorCamera->height = (uint32_t)viewportSize.y;
+        // FIXME update width and height of camera within setprojection
+        editorCamera->SetProjection();
+        ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
 
-        if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
+        auto windowSize = ImGui::GetWindowSize();
+        ImVec2 minBound = ImGui::GetWindowPos();
+        minBound.x += viewportOffset.x;
+        minBound.y += viewportOffset.y;
+
+        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
+        allowViewportCameraEvents = ImGui::IsMouseHoveringRect(minBound, maxBound);
+
+        // FIXME: gizmo not moving with runtimescene transform
+        // disable in runtime, since moving in runtime causes crashes
+        //if (state == State::STOP && wHierarchy.hasSelectedEntity)
+        if (wHierarchy.hasSelectedEntity)
         {
-            auto camera = entity.GetComponent<CameraComponent>().camera;
-            camera->DrawFrustum(entity.GetComponent<TransformComponent>());
-        }
+            float rw = (float)ImGui::GetWindowWidth();
+            float rh = (float)ImGui::GetWindowHeight();
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, rw, rh);
 
-        if (state == State::STOP)
-        {
-            if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+            ImGuiIO io = ImGui::GetIO();
+            if (allowViewportCameraEvents && !Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
             {
-                SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
-                //auto transformComp = entity.GetComponent<TransformComponent>();
-                //rb->SetTransform(transformComp);
-
-                PhysicsManager::RemoveEntity(rb->GetBulletRigidbody());
-                PhysicsManager::SubmitEntity(entity);
+                if (Input::GetKeyDown(KEY_W))
+                    wTransform.operation = ImGuizmo::TRANSLATE;
+                if (Input::GetKeyDown(KEY_E))
+                    wTransform.operation = ImGuizmo::ROTATE;
+                if (Input::GetKeyDown(KEY_R))
+                    wTransform.operation = ImGuizmo::SCALE;
             }
-            //PhysicsManager::ClearLists();
-            //PhysicsManager::SubmitEntity(entity);
-            //PhysicsManager::DebugDraw();
+
+            auto& entity = wHierarchy.GetSelectedEntity();
+
+            wTransform.EditTransform(entity, *editorCamera);
+
+            if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
+            {
+                auto camera = entity.GetComponent<CameraComponent>().camera;
+                camera->DrawFrustum(entity.GetComponent<TransformComponent>());
+            }
+
+            if (state == State::STOP)
+            {
+                if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+                {
+                    SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
+                    //auto transformComp = entity.GetComponent<TransformComponent>();
+                    //rb->SetTransform(transformComp);
+
+                    PhysicsManager::RemoveEntity(rb->GetBulletRigidbody());
+                    PhysicsManager::SubmitEntity(entity);
+                }
+                //PhysicsManager::ClearLists();
+                //PhysicsManager::SubmitEntity(entity);
+                //PhysicsManager::DebugDraw();
+            }
         }
     }
+    ImGui::End();
 
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }
@@ -262,37 +305,6 @@ void EditorLayer::OnImGuiRender()
     startScene = (currState != 0 && prevState == 0) ? true : false;
     stopScene  = (currState == 0 && prevState != 0) ? true : false;
 
-    ImGui::End();
-
-    // Editor viewport
-    ImGui::Begin("Scene");
-        auto viewportOffset = ImGui::GetCursorPos();
-        auto viewportSize = ImGui::GetContentRegionAvail();
-        editorCamera->width = (uint32_t)viewportSize.x;
-        editorCamera->height = (uint32_t)viewportSize.y;
-        // FIXME update width and height of camera within setprojection
-        editorCamera->SetProjection();
-        ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
-
-        auto windowSize = ImGui::GetWindowSize();
-        ImVec2 minBound = ImGui::GetWindowPos();
-        minBound.x += viewportOffset.x;
-        minBound.y += viewportOffset.y;
-
-        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
-        allowViewportCameraEvents = ImGui::IsMouseHoveringRect(minBound, maxBound);
-
-        if (showTransformSettings)
-        {
-            float rw = (float)ImGui::GetWindowWidth();
-            float rh = (float)ImGui::GetWindowHeight();
-            ImGuizmo::SetOrthographic(false);
-            ImGuizmo::SetDrawlist();
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, rw, rh);
-
-            //wTransform.UpdateViewport((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
-            wTransform.ShowTransformSettings(&showTransformSettings);
-        }
     ImGui::End();
 
     // Game Camera viewport
