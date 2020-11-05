@@ -6,7 +6,7 @@
 Campfire is an in-progress game engine intended for use in small gamejam projects.
 
 ## Sample Images
-![SampleScene](https://i.imgur.com/P1bg6WF.jpg)
+![SampleScene](https://imgur.com/35kHbm5)
 
 ## Build Instructions
 ```bash
