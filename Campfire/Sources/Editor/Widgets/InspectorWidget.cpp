@@ -5,6 +5,8 @@
 #include "Core/FileSystem.h"
 #include "Renderer/Material.h"
 
+#include <type_traits>
+
 void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0.6f,0.2f,1.0f,1.0f));
@@ -597,9 +599,14 @@ void InspectorWidget::ShowComponentOptionsMenu(Entity& entity)
 
     ImGui::Separator();
 
-    if (ImGui::MenuItem("Remove Component"))
+    // All objects in scene should have a transform component
+    // so prevent removal of just the transform component
+    if (!std::is_same<T, TransformComponent>::value)
     {
-        entity.RemoveComponent<T>();
+        if (ImGui::MenuItem("Remove Component"))
+        {
+            entity.RemoveComponent<T>();
+        }
     }
     if (ImGui::MenuItem("Copy Component"))
     {
