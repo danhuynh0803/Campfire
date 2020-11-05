@@ -8,6 +8,7 @@
 class TransformWidget
 {
 public:
+    void UpdateViewport(uint32_t width, uint32_t height);
     void EditTransform(Entity& entity, const Camera& editorCamera);
     void ShowTransformSettings(bool* isOpen);
 

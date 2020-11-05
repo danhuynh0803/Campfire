@@ -3,6 +3,11 @@
 #include "Editor/Widgets/TransformWidget.h"
 #include "Core/Input.h"
 
+void TransformWidget::UpdateViewport(uint32_t width, uint32_t height)
+{
+    ImGuizmo::SetRect(0, 0, width, height);
+}
+
 void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
 {
     if (!entity.HasComponent<TransformComponent>())
@@ -11,9 +16,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
         return;
     }
 
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
+    ImGuiIO io = ImGui::GetIO();
     if (!io.WantCaptureKeyboard && !Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
     {
         if (Input::GetKeyDown(KEY_W))

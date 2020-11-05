@@ -15,6 +15,7 @@
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
+SharedPtr<Framebuffer> editorCamFBO;
 SharedPtr<Shader> postProcessShader;
 
 EditorLayer::EditorLayer()
@@ -27,6 +28,7 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach()
 {
+    // TODO move all these resolution numbers into some global that can be accessed
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
             editorCamera,
@@ -35,6 +37,7 @@ void EditorLayer::OnAttach()
     );
 
     gameCamFBO = Framebuffer::Create(1600, 900);
+    editorCamFBO = Framebuffer::Create(1600, 900);
 
     postProcessShader = ShaderManager::Create("postprocess", "../Campfire/Shaders/postprocess.vert", "../Campfire/Shaders/postprocess.frag");
 }
@@ -137,26 +140,42 @@ void EditorLayer::OnUpdate(float dt)
     if (mainGameCamera)
     {
         gameCamFBO->Bind();
-        SceneRenderer::BeginScene(activeScene, *mainGameCamera);
-        activeScene->OnRender(deltaTime, *mainGameCamera);
-        SceneRenderer::EndScene();
+            SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+            activeScene->OnRender(deltaTime, *mainGameCamera);
+            SceneRenderer::EndScene();
         gameCamFBO->Unbind();
     }
 
-    SceneRenderer::BeginScene(activeScene, *editorCamera);
-    cameraController.OnUpdate(dt);
-    activeScene->OnRender(deltaTime, *editorCamera);
+    editorCamFBO->Bind();
+        SceneRenderer::BeginScene(activeScene, *editorCamera);
+        if (allowViewportCameraEvents)
+            cameraController.OnUpdate(dt);
+        activeScene->OnRender(deltaTime, *editorCamera);
 
-    if (Input::GetKey(KEY_B))
-    {
-        PhysicsManager::DebugDraw();
-    }
+        // TODO make this a toggle instead of needing to hold down
+        if (Input::GetKey(KEY_B))
+        {
+            PhysicsManager::DebugDraw();
+        }
 
-    SceneRenderer::EndScene();
+        SceneRenderer::EndScene();
+    editorCamFBO->Unbind();
+
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void EditorLayer::OnImGuiRender()
 {
+    static ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_None;
+    // Enable Dockspace
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+    {
+        ImGuiID dockSpaceID = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockSpaceID, ImVec2(0.0f, 0.0f), dockFlags);
+    }
+
     // Menu bar
     if (ImGui::BeginMainMenuBar())
     {
@@ -222,11 +241,6 @@ void EditorLayer::OnImGuiRender()
         }
     }
 
-    if (showTransformSettings)
-    {
-        wTransform.ShowTransformSettings(&showTransformSettings);
-    }
-
     // TODO convert to widgets
     if (showAudioSettings) { ShowAudioSettings(&showAudioSettings); }
     if (showConsole) { ShowConsole(&showConsole); }
@@ -250,13 +264,40 @@ void EditorLayer::OnImGuiRender()
 
     ImGui::End();
 
-    //ImGui::Begin("Scene");
-    //auto viewportSize = ImGui::GetContentRegionAvail();
-    //ImGui::End();
+    // Editor viewport
+    ImGui::Begin("Scene");
+        auto viewportOffset = ImGui::GetCursorPos();
+        auto viewportSize = ImGui::GetContentRegionAvail();
+        editorCamera->width = (uint32_t)viewportSize.x;
+        editorCamera->height = (uint32_t)viewportSize.y;
+        // FIXME update width and height of camera within setprojection
+        editorCamera->SetProjection();
+        ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+
+        auto windowSize = ImGui::GetWindowSize();
+        ImVec2 minBound = ImGui::GetWindowPos();
+        minBound.x += viewportOffset.x;
+        minBound.y += viewportOffset.y;
+
+        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
+        allowViewportCameraEvents = ImGui::IsMouseHoveringRect(minBound, maxBound);
+
+        if (showTransformSettings)
+        {
+            float rw = (float)ImGui::GetWindowWidth();
+            float rh = (float)ImGui::GetWindowHeight();
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, rw, rh);
+
+            //wTransform.UpdateViewport((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+            wTransform.ShowTransformSettings(&showTransformSettings);
+        }
+    ImGui::End();
 
     // Game Camera viewport
     ImGui::Begin("Game Preview");
-    ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }
 
@@ -375,11 +416,14 @@ void EditorLayer::ShowMenuCampfire()
 
 void EditorLayer::OnEvent(Event& event)
 {
+    if (allowViewportCameraEvents)
+    {
+        cameraController.OnEvent(event);
+    }
+
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(EditorLayer::OnWindowResize));
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseClick));
-
-    cameraController.OnEvent(event);
 }
 
 static void ScreenToWorldRay(
@@ -479,7 +523,7 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
     editorCamera->height = e.GetHeight();
     editorCamera->SetProjection();
     gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
-    //sceneCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
+    editorCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     return false;
 }
 
