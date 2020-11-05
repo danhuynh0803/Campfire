@@ -158,6 +158,13 @@ void EditorLayer::OnUpdate(float dt)
             PhysicsManager::DebugDraw();
         }
 
+        auto& entity = wHierarchy.GetSelectedEntity();
+        if (entity && entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
+        {
+            auto camera = entity.GetComponent<CameraComponent>().camera;
+            camera->DrawFrustum(entity.GetComponent<TransformComponent>());
+        }
+
         SceneRenderer::EndScene();
     editorCamFBO->Unbind();
 
@@ -256,14 +263,7 @@ void EditorLayer::OnImGuiRender()
             }
 
             auto& entity = wHierarchy.GetSelectedEntity();
-
             wTransform.EditTransform(entity, *editorCamera);
-
-            if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
-            {
-                auto camera = entity.GetComponent<CameraComponent>().camera;
-                camera->DrawFrustum(entity.GetComponent<TransformComponent>());
-            }
 
             if (state == State::STOP)
             {
