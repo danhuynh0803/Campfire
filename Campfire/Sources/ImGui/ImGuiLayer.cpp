@@ -4,15 +4,26 @@
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+
+static glm::vec3 colorForText   = glm::vec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
+static glm::vec3 colorForHeader = glm::vec3(41.f / 255.f, 128.f / 255.f, 185.f / 255.f);
+static glm::vec3 colorForArea   = glm::vec3(57.f / 255.f, 79.f / 255.f, 105.f / 255.f);
+static glm::vec3 colorForBody   = glm::vec3(44.f / 255.f, 62.f / 255.f, 80.f / 255.f);
+static glm::vec3 colorForPops   = glm::vec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
+
+static ImVec3 color_for_text = ImVec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
+static ImVec3 color_for_head = ImVec3(41.f / 255.f, 128.f / 255.f, 185.f / 255.f);
+static ImVec3 color_for_area = ImVec3(57.f / 255.f, 79.f / 255.f, 105.f / 255.f);
+static ImVec3 color_for_body = ImVec3(44.f / 255.f, 62.f / 255.f, 80.f / 255.f);
+static ImVec3 color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
 
 ImGuiLayer::ImGuiLayer()
     : Layer("ImGuiLayer")
 {
 }
 
-struct ImVec3 { float x, y, z; ImVec3(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f) { x = _x; y = _y; z = _z; } };
-
-void imgui_easy_theming(ImVec3 color_for_text, ImVec3 color_for_head, ImVec3 color_for_area, ImVec3 color_for_body, ImVec3 color_for_pops)
+void ImGuiLayer::Theming(ImVec3 color_for_text, ImVec3 color_for_head, ImVec3 color_for_area, ImVec3 color_for_body, ImVec3 color_for_pops)
 {
     ImGuiStyle& style = ImGui::GetStyle();
 
@@ -61,15 +72,54 @@ void imgui_easy_theming(ImVec3 color_for_text, ImVec3 color_for_head, ImVec3 col
     style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.73f);
 }
 
-void SetupImGuiStyle()
+void ImGuiLayer::OnImGuiRender()
 {
-    static ImVec3 color_for_text = ImVec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
-    static ImVec3 color_for_head = ImVec3(41.f / 255.f, 128.f / 255.f, 185.f / 255.f);
-    static ImVec3 color_for_area = ImVec3(57.f / 255.f, 79.f / 255.f, 105.f / 255.f);
-    static ImVec3 color_for_body = ImVec3(44.f / 255.f, 62.f / 255.f, 80.f / 255.f);
-    static ImVec3 color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
-    imgui_easy_theming(color_for_text, color_for_head, color_for_area, color_for_body, color_for_pops);
+    // TODO: have a metafile to save user editor settings
+    // Disable these settings for now
+
+    // Settings to customize theme
+    //ImGui::Begin("Editor Settings");
+    //if (ImGui::TreeNode("Theme Settings"))
+    //{
+    //    ImGui::ColorEdit3("Text",   (float*)&colorForText);
+    //    ImGui::ColorEdit3("Header", (float*)&colorForHeader);
+    //    ImGui::ColorEdit3("Area",   (float*)&colorForArea);
+    //    ImGui::ColorEdit3("Body",   (float*)&colorForBody);
+    //    ImGui::ColorEdit3("Pops",   (float*)&colorForPops);
+
+    //    color_for_text = ImVec3(colorForText.x, colorForText.y, colorForText.z);
+    //    color_for_head = ImVec3(colorForHeader.x, colorForHeader.y, colorForHeader.z);
+    //    color_for_area = ImVec3(colorForArea.x, colorForArea.y, colorForArea.z);
+    //    color_for_body = ImVec3(colorForBody.x, colorForBody.y, colorForBody.z);
+    //    color_for_pops = ImVec3(colorForPops.x, colorForPops.y, colorForPops.z);
+
+    //    Theming(color_for_text, color_for_head, color_for_area, color_for_body, color_for_pops);
+
+    //    ImGui::TreePop();
+    //}
+    //ImGui::End();
 }
+
+void ImGuiLayer::SetStopTheme()
+{
+    color_for_text = ImVec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
+    color_for_head = ImVec3(41.f / 255.f, 128.f / 255.f, 185.f / 255.f);
+    color_for_area = ImVec3(57.f / 255.f, 79.f / 255.f, 105.f / 255.f);
+    color_for_body = ImVec3(44.f / 255.f, 62.f / 255.f, 80.f / 255.f);
+    color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
+    Theming(color_for_text, color_for_head, color_for_area, color_for_body, color_for_pops);
+}
+
+void ImGuiLayer::SetPlayTheme()
+{
+    color_for_text = ImVec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
+    color_for_head = ImVec3(41.f / 255.f, 128.f / 255.f, 185.f / 255.f);
+    color_for_area = ImVec3(57.f / 255.f, 79.f / 255.f, 105.f / 255.f);
+    color_for_body = ImVec3(100.f / 255.f, 20.f / 255.f, 20.f / 255.f);
+    color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
+    Theming(color_for_text, color_for_head, color_for_area, color_for_body, color_for_pops);
+}
+
 void ImGuiLayer::OnAttach()
 {
     // Initialize imgui context
@@ -78,7 +128,7 @@ void ImGuiLayer::OnAttach()
     // Setup Dear ImGui style;
     ImGui::StyleColorsDark();
 
-    SetupImGuiStyle();
+    SetStopTheme();
 
     // Configuration flags
     ImGuiIO& io = ImGui::GetIO();
@@ -159,10 +209,4 @@ void ImGuiLayer::End()
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }
-
-    //tentGui.ShowMetrics(timeSpan.count());
-    //tentGui.RenderStateButtons(GAME);
-    //tentGui.ShowCamera(camera);
-    //tentGui.ShowCamera(gameCamera);
-    //tentGui.ShowRenderPasses(renderPasses);
 }

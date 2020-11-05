@@ -10,6 +10,7 @@
 #include "Renderer/Framebuffer.h"
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Text.h"
+#include "ImGui/ImGuiLayer.h"
 
 #include <Tracy.hpp>
 
@@ -59,6 +60,9 @@ void EditorLayer::OnUpdate(float dt)
 
     if (startScene)
     {
+        // Enable playmode tint
+        ImGuiLayer::SetPlayTheme();
+
         wHierarchy.Reset();
         // FIXME: maybe better way of doing this?
         // Reset the runtimeScene entirely to avoid leftover data from instantiation events
@@ -70,6 +74,9 @@ void EditorLayer::OnUpdate(float dt)
     }
     else if (stopScene)
     {
+        // Disable playmode tint
+        ImGuiLayer::SetStopTheme();
+
         wHierarchy.Reset();
         activeScene->OnStop();
         activeScene = editorScene;

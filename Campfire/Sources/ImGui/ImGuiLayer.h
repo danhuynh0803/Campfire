@@ -8,21 +8,27 @@
 #include <imgui_impl_opengl3.h>
 #include <ImGuizmo.h>
 
+struct ImVec3 { float x, y, z; ImVec3(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f) { x = _x; y = _y; z = _z; } };
+
 class ImGuiLayer : public Layer
 {
 public:
     ImGuiLayer();
     ~ImGuiLayer() = default;
 
+    static void SetStopTheme();
+    static void SetPlayTheme();
+
     virtual void OnAttach() override;
     virtual void OnDetach() override;
     virtual void OnEvent(Event& event) override;
+    virtual void OnImGuiRender() override;
 
     void Begin(); // Start of frame
     void End();   // End of frame
 
 private:
-    float time = 0.0f;
+    static void Theming(ImVec3 color_for_text, ImVec3 color_for_head, ImVec3 color_for_area, ImVec3 color_for_body, ImVec3 color_for_pops);
 };
 
 #endif // IMGUI_LAYER_H
