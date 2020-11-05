@@ -12,6 +12,8 @@ public:
     void EditTransform(Entity& entity, const Camera& editorCamera);
     void ShowTransformSettings(bool* isOpen);
 
+    ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
+
 private:
     bool useSnap = false;
     bool boundSizing = false;
@@ -21,7 +23,6 @@ private:
     float bounds[6] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
     float boundsSnap[3] = { 0.1f, 0.1f, 0.1f };
 
-    ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
     ImGuizmo::MODE mode = ImGuizmo::LOCAL;
 };
 
