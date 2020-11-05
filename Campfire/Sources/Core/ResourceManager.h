@@ -1,16 +1,20 @@
-#ifndef RESOURCE_MANAGER_H
-#define RESOURCE_MANAGER_H
+#pragma once
+
+#include <unordered_map>
+#include <string>
+
+#include "Base.h"
+#include "Renderer/Texture.h"
+#include "Renderer/Mesh.h"
 
 class ResourceManager
 {
 public:
-    void AddResource(const std::string& path);
-
+    static SharedPtr<Texture2D> GetTexture2D(const std::string& path);
+    static SharedPtr<Mesh> GetMesh(const std::string& path);
     //SharedPtr<Audio> GetAudio(const std::string& path);
-    SharedPtr<Texture> GetTexture(const std::string& path);
-    SharedPtr<Mesh> GetMesh(const std::string& path);
+
 private:
-
+    static std::unordered_map<std::string, SharedPtr<Texture2D>> mCachedTextureMap;
+    static std::unordered_map<std::string, SharedPtr<Mesh>> mCachedMeshMap;
 };
-
-#endif // RESOURCE_MANAGER_H

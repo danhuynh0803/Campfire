@@ -1,18 +1,20 @@
 #include "Renderer/Texture.h"
 #include "Renderer/RendererAPI.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "Core/ResourceManager.h"
 
 SharedPtr<Texture2D> Texture2D::Create(const std::string& path)
 {
-    switch (RendererAPI::GetAPI())
-    {
-        case RendererAPI::API::None:
-            return nullptr;
-        case RendererAPI::API::OpenGL:
-            return CreateSharedPtr<OpenGLTexture2D>(path);
-    }
+    //switch (RendererAPI::GetAPI())
+    //{
+    //    case RendererAPI::API::None:
+    //        return nullptr;
+    //    case RendererAPI::API::OpenGL:
+    //        //return CreateSharedPtr<OpenGLTexture2D>(path);
+    //        return ResourceManager::GetTexture2D(path);
+    //}
 
-    return nullptr;
+    return ResourceManager::GetTexture2D(path);
 }
 
 SharedPtr<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)

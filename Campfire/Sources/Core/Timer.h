@@ -32,8 +32,9 @@ struct Timer
         duration = end - start;
         double ms = duration.count() * 1000.0f;
 
+        LOG_TRACE("Timer: {0}: {1}ms", msg, ms);
+
         return ms;
-        //LOG_TRACE("Timer: {0}: {1}ms", msg, ms);
     }
 };
 
