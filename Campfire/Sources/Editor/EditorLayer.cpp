@@ -37,6 +37,7 @@ void EditorLayer::OnAttach()
             glm::vec3(-20.0f, 0.0f, 0.0f)
     );
 
+    // TODO set up via render pass and pipeline
     gameCamFBO = Framebuffer::Create(1600, 900);
     editorCamFBO = Framebuffer::Create(1600, 900);
 
@@ -165,11 +166,14 @@ void EditorLayer::OnUpdate(float dt)
             PhysicsManager::DebugDraw();
         }
 
-        auto& entity = wHierarchy.GetSelectedEntity();
-        if (entity && entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
+        if (wHierarchy.hasSelectedEntity)
         {
-            auto camera = entity.GetComponent<CameraComponent>().camera;
-            camera->DrawFrustum(entity.GetComponent<TransformComponent>());
+            auto& entity = wHierarchy.GetSelectedEntity();
+            if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
+            {
+                auto camera = entity.GetComponent<CameraComponent>().camera;
+                camera->DrawFrustum(entity.GetComponent<TransformComponent>());
+            }
         }
 
         SceneRenderer::EndScene();
