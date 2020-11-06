@@ -15,10 +15,11 @@ public:
         hasSelectedEntity = false;
     }
 
-    bool hasSelectedEntity = false;
     Entity& GetSelectedEntity() { return selectedEntity; }
-
+    bool HasSelectedEntity() { return hasSelectedEntity; }
     void OverrideSelectedIndex(int index) { selected = index; }
+    int GetSelectedIndex() const { return selected; }
+
 private:
     void ShowNewEntityMenu(SharedPtr<Scene>& activeScene);
 
@@ -26,6 +27,7 @@ private:
     Entity selectedEntity;
     InspectorWidget wInspector;
     int selected = -1;
+    bool hasSelectedEntity = false;
 };
 
 #endif // HIERARCHY_WIDGET_H

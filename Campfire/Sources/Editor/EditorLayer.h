@@ -37,6 +37,7 @@ private:
     void OpenClosePrompt();
 
 private:
+    int editorSelectedIndex = -1;
     bool startScene = false;
     bool stopScene = true;
     void ClearScene();

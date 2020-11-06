@@ -59,12 +59,12 @@ void EditorLayer::OnUpdate(float dt)
         ShaderManager::ReloadShaders();
     }
 
+    static int editorSelectedIndex = -1;
     if (startScene)
     {
+        editorSelectedIndex = wHierarchy.GetSelectedIndex();
         // Enable playmode tint
         ImGuiLayer::SetPlayTheme();
-
-        wHierarchy.Reset();
         // FIXME: maybe better way of doing this?
         // Reset the runtimeScene entirely to avoid leftover data from instantiation events
         runtimeScene.reset();
@@ -77,8 +77,7 @@ void EditorLayer::OnUpdate(float dt)
     {
         // Disable playmode tint
         ImGuiLayer::SetStopTheme();
-
-        wHierarchy.Reset();
+        wHierarchy.OverrideSelectedIndex(editorSelectedIndex);
         activeScene->OnStop();
         activeScene = editorScene;
 
@@ -166,7 +165,7 @@ void EditorLayer::OnUpdate(float dt)
             PhysicsManager::DebugDraw();
         }
 
-        if (wHierarchy.hasSelectedEntity)
+        if (wHierarchy.HasSelectedEntity())
         {
             auto& entity = wHierarchy.GetSelectedEntity();
             if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
@@ -251,7 +250,7 @@ void EditorLayer::OnImGuiRender()
         // FIXME: gizmo not moving with runtimescene transform
         // disable in runtime, since moving in runtime causes crashes
         //if (state == State::STOP && wHierarchy.hasSelectedEntity)
-        if (wHierarchy.hasSelectedEntity)
+        if (wHierarchy.HasSelectedEntity())
         {
             float rw = (float)ImGui::GetWindowWidth();
             float rh = (float)ImGui::GetWindowHeight();
