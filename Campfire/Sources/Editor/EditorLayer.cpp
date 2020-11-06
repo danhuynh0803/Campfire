@@ -11,8 +11,9 @@
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Text.h"
 #include "ImGui/ImGuiLayer.h"
-
 #include <Tracy.hpp>
+
+#include <imgui_internal.h>
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -353,7 +354,6 @@ void EditorLayer::OnImGuiRender()
         {
             case 0: // Free aspect
             {
-                auto viewportSize = ImGui::GetContentRegionAvail();
                 ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
                 break;
             }
@@ -362,7 +362,15 @@ void EditorLayer::OnImGuiRender()
                 ImVec2 fixed16x9Viewport = (viewportSize.x / viewportSize.y) > (16.0f / 9.0f)
                     ? ImVec2(viewportSize.y * (16.0f / 9.0f), viewportSize.y)
                     : ImVec2(viewportSize.x, viewportSize.x * (9.0f / 16.0f));
-                glm::vec2 center = 0.5f * (glm::vec2(viewportSize.x, viewportSize.y) - glm::vec2(fixed16x9Viewport.x, fixed16x9Viewport.y));
+                glm::vec2 titleBarHeight(0, ImGui::GetCurrentWindow()->TitleBarHeight());
+                glm::vec2 center =
+                    0.5f *
+                    (
+                        glm::vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y)
+                        - glm::vec2(fixed16x9Viewport.x, fixed16x9Viewport.y)
+                    )
+                    + titleBarHeight
+                    ;
                 ImGui::SetCursorPos({ center.x, center.y });
                 ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), fixed16x9Viewport, { 0, 1 }, { 1, 0 });
                 break;
