@@ -19,6 +19,7 @@ public:
     void DrawFrustum(glm::mat4 transform);
 
     void SetProjection();
+    void SetProjection(uint32_t newWidth, uint32_t newHeight);
     glm::mat4 GetViewMatrix() const { return viewMatrix; }
     glm::mat4 GetProjMatrix() const { return projMatrix; }
     glm::mat4 GetProjUIMatrix() const { return uiProjMatrix; }

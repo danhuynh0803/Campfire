@@ -25,12 +25,16 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
+
     bool OnWindowResize(WindowResizeEvent& e);
     bool OnMouseClick(MouseButtonEvent& e);
+    bool OnWindowClose(WindowCloseEvent& e);
 
 private:
     void OnRenderEditor();
     void OnRenderRuntime();
+    bool shouldOpenExitPrompt = false;
+    void OpenClosePrompt();
 
 private:
     bool startScene = false;

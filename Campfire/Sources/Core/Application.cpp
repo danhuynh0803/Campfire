@@ -119,6 +119,6 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
 
 bool Application::OnWindowClose(WindowCloseEvent& e)
 {
-    isRunning = false;
+    //isRunning = false;
     return false;
 }

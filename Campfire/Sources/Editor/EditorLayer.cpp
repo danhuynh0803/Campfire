@@ -233,10 +233,7 @@ void EditorLayer::OnImGuiRender()
     {
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();
-        editorCamera->width = (uint32_t)viewportSize.x;
-        editorCamera->height = (uint32_t)viewportSize.y;
-        // FIXME update width and height of camera within setprojection
-        editorCamera->SetProjection();
+        editorCamera->SetProjection((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
         ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
 
         auto windowSize = ImGui::GetWindowSize();
@@ -254,7 +251,8 @@ void EditorLayer::OnImGuiRender()
         {
             float rw = (float)ImGui::GetWindowWidth();
             float rh = (float)ImGui::GetWindowHeight();
-            ImGuizmo::SetOrthographic(false);
+            //ImGuizmo::SetOrthographic(!editorCamera->isPerspective);
+            //ImGuizmo::SetOrthographic(true); // What does this actually do?
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, rw, rh);
 
@@ -271,6 +269,16 @@ void EditorLayer::OnImGuiRender()
 
             auto& entity = wHierarchy.GetSelectedEntity();
             wTransform.EditTransform(entity, *editorCamera);
+
+            /*
+            ImGuizmo::ViewManipulate(
+                (float*)glm::value_ptr(editorCamera->GetViewMatrix()),
+                100, // TODO
+                ImVec2(io.DisplaySize.x - 128, 0),
+                ImVec2(128, 128),
+                0x10101010
+            );
+            */
 
             if (state == State::STOP)
             {
@@ -318,6 +326,12 @@ void EditorLayer::OnImGuiRender()
     ImGui::Begin("Game Preview");
         ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
+
+    // Engine closing
+    if (shouldOpenExitPrompt)
+    {
+        OpenClosePrompt();
+    }
 }
 
 void EditorLayer::ClearScene()
@@ -359,13 +373,6 @@ void EditorLayer::ShowMenuFile()
         {
             SceneLoader::SaveScene(activeScene, savePath);
         }
-    }
-
-    ImGui::Separator();
-
-    if (ImGui::MenuItem("Quit"))
-    {
-        Application::Get().Close();
     }
 }
 
@@ -443,6 +450,7 @@ void EditorLayer::OnEvent(Event& event)
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(EditorLayer::OnWindowResize));
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseClick));
+    dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(EditorLayer::OnWindowClose));
 }
 
 static void ScreenToWorldRay(
@@ -538,9 +546,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
 bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
     LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
-    editorCamera->width = e.GetWidth();
-    editorCamera->height = e.GetHeight();
-    editorCamera->SetProjection();
+    editorCamera->SetProjection(e.GetWidth(), e.GetHeight());
     gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     editorCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     return false;
@@ -631,3 +637,38 @@ void EditorLayer::ShowConsole(bool* isOpen)
     // TODO make console widget
 }
 
+bool EditorLayer::OnWindowClose(WindowCloseEvent& e)
+{
+    // Signal that close prompt should be opened
+    // Need to do this here since events and imgui rendering is decoupled
+    // and cannot render imgui in an event
+    shouldOpenExitPrompt = true;
+    return false;
+}
+
+void EditorLayer::OpenClosePrompt()
+{
+    // Open confirmation prompt
+    ImGui::OpenPopup("Quit?");
+    if (ImGui::BeginPopupModal("Quit?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Any unsaved progress will be lost!\n\nConfirm?\n\n");
+        ImGui::Separator();
+
+        if (ImGui::Button("Confirm", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+            Application::Get().Close();
+        }
+
+        ImGui::SetItemDefaultFocus();
+        ImGui::SameLine();
+
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            shouldOpenExitPrompt = false;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+}

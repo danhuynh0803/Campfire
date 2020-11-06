@@ -6,14 +6,14 @@
 Camera::Camera()
     : width(1600.0f), height(900.0f), nearPlane(0.1f), farPlane(100.0f)
 {
-    SetProjection();
+    SetProjection(width, height);
     Init();
 }
 
 Camera::Camera(float w, float h, float nearplane, float farplane)
     : width(w), height(h), nearPlane(nearplane), farPlane(farplane)
 {
-    SetProjection();
+    SetProjection(w, h);
     Init();
 }
 
@@ -160,7 +160,6 @@ void Camera::RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& e
     viewMatrix = glm::lookAt(position, position + front, up);
 }
 
-
 void Camera::SetProjection()
 {
     if (isPerspective)
@@ -174,6 +173,25 @@ void Camera::SetProjection()
         width,
         0.0f,
         height
+    );
+}
+
+void Camera::SetProjection(uint32_t newWidth, uint32_t newHeight)
+{
+    width = newWidth;
+    height = newHeight;
+
+    if (isPerspective)
+        SetPerspectiveProjection();
+    else
+        SetOrthographicProjection();
+
+    // Always keep UI projMatrix in ortho
+    uiProjMatrix = glm::ortho(
+        0.0f,
+        (float)newWidth,
+        0.0f,
+        (float)newHeight
     );
 }
 
