@@ -63,11 +63,14 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            auto& comp = entity.GetComponent<CameraComponent>();
-            ImGui::Checkbox("Main Camera", &comp.isMain);
-            auto& camera = comp.camera;
+            SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>();
+
             bool prevState = camera->isPerspective;
             ImGui::Checkbox("Is Perspective", &camera->isPerspective);
+
+            const char* displays[] = { "Display 1", "Display 2", "Display 3", "Display 4", "Display 5" };
+            ImGui::Combo("Target Display", (int*)&camera->targetDisplayIndex, displays, IM_ARRAYSIZE(displays));
+
             if (prevState != camera->isPerspective)
                 camera->SetProjection();
 

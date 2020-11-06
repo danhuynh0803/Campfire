@@ -19,6 +19,9 @@ SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Framebuffer> editorCamFBO;
 SharedPtr<Shader> postProcessShader;
 
+// Curr display for the game viewport
+static uint32_t currDisplay = 0;
+
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
@@ -101,11 +104,11 @@ void EditorLayer::OnUpdate(float dt)
     SharedPtr<Camera> mainGameCamera = nullptr;
     for (auto entity : group)
     {
-        auto cameraComp = group.get<CameraComponent>(entity);
-        if (cameraComp.isMain)
+        SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
+        if (selectedCamera->targetDisplayIndex == currDisplay)
         {
+            mainGameCamera = selectedCamera;
             auto& transformComponent = group.get<TransformComponent>(entity);
-            mainGameCamera = cameraComp.camera;
 
             auto relationshipComponent = group.get<RelationshipComponent>(entity);
             // If entity is a child, then apply parents transform to it
@@ -234,6 +237,9 @@ void EditorLayer::OnImGuiRender()
     // Editor viewport
     ImGui::Begin("Scene");
     {
+        // Toolbar
+        ImGui::DragFloat("CamSpeed", &cameraController.movementSpeed);
+
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();
         editorCamera->SetProjection((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
@@ -309,25 +315,60 @@ void EditorLayer::OnImGuiRender()
 
     // Editor state buttons
     ImGui::Begin("Tool Bar");
-    // TODO put various image buttons here
-    // for now radio buttons to test
-    static int prevState = -1;
-    static int currState = static_cast<int>(state);
+    {
+        // TODO put various image buttons here
+        // for now radio buttons to test
+        static int prevState = -1;
+        static int currState = static_cast<int>(state);
 
-    prevState = currState;
-    ImGui::RadioButton("Stop",  &currState, 0); ImGui::SameLine();
-    ImGui::RadioButton("Play",  &currState, 1); ImGui::SameLine();
-    ImGui::RadioButton("Pause", &currState, 2);
-    state = static_cast<State>(currState);
+        prevState = currState;
+        ImGui::RadioButton("Stop", &currState, 0); ImGui::SameLine();
+        ImGui::RadioButton("Play", &currState, 1); ImGui::SameLine();
+        ImGui::RadioButton("Pause", &currState, 2);
+        state = static_cast<State>(currState);
 
-    startScene = (currState != 0 && prevState == 0) ? true : false;
-    stopScene  = (currState == 0 && prevState != 0) ? true : false;
-
+        startScene = (currState != 0 && prevState == 0) ? true : false;
+        stopScene = (currState == 0 && prevState != 0) ? true : false;
+    }
     ImGui::End();
 
     // Game Camera viewport
-    ImGui::Begin("Game Preview");
-        ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), ImVec2(ImGui::GetWindowHeight()*(16.0f/9.0f), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Begin("Game");
+    {
+        ImGui::PushID(0);
+        const char* displays[] = { "Display 1", "Display 2", "Display 3", "Display 4", "Display 5" };
+        ImGui::Combo("", (int*)&currDisplay, displays, IM_ARRAYSIZE(displays));
+        ImGui::PopID();
+
+        ImGui::SameLine();
+
+        ImGui::PushID(1);
+        static int currResolutionIndex = 0;
+        const char* resolutions[] = { "Free aspect", "16x9" };
+        ImGui::Combo("", (int*)&currResolutionIndex, resolutions, IM_ARRAYSIZE(resolutions));
+        ImGui::PopID();
+
+        auto viewportSize = ImGui::GetContentRegionAvail();
+        switch (currResolutionIndex)
+        {
+            case 0: // Free aspect
+            {
+                auto viewportSize = ImGui::GetContentRegionAvail();
+                ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+                break;
+            }
+            case 1: // 16x9 resolution
+            {
+                ImVec2 fixed16x9Viewport = (viewportSize.x / viewportSize.y) > (16.0f / 9.0f)
+                    ? ImVec2(viewportSize.y * (16.0f / 9.0f), viewportSize.y)
+                    : ImVec2(viewportSize.x, viewportSize.x * (9.0f / 16.0f));
+                glm::vec2 center = 0.5f * (glm::vec2(viewportSize.x, viewportSize.y) - glm::vec2(fixed16x9Viewport.x, fixed16x9Viewport.y));
+                ImGui::SetCursorPos({ center.x, center.y });
+                ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), fixed16x9Viewport, { 0, 1 }, { 1, 0 });
+                break;
+            }
+        }
+    }
     ImGui::End();
 
     // Engine closing

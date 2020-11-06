@@ -28,7 +28,11 @@ public:
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler);
 
 public:
-    glm::vec3 pos = glm::vec3(0.0f); // TODO remove later
+    // TODO remove later
+    // might be used by particle system?
+    glm::vec3 pos = glm::vec3(0.0f);
+
+    uint32_t targetDisplayIndex = 0;
     bool isPerspective = true;
     float vFov = 60.0f;
     float nearPlane = 0.1f;

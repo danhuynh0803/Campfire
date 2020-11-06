@@ -302,19 +302,18 @@ struct ScriptComponent
 struct CameraComponent
 {
     SharedPtr<Camera> camera;
+
     CameraComponent()
     {
         camera = CreateSharedPtr<Camera>();
     }
 
-    bool isMain = false;
-    operator SharedPtr<Camera>& () { return camera; }
-
     void Reset()
     {
-        isMain = false;
         camera = CreateSharedPtr<Camera>();
     }
+
+    operator SharedPtr<Camera>& () { return camera; }
 };
 
 struct ParticleSystemComponent

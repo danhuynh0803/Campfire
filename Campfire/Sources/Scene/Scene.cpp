@@ -32,7 +32,7 @@ void Scene::Init()
     //auto mainCamera = CreateEntity("Camera", false); // false for not setting it as a root object in entityMap
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
-    mainCamera.GetComponent<CameraComponent>().isMain = true;
+    //mainCamera.GetComponent<CameraComponent>().isMain = true;
     mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
