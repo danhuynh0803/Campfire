@@ -405,7 +405,8 @@ void EditorLayer::ShowMenuFile()
         //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
         {
             ClearScene();
-            activeScene = SceneManager::LoadNewScene();
+            editorScene = SceneManager::LoadNewScene();
+            activeScene = editorScene;
         }
     }
     if (ImGui::MenuItem("Open Scene", "Ctrl+O")
@@ -418,7 +419,8 @@ void EditorLayer::ShowMenuFile()
             //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
             {
                 ClearScene();
-                activeScene = SceneManager::LoadScene(loadPath);
+                editorScene = SceneManager::LoadScene(loadPath);
+                activeScene = editorScene;
             }
         }
     }
