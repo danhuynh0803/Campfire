@@ -402,8 +402,11 @@ void EditorLayer::ShowMenuFile()
 {
     if (ImGui::MenuItem("New Scene"))
     {
-        ClearScene();
-        //activeScene = SceneManager::LoadNewScene();
+        //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
+        {
+            ClearScene();
+            activeScene = SceneManager::LoadNewScene();
+        }
     }
     if (ImGui::MenuItem("Open Scene", "Ctrl+O")
         //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_O))
@@ -412,9 +415,11 @@ void EditorLayer::ShowMenuFile()
         std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
         if (!loadPath.empty())
         {
-            ClearScene();
-            // TODO Prompt user to save and confirm open new scene
-            activeScene = SceneManager::LoadScene(loadPath);
+            //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
+            {
+                ClearScene();
+                activeScene = SceneManager::LoadScene(loadPath);
+            }
         }
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")
@@ -703,6 +708,37 @@ bool EditorLayer::OnWindowClose(WindowCloseEvent& e)
     // and cannot render imgui in an event
     shouldOpenExitPrompt = true;
     return false;
+}
+
+// TODO
+bool EditorLayer::OpenConfirmPrompt(const char* msg)
+{
+    bool isConfirmed = false;
+
+    ImGui::OpenPopup("Continue?");
+    if (ImGui::BeginPopupModal("Continue?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text(msg);
+        ImGui::Text("\n\nConfirm?\n\n");
+        ImGui::Separator();
+
+        if (ImGui::Button("Confirm", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+            isConfirmed = true;
+        }
+
+        ImGui::SetItemDefaultFocus();
+        ImGui::SameLine();
+
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    return isConfirmed;
 }
 
 void EditorLayer::OpenClosePrompt()

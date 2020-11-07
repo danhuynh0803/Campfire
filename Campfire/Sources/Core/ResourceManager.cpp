@@ -19,9 +19,7 @@ SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
                 mCachedTextureMap.emplace(path, CreateSharedPtr<OpenGLTexture2D>(path));
                 break;
         }
-
     }
-
     return mCachedTextureMap.at(path);
 }
 

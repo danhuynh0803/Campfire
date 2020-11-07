@@ -34,6 +34,7 @@ private:
     void OnRenderEditor();
     void OnRenderRuntime();
     bool shouldOpenExitPrompt = false;
+    bool OpenConfirmPrompt(const char* msg);
     void OpenClosePrompt();
 
 private:
