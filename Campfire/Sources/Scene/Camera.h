@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -32,7 +31,7 @@ public:
     // might be used by particle system?
     glm::vec3 pos = glm::vec3(0.0f);
 
-    uint32_t targetDisplayIndex = 0;
+    uint32_t targetDisplay = 0;
     bool isPerspective = true;
     float vFov = 60.0f;
     float nearPlane = 0.1f;
@@ -55,5 +54,3 @@ private:
     SharedPtr<VertexBuffer> vertexBuffer;
     SharedPtr<Shader> shader;
 };
-
-#endif // CAMERA_H

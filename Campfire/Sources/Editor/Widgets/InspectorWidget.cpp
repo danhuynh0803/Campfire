@@ -36,7 +36,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             }
             auto& transform = entity.GetComponent<TransformComponent>();
             ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
-            ImGui::DragFloat3("Rotation", (float*)&transform.eulerAngles, 0.01f);
+            ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
 
             // NOTE: Popup should be put after the inspector options
@@ -69,7 +69,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             ImGui::Checkbox("Is Perspective", &camera->isPerspective);
 
             const char* displays[] = { "Display 1", "Display 2", "Display 3", "Display 4", "Display 5" };
-            ImGui::Combo("Target Display", (int*)&camera->targetDisplayIndex, displays, IM_ARRAYSIZE(displays));
+            ImGui::Combo("Target Display", (int*)&camera->targetDisplay, displays, IM_ARRAYSIZE(displays));
 
             if (prevState != camera->isPerspective)
                 camera->SetProjection();

@@ -18,7 +18,7 @@ void Rigidbody::SetTransform(const TransformComponent& transformComp)
     LOG_INFO("RB Transform ({0}, {1}, {2})", pos.x, pos.y, pos.z);
     transform.setOrigin(GlmToBtVec(pos));
 
-    glm::vec3 euler = transformComp.eulerAngles;
+    glm::vec3 euler = transformComp.euler;
     glm::quat rotation = glm::quat(
             glm::vec3(
                 glm::radians(euler.x),

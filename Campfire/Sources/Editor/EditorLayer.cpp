@@ -105,7 +105,7 @@ void EditorLayer::OnUpdate(float dt)
     for (auto entity : group)
     {
         SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
-        if (selectedCamera->targetDisplayIndex == currDisplay)
+        if (selectedCamera->targetDisplay == currDisplay)
         {
             mainGameCamera = selectedCamera;
             auto& transformComponent = group.get<TransformComponent>(entity);
@@ -120,10 +120,10 @@ void EditorLayer::OnUpdate(float dt)
                 glm::mat4 transform = glm::mat4(1.0f);
                 transform = glm::mat4(1.0f);
                 glm::vec3 position    = transformComponent.position + parentTransform.position;
-                glm::vec3 eulerAngles = transformComponent.eulerAngles;
+                glm::vec3 eulerAngles = transformComponent.euler;
                 glm::vec3 scale = transformComponent.scale * parentTransform.scale;
 
-                glm::vec3 parentEulerAngles = parentTransform.eulerAngles;
+                glm::vec3 parentEulerAngles = parentTransform.euler;
                 glm::quat parentRotation = glm::quat(
                         glm::vec3(
                             glm::radians(parentEulerAngles.x),
@@ -134,13 +134,13 @@ void EditorLayer::OnUpdate(float dt)
                 glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
 
                 mainGameCamera->pos = rotationPosition;
-                mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.eulerAngles + parentEulerAngles);
+                mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.euler + parentEulerAngles);
                 mainGameCamera->SetProjection();
             }
             else
             {
                 mainGameCamera->pos = transformComponent.position;
-                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.eulerAngles);
+                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
                 mainGameCamera->SetProjection();
             }
             break;
@@ -412,8 +412,9 @@ void EditorLayer::ShowMenuFile()
         std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
         if (!loadPath.empty())
         {
-            ClearScene();
+            //ClearScene();
             //activeScene = SceneManager::LoadScene(loadPath);
+            SceneManager::LoadScene(loadPath);
         }
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")

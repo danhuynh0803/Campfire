@@ -1,5 +1,4 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
 #include <map>
 #include <utility>
@@ -47,9 +46,8 @@ private:
     friend class SceneRenderer;
     friend class SceneManager;
 
+    std::string name = "Untitled";
     entt::entity sceneEntity;
     entt::registry registry;
     std::map<uint64_t, Entity> entityMap;
 };
-
-#endif // SCENE_H
