@@ -8,9 +8,11 @@
 #include "Core/Base.h"
 #include "Scene/Camera.h"
 #include "Scene/Skybox.h"
-#include "Renderer/SceneRenderer.h"
+//#include "Renderer/SceneRenderer.h"
 
 class Entity;
+class SceneRenderer;
+class SceneManager;
 
 class Scene
 {
@@ -43,6 +45,7 @@ private:
     friend class Entity;
     friend class Skybox;
     friend class SceneRenderer;
+    friend class SceneManager;
 
     entt::entity sceneEntity;
     entt::registry registry;

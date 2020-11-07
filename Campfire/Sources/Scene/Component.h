@@ -39,9 +39,11 @@ struct TagComponent
 struct TransformComponent
 {
     glm::vec3 position = glm::vec3(0.0f);
-    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
     glm::vec3 eulerAngles = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
+
+    // Does not need to be stored by SceneManager
+    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
     glm::mat4 transform = glm::mat4(1.0f);
 
     void Override()
@@ -78,28 +80,21 @@ struct TransformComponent
     }
 };
 
-// TODO
-// Not really needed until things like
-// anchor points for UI are figured out
-struct UITransformComponent
+struct CameraComponent
 {
+    SharedPtr<Camera> camera;
 
-};
-
-struct TextComponent
-{
-    TextComponent()
+    CameraComponent()
     {
-        text = Text::Create();
+        camera = CreateSharedPtr<Camera>();
     }
 
     void Reset()
     {
-        text = Text::Create();
+        camera = CreateSharedPtr<Camera>();
     }
 
-    SharedPtr<Text> text;
-    operator SharedPtr<Text>& () { return text; }
+    operator SharedPtr<Camera>& () { return camera; }
 };
 
 struct MeshComponent
@@ -266,6 +261,32 @@ struct AudioComponent
     operator SharedPtr<AudioSource>& () { return audioSource; }
 };
 
+// TODO
+// Not really needed until things like
+// anchor points for UI are figured out
+struct UITransformComponent
+{
+
+};
+
+
+struct TextComponent
+{
+    TextComponent()
+    {
+        text = Text::Create();
+    }
+
+    void Reset()
+    {
+        text = Text::Create();
+    }
+
+    SharedPtr<Text> text;
+    operator SharedPtr<Text>& () { return text; }
+};
+
+
 class ScriptableEntity;
 struct NativeScriptComponent
 {
@@ -297,23 +318,6 @@ struct ScriptComponent
     void Reset()
     {
     }
-};
-
-struct CameraComponent
-{
-    SharedPtr<Camera> camera;
-
-    CameraComponent()
-    {
-        camera = CreateSharedPtr<Camera>();
-    }
-
-    void Reset()
-    {
-        camera = CreateSharedPtr<Camera>();
-    }
-
-    operator SharedPtr<Camera>& () { return camera; }
 };
 
 struct ParticleSystemComponent
