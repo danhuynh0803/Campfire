@@ -6,14 +6,13 @@
 #include "Audio/AudioSystem.h"
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
-#include "Scene/SceneLoader.h"
+#include "Scene/SceneManager.h"
 #include "Renderer/Framebuffer.h"
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Text.h"
 #include "ImGui/ImGuiLayer.h"
-#include <Tracy.hpp>
 
-#include <imgui_internal.h>
+#include <Tracy.hpp>
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -106,7 +105,7 @@ void EditorLayer::OnUpdate(float dt)
     for (auto entity : group)
     {
         SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
-        if (selectedCamera->targetDisplayIndex == currDisplay)
+        if (selectedCamera->targetDisplay == currDisplay)
         {
             mainGameCamera = selectedCamera;
             auto& transformComponent = group.get<TransformComponent>(entity);
@@ -121,10 +120,10 @@ void EditorLayer::OnUpdate(float dt)
                 glm::mat4 transform = glm::mat4(1.0f);
                 transform = glm::mat4(1.0f);
                 glm::vec3 position    = transformComponent.position + parentTransform.position;
-                glm::vec3 eulerAngles = transformComponent.eulerAngles;
+                glm::vec3 eulerAngles = transformComponent.euler;
                 glm::vec3 scale = transformComponent.scale * parentTransform.scale;
 
-                glm::vec3 parentEulerAngles = parentTransform.eulerAngles;
+                glm::vec3 parentEulerAngles = parentTransform.euler;
                 glm::quat parentRotation = glm::quat(
                         glm::vec3(
                             glm::radians(parentEulerAngles.x),
@@ -135,13 +134,13 @@ void EditorLayer::OnUpdate(float dt)
                 glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
 
                 mainGameCamera->pos = rotationPosition;
-                mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.eulerAngles + parentEulerAngles);
+                mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.euler + parentEulerAngles);
                 mainGameCamera->SetProjection();
             }
             else
             {
                 mainGameCamera->pos = transformComponent.position;
-                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.eulerAngles);
+                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
                 mainGameCamera->SetProjection();
             }
             break;
@@ -244,6 +243,13 @@ void EditorLayer::OnImGuiRender()
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();
         editorCamera->SetProjection((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+
+        // Loading bar if scene is saving or loading
+        // TODO move to SceneManager
+        const ImU32 col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+        const ImU32 bg = ImGui::GetColorU32(ImGuiCol_Button);
+        ImGui::BufferingBar("Saving Scene", 0.5f, ImVec2(viewportSize.x, 15), bg, col);
+
         ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
 
         auto windowSize = ImGui::GetWindowSize();
@@ -397,7 +403,7 @@ void EditorLayer::ShowMenuFile()
     if (ImGui::MenuItem("New Scene"))
     {
         ClearScene();
-        activeScene = SceneLoader::LoadNewScene();
+        //activeScene = SceneManager::LoadNewScene();
     }
     if (ImGui::MenuItem("Open Scene", "Ctrl+O")
         //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_O))
@@ -407,14 +413,15 @@ void EditorLayer::ShowMenuFile()
         if (!loadPath.empty())
         {
             ClearScene();
-            activeScene = SceneLoader::LoadScene(loadPath);
+            // TODO Prompt user to save and confirm open new scene
+            activeScene = SceneManager::LoadScene(loadPath);
         }
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")
         //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_S))
         )
     {
-        SceneLoader::SaveCurrentScene(activeScene);
+        SceneManager::SaveCurrentScene(activeScene);
     }
     if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")
         //|| ( Input::GetMod(MOD_KEY_CONTROL | MOD_KEY_SHIFT) && Input::GetKeyDown(KEY_S) )
@@ -423,7 +430,7 @@ void EditorLayer::ShowMenuFile()
         std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
         if (!savePath.empty())
         {
-            SceneLoader::SaveScene(activeScene, savePath);
+            SceneManager::SaveScene(activeScene, savePath);
         }
     }
 }

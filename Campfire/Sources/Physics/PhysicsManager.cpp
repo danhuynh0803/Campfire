@@ -40,7 +40,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
         SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
         rigidbody->Construct(
             transformComponent.position,
-            transformComponent.eulerAngles,
+            transformComponent.euler,
             transformComponent.scale
         );
 
@@ -62,7 +62,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
     if (entity.HasComponent<TriggerComponent>())
     {
         auto triggerComp = entity.GetComponent<TriggerComponent>();
-        triggerComp.trigger->Construct(transformComponent.position, transformComponent.eulerAngles, transformComponent.scale);
+        triggerComp.trigger->Construct(transformComponent.position, transformComponent.euler, transformComponent.scale);
         dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
         //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
         dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
@@ -94,7 +94,7 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trig
     glm::vec3 triggerPos = pos + trigger->collider->center;
     transform.setOrigin(btVector3(triggerPos.x, triggerPos.y, triggerPos.z));
 
-    glm::vec3 euler = transformComp.eulerAngles;
+    glm::vec3 euler = transformComp.euler;
     glm::quat rotation = glm::quat(
             glm::vec3(
                 glm::radians(euler.x),
@@ -182,7 +182,7 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
     // or the mesh will always move to where the collider is centered to
     transComp.position = translation - rb->collider->center;
     transComp.rotation = orientation;
-    transComp.eulerAngles = glm::degrees(glm::eulerAngles(orientation));
+    transComp.euler = glm::degrees(glm::eulerAngles(orientation));
     // NOTE: Scale isn't updated since the rb transform doesn't get initialized with that info
     //transComp.scale = scale;
 }

@@ -31,7 +31,6 @@ option(BUILD_OPENGL3_DEMOS OFF)
 option(BUILD_UNIT_TESTS OFF)
 add_subdirectory(Campfire/Vendor/bullet)
 
-
 add_subdirectory(Campfire/Vendor/freetype2)
 
 
@@ -105,7 +104,10 @@ include_directories(
     Campfire/Vendor/entt
     Campfire/Vendor/tracy
     Campfire/Vendor/freetype2/include/
+    vendor/nlohmann_json/
 )
+
+#add_subdirectory(vendor)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

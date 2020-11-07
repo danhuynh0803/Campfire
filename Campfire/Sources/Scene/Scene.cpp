@@ -39,7 +39,7 @@ void Scene::Init()
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 5.0f, 2.0f);
-    directionalLight.GetComponent<TransformComponent>().eulerAngles = glm::vec3(120.0f, 0.0f, 0.0f);
+    directionalLight.GetComponent<TransformComponent>().euler = glm::vec3(120.0f, 0.0f, 0.0f);
     directionalLight.AddComponent<LightComponent>();
 
     {
@@ -75,7 +75,7 @@ void Scene::Init()
         auto cube = CreateEntity("Cube");
         cube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         cube.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 5.0f, 0.0f);
-        cube.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+        cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
         cube.AddComponent<RigidbodyComponent>();
         cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
     }
@@ -85,7 +85,7 @@ void Scene::Init()
         floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
         floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
         floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
-        floor.GetComponent<TransformComponent>().eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f);
+        floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
         floor.AddComponent<RigidbodyComponent>();
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
@@ -354,10 +354,10 @@ void Scene::OnRender(float dt, const Camera& camera)
 
                     glm::mat4 transform = glm::mat4(1.0f);
                     glm::vec3 position    = transformComponent.position + parentTransform.position;
-                    glm::vec3 eulerAngles = transformComponent.eulerAngles;
+                    glm::vec3 eulerAngles = transformComponent.euler;
                     glm::vec3 scale = transformComponent.scale * parentTransform.scale;
 
-                    glm::vec3 parentEulerAngles = parentTransform.eulerAngles;
+                    glm::vec3 parentEulerAngles = parentTransform.euler;
                     glm::quat parentRotation = glm::quat(
                         glm::vec3(
                             glm::radians(parentEulerAngles.x),

@@ -39,9 +39,11 @@ struct TagComponent
 struct TransformComponent
 {
     glm::vec3 position = glm::vec3(0.0f);
-    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
-    glm::vec3 eulerAngles = glm::vec3(0.0f);
+    glm::vec3 euler = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
+
+    // Does not need to be stored by SceneManager
+    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
     glm::mat4 transform = glm::mat4(1.0f);
 
     void Override()
@@ -52,9 +54,9 @@ struct TransformComponent
 
         rotation = glm::quat(
             glm::vec3(
-                glm::radians(eulerAngles.x),
-                glm::radians(eulerAngles.y),
-                glm::radians(eulerAngles.z)
+                glm::radians(euler.x),
+                glm::radians(euler.y),
+                glm::radians(euler.z)
             )
         );
         glm::mat4 rotationMat = glm::toMat4(rotation);
@@ -72,34 +74,27 @@ struct TransformComponent
     {
         position = glm::vec3(0.0f);
         rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
-        eulerAngles = glm::vec3(0.0f);
+        euler = glm::vec3(0.0f);
         scale = glm::vec3(1.0f);
         transform = glm::mat4(1.0f);
     }
 };
 
-// TODO
-// Not really needed until things like
-// anchor points for UI are figured out
-struct UITransformComponent
+struct CameraComponent
 {
+    SharedPtr<Camera> camera;
 
-};
-
-struct TextComponent
-{
-    TextComponent()
+    CameraComponent()
     {
-        text = Text::Create();
+        camera = CreateSharedPtr<Camera>();
     }
 
     void Reset()
     {
-        text = Text::Create();
+        camera = CreateSharedPtr<Camera>();
     }
 
-    SharedPtr<Text> text;
-    operator SharedPtr<Text>& () { return text; }
+    operator SharedPtr<Camera>& () { return camera; }
 };
 
 struct MeshComponent
@@ -119,6 +114,7 @@ struct MeshComponent
     MeshComponent(const std::string& meshPath)
     {
         mesh = Mesh::Create(meshPath);
+        // TODO should get material from the .mtl file
         material = MaterialInstance::Create(MaterialInstance::Type::PBR);
     }
 
@@ -266,6 +262,32 @@ struct AudioComponent
     operator SharedPtr<AudioSource>& () { return audioSource; }
 };
 
+// TODO
+// Not really needed until things like
+// anchor points for UI are figured out
+struct UITransformComponent
+{
+
+};
+
+
+struct TextComponent
+{
+    TextComponent()
+    {
+        text = Text::Create();
+    }
+
+    void Reset()
+    {
+        text = Text::Create();
+    }
+
+    SharedPtr<Text> text;
+    operator SharedPtr<Text>& () { return text; }
+};
+
+
 class ScriptableEntity;
 struct NativeScriptComponent
 {
@@ -297,23 +319,6 @@ struct ScriptComponent
     void Reset()
     {
     }
-};
-
-struct CameraComponent
-{
-    SharedPtr<Camera> camera;
-
-    CameraComponent()
-    {
-        camera = CreateSharedPtr<Camera>();
-    }
-
-    void Reset()
-    {
-        camera = CreateSharedPtr<Camera>();
-    }
-
-    operator SharedPtr<Camera>& () { return camera; }
 };
 
 struct ParticleSystemComponent

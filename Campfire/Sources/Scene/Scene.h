@@ -1,5 +1,4 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
 #include <map>
 #include <utility>
@@ -8,9 +7,11 @@
 #include "Core/Base.h"
 #include "Scene/Camera.h"
 #include "Scene/Skybox.h"
-#include "Renderer/SceneRenderer.h"
+//#include "Renderer/SceneRenderer.h"
 
 class Entity;
+class SceneRenderer;
+class SceneManager;
 
 class Scene
 {
@@ -43,10 +44,10 @@ private:
     friend class Entity;
     friend class Skybox;
     friend class SceneRenderer;
+    friend class SceneManager;
 
+    std::string name = "Untitled";
     entt::entity sceneEntity;
     entt::registry registry;
     std::map<uint64_t, Entity> entityMap;
 };
-
-#endif // SCENE_H
