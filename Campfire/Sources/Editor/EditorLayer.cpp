@@ -412,9 +412,9 @@ void EditorLayer::ShowMenuFile()
         std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
         if (!loadPath.empty())
         {
-            //ClearScene();
-            //activeScene = SceneManager::LoadScene(loadPath);
-            SceneManager::LoadScene(loadPath);
+            ClearScene();
+            // TODO Prompt user to save and confirm open new scene
+            activeScene = SceneManager::LoadScene(loadPath);
         }
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")

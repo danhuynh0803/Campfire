@@ -114,6 +114,7 @@ struct MeshComponent
     MeshComponent(const std::string& meshPath)
     {
         mesh = Mesh::Create(meshPath);
+        // TODO should get material from the .mtl file
         material = MaterialInstance::Create(MaterialInstance::Type::PBR);
     }
 
