@@ -1,11 +1,16 @@
-#include "Core/Application.h"
+#ifdef Lua
 #include "Scripting/ScriptEngine.h"
+#else
+#include "Core/Application.h"
+#endif
 
 int main(int argc, char * argv[])
 {
-    //ScriptEngine test;
+#ifdef Lua
+    ScriptEngine engine;
+#else
     Application app;
     app.Run();
-
+#endif // Lua
     return 0;
 }
