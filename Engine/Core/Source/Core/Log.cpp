@@ -1,6 +1,6 @@
 #include <Core/Log.h>
-
 /*
+
 std::shared_ptr<spdlog::logger> Log::coreLogger;
 std::shared_ptr<spdlog::logger> Log::clientLogger;
 std::shared_ptr<LogWidget> Log::logWidget;

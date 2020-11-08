@@ -1,7 +1,5 @@
-#include <GLFW/glfw3.h>
-
 #include "Renderer/GraphicsContext.h"
-#include "Platform/OpenGL/OpenGLContext.h"
+#include "OpenGL/OpenGLContext.h"
 #include "Core/Log.h"
 
 std::unique_ptr<GraphicsContext> GraphicsContext::Create(void* window)

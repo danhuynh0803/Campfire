@@ -7,7 +7,7 @@
 #include "Events/KeyEvent.h"
 
 #include "Core/Input.h"
-#include "WindowsFileSystem.h"
+#include "Platform/Windows/WindowsFileSystem.h"
 
 static uint8_t glfwWindowCount = 0;
 
@@ -27,7 +27,7 @@ void WindowsWindow::Init(const WindowProps& props)
     data.width = props.width;
     data.height = props.height;
 
-    LOG_INFO("Creating window {0}, ({1}, {2})", props.title, props.width, props.height);
+    //LOG_INFO("Creating window {0}, ({1}, {2})", props.title, props.width, props.height);
 
     if (glfwWindowCount == 0)
     {

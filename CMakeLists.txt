@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(
-    Campfire
+project(Campfire
     VERSION 0.1
     DESCRIPTION "Game Engine"
     LANGUAGES CXX
@@ -12,6 +11,16 @@ project(
 
 add_subdirectory(Engine)
 add_subdirectory(Vendor)
+
+add_executable(Campfire
+    main.cpp
+)
+
+target_link_libraries(Campfire
+    PRIVATE
+        Engine
+)
+
 #add_subdirectory(Editor)
 
 #source_group("Engine" FILES ${PROJECT_SOURCES})

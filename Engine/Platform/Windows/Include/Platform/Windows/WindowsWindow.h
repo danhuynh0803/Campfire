@@ -1,10 +1,8 @@
-#ifndef WINDOWS_WINDOW_H
-#define WINDOWS_WINDOW_H
-
-#include "Core/Window.h"
-#include "Renderer/GraphicsContext.h"
+#pragma once
 
 #include <GLFW/glfw3.h>
+#include "Core/Window.h"
+#include "Renderer/GraphicsContext.h"
 
 // Window for Windows platform
 class WindowsWindow : public Window
@@ -44,5 +42,3 @@ private:
 
     WindowData data;
 };
-
-#endif // WINDOWS_WINDOW_H

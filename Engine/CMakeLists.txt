@@ -2,16 +2,24 @@ cmake_minimum_required(VERSION 3.15)
 
 add_library(Engine STATIC)
 
-target_sources(Engine
+target_link_libraries(Engine
+    PUBLIC
+        Core
     PRIVATE
-        main.cpp
+        Events
+        Windows
+        Renderer
 )
 
-target_link_libraries(Engine
+# dummy file since we can't create a lib without some source
+file(WRITE null.cpp "")
+
+target_sources(Engine
     PRIVATE
-        Core
-        Events
+        null.cpp
 )
 
 add_subdirectory(Core)
 add_subdirectory(Events)
+add_subdirectory(Platform)
+add_subdirectory(Renderer)

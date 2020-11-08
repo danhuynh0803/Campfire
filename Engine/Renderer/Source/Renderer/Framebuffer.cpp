@@ -1,6 +1,6 @@
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Framebuffer.h"
-#include "Platform/OpenGL/OpenGLFramebuffer.h"
+#include "OpenGL/OpenGLFramebuffer.h"
 
 SharedPtr<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height, uint32_t samples)
 {

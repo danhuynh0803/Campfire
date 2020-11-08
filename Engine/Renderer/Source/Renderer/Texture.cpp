@@ -1,6 +1,6 @@
 #include "Renderer/Texture.h"
 #include "Renderer/RendererAPI.h"
-#include "Platform/OpenGL/OpenGLTexture.h"
+#include "OpenGL/OpenGLTexture.h"
 #include "Core/ResourceManager.h"
 
 SharedPtr<Texture2D> Texture2D::Create(const std::string& path)

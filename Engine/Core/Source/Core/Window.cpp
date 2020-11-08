@@ -14,4 +14,6 @@ std::unique_ptr<Window> Window::Create(const WindowProps& props)
     #else
         return CreateUniquePtr<LinuxWindow>(props);
     #endif
+
+        return nullptr;
 }

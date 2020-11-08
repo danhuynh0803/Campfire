@@ -23,8 +23,10 @@ target_link_libraries(Core
         glm
         spdlog
         glad
+        Windows
+        Events
+        Renderer
     PRIVATE
         glfw
         #imgui
-        Events
 )

@@ -1,6 +1,6 @@
 #include "Renderer/RendererAPI.h"
 #include "Renderer/VertexArray.h"
-#include "Platform/OpenGL/OpenGLVertexArray.h"
+#include "OpenGL/OpenGLVertexArray.h"
 
 #include <memory>
 

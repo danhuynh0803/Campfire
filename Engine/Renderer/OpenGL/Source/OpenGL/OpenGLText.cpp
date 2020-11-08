@@ -1,4 +1,4 @@
-#include "Platform/OpenGL/OpenGLText.h"
+#include "Renderer/OpenGL/OpenGLText.h"
 #include "Scene/Component.h"
 #include "Renderer/Renderer2D.h"
 
