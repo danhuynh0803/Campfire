@@ -1,9 +1,6 @@
 [submodule "Vendor/spdlog"]
 	path = Vendor/spdlog
 	url = https://github.com/gabime/spdlog
-[submodule "Vendor/glad"]
-	path = Vendor/glad
-	url = https://github.com/Dav1dde/glad
 [submodule "Vendor/glfw"]
 	path = Vendor/glfw
 	url = https://github.com/glfw/glfw
