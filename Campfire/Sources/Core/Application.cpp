@@ -12,7 +12,7 @@
 #include "Renderer/Renderer.h"
 #include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
-#include "JobSystem/JobSystem.h"
+//#include "JobSystem/JobSystem.h"
 
 Application* Application::instance = nullptr;
 
@@ -21,7 +21,7 @@ Application::Application()
     Log::Init();
     Time::Init();
     Random::Init();
-    JobSystem::Init();
+    //JobSystem::Init();
 
     instance = this;
     window = Window::Create();

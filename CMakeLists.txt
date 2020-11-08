@@ -230,7 +230,7 @@ add_executable(
         ${SRC_PHYSICS}
         ${SRC_SCENE}
         ${SRC_IMGUI}
-        ${SRC_JOBSYSTEM}
+        #${SRC_JOBSYSTEM}
         ${SRC_AUDIO}
         ${SRC_SCRIPTING}
         ${SRC_EDITOR}

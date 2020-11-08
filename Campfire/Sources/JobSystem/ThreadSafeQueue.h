@@ -59,7 +59,7 @@ public:
     std::shared_ptr<T> TryPop()
     {
         std::lock_guard<std::mutex> lock(mutex);
-        if(data.empty()){ return std::shared_ptr<T>() }
+        if(data.empty()){ return std::shared_ptr<T>(); }
         std::shared_ptr<T> result(std::make_shared<T>(data.front()));
         data.pop_front();
         return result;
