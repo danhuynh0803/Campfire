@@ -267,7 +267,7 @@ void EditorLayer::OnImGuiRender()
         {
             float rw = (float)ImGui::GetWindowWidth();
             float rh = (float)ImGui::GetWindowHeight();
-            ImGuizmo::SetOrthographic(true);
+            ImGuizmo::SetOrthographic(!editorCamera->isPerspective);
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, rw, rh);
 
