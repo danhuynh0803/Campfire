@@ -18,7 +18,7 @@ target_sources(Core
         Source/Core/Window.cpp
 )
 
-target_link_libraries(Campfire
+target_link_libraries(Core
     PRIVATE
-        Core
+        Events
 )

@@ -10,12 +10,20 @@ project(
     LANGUAGES CXX
 )
 
-add_executable(
-    Campfire
-    Engine/main.cpp
-)
-
 add_subdirectory(Engine)
+add_subdirectory(Vendor)
+#add_subdirectory(Editor)
+
+#source_group("Engine" FILES ${PROJECT_SOURCES})
+#source_group("Editor" FILES ${PROJECT_SOURCES})
+#source_group("Vendor" FILES ${PROJECT_SOURCES})
+
+
+#add_subdirectory(Editor)
+
+
+
+###### old cmake ######
 
 #add_executable(
 #    Editor

@@ -6,6 +6,7 @@
 #include <spdlog/sinks/ostream_sink.h>
 
 // FIXME Core should not be mixed with other features
+// LogWidget should implement spdlog custom sink there instead
 //#include "Editor/Widgets/LogWidget.h"
 
 #include "spdlog/sinks/base_sink.h"
