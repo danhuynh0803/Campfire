@@ -238,7 +238,7 @@ void EditorLayer::OnImGuiRender()
     ImGui::Begin("Scene");
     {
         // Toolbar
-        ImGui::DragFloat("CamSpeed", &cameraController.movementSpeed);
+        //ImGui::DragFloat("CamSpeed", &cameraController.movementSpeed);
 
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();
@@ -246,9 +246,9 @@ void EditorLayer::OnImGuiRender()
 
         // Loading bar if scene is saving or loading
         // TODO move to SceneManager
-        const ImU32 col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
-        const ImU32 bg = ImGui::GetColorU32(ImGuiCol_Button);
-        ImGui::BufferingBar("Saving Scene", 0.5f, ImVec2(viewportSize.x, 15), bg, col);
+        //const ImU32 col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+        //const ImU32 bg = ImGui::GetColorU32(ImGuiCol_Button);
+        //ImGui::BufferingBar("Saving Scene", 0.5f, ImVec2(viewportSize.x, 15), bg, col);
 
         ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
 
@@ -267,8 +267,7 @@ void EditorLayer::OnImGuiRender()
         {
             float rw = (float)ImGui::GetWindowWidth();
             float rh = (float)ImGui::GetWindowHeight();
-            //ImGuizmo::SetOrthographic(!editorCamera->isPerspective);
-            //ImGuizmo::SetOrthographic(true); // What does this actually do?
+            ImGuizmo::SetOrthographic(true);
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, rw, rh);
 
