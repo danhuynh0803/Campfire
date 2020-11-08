@@ -2,6 +2,7 @@
 #include "Scripting/ScriptEngine.h"
 #else
 #include "Core/Application.h"
+#include "Scripting/ArenaAllocator.h"
 #endif
 
 int main(int argc, char * argv[])
