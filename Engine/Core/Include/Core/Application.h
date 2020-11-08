@@ -5,7 +5,7 @@
 #include "Core/LayerStack.h"
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
-#include "ImGui/ImGuiLayer.h"
+//#include "ImGui/ImGuiLayer.h"
 
 class Application
 {
@@ -29,7 +29,7 @@ public:
 
 private:
     static Application* instance;
-    ImGuiLayer* imguiLayer;
+    //ImGuiLayer* imguiLayer;
     bool isRunning = true;
     LayerStack layerStack;
     std::unique_ptr<Window> window;

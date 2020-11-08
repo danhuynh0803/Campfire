@@ -19,6 +19,12 @@ target_sources(Core
 )
 
 target_link_libraries(Core
+    PUBLIC
+        glm
+        spdlog
+        glad
     PRIVATE
+        glfw
+        #imgui
         Events
 )

@@ -1,6 +1,6 @@
 #include "Core/Application.h"
 #include "Core/Timer.h"
-#include "ImGui/ImGuiLayer.h"
+//#include "ImGui/ImGuiLayer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,38 +9,38 @@
 #include "Core/Time.h"
 #include "Core/Random.h"
 
-#include "Renderer/Renderer.h"
-#include "Editor/EditorLayer.h"
-#include "Physics/PhysicsManager.h"
-#include "JobSystem/JobSystem.h"
+//#include "Renderer/Renderer.h"
+//#include "Editor/EditorLayer.h"
+//#include "Physics/PhysicsManager.h"
+//#include "JobSystem/JobSystem.h"
 
 Application* Application::instance = nullptr;
 
 Application::Application()
 {
-    Log::Init();
+    //Log::Init();
     Time::Init();
     Random::Init();
-    JobSystem::Init();
+    //JobSystem::Init();
 
     instance = this;
     window = Window::Create();
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    PhysicsManager::Init();
-    Renderer::Init();
+    //PhysicsManager::Init();
+    //Renderer::Init();
 
-    PushLayer(new EditorLayer());
+    //PushLayer(new EditorLayer());
 
     // Imgui overlay
-    imguiLayer = new ImGuiLayer();
-    PushOverlay(imguiLayer);
+    //imguiLayer = new ImGuiLayer();
+    //PushOverlay(imguiLayer);
 }
 
 Application::~Application()
 {
-    Renderer::Shutdown();
-    PhysicsManager::Shutdown();
+    //Renderer::Shutdown();
+    //PhysicsManager::Shutdown();
 }
 
 void Application::Run()
@@ -49,6 +49,7 @@ void Application::Run()
     {
         Time::Update();
 
+        /*
         for (Layer* layer : layerStack)
         {
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
@@ -62,6 +63,7 @@ void Application::Run()
             layer->OnImGuiRender();
         }
         imguiLayer->End();
+        */
 
         window->OnUpdate();
     }
@@ -113,7 +115,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         return true;
     }
 
-    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }
 
