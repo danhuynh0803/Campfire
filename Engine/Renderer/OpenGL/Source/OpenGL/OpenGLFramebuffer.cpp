@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include "Core/Log.h"
 
-#include "Platform/OpenGL/OpenGLFramebuffer.h"
+#include "OpenGL/OpenGLFramebuffer.h"
 
 OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t samples)
 {
@@ -87,7 +87,7 @@ void OpenGLFramebuffer::Resize(uint32_t w, uint32_t h, uint32_t samples, bool fo
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer not complete!");
+        //LOG_ERROR("ERROR::FRAMEBUFFER:: Framebuffer not complete!");
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -1,4 +1,4 @@
-#include "Platform/OpenGL/OpenGLRendererAPI.h"
+#include "OpenGL/OpenGLRendererAPI.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>

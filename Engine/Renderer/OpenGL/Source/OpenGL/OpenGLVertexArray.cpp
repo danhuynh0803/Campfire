@@ -1,4 +1,4 @@
-#include "OpenGLVertexArray.h"
+#include "OpenGL/OpenGLVertexArray.h"
 
 #include <glad/glad.h>
 #include "Core/Base.h"

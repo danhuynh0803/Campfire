@@ -1,7 +1,7 @@
-#include "Buffer.h"
+#include "Renderer/Buffer.h"
 
 #include "Renderer/RendererAPI.h"
-#include "Platform/OpenGL/OpenGLBuffer.h"
+#include "OpenGL/OpenGLBuffer.h"
 #include "Core/Base.h"
 #include <stdint.h>
 

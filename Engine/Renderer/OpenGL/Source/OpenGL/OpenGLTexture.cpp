@@ -1,7 +1,6 @@
-#include "OpenGLTexture.h"
+#include "OpenGL/OpenGLTexture.h"
 #include "Core/Log.h"
 
-#include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -70,7 +69,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
     }
     else
     {
-        LOG_ERROR("Failed to load: {0}", filepath);
+        //LOG_ERROR("Failed to load: {0}", filepath);
     }
 
     stbi_image_free(data);
@@ -118,7 +117,7 @@ OpenGLTextureCube::OpenGLTextureCube(const std::vector<std::string>& pathList)
         }
         else
         {
-            LOG_ERROR("Cubemap texture failed to load: {0}", filepathList[i]);
+            //LOG_ERROR("Cubemap texture failed to load: {0}", filepathList[i]);
         }
         stbi_image_free(data);
     }

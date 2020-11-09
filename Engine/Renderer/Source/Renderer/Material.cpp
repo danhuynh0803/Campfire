@@ -1,4 +1,5 @@
 #include "Renderer/Material.h"
+#include <imgui.h>
 
 SharedPtr<MaterialInstance> MaterialInstance::Create(MaterialInstance::Type type)
 {

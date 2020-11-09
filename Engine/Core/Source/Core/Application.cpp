@@ -9,8 +9,8 @@
 #include "Core/Time.h"
 #include "Core/Random.h"
 
-//#include "Renderer/Renderer.h"
-//#include "Physics/PhysicsManager.h"
+#include "Renderer/Renderer.h"
+#include "Physics/PhysicsManager.h"
 //#include "JobSystem/JobSystem.h"
 
 Application* Application::instance = nullptr;
@@ -27,8 +27,8 @@ Application::Application(const ApplicationProps& props)
     window = Window::Create({props.name, props.width, props.height});
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    //PhysicsManager::Init();
-    //Renderer::Init();
+    PhysicsManager::Init();
+    Renderer::Init();
 
     // Imgui overlay
     imguiLayer = new ImGuiLayer();
@@ -38,8 +38,8 @@ Application::Application(const ApplicationProps& props)
 Application::~Application()
 {
     Shutdown();
-    //Renderer::Shutdown();
-    //PhysicsManager::Shutdown();
+    Renderer::Shutdown();
+    PhysicsManager::Shutdown();
 }
 
 void Application::Run()
@@ -107,7 +107,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         return true;
     }
 
-    //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }
 

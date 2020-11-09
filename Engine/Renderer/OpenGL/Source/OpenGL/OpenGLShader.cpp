@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "OpenGLShader.h"
+#include "OpenGL/OpenGLShader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,7 +11,7 @@
 
 OpenGLShader::OpenGLShader(const std::string& filepath)
 {
-
+    // TODO
 }
 
 OpenGLShader::OpenGLShader(const std::string& _name, const std::string& vertexPath, const std::string& fragmentPath)

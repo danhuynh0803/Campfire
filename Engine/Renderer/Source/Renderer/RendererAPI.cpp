@@ -1,5 +1,5 @@
 #include "Renderer/RendererAPI.h"
-#include "Platform/OpenGL/OpenGLRendererAPI.h"
+#include "OpenGL/OpenGLRendererAPI.h"
 
 RendererAPI::API RendererAPI::sAPI = RendererAPI::API::OpenGL;
 
