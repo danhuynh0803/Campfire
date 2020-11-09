@@ -10,3 +10,9 @@
 [submodule "Vendor/stb"]
 	path = Vendor/stb
 	url = https://github.com/nothings/stb
+[submodule "Vendor/assimp"]
+	path = Vendor/assimp
+	url = https://github.com/assimp/assimp
+[submodule "Vendor/bullet3"]
+	path = Vendor/bullet3
+	url = https://github.com/bulletphysics/bullet3
