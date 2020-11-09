@@ -16,15 +16,16 @@
 
 Application* Application::instance = nullptr;
 
-Application::Application()
+Application::Application(const ApplicationProps& props)
 {
+    OnInit();
     //Log::Init();
     Time::Init();
     Random::Init();
     //JobSystem::Init();
 
     instance = this;
-    window = Window::Create();
+    window = Window::Create({props.name, props.width, props.height});
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
     //PhysicsManager::Init();
@@ -39,6 +40,8 @@ Application::Application()
 
 Application::~Application()
 {
+    Shutdown();
+
     //Renderer::Shutdown();
     //PhysicsManager::Shutdown();
 }
@@ -72,11 +75,6 @@ void Application::Run()
 void Application::Close()
 {
     isRunning = false;
-}
-
-void Application::Shutdown()
-{
-
 }
 
 void Application::PushLayer(Layer* layer)

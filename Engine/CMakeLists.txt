@@ -6,6 +6,9 @@ add_library(Engine STATIC)
 
 set_target_properties(Engine PROPERTIES FOLDER "Engine")
 
+# for including EntryPoint.h
+target_include_directories(Engine PUBLIC "./")
+
 target_link_libraries(Engine
     PUBLIC
         Core
@@ -15,12 +18,9 @@ target_link_libraries(Engine
         Renderer
 )
 
-# dummy file since we can't create a lib without some source
-file(WRITE null.cpp "")
-
 target_sources(Engine
-    PRIVATE
-        null.cpp
+    PUBLIC
+        EntryPoint.h
 )
 
 add_subdirectory(Core)

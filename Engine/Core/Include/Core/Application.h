@@ -7,16 +7,23 @@
 #include "Events/ApplicationEvent.h"
 //#include "ImGui/ImGuiLayer.h"
 
+struct ApplicationProps
+{
+    std::string name;
+    uint32_t width, height;
+};
+
 class Application
 {
 public:
-    Application();
+    Application(const ApplicationProps& props = {"Campfire", 1600, 900});
     ~Application();
 
     static Application& Get() { return *instance; }
     virtual void Run();
     virtual void Close();
-    virtual void Shutdown();
+    virtual void Shutdown() {}
+    virtual void OnInit() {}
 
     void PushLayer(Layer* layer);
     void PushOverlay(Layer* layer);

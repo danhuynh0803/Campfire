@@ -13,42 +13,18 @@ project(Campfire
 
 add_subdirectory(Engine)
 add_subdirectory(Vendor)
-#add_subdirectory(Editor)
-
-add_executable(Campfire
-    main.cpp
-)
-
-target_link_libraries(Campfire
-    PRIVATE
-        Engine
-)
-
-#add_subdirectory(Editor)
-
-#source_group("Engine" FILES ${PROJECT_SOURCES})
-#source_group("Editor" FILES ${PROJECT_SOURCES})
-#source_group("Vendor" FILES ${PROJECT_SOURCES})
+add_subdirectory(Editor)
 
 
-#add_subdirectory(Editor)
-
-
+#add_executable(CampfireEditor
+#    Engine/EntryPoint.h
+#)
+#
+#target_link_libraries(CampfireEditor
+#    Editor
+#)
 
 ###### old cmake ######
-
-#add_executable(
-#    Editor
-#    Editor/main.cpp
-#)
-
-# game exe
-#add_executable(
-#    Game [WIN32]
-#    Game/main.cpp
-#)
-
-
 # LUA Options
 #add_subdirectory(Campfire/Vendor/lua-5.4.0)
 #
