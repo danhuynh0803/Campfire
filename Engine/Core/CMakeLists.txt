@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_library(Core)
+add_library(Core STATIC)
 
 set(CORE_SRC
     Source/Core/Application.cpp
@@ -43,13 +43,13 @@ target_sources(Core
 
 target_link_libraries(Core
     PUBLIC
-        glm
-        spdlog
-        glad
         Windows
         Events
         Renderer
         ImGui
     PRIVATE
         glfw
+        glm
+        spdlog
+        glad
 )

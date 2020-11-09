@@ -1,6 +1,6 @@
-add_library(OpenGLImpl)
+add_library(OpenGLImpl STATIC)
 
-set_target_properties(OpenGLImpl PROPERTIES FOLDER "Engine/APIs/")
+set_target_properties(OpenGLImpl PROPERTIES FOLDER "Engine/Rendering/APIs/")
 
 target_include_directories(OpenGLImpl PUBLIC "Include/")
 

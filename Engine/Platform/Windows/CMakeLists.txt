@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_library(Windows)
+add_library(Windows STATIC)
 
 set_target_properties(Windows PROPERTIES FOLDER "Engine/Platform/")
 

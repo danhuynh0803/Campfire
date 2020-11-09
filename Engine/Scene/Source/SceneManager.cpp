@@ -1,9 +1,10 @@
-#include "SceneManager.h"
-
+#include "Scene/SceneManager.h"
+#include "Core/Base.h"
 #include <cstdio>
 #include <iomanip>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <string>
 
 std::string SceneManager::activeScenePath;
 std::string SceneManager::activeSceneName;

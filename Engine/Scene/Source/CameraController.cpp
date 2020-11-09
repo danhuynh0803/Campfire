@@ -1,4 +1,5 @@
 #include "Scene/CameraController.h"
+#include "Core/Base.h"
 #include "Core/Input.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,6 +7,8 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <imgui.h>
+
+#include <algorithm>
 
 void CameraController::SetActiveCamera(const SharedPtr<Camera>& camera, const glm::vec3& pos, const glm::vec3& euler)
 {

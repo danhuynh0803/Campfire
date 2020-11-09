@@ -1,6 +1,6 @@
 add_library(Renderer)
 
-set_target_properties(Renderer PROPERTIES FOLDER "Engine/")
+set_target_properties(Renderer PROPERTIES FOLDER "Engine/Rendering/")
 
 target_include_directories(Renderer PUBLIC "Include/")
 
@@ -46,8 +46,10 @@ target_sources(Renderer
 )
 
 target_link_libraries(Renderer
-    PRIVATE
+    PUBLIC
         Core
+        Scene
+    PRIVATE
         OpenGLImpl
         imgui
         assimp
