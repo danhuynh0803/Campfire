@@ -14,9 +14,13 @@ set_target_properties(Events PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(Events PUBLIC "Include/")
 
+# Create a empty file just to tell VS to make the lib
+file(WRITE null.cpp "")
+
 target_sources(Events
     PRIVATE
         ${EVENTS_HEADERS}
+        null.cpp
 )
 
 target_link_libraries(Events)

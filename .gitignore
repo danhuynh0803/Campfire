@@ -1,3 +1,8 @@
 [Bb]uild/
 [Aa]ssets/
+
+# vim swp files
 *.sw[a-p]
+
+# blank files just to force libs to build
+null.cpp

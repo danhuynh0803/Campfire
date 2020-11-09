@@ -18,9 +18,14 @@ target_link_libraries(Engine
         Renderer
 )
 
+# Create a empty file just to tell VS to make the lib
+file(WRITE null.cpp "")
+
 target_sources(Engine
     PUBLIC
         EntryPoint.h
+    PRIVATE
+        null.cpp
 )
 
 add_subdirectory(Core)
