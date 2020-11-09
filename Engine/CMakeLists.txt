@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 add_library(Engine STATIC)
+
+set_target_properties(Engine PROPERTIES FOLDER "Engine")
 
 target_link_libraries(Engine
     PUBLIC

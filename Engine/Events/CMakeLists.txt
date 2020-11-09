@@ -1,15 +1,22 @@
 cmake_minimum_required(VERSION 3.15)
 
+set(EVENTS_HEADERS
+    Include/Events/ApplicationEvent.h
+    Include/Events/Event.h
+    Include/Events/KeyEvent.h
+    Include/Events/MouseEvent.h
+)
+
 add_library(Events)
+
+set_target_properties(Events PROPERTIES FOLDER "Engine")
+set_target_properties(Events PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(Events PUBLIC "Include/")
 
-# dummy file since we can't create a lib without some source
-file(WRITE Source/Events/null.cpp "")
-
 target_sources(Events
     PRIVATE
-        Source/Events/null.cpp
+        ${EVENTS_HEADERS}
 )
 
 target_link_libraries(Events)

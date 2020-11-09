@@ -10,6 +10,5 @@ set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(glad
     PUBLIC
-        #OpenGL
         ${CMAKE_DL_LIBS}
 )
