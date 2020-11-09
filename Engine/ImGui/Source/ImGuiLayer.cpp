@@ -3,7 +3,6 @@
 //#include "ImGui/ImGuiThemes.h"
 
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 static glm::vec3 colorForText   = glm::vec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
@@ -148,15 +147,15 @@ void ImGuiLayer::OnAttach()
 #define WIN32_CAMPFIRE_DEFAULT_HORIZONTAL_PIXEL 1920.0f
 
 #ifdef _WIN32
-    RECT desktop;
-    const HWND hDesktop = GetDesktopWindow();
+    //RECT desktop;
+    //const HWND hDesktop = GetDesktopWindow();
     // Get the size of screen to the variable desktop
-    GetWindowRect(hDesktop, &desktop);
+    //GetWindowRect(hDesktop, &desktop);
     // The top left corner will have coordinates (0,0)
     // and the bottom right corner will have coordinates
     // (horizontal, vertical)
     //LOG_INFO("Screen Resoultion(from Windows Display): {0}x{1}",desktop.right, desktop.bottom);
-    io.FontGlobalScale = desktop.right / WIN32_CAMPFIRE_DEFAULT_HORIZONTAL_PIXEL;
+    //io.FontGlobalScale = desktop.right / WIN32_CAMPFIRE_DEFAULT_HORIZONTAL_PIXEL;
 #else
     io.FontGlobalScale = 1.0f;
 #endif

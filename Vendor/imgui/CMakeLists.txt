@@ -24,10 +24,16 @@ set(IMGUI_HEADERS
     Include/imgui/imstb_truetype.h
 )
 
-target_include_directories(imgui PUBLIC "Include/")
+target_include_directories(imgui PUBLIC "Include/imgui/")
 
 target_sources(imgui
     PRIVATE
         ${IMGUI_SRC}
         ${IMGUI_HEADERS}
+)
+
+target_link_libraries(imgui
+    PRIVATE
+        glfw
+        glad
 )

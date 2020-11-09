@@ -49,7 +49,7 @@ target_link_libraries(Core
         Windows
         Events
         Renderer
+        ImGui
     PRIVATE
         glfw
-        #imgui
 )

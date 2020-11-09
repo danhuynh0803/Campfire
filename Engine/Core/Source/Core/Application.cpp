@@ -1,6 +1,6 @@
 #include "Core/Application.h"
 #include "Core/Timer.h"
-//#include "ImGui/ImGuiLayer.h"
+#include "ImGui/ImGuiLayer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -10,7 +10,6 @@
 #include "Core/Random.h"
 
 //#include "Renderer/Renderer.h"
-//#include "Editor/EditorLayer.h"
 //#include "Physics/PhysicsManager.h"
 //#include "JobSystem/JobSystem.h"
 
@@ -31,17 +30,14 @@ Application::Application(const ApplicationProps& props)
     //PhysicsManager::Init();
     //Renderer::Init();
 
-    //PushLayer(new EditorLayer());
-
     // Imgui overlay
-    //imguiLayer = new ImGuiLayer();
-    //PushOverlay(imguiLayer);
+    imguiLayer = new ImGuiLayer();
+    PushOverlay(imguiLayer);
 }
 
 Application::~Application()
 {
     Shutdown();
-
     //Renderer::Shutdown();
     //PhysicsManager::Shutdown();
 }
@@ -52,7 +48,6 @@ void Application::Run()
     {
         Time::Update();
 
-        /*
         for (Layer* layer : layerStack)
         {
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
@@ -66,7 +61,6 @@ void Application::Run()
             layer->OnImGuiRender();
         }
         imguiLayer->End();
-        */
 
         window->OnUpdate();
     }
