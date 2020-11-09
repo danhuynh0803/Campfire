@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
+add_library(Core)
+
 set(CORE_SRC
     Source/Core/Application.cpp
     Source/Core/FileSystem.cpp
@@ -28,8 +30,6 @@ set(CORE_HEADERS
     Include/Core/Timer.h
     Include/Core/Window.h
 )
-
-add_library(Core)
 
 set_target_properties(Core PROPERTIES FOLDER "Engine")
 

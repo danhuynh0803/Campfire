@@ -16,6 +16,10 @@ add_subdirectory(glm)
 #include_directories(glm)
 #set_target_properties(glm PROPERTIES FOLDER "Vendor/glm")
 
+# imgui
+add_subdirectory(imgui)
+set_target_properties(imgui PROPERTIES FOLDER "Vendor")
+
 # spdlog
 add_subdirectory(spdlog)
 set_target_properties(spdlog PROPERTIES FOLDER "Vendor")
