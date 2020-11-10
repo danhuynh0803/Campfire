@@ -4,7 +4,6 @@
 #include <string>
 
 #include "Base.h"
-/*
 #include "Renderer/Texture.h"
 #include "Renderer/Mesh.h"
 
@@ -19,4 +18,3 @@ private:
     static std::unordered_map<std::string, SharedPtr<Texture2D>> mCachedTextureMap;
     static std::unordered_map<std::string, SharedPtr<Mesh>> mCachedMeshMap;
 };
-*/

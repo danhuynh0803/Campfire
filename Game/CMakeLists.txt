@@ -9,6 +9,12 @@ set(GAME_HEADERS
     include/GameLayer.h
 )
 
+add_executable(Game
+    ${CMAKE_SOURCE_DIR}/Engine/EntryPoint.h
+    ${GAME_SRC}
+    ${GAME_HEADERS}
+)
+
 #if(MSVC)
 #    add_compile_options(/W4)
 #else()
@@ -18,16 +24,7 @@ set(GAME_HEADERS
 #    endif()
 #endif()
 
-add_executable(Game
-    ${CMAKE_SOURCE_DIR}/Engine/EntryPoint.h
-    ${GAME_SRC}
-    ${GAME_HEADERS}
-)
-
 target_link_libraries(Game
     PRIVATE
         Engine
 )
-
-
-

@@ -44,10 +44,22 @@ add_subdirectory(imgui)
 set_target_properties(imgui PROPERTIES FOLDER "Vendor")
 
 # spdlog
-add_subdirectory(spdlog)
-set_target_properties(spdlog PROPERTIES FOLDER "Vendor")
+add_library(spdlog INTERFACE)
+target_include_directories(spdlog
+    INTERFACE
+        "spdlog/include/"
+)
+#set_target_properties(spdlog PROPERTIES FOLDER "Vendor")
 
 # stb
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE "stb/")
 #set_target_properties(stb PROPERTIES FOLDER "Vendor")
+
+# json
+add_library(json INTERFACE)
+target_include_directories(json INTERFACE "nlohmann/include/")
+
+# entt
+add_library(entt INTERFACE)
+target_include_directories(entt INTERFACE "entt/include/")

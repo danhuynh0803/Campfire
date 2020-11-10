@@ -12,12 +12,12 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
 #include "Renderer/Text.h"
-#include "Particles/ParticleSystem.h"
-#include "Physics/Rigidbody.h"
-#include "Physics/Trigger.h"
+//#include "Particles/ParticleSystem.h"
+//#include "Physics/Rigidbody.h"
+//#include "Physics/Trigger.h"
 #include "Scene/Camera.h"
 #include "Scene/Entity.h"
-#include "Audio/AudioSource.h"
+//#include "Audio/AudioSource.h"
 
 class Entity;
 

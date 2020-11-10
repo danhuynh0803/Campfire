@@ -1,7 +1,6 @@
 #include "OpenGL/OpenGLRendererAPI.h"
 
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
 
 void OpenGLRendererAPI::Init()
 {
@@ -13,7 +12,7 @@ void OpenGLRendererAPI::Init()
     glfwWindowHint(GLFW_SAMPLES, 16);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    //glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

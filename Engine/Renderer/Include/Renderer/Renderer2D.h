@@ -7,10 +7,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Buffer.h"
-
 #include "Scene/Camera.h"
-
-#include <array>
 
 class Renderer2D
 {

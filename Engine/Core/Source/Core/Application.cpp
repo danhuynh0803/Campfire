@@ -10,7 +10,7 @@
 #include "Core/Random.h"
 
 #include "Renderer/Renderer.h"
-#include "Physics/PhysicsManager.h"
+//#include "Physics/PhysicsManager.h"
 //#include "JobSystem/JobSystem.h"
 
 Application* Application::instance = nullptr;
@@ -27,19 +27,20 @@ Application::Application(const ApplicationProps& props)
     window = Window::Create({props.name, props.width, props.height});
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    PhysicsManager::Init();
-    Renderer::Init();
+    //PhysicsManager::Init();
+    //Renderer::Init();
 
+    // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
-    imguiLayer = new ImGuiLayer();
-    PushOverlay(imguiLayer);
+    //imguiLayer = new ImGuiLayer();
+    //PushOverlay(imguiLayer);
 }
 
 Application::~Application()
 {
     Shutdown();
-    Renderer::Shutdown();
-    PhysicsManager::Shutdown();
+    //Renderer::Shutdown();
+    //PhysicsManager::Shutdown();
 }
 
 void Application::Run()
@@ -53,14 +54,14 @@ void Application::Run()
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
         }
 
-        imguiLayer->Begin();
+        //imguiLayer->Begin();
 
         // update layers in reverse
-        for (Layer* layer : layerStack)
-        {
-            layer->OnImGuiRender();
-        }
-        imguiLayer->End();
+        //for (Layer* layer : layerStack)
+        //{
+        //    layer->OnImGuiRender();
+        //}
+        //imguiLayer->End();
 
         window->OnUpdate();
     }
@@ -107,7 +108,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         return true;
     }
 
-    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }
 

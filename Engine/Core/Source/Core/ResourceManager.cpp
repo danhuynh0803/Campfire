@@ -2,10 +2,9 @@
 #include "Renderer/RendererAPI.h"
 //#include "OpenGL/OpenGLTexture.h"
 
-//std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
-//std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
+std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
+std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
 
-/*
 SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
 {
     auto it = mCachedTextureMap.find(path);
@@ -17,7 +16,7 @@ SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
                 return nullptr;
             case RendererAPI::API::OpenGL:
                 //return CreateSharedPtr<OpenGLTexture2D>(path);
-                mCachedTextureMap.emplace(path, CreateSharedPtr<OpenGLTexture2D>(path));
+                //mCachedTextureMap.emplace(path, CreateSharedPtr<OpenGLTexture2D>(path));
                 break;
         }
     }
@@ -33,4 +32,3 @@ SharedPtr<Mesh> ResourceManager::GetMesh(const std::string& path)
     }
     return mCachedMeshMap.at(path);
 }
-*/

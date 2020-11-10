@@ -7,8 +7,8 @@ std::shared_ptr<spdlog::logger> Log::clientLogger;
 void Log::Init()
 {
     spdlog::set_pattern("%^[%T] %n: %v%$");
-    auto widget_sink = std::make_shared<widget_sink_mt>();
-    coreLogger = std::make_shared<spdlog::logger>("Campfire", widget_sink);
+    //auto widget_sink = std::make_shared<widget_sink_mt>();
+    //coreLogger = std::make_shared<spdlog::logger>("Campfire", widget_sink);
     coreLogger->set_level(spdlog::level::trace);
 
     //logWidget = std::make_shared<LogWidget>();

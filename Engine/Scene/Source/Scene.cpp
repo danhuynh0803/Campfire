@@ -4,16 +4,17 @@
 
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Renderer2D.h"
-#include "Physics/PhysicsManager.h"
-#include "Scripting/CameraController.h"
-#include "Scripting/PlayerController.h"
-#include "Audio/AudioSystem.h"
+//#include "Physics/PhysicsManager.h"
+//#include "Scripting/CameraController.h"
+//#include "Scripting/PlayerController.h"
+// Should be moved as a subsystem
+//#include "Audio/AudioSystem.h"
 
-#include <Tracy.hpp>
+//#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
 {
-    AudioSystem::Init();
+    //AudioSystem::Init();
     SceneRenderer::Init();
 
     // Default objects within each new scene
@@ -233,7 +234,7 @@ void Scene::OnUpdate(float dt)
 
     // Update rigidbodies
     {
-        ZoneScopedN("UpdateRigidbodies");
+        //ZoneScopedN("UpdateRigidbodies");
         auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
         for (auto entity : group)
         {
@@ -246,7 +247,7 @@ void Scene::OnUpdate(float dt)
     // Update triggers
     std::vector<entt::entity> overlappingEntities;
     {
-        ZoneScopedN("UpdateTriggers");
+        //ZoneScopedN("UpdateTriggers");
         auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
         for (auto entity : triggerGroup)
         {
@@ -258,7 +259,7 @@ void Scene::OnUpdate(float dt)
 
     // Update with Native C++ scripts
     {
-        ZoneScopedN("UpdateNativeScripts");
+        //ZoneScopedN("UpdateNativeScripts");
         registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
         {
             nsc.instance->Update(dt);
@@ -305,7 +306,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 {
     // Render particles first since they're transparent
     {
-        ZoneScopedN("RenderParticles");
+        //ZoneScopedN("RenderParticles");
         {
             auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
             for (auto entity : group)
@@ -325,7 +326,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
     // Render sprites
     {
-        ZoneScopedN("RenderSprites");
+        //ZoneScopedN("RenderSprites");
         {
             auto group = registry.group<SpriteComponent>(entt::get<TransformComponent>);
             for (auto entity : group)
@@ -339,7 +340,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
     // Render opaque meshes
     {
-        ZoneScopedN("RenderMeshes");
+        //ZoneScopedN("RenderMeshes");
         // Only render objects that have mesh components
         auto group = registry.group<MeshComponent>(entt::get<TransformComponent, RelationshipComponent>);
         for (auto entity : group)
@@ -395,7 +396,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
     // Render Text objects
     {
-        ZoneScopedN("RenderText");
+        //ZoneScopedN("RenderText");
         // Only render objects that have mesh components
         auto group = registry.group<TextComponent>(entt::get<TransformComponent>);
         for (auto entity : group)

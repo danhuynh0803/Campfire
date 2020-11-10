@@ -1,4 +1,4 @@
-add_library(ImGui)
+add_library(ImGui STATIC)
 
 set(IMGUI_SRC
     Source/ImGuiLayer.cpp
@@ -26,4 +26,5 @@ target_link_libraries(ImGui
     PRIVATE
         Core
         glfw
+        glad
 )

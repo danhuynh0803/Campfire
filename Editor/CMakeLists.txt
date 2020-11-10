@@ -5,7 +5,7 @@ set(EDITOR_SRC
     #Source/Widgets/InspectorWidget.cpp
     #Source/Widgets/LogWidget.cpp
     #Source/Widgets/TransformWidget.cpp
-    Source/EditorLayer.cpp
+    #Source/EditorLayer.cpp
     Source/EditorApplication.cpp
 )
 
@@ -14,7 +14,7 @@ set(EDITOR_HEADERS
     #Include/Widgets/InspectorWidget.h
     #Include/Widgets/LogWidget.h
     #Include/Widgets/TransformWidget.h
-    Include/EditorLayer.h
+    #Include/EditorLayer.h
 )
 
 #add_library(Editor)
@@ -43,6 +43,8 @@ add_executable(Editor
 )
 
 target_link_libraries(Editor
+    PUBLIC
+        glfw
     PRIVATE
         Engine
 )

@@ -8,8 +8,8 @@
 #include <glm/glm.hpp>
 #include "Renderer/Texture.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+//#include <ft2build.h>
+//#include FT_FREETYPE_H
 
 class Camera;
 struct TransformComponent;

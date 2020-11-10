@@ -27,6 +27,7 @@ target_link_libraries(Windows
         Renderer
     PRIVATE
         glfw
+        glad
         Core
         Events
 )

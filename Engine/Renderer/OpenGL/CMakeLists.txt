@@ -34,9 +34,8 @@ target_sources(OpenGLImpl
 
 target_link_libraries(OpenGLImpl
     PUBLIC
-        glfw
-    PRIVATE
-        glad
         Core
+        glfw
+        glad
         stb
 )
