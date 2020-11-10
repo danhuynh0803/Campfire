@@ -31,7 +31,12 @@ add_subdirectory(glfw)
 set_target_properties(glfw PROPERTIES FOLDER "Vendor")
 
 # glm
-add_subdirectory(glm)
+add_library(glm INTERFACE)
+target_include_directories(glm
+    INTERFACE
+        "glm/"
+)
+#add_subdirectory(glm)
 #set_target_properties(glm PROPERTIES FOLDER "Vendor")
 
 # imgui

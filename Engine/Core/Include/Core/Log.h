@@ -10,13 +10,13 @@ public:
 
     inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return coreLogger; };
     inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return clientLogger; };
-    inline static std::shared_ptr<LogWidget>& GetWidget() { return logWidget; };
-    inline static void ShowLog(bool* isOpen) { logWidget->Draw(isOpen); }
+    //inline static std::shared_ptr<LogWidget>& GetWidget() { return logWidget; };
+    //inline static void ShowLog(bool* isOpen) { logWidget->Draw(isOpen); }
 
 private:
     static std::shared_ptr<spdlog::logger> coreLogger;
     static std::shared_ptr<spdlog::logger> clientLogger;
-    static std::shared_ptr<LogWidget> logWidget;
+    //static std::shared_ptr<LogWidget> logWidget;
 };
 
 #define LOG_TRACE(...)     { Log::GetCoreLogger()->trace(__VA_ARGS__);    }

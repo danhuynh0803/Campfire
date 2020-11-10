@@ -53,6 +53,7 @@ target_link_libraries(Renderer
         OpenGLImpl
         imgui
         assimp
+        glm
 )
 
 add_subdirectory(OpenGL)

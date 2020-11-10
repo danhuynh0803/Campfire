@@ -30,6 +30,7 @@ target_sources(Engine
 
 add_subdirectory(Core)
 add_subdirectory(Events)
+add_subdirectory(ImGui)
 add_subdirectory(Platform)
 add_subdirectory(Renderer)
-add_subdirectory(ImGui)
+add_subdirectory(Scene)

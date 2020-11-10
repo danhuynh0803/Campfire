@@ -47,9 +47,9 @@ target_link_libraries(Core
         Events
         Renderer
         ImGui
+        glm
     PRIVATE
         glfw
-        glm
         spdlog
         glad
 )
