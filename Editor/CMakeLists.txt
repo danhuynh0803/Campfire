@@ -5,7 +5,7 @@ set(EDITOR_SRC
     #Source/Widgets/InspectorWidget.cpp
     #Source/Widgets/LogWidget.cpp
     #Source/Widgets/TransformWidget.cpp
-    #Source/EditorLayer.cpp
+    Source/EditorLayer.cpp
     Source/EditorApplication.cpp
 )
 
