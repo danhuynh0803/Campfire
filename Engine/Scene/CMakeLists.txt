@@ -35,8 +35,9 @@ target_sources(Scene
 target_link_libraries(Scene
     PUBLIC
         entt
+        Renderer
+        spdlog
     PRIVATE
         Core
-        #Renderer
         json
 )

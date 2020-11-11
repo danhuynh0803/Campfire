@@ -35,7 +35,9 @@ target_sources(OpenGLImpl
 target_link_libraries(OpenGLImpl
     PUBLIC
         Core
+        Renderer
         glfw
         glad
         stb
+        spdlog
 )

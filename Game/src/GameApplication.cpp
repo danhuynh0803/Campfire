@@ -1,6 +1,6 @@
 #include "Core/Application.h"
 #include "EntryPoint.h"
-//#include "GameLayer.h"
+#include "../include/GameLayer.h"
 
 class GameApplication : public Application
 {
@@ -12,7 +12,7 @@ public:
 
     virtual void OnInit() override
     {
-        //PushLayer(new GameLayer);
+        PushLayer(new GameLayer());
     }
 };
 

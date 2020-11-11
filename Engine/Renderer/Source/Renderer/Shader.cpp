@@ -1,6 +1,5 @@
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Shader.h"
-
 #include "OpenGL/OpenGLShader.h"
 
 SharedPtr<Shader> Shader::Create(const std::string& filepath)

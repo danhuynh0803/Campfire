@@ -14,30 +14,30 @@ void GameLayer::OnAttach()
     vao = VertexArray::Create();
     shader = Shader::Create("tri", "tri.vert", "tri.frag");
 
-    //float vertices[] = {
-    //     0.0f,  0.5f,  0.0f,
-    //    -0.5f, -0.5f,  0.0f,
-    //     0.5f, -0.5f,  0.0f,
-    //};
+    float vertices[] = {
+         0.0f,  0.5f,  0.0f,
+        -0.5f, -0.5f,  0.0f,
+         0.5f, -0.5f,  0.0f,
+    };
 
-    //vao->Bind();
+    vao->Bind();
 
-    //SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
-    //buffer->Bind();
+    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
+    buffer->Bind();
 
-    //BufferLayout layout
-    //{
-    //    { ShaderDataType::FLOAT3, "aPos" }
-    //    //{ ShaderDataType::FLOAT3, "aColor" }
-    //};
+    BufferLayout layout
+    {
+        { ShaderDataType::FLOAT3, "aPos" }
+        //{ ShaderDataType::FLOAT3, "aColor" }
+    };
 
-    //buffer->SetLayout(layout);
+    buffer->SetLayout(layout);
 
-    //buffer->Unbind();
+    buffer->Unbind();
 
-    //vao->AddVertexBuffer(buffer);
+    vao->AddVertexBuffer(buffer);
 
-    //vao->Unbind();
+    vao->Unbind();
 }
 
 void GameLayer::OnDetach()

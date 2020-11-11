@@ -17,7 +17,6 @@ Application* Application::instance = nullptr;
 
 Application::Application(const ApplicationProps& props)
 {
-    OnInit();
     //Log::Init();
     Time::Init();
     Random::Init();
@@ -45,6 +44,8 @@ Application::~Application()
 
 void Application::Run()
 {
+    OnInit();
+
     while (isRunning)
     {
         Time::Update();

@@ -8,7 +8,7 @@ set(CORE_SRC
     Source/Core/Input.cpp
     Source/Core/Layer.cpp
     Source/Core/LayerStack.cpp
-    #Source/Core/Log.cpp
+    Source/Core/Log.cpp
     Source/Core/Random.cpp
     #Source/Core/ResourceManager.cpp
     Source/Core/Time.cpp
@@ -22,7 +22,7 @@ set(CORE_HEADERS
     Include/Core/Input.h
     Include/Core/Layer.h
     Include/Core/LayerStack.h
-    #Include/Core/Log.h
+    Include/Core/Log.h
     Include/Core/MouseCodes.h
     Include/Core/Random.h
     #Include/Core/ResourceManager.h

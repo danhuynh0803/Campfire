@@ -1,5 +1,5 @@
 #include "Renderer/Renderer.h"
-#include "Renderer/Renderer2D.h"
+//#include "Renderer/Renderer2D.h"
 
 glm::mat4 Renderer::viewProjMatrix = glm::mat4(1.0f);
 SharedPtr<Shader> Renderer::shader;
@@ -9,7 +9,7 @@ SharedPtr<Texture2D> whiteTexture;
 void Renderer::Init()
 {
     RenderCommand::Init();
-    Renderer2D::Init();
+    //Renderer2D::Init();
 
     // TODO should be part of material
     shader = ShaderManager::Create("pbr", "../Campfire/Shaders/pbr.vert", "../Campfire/Shaders/pbr.frag");
@@ -25,7 +25,7 @@ void Renderer::Init()
 
 void Renderer::Shutdown()
 {
-    Renderer2D::Shutdown();
+    //Renderer2D::Shutdown();
 }
 
 void Renderer::BeginScene(const Camera& camera)
@@ -33,16 +33,17 @@ void Renderer::BeginScene(const Camera& camera)
     RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
     RenderCommand::Clear();
 
-    viewProjMatrix = camera.GetViewProjMatrix();
+    //viewProjMatrix = camera.GetViewProjMatrix();
 
-    Renderer2D::BeginScene(camera);
+    //Renderer2D::BeginScene(camera);
 }
 
 void Renderer::EndScene()
 {
-    Renderer2D::EndScene();
+    //Renderer2D::EndScene();
 }
 
+/*
 void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<TextureCube> texCube, SharedPtr<Material> overrideMaterial)
 {
     shader->Bind();
@@ -79,8 +80,10 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
     }
 
 }
+*/
 
 
+/*
 void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<Material> overrideMaterial)
 {
     shader->Bind();
@@ -111,8 +114,8 @@ void Renderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transfor
 
         RenderCommand::DrawIndexed(submesh.vertexArray);
     }
-
 }
+*/
 
 void Renderer::Draw(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform)
 {
