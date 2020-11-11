@@ -28,3 +28,7 @@ target_link_libraries(Game
     PRIVATE
         Engine
 )
+
+# Output game and all related libs here
+#set_target_properties(${PROJECT_NAME} PROPERTIES
+#    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})

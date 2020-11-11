@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_library(Engine SHARED)
+add_library(Engine STATIC)
 
 set_target_properties(Engine PROPERTIES FOLDER "Engine")
 
@@ -28,9 +28,14 @@ target_sources(Engine
         null.cpp
 )
 
+#add_subdirectory(Audio)
+#add_subdirectory(Command)
 add_subdirectory(Core)
 add_subdirectory(Events)
 add_subdirectory(ImGui)
+#add_subdirectory(JobSystem)
+#add_subdirectory(Particles)
+#add_subdirectory(Physics)
 add_subdirectory(Platform)
 add_subdirectory(Renderer)
 add_subdirectory(Scene)

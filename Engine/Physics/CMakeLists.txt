@@ -1,4 +1,4 @@
-add_library(Physics STATIC)
+add_library(Physics)
 
 set_target_properties(Physics PROPERTIES FOLDER "Engine/")
 
@@ -31,4 +31,6 @@ target_link_libraries(Physics
         BulletDynamics
         BulletCollision
         LinearMath
+        Core
+        glm
 )
