@@ -1,4 +1,4 @@
-add_library(Renderer STATIC)
+add_library(Renderer)
 
 set_target_properties(Renderer PROPERTIES FOLDER "Engine/Rendering/")
 

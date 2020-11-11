@@ -1,4 +1,4 @@
-add_library(Scene STATIC)
+add_library(Scene)
 
 set_target_properties(Scene PROPERTIES FOLDER "Engine/")
 

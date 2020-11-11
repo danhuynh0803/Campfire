@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_library(Core STATIC)
+add_library(Core)
 
 set(CORE_SRC
     Source/Core/Application.cpp

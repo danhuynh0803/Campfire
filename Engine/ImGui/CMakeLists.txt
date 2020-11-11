@@ -1,4 +1,4 @@
-add_library(ImGui STATIC)
+add_library(ImGui)
 
 set(IMGUI_SRC
     Source/ImGuiLayer.cpp
