@@ -24,6 +24,8 @@ add_executable(Game
 #    endif()
 #endif()
 
+target_include_directories(Game PRIVATE include)
+
 target_link_libraries(Game
     PRIVATE
         Engine

@@ -1,6 +1,6 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
-#include "Editor/Widgets/TransformWidget.h"
+#include "Widgets/TransformWidget.h"
 #include "Core/Input.h"
 
 void TransformWidget::UpdateViewport(uint32_t width, uint32_t height)

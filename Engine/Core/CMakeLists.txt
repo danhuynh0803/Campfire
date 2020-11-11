@@ -45,11 +45,12 @@ target_link_libraries(Core
     PUBLIC
         spdlog
         glm
-        ImGui
+        MyImGui
         Events
         Renderer
         Windows
     PRIVATE
         glfw
         glad
+        imgui
 )

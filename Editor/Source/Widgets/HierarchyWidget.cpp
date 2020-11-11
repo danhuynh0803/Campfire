@@ -1,5 +1,5 @@
 #include <imgui.h>
-#include "Editor/Widgets/HierarchyWidget.h"
+#include "Widgets/HierarchyWidget.h"
 #include "Core/Input.h"
 
 // TODO move to general header

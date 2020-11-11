@@ -4,11 +4,12 @@
 
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Renderer2D.h"
-//#include "Physics/PhysicsManager.h"
-//#include "Scripting/CameraController.h"
-//#include "Scripting/PlayerController.h"
+#include "Physics/PhysicsManager.h"
+#include "Particles/ParticleSystem.h"
+#include "Scripting/CameraController.h"
+#include "Scripting/PlayerController.h"
 // Should be moved as a subsystem
-//#include "Audio/AudioSystem.h"
+#include "Audio/AudioSystem.h"
 
 //#include <Tracy.hpp>
 
@@ -34,7 +35,7 @@ void Scene::Init()
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
     //mainCamera.GetComponent<CameraComponent>().isMain = true;
-    mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
+    //mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
 
@@ -53,7 +54,7 @@ void Scene::Init()
         //player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
-        player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        //player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
         //player.AddChild(mainCamera);
 
         //auto child = CreateEntity("Child", false);

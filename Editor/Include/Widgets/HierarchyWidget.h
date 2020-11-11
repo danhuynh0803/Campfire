@@ -2,7 +2,7 @@
 #define HIERARCHY_WIDGET_H
 
 #include "Scene/Scene.h"
-#include "Editor/Widgets/InspectorWidget.h"
+#include "Widgets/InspectorWidget.h"
 
 class HierarchyWidget
 {

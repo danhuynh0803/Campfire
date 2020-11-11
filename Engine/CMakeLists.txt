@@ -11,11 +11,16 @@ target_include_directories(Engine PUBLIC "./")
 
 target_link_libraries(Engine
     PUBLIC
+        Audio
         Core
-        glfw
         Events
-        Windows
+        MyImGui
+        Particles
+        Physics
         Renderer
+        Scene
+        Scripting
+        Windows
 )
 
 # Create a empty file just to tell VS to make the lib
@@ -28,14 +33,15 @@ target_sources(Engine
         null.cpp
 )
 
-#add_subdirectory(Audio)
+add_subdirectory(Audio)
 #add_subdirectory(Command)
 add_subdirectory(Core)
 add_subdirectory(Events)
 add_subdirectory(ImGui)
 #add_subdirectory(JobSystem)
-#add_subdirectory(Particles)
-#add_subdirectory(Physics)
+add_subdirectory(Particles)
+add_subdirectory(Physics)
 add_subdirectory(Platform)
 add_subdirectory(Renderer)
 add_subdirectory(Scene)
+add_subdirectory(Scripting)

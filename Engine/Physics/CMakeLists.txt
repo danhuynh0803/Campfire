@@ -2,7 +2,11 @@ add_library(Physics)
 
 set_target_properties(Physics PROPERTIES FOLDER "Engine/")
 
-target_include_directories(Physics PUBLIC "include/")
+target_include_directories(Physics
+    PUBLIC
+        "include/"
+        ${CMAKE_SOURCE_DIR}/Vendor/bullet3/src/
+)
 
 set(PHYSICS_HEADERS
     include/Physics/BulletDebugDrawer.h
@@ -25,12 +29,13 @@ target_sources(Physics
         ${PHYSICS_HEADERS}
 )
 
+
 target_link_libraries(Physics
-    PRIVATE
-        #bullet
+    PUBLIC
         BulletDynamics
         BulletCollision
         LinearMath
         Core
+        Scene
         glm
 )

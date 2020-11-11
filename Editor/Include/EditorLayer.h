@@ -9,10 +9,10 @@
 #include "Scene/Scene.h"
 #include "Scene/CameraController.h"
 
-#include "Editor/Widgets/ConsoleWidget.h"
-#include "Editor/Widgets/HierarchyWidget.h"
-#include "Editor/Widgets/InspectorWidget.h"
-#include "Editor/Widgets/TransformWidget.h"
+#include "Widgets/ConsoleWidget.h"
+#include "Widgets/HierarchyWidget.h"
+#include "Widgets/InspectorWidget.h"
+#include "Widgets/TransformWidget.h"
 
 class EditorLayer : public Layer
 {

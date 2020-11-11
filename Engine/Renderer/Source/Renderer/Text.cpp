@@ -1,6 +1,6 @@
 #include "Renderer/Text.h"
 #include "Renderer/RendererAPI.h"
-#include "Platform/OpenGL/OpenGLText.h"
+#include "OpenGL/OpenGLText.h"
 
 std::map<std::string, SharedPtr<Font>> Font::fontCache;
 

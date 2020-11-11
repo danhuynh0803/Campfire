@@ -1,7 +1,7 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include "Editor/Widgets/InspectorWidget.h"
+#include "Widgets/InspectorWidget.h"
 #include "Core/FileSystem.h"
 #include "Renderer/Material.h"
 

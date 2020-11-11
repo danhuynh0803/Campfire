@@ -1,10 +1,11 @@
+#include "EditorLayer.h"
+
 #include "Core/Application.h"
 #include "Core/FileSystem.h"
 #include "Core/Input.h"
 #include "Core/Time.h"
 #include "Core/Log.h"
 #include "Audio/AudioSystem.h"
-#include "Editor/EditorLayer.h"
 #include "Physics/PhysicsManager.h"
 #include "Scene/SceneManager.h"
 #include "Renderer/Framebuffer.h"
@@ -12,7 +13,7 @@
 #include "Renderer/Text.h"
 #include "ImGui/ImGuiLayer.h"
 
-#include <Tracy.hpp>
+//#include <Tracy.hpp>
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -53,7 +54,7 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    ZoneScoped;
+    //ZoneScoped;
 
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
 
@@ -223,7 +224,7 @@ void EditorLayer::OnImGuiRender()
     // Various widget windows
     if (showLog)
     {
-        Log::ShowLog(&showLog);
+        //Log::ShowLog(&showLog);
     }
     if (showHierarchy)
     {
@@ -476,26 +477,26 @@ void EditorLayer::ShowMenuCampfire()
     if (ImGui::MenuItem("GitHub Repo"))
     {
         #ifdef  _WIN32
-            ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire", NULL, NULL, SW_SHOWDEFAULT);
+            //ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire", NULL, NULL, SW_SHOWDEFAULT);
         #endif //  _WIN32
     }
     if (ImGui::MenuItem("Troubleshoot/Report Issues"))
     {
         #ifdef  _WIN32
-            ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/issues", NULL, NULL, SW_SHOWDEFAULT);
+            //ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/issues", NULL, NULL, SW_SHOWDEFAULT);
         #endif //  _WIN32
     }
     if (ImGui::MenuItem("Documentation/Wiki"))
     {
         #ifdef  _WIN32
-            ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/wiki", NULL, NULL, SW_SHOWDEFAULT);
+            //ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/wiki", NULL, NULL, SW_SHOWDEFAULT);
         #endif //  _WIN32
     }
     if (ImGui::MenuItem("Contact us"))
     {
         #ifdef  _WIN32
             //ShellExecuteA(0, "open", ":name@domain.com?subject=Hello&Cc=xxx@domai%20n.com&bcc=xxx@domain.com.&body=Hello%20world", 0, 0, 1);
-            ShellExecuteA(0, "open", "mailto:ray810815@gmail.com?subject=Campfire&body=Hello%20", 0, 0, 1);
+            //ShellExecuteA(0, "open", "mailto:ray810815@gmail.com?subject=Campfire&body=Hello%20", 0, 0, 1);
         #endif //  _WIN32
     }
     ImGui::Separator();
