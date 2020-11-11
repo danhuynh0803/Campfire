@@ -17,7 +17,7 @@ set(RENDERER_SRC
     #Source/Renderer/SceneRenderer.cpp
     Source/Renderer/Shader.cpp
     #Source/Renderer/Text.cpp
-    #Source/Renderer/Texture.cpp
+    Source/Renderer/Texture.cpp
     Source/Renderer/VertexArray.cpp
 )
 
@@ -34,7 +34,7 @@ set(RENDERER_HEADERS
     #Include/Renderer/SceneRenderer.h
     Include/Renderer/Shader.h
     #Include/Renderer/Text.h
-    #Include/Renderer/Texture.h
+    Include/Renderer/Texture.h
     Include/Renderer/VertexArray.h
 )
 

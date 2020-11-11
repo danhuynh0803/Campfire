@@ -44,7 +44,8 @@ OpenGLShader::OpenGLShader(const std::string& _name, const std::string& vertexPa
     catch (std::ifstream::failure e)
     {
         // TODO Add an error shader in case something doesnt compile?
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        // Replace with log
+        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << vertexPath << ", " << fragmentPath << '\n';
     }
 
     Compile(vertexCode, fragmentCode);

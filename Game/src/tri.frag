@@ -1,11 +1,10 @@
 #version 460
 
-in (layout location = 0) vec3 aPos;
-in (layout location = 1) vec3 aColor;
+layout (location = 1) in vec3 inColor;
 
-out (layout location = 1) vec3 outColor;
+out vec4 fragColor;
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0f);
+    fragColor = vec4(inColor, 1.0f);
 }

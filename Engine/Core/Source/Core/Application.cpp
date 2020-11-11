@@ -56,7 +56,6 @@ void Application::Run()
         }
 
         //imguiLayer->Begin();
-
         // update layers in reverse
         //for (Layer* layer : layerStack)
         //{
