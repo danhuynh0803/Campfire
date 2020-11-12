@@ -1,51 +1,73 @@
-#include "../include/GameLayer.h"
-#include "Renderer/Renderer.h"
+#include "GameLayer.h"
+#include "Core/Input.h"
+#include "Core/Time.h"
+#include "Scene/SceneManager.h"
+#include "Renderer/SceneRenderer.h"
+#include "Scene/Camera.h"
 
-SharedPtr<VertexArray> GameLayer::vao = nullptr;
-SharedPtr<Shader> GameLayer::shader = nullptr;
+//#include "ImGui/ImGuiLayer.h"
+
+//SharedPtr<Framebuffer> gameCamFBO;
+
+static int currDisplay = 0;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer")
+    : Layer("Game")
 {
+    // TODO pass a parameter so that we load up the specified scene
+    activeScene = CreateSharedPtr<Scene>();
 }
 
 void GameLayer::OnAttach()
 {
-    vao = VertexArray::Create();
-    shader = Shader::Create("tri", "../../Game/src/tri.vert", "../../Game/src/tri.frag");
-
-    float vertices[] = {
-         0.0f,  0.5f,  0.0f,    1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f,  0.0f,    0.0f, 1.0f, 0.0f,
-         0.5f, -0.5f,  0.0f,    0.0f, 0.0f, 1.0f,
-    };
-
-    uint32_t indices[] = {
-        0, 1, 2,
-    };
-
-    vao->Bind();
-
-    SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices, sizeof(vertices));
-    buffer->Bind();
-
-    BufferLayout layout
+    // Setup game camera
+    auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
+    for (auto entity : group)
     {
-        { ShaderDataType::FLOAT3, "aPos" },
-        { ShaderDataType::FLOAT3, "aColor" },
-    };
+        SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
+        if (selectedCamera->targetDisplay == currDisplay)
+        {
+            mainGameCamera = selectedCamera;
+            auto& transformComponent = group.get<TransformComponent>(entity);
 
-    buffer->SetLayout(layout);
+            auto relationshipComponent = group.get<RelationshipComponent>(entity);
+            // If entity is a child, then apply parents transform to it
+            if (relationshipComponent.parent != entt::null)
+            {
+                Entity parent(relationshipComponent.parent, activeScene.get());
+                auto parentTransform = parent.GetComponent<TransformComponent>();
 
-    buffer->Unbind();
+                glm::mat4 transform = glm::mat4(1.0f);
+                transform = glm::mat4(1.0f);
+                glm::vec3 position    = transformComponent.position + parentTransform.position;
+                glm::vec3 eulerAngles = transformComponent.euler;
+                glm::vec3 scale = transformComponent.scale * parentTransform.scale;
 
-    SharedPtr<IndexBuffer> ibo = IndexBuffer::Create(indices, sizeof(indices)/sizeof(uint32_t));
+                glm::vec3 parentEulerAngles = parentTransform.euler;
+                glm::quat parentRotation = glm::quat(
+                        glm::vec3(
+                            glm::radians(parentEulerAngles.x),
+                            glm::radians(parentEulerAngles.y),
+                            glm::radians(parentEulerAngles.z)
+                            )
+                        );
+                glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
 
-    vao->SetIndexBuffer(ibo);
+                mainGameCamera->pos = rotationPosition;
+                mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.euler + parentEulerAngles);
+                mainGameCamera->SetProjection();
+            }
+            else
+            {
+                mainGameCamera->pos = transformComponent.position;
+                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
+                mainGameCamera->SetProjection();
+            }
+            break;
+        }
+    }
 
-    vao->AddVertexBuffer(buffer);
-
-    vao->Unbind();
+    activeScene->OnStart();
 }
 
 void GameLayer::OnDetach()
@@ -54,17 +76,25 @@ void GameLayer::OnDetach()
 
 void GameLayer::OnUpdate(float dt)
 {
-    shader->Bind();
-    RenderCommand::DrawIndexed(vao);
-    shader->Unbind();
+    activeScene->OnUpdate(dt);
 
-    //Renderer::Draw(shader, vao);
+    if (mainGameCamera)
+    {
+        //gameCamFBO->Bind();
+        SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+        activeScene->OnRender(dt, *mainGameCamera);
+        SceneRenderer::EndScene();
+        //gameCamFBO->Unbind();
+    }
 }
 
 void GameLayer::OnImGuiRender()
 {
+    // TODO
+    // HUDs and such
 }
 
 void GameLayer::OnEvent(Event& event)
 {
+    //EventDispatcher dispatcher(event);
 }

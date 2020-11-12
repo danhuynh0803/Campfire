@@ -56,12 +56,15 @@ void Application::Run()
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
         }
 
-        imguiLayer->Begin();
-        for (Layer* layer : layerStack)
+        if (enableImgui)
         {
-            layer->OnImGuiRender();
+            imguiLayer->Begin();
+            for (Layer* layer : layerStack)
+            {
+                layer->OnImGuiRender();
+            }
+            imguiLayer->End();
         }
-        imguiLayer->End();
 
         window->OnUpdate();
     }

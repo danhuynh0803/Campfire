@@ -191,9 +191,6 @@ void ImGuiLayer::Begin()
 // End of frame
 void ImGuiLayer::End()
 {
-    //ShowMainMenuBar();
-    //ShowSceneHierarchy(*(shared.objectManager));
-
     ImGuiIO& io = ImGui::GetIO();
     Application& app = Application::Get();
     io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());

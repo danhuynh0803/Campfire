@@ -73,12 +73,6 @@ target_include_directories(
     Editor
     PUBLIC
         "include"
-)
-
-target_include_directories(
-    Editor
-    PUBLIC
-        "include"
     PRIVATE
         ${CMAKE_SOURCE_DIR}/Vendor/bullet3/src/
 )

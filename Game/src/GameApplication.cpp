@@ -8,6 +8,7 @@ public:
     GameApplication(const ApplicationProps& props)
         : Application(props)
     {
+        enableImgui = false;
     }
 
     virtual void OnInit() override

@@ -35,6 +35,18 @@ target_link_libraries(
         #fmod
 )
 
+#add_executable(
+#    Test
+#    ${CMAKE_SOURCE_DIR}/Engine/EntryPoint.h
+#    TestLayer.cpp
+#)
+#
+#target_link_libraries(
+#    Test
+#    PRIVATE
+#        Engine
+#)
+
 #TODO move this to vendor
 include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/bullet3/src/
