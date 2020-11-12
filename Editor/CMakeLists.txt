@@ -1,20 +1,20 @@
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(EDITOR_HEADERS
-    Include/Widgets/HierarchyWidget.h
-    Include/Widgets/InspectorWidget.h
-    Include/Widgets/LogWidget.h
-    Include/Widgets/TransformWidget.h
-    Include/EditorLayer.h
+    include/Widgets/HierarchyWidget.h
+    include/Widgets/InspectorWidget.h
+    include/Widgets/LogWidget.h
+    include/Widgets/TransformWidget.h
+    include/EditorLayer.h
 )
 
 set(EDITOR_SRC
-    Source/Widgets/HierarchyWidget.cpp
-    Source/Widgets/InspectorWidget.cpp
-    #Source/Widgets/LogWidget.cpp
-    Source/Widgets/TransformWidget.cpp
-    Source/EditorLayer.cpp
-    Source/EditorApplication.cpp
+    src/Widgets/HierarchyWidget.cpp
+    src/Widgets/InspectorWidget.cpp
+    #src/Widgets/LogWidget.cpp
+    src/Widgets/TransformWidget.cpp
+    src/EditorLayer.cpp
+    src/EditorApplication.cpp
 )
 
 #if(MSVC)
@@ -26,26 +26,93 @@ set(EDITOR_SRC
 #    endif()
 #endif()
 
-add_executable(Editor
+set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
+if(MSVC)
+    include_directories(
+        Editor
+        ${FT_DIR}/include/
+    )
+    link_directories(
+        Editor
+        ${FT_DIR}/win64/
+    )
+else()
+    # linux FT
+endif()
+
+
+set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
+message("${FMOD_DIR}")
+if(MSVC)
+    find_library(FMOD_LIB fmod_vc)
+    find_library(FMOD_STUDIO_LIB fmodstudio_vc)
+
+    include_directories(
+        ${FMOD_DIR}/Windows/core/inc/
+        ${FMOD_DIR}/Windows/studio/inc/
+    )
+
+    link_directories(
+        ${FMOD_DIR}/Windows/core/lib/
+        ${FMOD_DIR}/Windows/studio/lib/
+    )
+
+else()
+    #target_link_libraries(Editor fmod fmodstudio)
+    #add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/Linux/core/lib/x86_64/libfmod.so ${FMOD_DIR}/Linux/studio/lib/x86_64/libfmodstudio.so ${CMAKE_BINARY_DIR}/lib)
+endif()
+
+add_executable(
+    Editor
     ${CMAKE_SOURCE_DIR}/Engine/EntryPoint.h
     ${EDITOR_SRC}
     ${EDITOR_HEADERS}
 )
 
-target_include_directories(Editor PRIVATE Include)
+target_include_directories(
+    Editor
+    PUBLIC
+        "include"
+)
 
-#TODO clean this up
-target_include_directories(Editor
+target_include_directories(
+    Editor
+    PUBLIC
+        "include"
     PRIVATE
         ${CMAKE_SOURCE_DIR}/Vendor/bullet3/src/
 )
 
-target_link_libraries(Editor
-    PUBLIC
+target_link_libraries(
+    Editor
+    PRIVATE
         Engine
-        imgui
-        MyImGui
+        fmod_vc
+        fmodstudio_vc
+        freetype
 )
 
-#set_target_properties(${PROJECT_NAME} PROPERTIES
-#    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+if(MSVC)
+    add_custom_command(
+        TARGET Editor
+        POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy
+                ${FMOD_DIR}/Windows/core/lib/fmod.dll
+                ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll
+            ${CMAKE_BINARY_DIR}/lib
+    )
+
+    add_custom_command(
+        TARGET Editor
+        POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy
+                ${FT_DIR}/win64/freetype.dll
+            ${CMAKE_BINARY_DIR}/lib
+    )
+
+else()
+
+endif()
+
+set_target_properties(Editor PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Editor)

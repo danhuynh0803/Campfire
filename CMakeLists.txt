@@ -20,14 +20,6 @@ add_subdirectory(Editor)
 #add_subdirectory(Game)
 
 
-#add_executable(CampfireEditor
-#    Engine/EntryPoint.h
-#)
-#
-#target_link_libraries(CampfireEditor
-#    Editor
-#)
-
 ###### old cmake ######
 # LUA Options
 #add_subdirectory(Campfire/Vendor/lua-5.4.0)

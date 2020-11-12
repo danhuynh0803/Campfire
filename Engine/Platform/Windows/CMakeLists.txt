@@ -1,33 +1,24 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_library(Windows)
-
-set_target_properties(Windows PROPERTIES FOLDER "Engine/Platform/")
-
-target_include_directories(Windows PUBLIC "Include/")
-
-set(WINDOWS_SRC
-    Source/Windows/WindowsFileSystem.cpp
-    Source/Windows/WindowsWindow.cpp
+target_include_directories(
+    Engine
+    PUBLIC
+        "include"
 )
 
 set(WINDOWS_HEADERS
-    Include/Platform/Windows/WindowsFileSystem.h
-    Include/Platform/Windows/WindowsWindow.h
+    include/Platform/Windows/WindowsFileSystem.h
+    include/Platform/Windows/WindowsWindow.h
 )
 
-target_sources(Windows
+set(WINDOWS_SRC
+    src/Windows/WindowsFileSystem.cpp
+    src/Windows/WindowsWindow.cpp
+)
+
+target_sources(
+    Engine
     PRIVATE
         ${WINDOWS_SRC}
         ${WINDOWS_HEADERS}
-)
-
-target_link_libraries(Windows
-    PUBLIC
-        Renderer
-    PRIVATE
-        glfw
-        glad
-        Core
-        Events
 )

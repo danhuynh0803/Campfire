@@ -1,17 +1,7 @@
-add_library(Audio)
-
-set_target_properties(Audio PROPERTIES FOLDER "Engine/")
-
-target_include_directories(Audio
+target_include_directories(
+    Engine
     PUBLIC
         "include/"
-)
-
-# TODO add cmake to FMOD
-target_include_directories(Audio
-    PUBLIC
-        ${CMAKE_SOURCE_DIR}/Vendor/fmod/Windows/core/inc/
-        ${CMAKE_SOURCE_DIR}/Vendor/fmod/Windows/studio/inc/
 )
 
 set(AUDIO_HEADERS
@@ -27,14 +17,9 @@ set(AUDIO_SRC
     src/FmodImpl.cpp
 )
 
-target_sources(Audio
+target_sources(
+    Engine
     PRIVATE
         ${AUDIO_SRC}
         ${AUDIO_HEADERS}
-)
-
-target_link_libraries(Audio
-    PRIVATE
-    #fmod TODO
-        Core
 )

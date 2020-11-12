@@ -30,5 +30,4 @@ struct FmodImpl
     BankMap banks;
 };
 
-
 #endif // FMOD_IMPL_H

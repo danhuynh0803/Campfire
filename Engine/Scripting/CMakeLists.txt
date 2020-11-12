@@ -1,12 +1,7 @@
-add_library(Scripting)
-
-set_target_properties(Scripting PROPERTIES FOLDER "Engine/")
-
-target_include_directories(Scripting
+target_include_directories(
+    Engine
     PUBLIC
-        "include/"
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/Vendor/bullet3/src/
+        "include"
 )
 
 set(SCRIPTING_HEADERS
@@ -21,16 +16,9 @@ set(SCRIPTING_SRC
     src/ScriptEngine.cpp
 )
 
-target_sources(Scripting
+target_sources(
+    Engine
     PRIVATE
         ${SCRIPTING_SRC}
         ${SCRIPTING_HEADERS}
-)
-
-
-target_link_libraries(Scripting
-    PUBLIC
-        Core
-        Scene
-        glm
 )

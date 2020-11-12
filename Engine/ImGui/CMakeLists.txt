@@ -1,30 +1,22 @@
-add_library(MyImGui)
+set(IMGUI_HEADERS
+    include/ImGui/ImGui.h
+    include/ImGui/ImGuiLayer.h
+    include/ImGui/ImGuiThemes.h
+)
 
 set(IMGUI_SRC
-    Source/ImGuiLayer.cpp
+    src/ImGuiLayer.cpp
 )
 
-set(IMGUI_HEADERS
-    Include/ImGui/ImGui.h
-    Include/ImGui/ImGuiLayer.h
-    Include/ImGui/ImGuiThemes.h
+target_include_directories(
+    Engine
+    PUBLIC
+        "include/"
 )
 
-set_target_properties(MyImGui PROPERTIES FOLDER "Engine")
-
-target_include_directories(MyImGui PUBLIC "Include/")
-
-target_sources(MyImGui
+target_sources(
+    Engine
     PRIVATE
         ${IMGUI_SRC}
         ${IMGUI_HEADERS}
-)
-
-target_link_libraries(MyImGui
-    PUBLIC
-        imgui
-    PRIVATE
-        Core
-        glfw
-        glad
 )
