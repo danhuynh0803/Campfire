@@ -33,18 +33,38 @@ set(CORE_SRC
     src/Core/Window.cpp
 )
 
-source_group(
-    "${VS_INC_DIR}\\Core"
-    FILES ${CORE_HEADERS}
-)
-
-source_group(
-    "${VS_SRC_DIR}\\Core"
-    FILES ${CORE_SRC}
-)
+#MACRO(SOURCE_GROUP_BY_FOLDER target)
+#  SET(SOURCE_GROUP_DELIMITER "/")
+#  SET(last_dir "")
+#  SET(files "")
+#  FOREACH(file ${${target}_SRC} ${${target}_HEADERS})
+#    file(RELATIVE_PATH relative_file "${PROJECT_SOURCE_DIR}/${target}" ${file})
+#    GET_FILENAME_COMPONENT(dir "${relative_file}" PATH)
+#    IF (NOT "${dir}" STREQUAL "${last_dir}")
+#      IF (files)
+#        SOURCE_GROUP("${last_dir}" FILES ${files})
+#      ENDIF (files)
+#      SET(files "")
+#    ENDIF (NOT "${dir}" STREQUAL "${last_dir}")
+#    SET(files ${files} ${file})
+#    SET(last_dir "${dir}")
+#  ENDFOREACH(file)
+#  IF (files)
+#    SOURCE_GROUP("${last_dir}" FILES ${files})
+#  ENDIF (files)
+#ENDMACRO(SOURCE_GROUP_BY_FOLDER)
 
 target_sources(Engine
     PRIVATE
         ${CORE_SRC}
         ${CORE_HEADERS}
 )
+
+#source_group(
+#    "Core"
+#    FILES
+#        ${CMAKE_CURRENT_SOURCE_DIR}/${CORE_HEADERS}
+#        ${CMAKE_CURRENT_SOURCE_DIR}/${CORE_SRC}
+#)
+
+
