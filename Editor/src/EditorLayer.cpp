@@ -18,7 +18,6 @@
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Framebuffer> editorCamFBO;
-SharedPtr<Shader> postProcessShader;
 
 // Curr display for the game viewport
 static uint32_t currDisplay = 0;
@@ -44,8 +43,6 @@ void EditorLayer::OnAttach()
     // TODO set up via render pass and pipeline
     gameCamFBO = Framebuffer::Create(1600, 900);
     editorCamFBO = Framebuffer::Create(1600, 900);
-
-    postProcessShader = ShaderManager::Create("postprocess", "Shaders/postprocess.vert", "Shaders/postprocess.frag");
 }
 
 void EditorLayer::OnDetach()

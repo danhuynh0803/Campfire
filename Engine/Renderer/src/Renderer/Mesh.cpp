@@ -5,9 +5,7 @@ std::vector<SharedPtr<Texture>> textureCache;
 
 SharedPtr<Mesh> Mesh::Create(const std::string& filename)
 {
-    //return CreateSharedPtr<Mesh>(filename);
-    //return ResourceManager::GetMesh(filename);
-    return nullptr;
+    return ResourceManager::GetMesh(filename);
 }
 
 Mesh::Mesh(const std::string& filename)

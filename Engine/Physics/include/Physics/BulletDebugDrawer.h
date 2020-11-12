@@ -21,7 +21,7 @@ public:
 
     BulletDebugDrawer()
     {
-        lineShader = ShaderManager::Create("lines", "../Campfire/Shaders/line.vert", "../Campfire/Shaders/line.frag");
+        lineShader = ShaderManager::Create("lines", "Shaders/line.vert", "Shaders/line.frag");
         lineShader->SetUniformBlock("Camera", 0);
 
     }
