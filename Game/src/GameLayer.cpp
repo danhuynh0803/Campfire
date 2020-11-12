@@ -20,6 +20,17 @@ GameLayer::GameLayer()
 
 void GameLayer::OnAttach()
 {
+    activeScene->OnStart();
+}
+
+void GameLayer::OnDetach()
+{
+}
+
+void GameLayer::OnUpdate(float dt)
+{
+    activeScene->OnUpdate(dt);
+
     // Setup game camera
     auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
     for (auto entity : group)
@@ -67,17 +78,6 @@ void GameLayer::OnAttach()
         }
     }
 
-    activeScene->OnStart();
-}
-
-void GameLayer::OnDetach()
-{
-}
-
-void GameLayer::OnUpdate(float dt)
-{
-    activeScene->OnUpdate(dt);
-
     if (mainGameCamera)
     {
         //gameCamFBO->Bind();
@@ -85,6 +85,10 @@ void GameLayer::OnUpdate(float dt)
         activeScene->OnRender(dt, *mainGameCamera);
         SceneRenderer::EndScene();
         //gameCamFBO->Unbind();
+    }
+    else
+    {
+        // LOG_ERROR("No game camera found in scene");
     }
 }
 

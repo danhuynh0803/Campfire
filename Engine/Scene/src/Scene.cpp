@@ -34,8 +34,7 @@ void Scene::Init()
     //auto mainCamera = CreateEntity("Camera", false); // false for not setting it as a root object in entityMap
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
-    //mainCamera.GetComponent<CameraComponent>().isMain = true;
-    //mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
+    mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
 
@@ -54,7 +53,7 @@ void Scene::Init()
         //player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
         player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
-        //player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
         //player.AddChild(mainCamera);
 
         //auto child = CreateEntity("Child", false);
