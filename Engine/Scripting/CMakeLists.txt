@@ -5,6 +5,7 @@ target_include_directories(
 )
 
 set(SCRIPTING_HEADERS
+    include/Scripting/LuaScripting.h
     include/Scripting/ArenaAllocator.h
     include/Scripting/CameraController.h
     include/Scripting/PlayerController.h
@@ -13,6 +14,7 @@ set(SCRIPTING_HEADERS
 )
 
 set(SCRIPTING_SRC
+    src/LuaScripting.cpp
     src/ScriptEngine.cpp
 )
 
