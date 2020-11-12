@@ -11,7 +11,7 @@ Skybox::Skybox()
 
 void Skybox::Init()
 {
-    shader = ShaderManager::Create("skybox", "Shaders/skybox.vert", "Shaders/skybox.frag");
+    shader = ShaderManager::Get("skybox");
 
     shader->SetUniformBlock("Camera", 0);
 

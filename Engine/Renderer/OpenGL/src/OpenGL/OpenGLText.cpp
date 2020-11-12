@@ -107,7 +107,7 @@ OpenGLText::OpenGLText(const std::string& newText)
     vertexBuffer->Unbind();
     vertexArray->Unbind();
 
-    shader = ShaderManager::Create("text", "../Campfire/Shaders/text.vert", "../Campfire/Shaders/text.frag");
+    shader = ShaderManager::Get("text");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
 }

@@ -39,6 +39,10 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 set_target_properties(glfw PROPERTIES FOLDER "Vendor")
+#add_definitions(
+#-DGLFW_INCLUDE_NONE
+#-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+#)
 
 # glm
 add_library(glm INTERFACE)
@@ -75,4 +79,18 @@ add_library(entt INTERFACE)
 target_include_directories(entt INTERFACE "entt/include/")
 
 # fmod
-#add_subdirectory(fmod)
+add_subdirectory(fmod)
+set_target_properties(fmod PROPERTIES FOLDER "Vendor")
+
+# freetype
+add_subdirectory(freetype)
+set_target_properties(freetype2 PROPERTIES FOLDER "Vendor")
+
+# LUA
+#add_subdirectory(Campfire/Vendor/lua-5.4.0)
+
+# Tracy
+#add_compile_options(/D TRACY_ENABLE)
+# For multidll projects
+#add_compile_options(/D TRACY_IMPORTS)
+#add_subdirectory(tracy)

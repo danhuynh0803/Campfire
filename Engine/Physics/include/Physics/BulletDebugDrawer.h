@@ -21,7 +21,7 @@ public:
 
     BulletDebugDrawer()
     {
-        lineShader = ShaderManager::Create("lines", "Shaders/line.vert", "Shaders/line.frag");
+        lineShader = ShaderManager::Get("line");
         lineShader->SetUniformBlock("Camera", 0);
 
     }

@@ -26,8 +26,9 @@ Application::Application(const ApplicationProps& props)
     window = Window::Create({props.name, props.width, props.height});
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    PhysicsManager::Init();
     Renderer::Init();
+    // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
+    PhysicsManager::Init();
 
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
@@ -38,8 +39,8 @@ Application::Application(const ApplicationProps& props)
 Application::~Application()
 {
     // TODO move to shutdown
-    Renderer::Shutdown();
     PhysicsManager::Shutdown();
+    Renderer::Shutdown();
     Shutdown();
 }
 

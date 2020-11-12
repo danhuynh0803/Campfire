@@ -19,7 +19,7 @@ Camera::Camera(float w, float h, float nearplane, float farplane)
 
 void Camera::Init()
 {
-    shader = ShaderManager::Create("line", "Shaders/line.vert", "Shaders/line.frag");
+    shader = ShaderManager::Get("line");
 
     /*
        Frustum vertices:

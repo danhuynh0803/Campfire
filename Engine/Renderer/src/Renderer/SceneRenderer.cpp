@@ -56,7 +56,7 @@ void SceneRenderer::Init()
      */
 
     // TODO should be part of material
-    shader = ShaderManager::Create("pbr", "../Campfire/Shaders/pbr.vert", "../Campfire/Shaders/pbr.frag");
+    shader = ShaderManager::Get("pbr");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
     shader->SetUniformBlock("LightBuffer", 1);

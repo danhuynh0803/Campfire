@@ -8,11 +8,12 @@ SharedPtr<Texture2D> whiteTexture;
 
 void Renderer::Init()
 {
+    ShaderManager::Init();
     RenderCommand::Init();
     Renderer2D::Init();
 
     // TODO should be part of material
-    shader = ShaderManager::Create("pbr", "Shaders/pbr.vert", "Shaders/pbr.frag");
+    shader = ShaderManager::Get("pbr");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
     shader->SetUniformBlock("LightBuffer", 1);

@@ -72,7 +72,7 @@ void Renderer2D::Init()
         samplers[i] = i;
     }
 
-    shader = ShaderManager::Create("quad", "Shaders/sprite_default.vert", "Shaders/sprite_default.frag");
+    shader = ShaderManager::Get("quad");
     shader->Bind();
     shader->SetUniformBlock("Camera", 0);
     shader->SetIntArray("uTextures", samplers, batch.maxTextureSlots);

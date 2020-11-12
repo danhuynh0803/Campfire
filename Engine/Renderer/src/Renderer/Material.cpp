@@ -29,7 +29,7 @@ SharedPtr<MaterialInstance> MaterialInstance::Create(MaterialInstance::Type type
 
 PbrMaterial::PbrMaterial()
 {
-    shader = ShaderManager::Create("pbr", "../Campfire/Shaders/pbr.vert", "../Campfire/Shaders/pbr.frag");
+    shader = ShaderManager::Get("pbr");
 
     SharedPtr<Texture2D> whiteTexture = Texture2D::Create(1, 1);
     uint32_t whiteTextureData = 0xffffffff;

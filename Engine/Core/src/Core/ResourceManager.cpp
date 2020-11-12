@@ -5,6 +5,9 @@
 std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
 std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
 
+std::string ResourceManager::mAssetsPath = "../../Assets/";
+std::string ResourceManager::mShaderPath = "../../Shaders/";
+
 SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
 {
     auto it = mCachedTextureMap.find(path);

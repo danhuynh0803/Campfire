@@ -26,42 +26,6 @@ set(EDITOR_SRC
 #    endif()
 #endif()
 
-set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
-if(MSVC)
-    include_directories(
-        Editor
-        ${FT_DIR}/include/
-    )
-    link_directories(
-        Editor
-        ${FT_DIR}/win64/
-    )
-else()
-    # linux FT
-endif()
-
-
-set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
-message("${FMOD_DIR}")
-if(MSVC)
-    find_library(FMOD_LIB fmod_vc)
-    find_library(FMOD_STUDIO_LIB fmodstudio_vc)
-
-    include_directories(
-        ${FMOD_DIR}/Windows/core/inc/
-        ${FMOD_DIR}/Windows/studio/inc/
-    )
-
-    link_directories(
-        ${FMOD_DIR}/Windows/core/lib/
-        ${FMOD_DIR}/Windows/studio/lib/
-    )
-
-else()
-    #target_link_libraries(Editor fmod fmodstudio)
-    #add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/Linux/core/lib/x86_64/libfmod.so ${FMOD_DIR}/Linux/studio/lib/x86_64/libfmodstudio.so ${CMAKE_BINARY_DIR}/lib)
-endif()
-
 add_executable(
     Editor
     ${CMAKE_SOURCE_DIR}/Engine/EntryPoint.h
@@ -73,19 +37,16 @@ target_include_directories(
     Editor
     PUBLIC
         "include"
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/Vendor/bullet3/src/
 )
 
 target_link_libraries(
     Editor
     PRIVATE
         Engine
-        fmod_vc
-        fmodstudio_vc
-        freetype
 )
 
+set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
+set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
 if(MSVC)
     add_custom_command(
         TARGET Editor
@@ -93,7 +54,7 @@ if(MSVC)
             ${CMAKE_COMMAND} -E copy
                 ${FMOD_DIR}/Windows/core/lib/fmod.dll
                 ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll
-            ${CMAKE_BINARY_DIR}/lib
+            ${CMAKE_CURRENT_BINARY_DIR}
     )
 
     add_custom_command(
@@ -101,12 +62,6 @@ if(MSVC)
         POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
                 ${FT_DIR}/win64/freetype.dll
-            ${CMAKE_BINARY_DIR}/lib
+            ${CMAKE_CURRENT_BINARY_DIR}
     )
-
-else()
-
 endif()
-
-set_target_properties(Editor PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Editor)

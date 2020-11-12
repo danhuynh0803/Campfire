@@ -1,6 +1,7 @@
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Shader.h"
 #include "OpenGL/OpenGLShader.h"
+#include "Core/ResourceManager.h"
 
 SharedPtr<Shader> Shader::Create(const std::string& filepath)
 {
@@ -34,6 +35,15 @@ SharedPtr<Shader> Shader::Create(const std::string& name, const std::string& ver
 //================================================
 std::unordered_map<std::string, SharedPtr<Shader>> ShaderManager::shaderMap;
 
+void ShaderManager::Init()
+{
+    ShaderManager::Create("line"  , SHADERS + "line.vert", SHADERS + "line.frag");
+    ShaderManager::Create("pbr"   , SHADERS + "pbr.vert" , SHADERS + "pbr.frag");
+    ShaderManager::Create("quad"  , SHADERS + "sprite_default.vert", SHADERS + "sprite_default.frag");
+    ShaderManager::Create("text"  , SHADERS + "text.vert", SHADERS + "text.frag");
+    ShaderManager::Create("skybox", SHADERS + "skybox.vert", SHADERS + "skybox.frag");
+}
+
 void ShaderManager::Add(const std::string& tag, SharedPtr<Shader> shader)
 {
     shaderMap.insert(std::pair<std::string, SharedPtr<Shader>>(tag, shader));
@@ -60,9 +70,18 @@ bool ShaderManager::Exists(const std::string& tag)
 
 SharedPtr<Shader> ShaderManager::Get(const std::string& tag)
 {
+    // To be used primarily by engine shaders since these will be loaded
+    // within the lib at the start
+
+    // Probably a better way of doing this
+    // but this helps to minimize the duplication of hardcoded shader file names
     if (Exists(tag))
     {
         return shaderMap.find(tag)->second;
+    }
+    else
+    {
+        LOG_ERROR("No shader named {0} is found");
     }
 }
 

@@ -10,6 +10,7 @@
 #include "Scripting/PlayerController.h"
 // Should be moved as a subsystem
 #include "Audio/AudioSystem.h"
+#include "Core/ResourceManager.h"
 
 //#include <Tracy.hpp>
 
@@ -109,19 +110,12 @@ void Scene::Init()
     skybox = CreateUniquePtr<Skybox>();
     std::vector<std::string> skyboxTextures =
     {
-        //"../Assets/Textures/Skyboxes/blue/right.png",
-        //"../Assets/Textures/Skyboxes/blue/left.png",
-        //"../Assets/Textures/Skyboxes/blue/top.png",
-        //"../Assets/Textures/Skyboxes/blue/bottom.png",
-        //"../Assets/Textures/Skyboxes/blue/front.png",
-        //"../Assets/Textures/Skyboxes/blue/back.png"
-
-        "../Assets/Textures/Skyboxes/Lake/right.jpg",
-        "../Assets/Textures/Skyboxes/Lake/left.jpg",
-        "../Assets/Textures/Skyboxes/Lake/top.jpg",
-        "../Assets/Textures/Skyboxes/Lake/bottom.jpg",
-        "../Assets/Textures/Skyboxes/Lake/front.jpg",
-        "../Assets/Textures/Skyboxes/Lake/back.jpg"
+        ASSETS + "Textures/Skyboxes/Lake/right.jpg",
+        ASSETS + "Textures/Skyboxes/Lake/left.jpg",
+        ASSETS + "Textures/Skyboxes/Lake/top.jpg",
+        ASSETS + "Textures/Skyboxes/Lake/bottom.jpg",
+        ASSETS + "Textures/Skyboxes/Lake/front.jpg",
+        ASSETS + "Textures/Skyboxes/Lake/back.jpg"
     };
     skybox->Load(skyboxTextures);
 }
