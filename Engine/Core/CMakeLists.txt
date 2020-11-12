@@ -1,55 +1,70 @@
-cmake_minimum_required(VERSION 3.15)
-
-add_library(Core STATIC)
-
-set(CORE_SRC
-    Source/Core/Application.cpp
-    Source/Core/FileSystem.cpp
-    Source/Core/Input.cpp
-    Source/Core/Layer.cpp
-    Source/Core/LayerStack.cpp
-    Source/Core/Log.cpp
-    Source/Core/Random.cpp
-    Source/Core/ResourceManager.cpp
-    Source/Core/Time.cpp
-    Source/Core/Window.cpp
+target_include_directories(
+    Engine
+    PUBLIC
+        "include"
 )
 
 set(CORE_HEADERS
-    Include/Core/Application.h
-    Include/Core/Base.h
-    Include/Core/FileSystem.h
-    Include/Core/Input.h
-    Include/Core/Layer.h
-    Include/Core/LayerStack.h
-    Include/Core/Log.h
-    Include/Core/MouseCodes.h
-    Include/Core/Random.h
-    Include/Core/ResourceManager.h
-    Include/Core/Time.h
-    Include/Core/Timer.h
-    Include/Core/Window.h
+    include/Core/Application.h
+    include/Core/Base.h
+    include/Core/FileSystem.h
+    include/Core/Input.h
+    include/Core/Layer.h
+    include/Core/LayerStack.h
+    include/Core/Log.h
+    include/Core/MouseCodes.h
+    include/Core/Random.h
+    include/Core/ResourceManager.h
+    include/Core/Time.h
+    include/Core/Timer.h
+    include/Core/Window.h
 )
 
-set_target_properties(Core PROPERTIES FOLDER "Engine")
+set(CORE_SRC
+    src/Core/Application.cpp
+    src/Core/FileSystem.cpp
+    src/Core/Input.cpp
+    src/Core/Layer.cpp
+    src/Core/LayerStack.cpp
+    src/Core/Log.cpp
+    src/Core/Random.cpp
+    src/Core/ResourceManager.cpp
+    src/Core/Time.cpp
+    src/Core/Window.cpp
+)
 
-target_include_directories(Core PUBLIC "Include/")
+#MACRO(SOURCE_GROUP_BY_FOLDER target)
+#  SET(SOURCE_GROUP_DELIMITER "/")
+#  SET(last_dir "")
+#  SET(files "")
+#  FOREACH(file ${${target}_SRC} ${${target}_HEADERS})
+#    file(RELATIVE_PATH relative_file "${PROJECT_SOURCE_DIR}/${target}" ${file})
+#    GET_FILENAME_COMPONENT(dir "${relative_file}" PATH)
+#    IF (NOT "${dir}" STREQUAL "${last_dir}")
+#      IF (files)
+#        SOURCE_GROUP("${last_dir}" FILES ${files})
+#      ENDIF (files)
+#      SET(files "")
+#    ENDIF (NOT "${dir}" STREQUAL "${last_dir}")
+#    SET(files ${files} ${file})
+#    SET(last_dir "${dir}")
+#  ENDFOREACH(file)
+#  IF (files)
+#    SOURCE_GROUP("${last_dir}" FILES ${files})
+#  ENDIF (files)
+#ENDMACRO(SOURCE_GROUP_BY_FOLDER)
 
-target_sources(Core
+target_sources(Engine
     PRIVATE
         ${CORE_SRC}
         ${CORE_HEADERS}
 )
 
-target_link_libraries(Core
-    PUBLIC
-        Windows
-        Events
-        Renderer
-        ImGui
-        glm
-    PRIVATE
-        glfw
-        spdlog
-        glad
-)
+#source_group(
+#    "Core"
+#    FILES
+#        ${CMAKE_CURRENT_SOURCE_DIR}/${CORE_HEADERS}
+#        ${CMAKE_CURRENT_SOURCE_DIR}/${CORE_SRC}
+#)
+
+

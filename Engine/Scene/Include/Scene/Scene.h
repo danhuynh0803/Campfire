@@ -7,11 +7,12 @@
 #include "Core/Base.h"
 #include "Scene/Camera.h"
 #include "Scene/Skybox.h"
-//#include "Renderer/SceneRenderer.h"
 
+// TODO fix this miss of circular dependencies
+// Getting difficult to get correct ordering of includes
 class Entity;
-class SceneRenderer;
 class SceneManager;
+class SceneRenderer;
 
 class Scene
 {

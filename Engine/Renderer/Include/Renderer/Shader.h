@@ -42,6 +42,7 @@ public:
 class ShaderManager
 {
 public:
+    static void Init();
     static void Add(const std::string& tag, const SharedPtr<Shader> shader);
     static SharedPtr<Shader> Create(const std::string& tag, const std::string& vertPath, const std::string& fragPath);
     static bool Exists(const std::string& tag);

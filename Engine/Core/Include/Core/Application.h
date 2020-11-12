@@ -34,10 +34,13 @@ public:
     bool OnWindowMinimize(WindowMinimizeEvent& event);
     Window& GetWindow() { return *window; }
 
+protected:
+    bool enableImgui = true;
+
 private:
     static Application* instance;
-    ImGuiLayer* imguiLayer;
     bool isRunning = true;
+    ImGuiLayer* imguiLayer;
     LayerStack layerStack;
     std::unique_ptr<Window> window;
 };

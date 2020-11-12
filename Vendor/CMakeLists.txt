@@ -11,13 +11,23 @@ set_target_properties(UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTIES FOLDER "Ven
 set_target_properties(uninstall PROPERTIES FOLDER "Vendor/assimp")
 
 # bullet3
-#option(BUILD_BULLET2_DEMOS OFF)
-#option(BUILD_CPU_DEMOS OFF)
-#option(BUILD_EXTRAS OFF)
-#option(BUILD_OPENGL3_DEMOS OFF)
-#option(BUILD_UNIT_TESTS OFF)
-#add_subdirectory(bullet3)
-#set_target_properties(bullet3 PROPERTIES FOLDER "Vendor")
+option(BUILD_BULLET2_DEMOS OFF)
+option(BUILD_CPU_DEMOS OFF)
+option(BUILD_EXTRAS OFF)
+option(BUILD_OPENGL3_DEMOS OFF)
+option(BUILD_UNIT_TESTS OFF)
+add_subdirectory(bullet3)
+set_target_properties(Bullet2FileLoader PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(Bullet3Collision PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(Bullet3Common PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(Bullet3Dynamics PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(Bullet3Geometry PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(Bullet3OpenCL_clew PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(BulletCollision PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(BulletDynamics PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(BulletInverseDynamics PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(BulletSoftBody PROPERTIES FOLDER "Vendor/bullet3/")
+set_target_properties(LinearMath PROPERTIES FOLDER "Vendor/bullet3/")
 
 # glad
 add_subdirectory(glad)
@@ -29,6 +39,10 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 set_target_properties(glfw PROPERTIES FOLDER "Vendor")
+#add_definitions(
+#-DGLFW_INCLUDE_NONE
+#-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+#)
 
 # glm
 add_library(glm INTERFACE)
@@ -44,10 +58,39 @@ add_subdirectory(imgui)
 set_target_properties(imgui PROPERTIES FOLDER "Vendor")
 
 # spdlog
-add_subdirectory(spdlog)
-set_target_properties(spdlog PROPERTIES FOLDER "Vendor")
+add_library(spdlog INTERFACE)
+target_include_directories(spdlog
+    INTERFACE
+        "spdlog/include/"
+)
+#set_target_properties(spdlog PROPERTIES FOLDER "Vendor")
 
 # stb
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE "stb/")
 #set_target_properties(stb PROPERTIES FOLDER "Vendor")
+
+# json
+add_library(json INTERFACE)
+target_include_directories(json INTERFACE "nlohmann/include/")
+
+# entt
+add_library(entt INTERFACE)
+target_include_directories(entt INTERFACE "entt/include/")
+
+# fmod
+add_subdirectory(fmod)
+set_target_properties(fmod PROPERTIES FOLDER "Vendor")
+
+# freetype
+add_subdirectory(freetype)
+set_target_properties(freetype2 PROPERTIES FOLDER "Vendor")
+
+# LUA
+#add_subdirectory(Campfire/Vendor/lua-5.4.0)
+
+# Tracy
+#add_compile_options(/D TRACY_ENABLE)
+# For multidll projects
+#add_compile_options(/D TRACY_IMPORTS)
+#add_subdirectory(tracy)

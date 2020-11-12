@@ -1,6 +1,6 @@
 #include "Core/Application.h"
 #include "EntryPoint.h"
-#include "GameLayer.h"
+#include "../include/GameLayer.h"
 
 class GameApplication : public Application
 {
@@ -8,11 +8,12 @@ public:
     GameApplication(const ApplicationProps& props)
         : Application(props)
     {
+        enableImgui = false;
     }
 
     virtual void OnInit() override
     {
-        PushLayer(new GameLayer);
+        PushLayer(new GameLayer());
     }
 };
 

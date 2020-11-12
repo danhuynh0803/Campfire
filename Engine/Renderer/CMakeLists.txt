@@ -1,59 +1,47 @@
-add_library(Renderer)
-
-set_target_properties(Renderer PROPERTIES FOLDER "Engine/Rendering/")
-
-target_include_directories(Renderer PUBLIC "Include/")
-
-set(RENDERER_SRC
-    Source/Renderer/Buffer.cpp
-    Source/Renderer/Framebuffer.cpp
-    Source/Renderer/GraphicsContext.cpp
-    Source/Renderer/Material.cpp
-    Source/Renderer/Mesh.cpp
-    Source/Renderer/RenderCommand.cpp
-    Source/Renderer/Renderer.cpp
-    Source/Renderer/Renderer2D.cpp
-    Source/Renderer/RendererAPI.cpp
-    Source/Renderer/SceneRenderer.cpp
-    Source/Renderer/Shader.cpp
-    #Source/Renderer/Text.cpp
-    Source/Renderer/Texture.cpp
-    Source/Renderer/VertexArray.cpp
-)
+target_include_directories(
+    Engine
+    PUBLIC
+        "include")
 
 set(RENDERER_HEADERS
-    Include/Renderer/Buffer.h
-    Include/Renderer/Framebuffer.h
-    Include/Renderer/GraphicsContext.h
-    Include/Renderer/Material.h
-    Include/Renderer/Mesh.h
-    Include/Renderer/RenderCommand.h
-    Include/Renderer/Renderer.h
-    Include/Renderer/Renderer2D.h
-    Include/Renderer/RendererAPI.h
-    Include/Renderer/SceneRenderer.h
-    Include/Renderer/Shader.h
-    #Include/Renderer/Text.h
-    Include/Renderer/Texture.h
-    Include/Renderer/VertexArray.h
+    include/Renderer/Buffer.h
+    include/Renderer/Framebuffer.h
+    include/Renderer/GraphicsContext.h
+    include/Renderer/Material.h
+    include/Renderer/Mesh.h
+    include/Renderer/RenderCommand.h
+    include/Renderer/Renderer.h
+    include/Renderer/Renderer2D.h
+    include/Renderer/RendererAPI.h
+    include/Renderer/SceneRenderer.h
+    include/Renderer/Shader.h
+    include/Renderer/Text.h
+    include/Renderer/Texture.h
+    include/Renderer/VertexArray.h
 )
 
+set(RENDERER_SRC
+    src/Renderer/Buffer.cpp
+    src/Renderer/Framebuffer.cpp
+    src/Renderer/GraphicsContext.cpp
+    src/Renderer/Material.cpp
+    src/Renderer/Mesh.cpp
+    src/Renderer/RenderCommand.cpp
+    src/Renderer/Renderer.cpp
+    src/Renderer/Renderer2D.cpp
+    src/Renderer/RendererAPI.cpp
+    src/Renderer/SceneRenderer.cpp
+    src/Renderer/Shader.cpp
+    src/Renderer/Text.cpp
+    src/Renderer/Texture.cpp
+    src/Renderer/VertexArray.cpp
+)
 
-target_sources(Renderer
+target_sources(
+    Engine
     PRIVATE
         ${RENDERER_SRC}
         ${RENDERER_HEADERS}
-)
-
-target_link_libraries(Renderer
-    PUBLIC
-        Core
-        Scene
-    PRIVATE
-        OpenGLImpl
-        imgui
-        assimp
-        glm
 )
 
 add_subdirectory(OpenGL)

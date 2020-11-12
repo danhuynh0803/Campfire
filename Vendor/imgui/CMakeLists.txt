@@ -33,7 +33,7 @@ target_sources(imgui
 )
 
 target_link_libraries(imgui
-    PRIVATE
+    PUBLIC
         glfw
         glad
 )

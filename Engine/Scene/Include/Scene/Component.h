@@ -18,6 +18,7 @@
 #include "Scene/Camera.h"
 #include "Scene/Entity.h"
 #include "Audio/AudioSource.h"
+#include "Core/ResourceManager.h"
 
 class Entity;
 
@@ -123,22 +124,22 @@ struct MeshComponent
         switch (geometry)
         {
             case Geometry::CUBE:
-                mesh = Mesh::Create("../Assets/Models/primitives/cube.fbx");
+                mesh = Mesh::Create(ASSETS + "Models/primitives/cube.fbx");
                 break;
             case Geometry::SPHERE:
-                mesh = Mesh::Create("../Assets/Models/primitives/sphere.fbx");
+                mesh = Mesh::Create(ASSETS + "Models/primitives/sphere.fbx");
                 break;
             case Geometry::PLANE:
-                mesh = Mesh::Create("../Assets/Models/primitives/plane.fbx");
+                mesh = Mesh::Create(ASSETS + "Models/primitives/plane.fbx");
                 break;
             case Geometry::QUAD:
-                mesh = Mesh::Create("../Assets/Models/primitives/quad.fbx");
+                mesh = Mesh::Create(ASSETS + "Models/primitives/quad.fbx");
                 break;
             case Geometry::CONE:
-                mesh = Mesh::Create("../Assets/Models/primitives/cone.fbx");
+                mesh = Mesh::Create(ASSETS + "Models/primitives/cone.fbx");
                 break;
             case Geometry::CYLINDER:
-                mesh = Mesh::Create("../Assets/Models/primitives/cylinder.fbx");
+                mesh = Mesh::Create(ASSETS + "Models/primitives/cylinder.fbx");
                 break;
         }
         material = MaterialInstance::Create(MaterialInstance::Type::PBR);
