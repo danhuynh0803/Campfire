@@ -611,7 +611,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
 // TODO remove later.. just for testing FBO
 bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
-    LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
+    //LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
     editorCamera->SetProjection(e.GetWidth(), e.GetHeight());
     gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
     editorCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
