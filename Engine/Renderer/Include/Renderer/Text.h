@@ -5,6 +5,7 @@
 
 #include "Core/Base.h"
 #include "Core/Log.h"
+#include "Core/ResourceManager.h"
 #include <glm/glm.hpp>
 #include "Renderer/Texture.h"
 
@@ -58,7 +59,7 @@ public:
     glm::vec2 uiPos = glm::vec2(0.5f);
 
 protected:
-    SharedPtr<Font> font = Font::Create("../Assets/Fonts/arial.ttf");
+    SharedPtr<Font> font = Font::Create(ASSETS + "Fonts/arial.ttf");
 };
 
 // TODO setup batching for all text objects

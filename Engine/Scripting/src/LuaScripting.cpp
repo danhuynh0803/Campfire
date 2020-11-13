@@ -54,7 +54,7 @@ void LuaScripting::Init()
     {
         lua_State* L = luaL_newstate();
         luaL_openlibs(L);
-        luaL_dofile(L,"../Assets/Scripts/test.lua");
+        luaL_dofile(L, ASSETS + "Scripts/test.lua");
         lua_getglobal(L, "a");
         if (lua_isnumber(L, -1))
         {

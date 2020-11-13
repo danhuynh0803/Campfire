@@ -4,6 +4,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Renderer/Renderer2D.h"
 #include "Core/FileSystem.h"
+#include "Core/ResourceManager.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -18,7 +19,7 @@
 void ParticleSystem::Init()
 {
     // Default texture
-    particleTexture = Texture2D::Create("../Assets/Particles/circle_05.png");
+    particleTexture = Texture2D::Create(ASSETS + "Particles/circle_05.png");
 }
 
 void ParticleSystem::GenerateParticles(uint32_t numParticles)
