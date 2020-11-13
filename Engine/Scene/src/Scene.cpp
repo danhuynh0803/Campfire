@@ -38,6 +38,7 @@ void Scene::Init()
     mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/test.wav";
+    mainCamera.GetComponent<AudioComponent>().audioSource->playOnAwake = true;
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 5.0f, 2.0f);

@@ -421,6 +421,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     // Audio
     if (entity.HasComponent<AudioComponent>())
     {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Audio Source"))
         {
             if (ImGui::Button("..."))
