@@ -37,7 +37,7 @@ void Scene::Init()
     mainCamera.AddComponent<CameraComponent>();
     mainCamera.AddComponent<NativeScriptComponent>().Bind<Script::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
-    mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/test.wav";
+    mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/test.wav";
 
     auto directionalLight = CreateEntity("Directional Light");
     directionalLight.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 5.0f, 2.0f);
@@ -53,7 +53,7 @@ void Scene::Init()
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         //player.AddComponent<TriggerComponent>();
         player.AddComponent<AudioComponent>();
-        player.GetComponent<AudioComponent>().audioSource->clipPath = "../Assets/Audio/metal.mp3";
+        player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
         player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
         //player.AddChild(mainCamera);
 
