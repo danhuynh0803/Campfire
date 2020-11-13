@@ -28,9 +28,9 @@ Application::Application(const ApplicationProps& props)
 
     //PushLayer(new VulkanLayer());
 
-    //Renderer::Init();
+    Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
-    //PhysicsManager::Init();
+    PhysicsManager::Init();
 
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
@@ -41,8 +41,8 @@ Application::Application(const ApplicationProps& props)
 Application::~Application()
 {
     // TODO move to shutdown
-    //PhysicsManager::Shutdown();
-    //Renderer::Shutdown();
+    PhysicsManager::Shutdown();
+    Renderer::Shutdown();
     Shutdown();
 }
 
