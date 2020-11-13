@@ -58,8 +58,8 @@ SharedPtr<UniformBuffer> UniformBuffer::Create()
             return nullptr;
         case RendererAPI::API::OpenGL:
             return CreateSharedPtr<OpenGLUniformBuffer>();
-        case RendererAPI::API::Vulkan:
-            return CreateSharedPtr<VulkanUniformBuffer>();
+        //case RendererAPI::API::Vulkan:
+            //return CreateSharedPtr<VulkanUniformBuffer>();
     }
 
     return nullptr;

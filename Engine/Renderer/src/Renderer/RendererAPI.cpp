@@ -1,8 +1,8 @@
 #include "Renderer/RendererAPI.h"
 #include "OpenGL/OpenGLRendererAPI.h"
 
-//RendererAPI::API RendererAPI::sAPI = RendererAPI::API::OpenGL;
-RendererAPI::API RendererAPI::sAPI = RendererAPI::API::Vulkan;
+RendererAPI::API RendererAPI::sAPI = RendererAPI::API::OpenGL;
+//RendererAPI::API RendererAPI::sAPI = RendererAPI::API::Vulkan;
 
 UniquePtr<RendererAPI> RendererAPI::Create()
 {
