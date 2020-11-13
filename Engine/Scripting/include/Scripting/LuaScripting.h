@@ -2,15 +2,15 @@
 #define LUA_SCRIPTING_H
 
 #include "lua.hpp"
-#include "ArenaAllocator.h"
+#include "Scripting/ArenaAllocator.h"
 
 class LuaScripting
 {
 public:
-	static void Init();
-	static void Shutdown();
+    static void Init();
+    static void Shutdown();
 private:
-	static lua_State* L;
+    static lua_State* L;
 };
 
 #endif // !LUA_SCRIPTING_H

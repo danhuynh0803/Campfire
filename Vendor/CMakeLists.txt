@@ -87,7 +87,8 @@ add_subdirectory(freetype)
 set_target_properties(freetype2 PROPERTIES FOLDER "Vendor")
 
 # LUA
-#add_subdirectory(Campfire/Vendor/lua-5.4.0)
+add_subdirectory(lua-5.4.0)
+set_target_properties(lua PROPERTIES FOLDER "Vendor")
 
 # Tracy
 #add_compile_options(/D TRACY_ENABLE)

@@ -1,0 +1,82 @@
+add_library(lua)
+
+set(LUA_HEADERS
+    include/Lua/lapi.h
+    include/Lua/lauxlib.h
+    include/Lua/lcode.h
+    include/Lua/lctype.h
+    include/Lua/ldebug.h
+    include/Lua/ldo.h
+    include/Lua/lfunc.h
+    include/Lua/lgc.h
+    include/Lua/ljumptab.h
+    include/Lua/llex.h
+    include/Lua/llimits.h
+    include/Lua/lmem.h
+    include/Lua/lobject.h
+    include/Lua/lopcodes.h
+    include/Lua/lopnames.h
+    include/Lua/lparser.h
+    include/Lua/lprefix.h
+    include/Lua/lstate.h
+    include/Lua/lstring.h
+    include/Lua/ltable.h
+    include/Lua/ltm.h
+    include/Lua/lua.h
+    include/Lua/lua.hpp
+    include/Lua/luaconf.h
+    include/Lua/lualib.h
+    include/Lua/lundump.h
+    include/Lua/lvm.h
+    include/Lua/lzio.h
+)
+
+set(LUA_SRC
+    src/lapi.c
+    src/lauxlib.c
+    src/lbaselib.c
+    src/lcode.c
+    src/lcorolib.c
+    src/lctype.c
+    src/ldblib.c
+    src/ldebug.c
+    src/ldo.c
+    src/ldump.c
+    src/lfunc.c
+    src/lgc.c
+    src/linit.c
+    src/liolib.c
+    src/llex.c
+    src/lmathlib.c
+    src/lmem.c
+    src/loadlib.c
+    src/lobject.c
+    src/lopcodes.c
+    src/loslib.c
+    src/lparser.c
+    src/lstate.c
+    src/lstring.c
+    src/lstrlib.c
+    src/ltable.c
+    src/ltablib.c
+    src/ltm.c
+    src/lua.c
+    src/luac.c
+    src/lundump.c
+    src/lutf8lib.c
+    src/lvm.c
+    src/lzio.c
+)
+
+target_sources(
+    lua
+    PRIVATE
+        ${LUA_SRC}
+        ${LUA_HEADERS}
+)
+
+target_include_directories(
+    lua
+    PUBLIC
+        "include/Lua"
+)

@@ -20,17 +20,19 @@ target_link_libraries(
     Engine
     PUBLIC
         assimp
-        BulletDynamics BulletCollision LinearMath
-        entt
-        glad
-        glfw
-        glm
-        imgui
-        json
-        spdlog
-        stb
         freetype2
         fmod
+        glm
+        entt
+        imgui
+        spdlog
+        json
+    PRIVATE
+        BulletDynamics BulletCollision LinearMath
+        stb
+        lua
+        glad
+        glfw
 )
 
 MACRO(SOURCE_GROUP_BY_FOLDER target)
