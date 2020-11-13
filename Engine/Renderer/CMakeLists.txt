@@ -1,0 +1,48 @@
+target_include_directories(
+    Engine
+    PUBLIC
+        "include")
+
+set(RENDERER_HEADERS
+    include/Renderer/Buffer.h
+    include/Renderer/Framebuffer.h
+    include/Renderer/GraphicsContext.h
+    include/Renderer/Material.h
+    include/Renderer/Mesh.h
+    include/Renderer/RenderCommand.h
+    include/Renderer/Renderer.h
+    include/Renderer/Renderer2D.h
+    include/Renderer/RendererAPI.h
+    include/Renderer/SceneRenderer.h
+    include/Renderer/Shader.h
+    include/Renderer/Text.h
+    include/Renderer/Texture.h
+    include/Renderer/VertexArray.h
+)
+
+set(RENDERER_SRC
+    src/Renderer/Buffer.cpp
+    src/Renderer/Framebuffer.cpp
+    src/Renderer/GraphicsContext.cpp
+    src/Renderer/Material.cpp
+    src/Renderer/Mesh.cpp
+    src/Renderer/RenderCommand.cpp
+    src/Renderer/Renderer.cpp
+    src/Renderer/Renderer2D.cpp
+    src/Renderer/RendererAPI.cpp
+    src/Renderer/SceneRenderer.cpp
+    src/Renderer/Shader.cpp
+    src/Renderer/Text.cpp
+    src/Renderer/Texture.cpp
+    src/Renderer/VertexArray.cpp
+)
+
+target_sources(
+    Engine
+    PRIVATE
+        ${RENDERER_SRC}
+        ${RENDERER_HEADERS}
+)
+
+add_subdirectory(OpenGL)
+#add_subdirectory(Vulkan)
