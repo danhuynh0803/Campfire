@@ -4,6 +4,7 @@
 #include <functional>
 #include "Core/Base.h"
 #include "Events/Event.h"
+#include "Renderer/GraphicsContext.h"
 
 struct WindowProps
 {
@@ -35,6 +36,8 @@ public:
     virtual bool IsVSync() const = 0;
 
     virtual void* GetNativeWindow() const = 0;
+
+    virtual SharedPtr<GraphicsContext> GetGraphicsContext() = 0;
 
     static std::unique_ptr<Window> Create(const WindowProps& props = WindowProps());
 };

@@ -35,10 +35,12 @@ void WindowsWindow::Init(const WindowProps& props)
     }
 
     {
+        // TODO window hint should vary with rendererAPI
         #if defined (DEBUG)
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         #endif
 
+        //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         window = glfwCreateWindow(data.width, data.height, data.title.c_str(), nullptr, nullptr);
         ++glfwWindowCount;
     }

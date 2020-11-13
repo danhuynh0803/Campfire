@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "Core/Application.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Shader.h"
@@ -9,6 +10,7 @@
 #include "Renderer/Material.h"
 
 class Camera;
+class GraphicsContext;
 
 class Renderer
 {
@@ -33,8 +35,10 @@ public:
 
     static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
+    static SharedPtr<GraphicsContext> GetContext() { return Application::Get().GetWindow().GetGraphicsContext(); }
 
 private:
+    // TODO are these still needed?
     static glm::mat4 viewProjMatrix;
     static SharedPtr<Shader> shader;
 };

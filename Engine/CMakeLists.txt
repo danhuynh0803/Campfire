@@ -27,12 +27,12 @@ target_link_libraries(
         imgui
         spdlog
         json
+        glad
+        glfw
     PRIVATE
         BulletDynamics BulletCollision LinearMath
         stb
         lua
-        glad
-        glfw
 )
 
 #MACRO(SOURCE_GROUP_BY_FOLDER target)

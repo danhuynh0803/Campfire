@@ -25,6 +25,8 @@ public:
 
     virtual void* GetNativeWindow() const { return window; }
 
+    virtual SharedPtr<GraphicsContext> GetGraphicsContext() { return context; }
+
 private:
     virtual void Init(const WindowProps& props);
     virtual void Shutdown();

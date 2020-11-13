@@ -11,7 +11,8 @@ public:
     enum class API
     {
         None = 0,
-        OpenGL
+        OpenGL,
+        Vulkan
     };
 
 public:

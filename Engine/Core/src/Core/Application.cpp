@@ -26,6 +26,8 @@ Application::Application(const ApplicationProps& props)
     window = Window::Create({props.name, props.width, props.height});
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
+    //PushLayer(new VulkanLayer());
+
     Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
     PhysicsManager::Init();
@@ -50,6 +52,7 @@ void Application::Run()
 
     while (isRunning)
     {
+        //Timer timer("FrameTime");
         Time::Update();
 
         for (Layer* layer : layerStack)
@@ -111,6 +114,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         // to avoid resizing framebuffer to 0 dimensions
         return true;
     }
+
     LOG_INFO("Resize to {0} : {1}", e.GetWidth(), e.GetHeight());
     Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
