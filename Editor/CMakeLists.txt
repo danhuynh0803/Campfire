@@ -3,6 +3,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(EDITOR_HEADERS
     include/Widgets/HierarchyWidget.h
     include/Widgets/InspectorWidget.h
+    include/Widgets/ImGuiLog.h
     include/Widgets/LogWidget.h
     include/Widgets/TransformWidget.h
     include/EditorLayer.h
@@ -11,7 +12,7 @@ set(EDITOR_HEADERS
 set(EDITOR_SRC
     src/Widgets/HierarchyWidget.cpp
     src/Widgets/InspectorWidget.cpp
-    #src/Widgets/LogWidget.cpp
+    src/Widgets/LogWidget.cpp
     src/Widgets/TransformWidget.cpp
     src/EditorLayer.cpp
     src/EditorApplication.cpp

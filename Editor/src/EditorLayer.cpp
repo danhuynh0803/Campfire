@@ -12,6 +12,7 @@
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Text.h"
 #include "ImGui/ImGuiLayer.h"
+#include "Widgets/LogWidget.h"
 
 //#include <Tracy.hpp>
 
@@ -25,6 +26,7 @@ static uint32_t currDisplay = 0;
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
+    LogWidget::Init();
     editorScene = CreateSharedPtr<Scene>();
     runtimeScene = CreateSharedPtr<Scene>(false);
     activeScene = editorScene;
@@ -219,10 +221,11 @@ void EditorLayer::OnImGuiRender()
     }
 
     // Various widget windows
-    if (showLog)
-    {
-        //Log::ShowLog(&showLog);
-    }
+    LogWidget::Draw(&showLog);
+    //if (showLog)
+    //{
+    //    ShowLog(&showLog);
+    //}
     if (showHierarchy)
     {
         wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
@@ -766,3 +769,32 @@ void EditorLayer::OpenClosePrompt()
         ImGui::EndPopup();
     }
 }
+
+//void EditorLayer::ShowLog(bool* p_open)
+//{
+//    static ImGuiLog log;
+//
+//    // For the demo: add a debug button _BEFORE_ the normal log window contents
+//    // We take advantage of a rarely used feature: multiple calls to Begin()/End() are appending to the _same_ window.
+//    // Most of the contents of the window will be added by the log.Draw() call.
+//    ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+//    ImGui::Begin("Example: Log", p_open);
+//    if (ImGui::SmallButton("[Debug] Add 5 entries"))
+//    {
+//        static int counter = 0;
+//        for (int n = 0; n < 5; n++)
+//        {
+//            const char* categories[3] = { "info", "warn", "error" };
+//            const char* words[] = { "Bumfuzzled", "Cattywampus", "Snickersnee", "Abibliophobia", "Absquatulate", "Nincompoop", "Pauciloquent" };
+//            log.AddLog("[%05d] [%s] Hello, current time is %.1f, here's a word: '%s'\n",
+//                    ImGui::GetFrameCount(), categories[counter % IM_ARRAYSIZE(categories)], ImGui::GetTime(), words[counter % IM_ARRAYSIZE(words)]);
+//            counter++;
+//        }
+//    }
+//    ImGui::End();
+//
+//    // Actually call in the regular Log helper (which will Begin() into the same window as we just did)
+//    log.Draw("Example: Log", p_open);
+//}
+
+
