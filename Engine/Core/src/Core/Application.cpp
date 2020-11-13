@@ -17,7 +17,7 @@ Application* Application::instance = nullptr;
 
 Application::Application(const ApplicationProps& props)
 {
-    //Log::Init();
+    Log::Init();
     Time::Init();
     Random::Init();
     //JobSystem::Init();
@@ -111,7 +111,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         // to avoid resizing framebuffer to 0 dimensions
         return true;
     }
-
+    LOG_INFO("Resize to {0} : {1}", e.GetWidth(), e.GetHeight());
     Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }
