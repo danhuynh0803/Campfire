@@ -11,7 +11,10 @@ option(BUILD_SHARED_LIBS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+#if building for IDE, enable folders
+if(MSVC)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+endif()
 
 project(Campfire
     VERSION 0.1

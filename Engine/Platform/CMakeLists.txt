@@ -1,5 +1,5 @@
 if(MSVC)
     add_subdirectory(Windows)
 else()
-    add_subdirectory(Linux)
+    #add_subdirectory(Linux)
 endif()

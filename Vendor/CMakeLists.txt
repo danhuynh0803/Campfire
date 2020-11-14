@@ -6,9 +6,11 @@ option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
 add_subdirectory(assimp)
 set_target_properties(assimp PROPERTIES FOLDER "Vendor/assimp")
-set_target_properties(zlibstatic PROPERTIES FOLDER "Vendor/assimp")
-set_target_properties(UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTIES FOLDER "Vendor/assimp")
 set_target_properties(uninstall PROPERTIES FOLDER "Vendor/assimp")
+if(MSVC)
+    set_target_properties(zlibstatic PROPERTIES FOLDER "Vendor/assimp")
+    set_target_properties(UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTIES FOLDER "Vendor/assimp")
+endif()
 
 # bullet3
 option(BUILD_BULLET2_DEMOS OFF)
