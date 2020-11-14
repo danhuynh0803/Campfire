@@ -43,8 +43,8 @@ protected:
     virtual void OnTriggerEnter(Entity other) {}
     virtual void OnTriggerStay(Entity other) {}
     virtual void OnTriggerExit(Entity other) {}
+    Entity entity;
 
 private:
-    Entity entity;
     friend class Scene;
 };
