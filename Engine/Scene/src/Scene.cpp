@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Scripting/CameraController.h"
 #include "Scripting/PlayerController.h"
+#include "Scripting/MazeGenerator.h"
 // Should be moved as a subsystem
 #include "Audio/AudioSystem.h"
 #include "Core/ResourceManager.h"
@@ -46,16 +47,17 @@ void Scene::Init()
     directionalLight.AddComponent<LightComponent>();
 
     {
-        auto player = CreateEntity("Player");
-        player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        auto player = CreateEntity("Wall");
+        //player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        player.AddComponent<RigidbodyComponent>();
-        player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+        //player.AddComponent<RigidbodyComponent>();
+        //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         //player.AddComponent<TriggerComponent>();
-        player.AddComponent<AudioComponent>();
-        player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
-        player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        //player.AddComponent<AudioComponent>();
+        //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
+        //player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
+        player.AddComponent<NativeScriptComponent>().Bind<Script::MazeGenerator>();
         //player.AddChild(mainCamera);
 
         //auto child = CreateEntity("Child", false);
@@ -182,13 +184,6 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
 
 void Scene::OnStart()
 {
-    // Submit all entities with rbs to Physics
-    PhysicsManager::ClearLists();
-    for (auto entityPair : entityMap)
-    {
-        PhysicsManager::SubmitEntity(entityPair.second);
-    }
-
     // Play all OnAwake sounds
     registry.view<AudioComponent>().each([=](auto entity, auto &audioComp)
     {
@@ -209,6 +204,13 @@ void Scene::OnStart()
         }
         nsc.instance->Start();
     });
+
+    // Submit all entities with rbs to Physics
+    PhysicsManager::ClearLists();
+    for (auto entityPair : entityMap)
+    {
+        PhysicsManager::SubmitEntity(entityPair.second);
+    }
 }
 
 void Scene::OnStop()
