@@ -1,17 +1,17 @@
-set(GAME_HEADERS
-    include/GameLayer.h
+set(VK_HEADERS
+    include/VulkanLayer.h
 )
 
-set(GAME_SRC
-    src/GameLayer.cpp
-    src/GameApplication.cpp
+set(VK_SRC
+    src/VulkanLayer.cpp
+    src/VulkanApplication.cpp
 )
 
 add_executable(
-    Game
+    VkApp
     ${CMAKE_SOURCE_DIR}/Engine/EntryPoint.h
-    ${GAME_SRC}
-    ${GAME_HEADERS}
+    ${VK_SRC}
+    ${VK_HEADERS}
 )
 
 #if(MSVC)
@@ -24,13 +24,13 @@ add_executable(
 #endif()
 
 target_include_directories(
-    Game
+    VkApp
     PUBLIC
         "include"
 )
 
 target_link_libraries(
-    Game
+    VkApp
     PRIVATE
         Engine
 )
@@ -39,7 +39,7 @@ set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
 set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
 if(MSVC)
     add_custom_command(
-        TARGET Game
+        TARGET VkApp
         POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
                 ${FMOD_DIR}/Windows/core/lib/fmod.dll
@@ -48,7 +48,7 @@ if(MSVC)
     )
 
     add_custom_command(
-        TARGET Game
+        TARGET VkApp
         POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
                 ${FT_DIR}/win64/freetype.dll

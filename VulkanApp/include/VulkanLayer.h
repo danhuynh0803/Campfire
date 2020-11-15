@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Platform/Vulkan/VulkanContext.h"
-#include "Platform/Vulkan/VulkanBuffer.h"
+#include "Renderer/Vulkan/VulkanContext.h"
+#include "Renderer/Vulkan/VulkanBuffer.h"
 #include "Renderer/Buffer.h"
 
 class VulkanLayer : public Layer
