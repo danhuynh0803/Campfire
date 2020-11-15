@@ -59,4 +59,5 @@ private:
 
     friend class Scene;
     friend class ScriptableEntity;
+    friend class Script;
 };

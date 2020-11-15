@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Scene/Entity.h"
 #include <glm/glm.hpp>
+#include "Scene/Entity.h"
 
 class Script
 {
@@ -24,5 +24,4 @@ public:
 
 private:
     std::string filepath;
-    friend class Scene;
 };
