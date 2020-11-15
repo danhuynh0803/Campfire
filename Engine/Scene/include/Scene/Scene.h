@@ -3,16 +3,14 @@
 #include <map>
 #include <utility>
 #include <entt.hpp>
-
 #include "Core/Base.h"
-#include "Scene/Camera.h"
-#include "Scene/Skybox.h"
 
-// TODO fix this miss of circular dependencies
-// Getting difficult to get correct ordering of includes
+class Skybox;
+class Event;
+class Camera;
 class Entity;
-class SceneManager;
 class SceneRenderer;
+class SceneManager;
 
 class Scene
 {
@@ -48,7 +46,7 @@ private:
     friend class SceneManager;
 
     std::string name = "Untitled";
-    //entt::entity sceneEntity;
+    entt::entity sceneEntity;
     entt::registry registry;
     std::map<uint64_t, Entity> entityMap;
 };

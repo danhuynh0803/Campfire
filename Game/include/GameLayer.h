@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Scene/SceneManager.h"
-#include "Scene/Scene.h"
 #include "Scene/Camera.h"
+
+class Scene;
 
 class GameLayer : public Layer
 {

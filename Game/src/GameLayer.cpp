@@ -1,13 +1,15 @@
 #include "GameLayer.h"
+
 #include "Core/Input.h"
 #include "Core/Time.h"
-#include "Scene/SceneManager.h"
+#include "Scene/Entity.h"
+#include "Scene/Scene.h"
 #include "Renderer/SceneRenderer.h"
-#include "Scene/Camera.h"
-
-//#include "ImGui/ImGuiLayer.h"
+#include "Scene/Component.h"
 
 //SharedPtr<Framebuffer> gameCamFBO;
+
+// TODO should be a field within the scene file?
 
 static int currDisplay = 0;
 

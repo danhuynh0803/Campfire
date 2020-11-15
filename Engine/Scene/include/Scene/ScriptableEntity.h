@@ -20,9 +20,9 @@ public:
 
     Entity Instantiate(Entity, glm::vec3 position)
     {
-        auto newEntity = entity.scene->CreateEntity("InstObject");
+        Entity newEntity = entity.scene->CreateEntity("InstObject");
         newEntity.GetComponent<TransformComponent>().position = position;
-        newEntity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+        //newEntity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
 
         return newEntity;
     }

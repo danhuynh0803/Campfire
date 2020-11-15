@@ -2,11 +2,8 @@
 
 #include <cstdarg>
 #include <entt.hpp>
-
 #include "Core/Base.h"
 #include "Scene/Scene.h"
-
-//class Scene;
 
 struct RelationshipComponent
 {
@@ -57,11 +54,9 @@ public:
     operator entt::entity() const { return entityHandle; }
 
 private:
+    entt::entity entityHandle { entt::null };
+    Scene* scene;
+
     friend class Scene;
     friend class ScriptableEntity;
-
-    entt::entity entityHandle { entt::null };
-
-    // Scene that this entity belongs to
-    Scene* scene = nullptr;
 };

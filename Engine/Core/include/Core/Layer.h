@@ -1,5 +1,4 @@
-#ifndef LAYER_H
-#define LAYER_H
+#pragma once
 
 #include <string>
 
@@ -18,5 +17,3 @@ struct Layer
 
     std::string name;
 };
-
-#endif // LAYER_H

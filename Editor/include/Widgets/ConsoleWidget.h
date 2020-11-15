@@ -1,6 +1,8 @@
 #ifndef CONSOLE_WIDGET_H
 #define CONSOLE_WIDGET_H
 
+#include <imgui.h>
+
 struct ConsoleWidget
 {
     char                  InputBuf[256];

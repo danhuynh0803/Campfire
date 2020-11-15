@@ -1,6 +1,7 @@
+#include <imgui.h>
+#include "Scene/Entity.h"
 #include "Scene/Scene.h"
 #include "Core/Random.h"
-#include <imgui.h>
 
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Renderer2D.h"
@@ -8,10 +9,11 @@
 #include "Particles/ParticleSystem.h"
 #include "Scripting/CameraController.h"
 #include "Scripting/PlayerController.h"
-//#include "Scripting/MazeGenerator.h"
 // Should be moved as a subsystem
 #include "Audio/AudioSystem.h"
 #include "Core/ResourceManager.h"
+#include "Scene/Component.h"
+#include "Scene/Skybox.h"
 
 //#include <Tracy.hpp>
 
@@ -431,7 +433,7 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEnti
 
 Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
-    auto entity = Entity(registry.create(), this);
+    Entity entity = Entity(registry.create(), this);
 
     // Random ID for access in hashmap
     auto ID = Random::UINT64T();

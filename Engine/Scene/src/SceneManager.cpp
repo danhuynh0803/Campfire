@@ -1,6 +1,7 @@
+#include "Scene/SceneManager.h"
 #include "Scene/Scene.h"
 #include "Scene/Component.h"
-#include "Scene/SceneManager.h"
+#include "Scene/Skybox.h"
 #include "Core/Base.h"
 #include <cstdio>
 #include <iomanip>

@@ -1,9 +1,4 @@
-#ifndef EDITOR_LAYER_H
-#define EDITOR_LAYER_H
-
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
+#pragma once
 
 #include "Core/Layer.h"
 #include "Scene/Scene.h"
@@ -91,5 +86,3 @@ private:
     };
     State state = State::STOP;
 };
-
-#endif // EDITOR_LAYER_H

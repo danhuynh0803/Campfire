@@ -2,6 +2,8 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer2D.h"
 #include "Scene/Component.h"
+#include "Scene/Scene.h"
+#include "Scene/Skybox.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
