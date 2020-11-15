@@ -41,10 +41,18 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 set_target_properties(glfw PROPERTIES FOLDER "Vendor")
-#add_definitions(
-#-DGLFW_INCLUDE_NONE
-#-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+
+#target_compile_definitions(
+#    glfw
+#    PUBLIC
+#        -DGLFW_INCLUDE_NONE
+#        #-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
 #)
+
+add_definitions(
+    -DGLFW_INCLUDE_NONE
+    #-DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+)
 
 # glm
 add_library(glm INTERFACE)
@@ -97,3 +105,6 @@ set_target_properties(lua PROPERTIES FOLDER "Vendor")
 # For multidll projects
 #add_compile_options(/D TRACY_IMPORTS)
 #add_subdirectory(tracy)
+
+# Vulkan
+#project(vulkan)

@@ -1,4 +1,4 @@
-#include "VulkanTexture.h"
+#include "Vulkan/VulkanTexture.h"
 #include <stb_image.h>
 
 VulkanTexture2D::VulkanTexture2D(const std::string& path)

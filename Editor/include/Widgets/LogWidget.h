@@ -7,6 +7,18 @@
 
 #include "Widgets/ImGuiLog.h"
 
+class LogWidget
+{
+public:
+    static void Init();
+    inline static void Draw(bool* isOpen) { mImGuiLog->Draw(isOpen); }
+    inline static std::shared_ptr<ImGuiLog> GetImGuiLog() { return mImGuiLog; }
+    inline static std::shared_ptr<spdlog::logger> GetLogger() { return mLogger; }
+private:
+    static std::shared_ptr<spdlog::logger> mLogger;
+    static std::shared_ptr<ImGuiLog> mImGuiLog;
+};
+
 //=============================================================================
 template<typename Mutex>
 class widget_sink : public spdlog::sinks::base_sink <Mutex>
@@ -37,15 +49,3 @@ using widget_sink_st = widget_sink<spdlog::details::null_mutex>;
 #define DEBUG_CRITICAL(...)  { LogWidget::GetLogger()->critical(__VA_ARGS__); }
 
 //=============================================================================
-
-class LogWidget
-{
-public:
-    static void Init();
-    inline static void Draw(bool* isOpen) { mImGuiLog->Draw(isOpen); }
-    inline static std::shared_ptr<ImGuiLog> GetImGuiLog() { return mImGuiLog; }
-    inline static std::shared_ptr<spdlog::logger> GetLogger() { return mLogger; }
-private:
-    static std::shared_ptr<spdlog::logger> mLogger;
-    static std::shared_ptr<ImGuiLog> mImGuiLog;
-};

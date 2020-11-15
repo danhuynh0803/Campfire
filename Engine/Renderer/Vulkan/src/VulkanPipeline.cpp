@@ -1,7 +1,7 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
-#include "VulkanPipeline.h"
-#include "VulkanShader.h"
-#include "VulkanContext.h"
+#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanContext.h"
 
 struct PipelineVertex
 {

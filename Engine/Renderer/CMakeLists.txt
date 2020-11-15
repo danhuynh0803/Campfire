@@ -1,7 +1,8 @@
 target_include_directories(
     Engine
     PUBLIC
-        "include")
+        "include"
+)
 
 set(RENDERER_HEADERS
     include/Renderer/Buffer.h

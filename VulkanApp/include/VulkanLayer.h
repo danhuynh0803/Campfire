@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Core/Layer.h"
-#include "Renderer/Vulkan/VulkanContext.h"
-#include "Renderer/Vulkan/VulkanBuffer.h"
 #include "Renderer/Buffer.h"
+#include "Core/Layer.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanBuffer.h"
+
 
 class VulkanLayer : public Layer
 {

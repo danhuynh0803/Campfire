@@ -14,6 +14,14 @@ target_sources(
         EntryPoint.h
 )
 
+find_package(Vulkan REQUIRED)
+
+if(NOT MSVC)
+    find_package(X11 REQUIRED)
+    link_libraries(${X11_LIBRARIES})
+    add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+endif()
+
 target_link_libraries(
     Engine
     PUBLIC
@@ -28,6 +36,7 @@ target_link_libraries(
         glad
         glfw
         lua
+        Vulkan::Vulkan
     PRIVATE
         BulletDynamics BulletCollision LinearMath
         stb

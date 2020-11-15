@@ -1,5 +1,5 @@
-#include "VulkanShader.h"
-#include "VulkanContext.h"
+#include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanContext.h"
 #include <fstream>
 
 VulkanShader::VulkanShader(const std::string& filepath)

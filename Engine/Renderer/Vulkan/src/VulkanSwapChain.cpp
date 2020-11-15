@@ -1,6 +1,6 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
-#include "VulkanSwapChain.h"
-#include "VulkanContext.h"
+#include "Vulkan/VulkanSwapChain.h"
+#include "Vulkan/VulkanContext.h"
 
 VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
 {

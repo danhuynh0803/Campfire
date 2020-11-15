@@ -5,7 +5,7 @@
 class VulkanApplication : public Application
 {
 public:
-    GameApplication(const ApplicationProps& props)
+    VulkanApplication(const ApplicationProps& props)
         : Application(props)
     {
         //enableImgui = false;

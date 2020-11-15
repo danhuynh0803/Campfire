@@ -7,10 +7,10 @@ class Script
 {
 public:
     Script() = default;
-    Script::Script(Entity e);
+    Script(Entity e);
     template <typename T>
     T& GetComponent();
-    Entity Script::Instantiate(Entity entity, glm::vec3 position = glm::vec3());
+    Entity Instantiate(Entity entity, glm::vec3 position = glm::vec3());
     void Destroy(Entity other, float timer = 0.0f);
 
     void OnImGuiRender();

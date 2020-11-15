@@ -1,6 +1,6 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
-#include "VulkanContext.h"
-#include "VulkanBuffer.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanBuffer.h"
 
 #include <limits>
 #include <vector>

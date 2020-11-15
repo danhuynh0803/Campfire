@@ -1,6 +1,6 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
-#include "VulkanBuffer.h"
-#include "VulkanContext.h"
+#include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanContext.h"
 #include <vulkan/vulkan.hpp>
 
 uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {

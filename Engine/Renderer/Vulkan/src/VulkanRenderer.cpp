@@ -1,6 +1,6 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
-#include "VulkanRenderer.h"
-#include "VulkanContext.h"
+#include "Vulkan/VulkanRenderer.h"
+#include "Vulkan/VulkanContext.h"
 
 void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
 {
