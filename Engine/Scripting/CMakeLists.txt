@@ -13,6 +13,7 @@ set(SCRIPTING_HEADERS
 )
 
 set(SCRIPTING_SRC
+    src/Script.cpp
     src/ScriptEngine.cpp
 )
 

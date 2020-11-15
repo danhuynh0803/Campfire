@@ -3,7 +3,8 @@
 
 #include <ImGuizmo.h>
 #include "Scene/Camera.h"
-#include "Scene/Entity.h"
+
+class Entity;
 
 class TransformWidget
 {

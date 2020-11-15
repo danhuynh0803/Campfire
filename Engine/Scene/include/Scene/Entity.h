@@ -5,7 +5,8 @@
 
 #include "Core/Base.h"
 #include "Scene/Scene.h"
-#include "Scene/Component.h"
+
+//class Scene;
 
 struct RelationshipComponent
 {

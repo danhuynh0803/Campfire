@@ -2,12 +2,12 @@
 
 #include <string>
 #include <nlohmann/json.hpp>
-
 #include "Core/Base.h"
-#include "Scene.h"
-#include "Entity.h"
 
 using json = nlohmann::json;
+
+class Scene;
+class Entity;
 
 class SceneManager
 {

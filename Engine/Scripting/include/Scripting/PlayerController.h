@@ -1,5 +1,6 @@
 #include "Scene/ScriptableEntity.h"
 #include "Core/Input.h"
+#include "Scene/Component.h"
 
 class PlayerController : public ScriptableEntity
 {

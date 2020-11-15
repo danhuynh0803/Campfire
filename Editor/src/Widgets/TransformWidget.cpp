@@ -3,6 +3,8 @@
 #include "Widgets/TransformWidget.h"
 #include "Core/Input.h"
 
+#include "Scene/Component.h"
+
 void TransformWidget::UpdateViewport(uint32_t width, uint32_t height)
 {
     ImGuizmo::SetRect(0, 0, width, height);

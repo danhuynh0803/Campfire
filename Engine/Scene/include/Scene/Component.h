@@ -1,5 +1,4 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#pragma once
 
 #include <string>
 
@@ -347,5 +346,3 @@ struct ParticleSystemComponent
         ps->Init();
     }
 };
-
-#endif // COMPONENT_H

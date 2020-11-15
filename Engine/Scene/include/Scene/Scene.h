@@ -48,7 +48,7 @@ private:
     friend class SceneManager;
 
     std::string name = "Untitled";
-    entt::entity sceneEntity;
+    //entt::entity sceneEntity;
     entt::registry registry;
     std::map<uint64_t, Entity> entityMap;
 };

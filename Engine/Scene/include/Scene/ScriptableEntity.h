@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene/Entity.h"
+#include "Scene/Component.h"
 
 class ScriptableEntity
 {

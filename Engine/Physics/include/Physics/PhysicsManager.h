@@ -1,12 +1,13 @@
 #ifndef PHYSICS_MANAGER_H
 #define PHYSICS_MANAGER_H
 
-#include <btBulletDynamicsCommon.h>
-#include "Physics/Rigidbody.h"
-#include "Scene/Entity.h"
-
 #include <vector>
 #include <map>
+
+#include <btBulletDynamicsCommon.h>
+#include "Physics/Rigidbody.h"
+#include "Physics/Trigger.h"
+#include "Scene/Entity.h"
 
 class PhysicsManager
 {

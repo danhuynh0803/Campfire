@@ -1,6 +1,6 @@
 #include "Physics/Rigidbody.h"
 #include "Physics/PhysicsManager.h"
-
+#include "Scene/Component.h"
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 

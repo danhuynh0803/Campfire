@@ -7,6 +7,7 @@ Entity::Entity(entt::entity handle, Scene* _scene)
 
 void Entity::AddChild(entt::entity childHandle)
 {
+    /*
     auto& parentComp = GetComponent<RelationshipComponent>();
 
     auto curr = parentComp.first;
@@ -40,4 +41,5 @@ void Entity::AddChild(entt::entity childHandle)
     }
 
     parentComp.numChildren++;
+    */
 }

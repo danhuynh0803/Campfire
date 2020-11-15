@@ -1,8 +1,7 @@
 #include "Physics/PhysicsManager.h"
 #include "Physics/BulletDebugDrawer.h"
-#include "Physics/Trigger.h"
+#include "Scene/Component.h"
 #include <glm/gtx/matrix_decompose.hpp>
-
 #include <algorithm>
 
 btDefaultCollisionConfiguration* PhysicsManager::collisionConfiguration;
