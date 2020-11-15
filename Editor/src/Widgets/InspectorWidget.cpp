@@ -463,22 +463,33 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
             ImGui::TreePop();
         }
+        ImGui::Separator();
     }
 
 
     // Script
-//    if (entity.HasComponent<ScriptComponent>())
-//    {
-//        if (ImGui::Button("..."))
-//        {
-//            ImGui::OpenPopup("ComponentOptionsPopup");
-//        }
-//        if (ImGui::BeginPopup("ComponentOptionsPopup"))
-//        {
-//            ShowComponentOptionsMenu<ScriptComponent>(entity);
-//            ImGui::EndPopup();
-//        }
-//    }
+    if (entity.HasComponent<ScriptComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Script"))
+        {
+            if (ImGui::Button("..."))
+            {
+                ImGui::OpenPopup("ComponentOptionsPopup");
+            }
+
+            auto& script = entity.GetComponent<ScriptComponent>().script;
+            script->OnImGuiRender();
+
+            if (ImGui::BeginPopup("ComponentOptionsPopup"))
+            {
+                ShowComponentOptionsMenu<ScriptComponent>(entity);
+                ImGui::EndPopup();
+            }
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
 
 
     ImGui::NewLine();
@@ -576,13 +587,18 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         }
     }
 
-    if (ImGui::MenuItem("Scripts"))
+    if (!entity.HasComponent<ScriptComponent>())
     {
+        if (ImGui::MenuItem("Scripts"))
+        {
+            entity.AddComponent<ScriptComponent>();
+        }
+
+        if (ImGui::MenuItem("New Script"))
+        {
+        }
     }
 
-    if (ImGui::MenuItem("New Script"))
-    {
-    }
 
     if (!entity.HasComponent<CameraComponent>())
     {

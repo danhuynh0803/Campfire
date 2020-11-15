@@ -19,6 +19,7 @@
 #include "Scene/Entity.h"
 #include "Audio/AudioSource.h"
 #include "Core/ResourceManager.h"
+#include "Scripting/Script.h"
 
 class Entity;
 
@@ -289,6 +290,7 @@ struct TextComponent
 };
 
 
+// TODO remove eventually?
 class ScriptableEntity;
 struct NativeScriptComponent
 {
@@ -313,13 +315,18 @@ struct NativeScriptComponent
 
 struct ScriptComponent
 {
-    //SharedPtr<Script> script;
-
-    ScriptComponent() = default;
+    ScriptComponent()
+    {
+        script = CreateSharedPtr<Script>();
+    }
 
     void Reset()
     {
+        script = CreateSharedPtr<Script>();
     }
+
+    SharedPtr<Script> script;
+    operator SharedPtr<Script>& () { return script; }
 };
 
 struct ParticleSystemComponent

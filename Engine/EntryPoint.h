@@ -10,10 +10,10 @@ int main(int argc, char * argv[])
 {
     ScriptEngine::Init();
 
-    ScriptEngine::Read(ASSETS + "Scripts/test.lua");
+    //ScriptEngine::Read(ASSETS + "Scripts/test.lua");
 
-    //Application* app = CreateApplication();
-    //app->Run();
+    Application* app = CreateApplication();
+    app->Run();
 
     return 0;
 }

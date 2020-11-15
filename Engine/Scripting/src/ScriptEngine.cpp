@@ -6,7 +6,7 @@ lua_State* ScriptEngine::L;
 void ScriptEngine::RunFunction(const std::string& funcName, const std::string& filepath)
 {
     luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, funcName.c_str());
+    //lua_pushcfunction(L, funcName.c_str());
     lua_setglobal(L, funcName.c_str());
     if (lua_isfunction(L, -1))
     {

@@ -1,7 +1,7 @@
 #include "Scene/ScriptableEntity.h"
 #include "Core/Input.h"
 
-namespace Script
+namespace NativeScript
 {
     class CameraController : public ScriptableEntity
     {
