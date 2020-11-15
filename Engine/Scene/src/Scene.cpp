@@ -8,7 +8,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Scripting/CameraController.h"
 #include "Scripting/PlayerController.h"
-#include "Scripting/MazeGenerator.h"
+//#include "Scripting/MazeGenerator.h"
 // Should be moved as a subsystem
 #include "Audio/AudioSystem.h"
 #include "Core/ResourceManager.h"
@@ -57,7 +57,7 @@ void Scene::Init()
         //player.AddComponent<AudioComponent>();
         //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
         //player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
-        player.AddComponent<NativeScriptComponent>().Bind<Script::MazeGenerator>();
+        //player.AddComponent<NativeScriptComponent>().Bind<Script::MazeGenerator>();
         //player.AddChild(mainCamera);
 
         //auto child = CreateEntity("Child", false);

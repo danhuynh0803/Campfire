@@ -27,10 +27,10 @@ target_link_libraries(
         json
         glad
         glfw
+        lua
     PRIVATE
         BulletDynamics BulletCollision LinearMath
         stb
-        lua
 )
 
 #MACRO(SOURCE_GROUP_BY_FOLDER target)

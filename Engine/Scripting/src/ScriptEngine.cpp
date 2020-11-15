@@ -1,8 +1,30 @@
 #include "Scripting/ScriptEngine.h"
+#include "Core/Log.h"
+
+lua_State* ScriptEngine::L;
+
+void ScriptEngine::RunFunction(const std::string& funcName, const std::string& filepath)
+{
+    luaL_dofile(L, filepath.c_str());
+    lua_pushcfunction(L, funcName.c_str());
+    lua_setglobal(L, funcName.c_str());
+    if (lua_isfunction(L, -1))
+    {
+        //lua_pcall(L, NUM_ARGS, NUM_RETURNS, 0);
+    }
+}
 
 void ScriptEngine::Init()
 {
-    LuaScripting::Init();
+    //the amount depends on the lua script
+    //10 kB
+    constexpr int POOL_SIZE = 1024 * 10;
+
+    char memory[POOL_SIZE];
+    ArenaAllocator pool(memory, &memory[POOL_SIZE - 1]);
+    L = lua_newstate(ArenaAllocator::l_alloc, &pool);
+    assert(L != nullptr);
+
     /*{
         auto NativePythagoras = [](lua_State* L) -> int
         {
@@ -40,8 +62,7 @@ void ScriptEngine::Init()
             printf("b = %d\n", (int)b);
         }
         lua_close(L);
-    }*/
-    /*
+    }
     {
         lua_State* L = luaL_newstate();
         luaL_openlibs(L);
@@ -52,11 +73,10 @@ void ScriptEngine::Init()
             int i = lua_tonumber(L, -1);
             printf("b = %d\n", (int)i);
         }
-    }
-    */
-
+    }*/
 }
+
 void ScriptEngine::Shutdown()
 {
-    LuaScripting::Shutdown();
+    lua_close(L);
 }
