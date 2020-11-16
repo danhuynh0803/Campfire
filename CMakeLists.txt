@@ -8,7 +8,7 @@ option(BUILD_SHARED_LIBS OFF)
 #add_subdirectory(Campfire/Vendor/Vulkan-Hpp)
 
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #if building for IDE, enable folders
