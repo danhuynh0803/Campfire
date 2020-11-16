@@ -2,6 +2,7 @@
 
 #include "Scene/Entity.h"
 #include "Scene/Component.h"
+#include <lua.hpp>
 
 class ScriptableEntity
 {
@@ -11,6 +12,7 @@ public:
     template <typename T>
     T& GetComponent()
     {
+        //if (entity.HasComponent<)
         return entity.GetComponent<T>();
     }
 

@@ -14,6 +14,7 @@
 #include "Core/ResourceManager.h"
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
+#include <lua.hpp>
 
 //#include <Tracy.hpp>
 
@@ -49,9 +50,11 @@ void Scene::Init()
     directionalLight.AddComponent<LightComponent>();
 
     {
-        auto player = CreateEntity("Wall");
-        //player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+        auto player = CreateEntity("Player");
+        player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        player.AddComponent<ScriptComponent>().Bind<ScriptableEntity>();
+        player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         //player.AddComponent<RigidbodyComponent>();
         //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
@@ -199,12 +202,26 @@ void Scene::OnStart()
 
     registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
     {
-        if (!sc.instance)
+        if (!sc.filepath.empty())
         {
-            sc.instance = sc.InstantiateScript();
-            sc.instance->entity = Entity(entity, this);
+            if (!sc.instance)
+            {
+                sc.instance = sc.InstantiateScript();
+                sc.instance->entity = Entity(entity, this);
+            }
+
+            lua_State* L = luaL_newstate();
+            luaL_openlibs(L);
+            luaL_dofile(L, sc.filepath.c_str());
+            lua_getglobal(L, "Start");
+            if (lua_pcall(L, 0, 0, 0) != 0)
+            {
+                LOG_ERROR("Cannot run Start() within {0}", sc.filepath);
+            }
+            lua_getglobal(L, "x");
+
+            sc.instance->Start();
         }
-        sc.instance->Start();
     });
 
     // Initialize scripts and run their Start()
@@ -265,6 +282,58 @@ void Scene::OnUpdate(float dt)
 
             overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
         }
+    }
+
+    // Lua script update
+    {
+        //ZoneScopedN("UpdateNativeScripts");
+        registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
+        {
+            lua_State* L = luaL_newstate();
+            luaL_openlibs(L);
+            luaL_dofile(L, sc.filepath.c_str());
+            lua_getglobal(L, "Update");
+            lua_pushnumber(L, dt);
+            if (lua_pcall(L, 1, 0, 0) != 0)
+            {
+                LOG_ERROR("Cannot run Update() within {0}", sc.filepath);
+            }
+            sc.instance->Update(dt);
+
+            Entity thisEntity = sc.instance->entity;
+            if (thisEntity.HasComponent<TriggerComponent>())
+            {
+                SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
+                for (auto enterEntity : trigger->overlapEnterList)
+                {
+                    Entity other(enterEntity, this);
+                    // Don't have the trigger apply on ourselves
+                    // since the trigger and rb will always be colliding
+                    if (enterEntity != sc.instance->entity)
+                    {
+                        sc.instance->OnTriggerEnter(other);
+                    }
+                }
+
+                for (auto stayEntity : overlappingEntities)
+                {
+                    Entity other(stayEntity, this);
+                    if (stayEntity != sc.instance->entity)
+                    {
+                        sc.instance->OnTriggerStay(other);
+                    }
+                }
+
+                for (auto exitEntity : trigger->overlapExitList)
+                {
+                    Entity other(exitEntity, this);
+                    if (exitEntity != sc.instance->entity)
+                    {
+                        sc.instance->OnTriggerExit(other);
+                    }
+                }
+            }
+        });
     }
 
     // Update with Native C++ scripts

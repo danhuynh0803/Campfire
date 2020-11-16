@@ -19,7 +19,6 @@ static int GetTag(lua_State* L)
     char* tag = lua_touserdata(L, 1);
     luaL_argcheck(L, tag != nullptr, 1, "string expected");
     lua_push
-
 }
 
 static int SetTag(lua_State* L)

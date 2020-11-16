@@ -67,6 +67,6 @@ static int GetScale(lua_State* L)
 static int ResetTransform(lua_State* L)
 {
     TransformComponent* tc = (TransformComponent*)lua_touserdata(L, -1);
-    //call tc destructor 
+    //call tc destructor
     return 0;
 }
