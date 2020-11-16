@@ -19,6 +19,12 @@ static int SetTag(lua_State* L)
     luaL_argcheck(L, tagComponent != NULL, 1, "'string' expected");
     const char* tag = lua_tostring(L, 2);
     tagComponent->tag = tag;
+    return 0;
+}
+
+static int PushAOne(lua_State* L)
+{
+    lua_pushnumber(L, 1);
     return 1;
 }
 
@@ -26,5 +32,6 @@ static const luaL_Reg tagLib[] =
 {
     {"GetTag", GetTag},
     {"SetTag", SetTag},
+    {"PushAOne",PushAOne},
     {NULL, NULL}
 };

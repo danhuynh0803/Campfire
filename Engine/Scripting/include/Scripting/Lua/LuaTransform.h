@@ -26,6 +26,10 @@ static int NewTransform(lua_State* L)
     luaL_getmetatable(L, "TransComMT");
     assert(lua_istable(L, -1));
     lua_setmetatable(L, -2);
+
+    //lua_newtable(L);
+    //lua_setuservalue(L, 1);
+
     return 1;
 }
 
@@ -59,6 +63,10 @@ static int GetScale(lua_State* L)
 
 static int SetPosition(lua_State* L)
 {
+    assert(lua_isuserdata(L, -4));
+    assert(lua_isnumber(L, -3));
+    assert(lua_isnumber(L, -2));
+    assert(lua_isnumber(L, -1));
     TransformComponent* tc = (TransformComponent*)lua_touserdata(L, -4);
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -97,7 +105,7 @@ static int ResetTransform(lua_State* L)
     return 0;
 }
 
-static int LuaTransfromTableIndex(lua_State* L)
+static int LuaTransformTableIndex(lua_State* L)
 {
     assert(lua_isuserdata(L, -2));
     assert(lua_isstring(L, -1));
@@ -121,7 +129,7 @@ static int LuaTransfromTableIndex(lua_State* L)
     }
     else
     {
-        lua_getglobal(L, "Transfrom");
+        lua_getglobal(L, "Transform");
         lua_pushstring(L, index);
         lua_rawget(L, -2);
         return 1;

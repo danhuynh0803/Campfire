@@ -33,17 +33,17 @@ void ScriptEngine::Register()
     if (!L) return;
     lua_newtable(L);
     int luaTagTableIndex = lua_gettop(L);
-    luaL_setfuncs(L, tagLib, luaTagTableIndex);
+    luaL_setfuncs(L, tagLib, 0);
     lua_setglobal(L, "Tag");
 
     lua_newtable(L);
     int luaTransfromTableIndex = lua_gettop(L);
-    luaL_setfuncs(L,transformLib, luaTransfromTableIndex);
+    luaL_setfuncs(L,transformLib, 0);
     lua_setglobal(L, "Transfrom");
 
     luaL_newmetatable(L, "TransComMT");
     lua_pushstring(L, "__index");
-    lua_pushcfunction(L, LuaTransfromTableIndex);
+    lua_pushcfunction(L, LuaTransformTableIndex);
     lua_settable(L, -3);
 }
 
