@@ -478,8 +478,16 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            auto& script = entity.GetComponent<ScriptComponent>().script;
-            script->OnImGuiRender();
+            auto& sc = entity.GetComponent<ScriptComponent>();
+            std::string filename = sc.filepath.empty() ? "Blank" : sc.filepath;
+            if (ImGui::Button(filename.c_str()))
+            {
+                std::string path = FileSystem::OpenFile("*.lua");
+                if (!path.empty())
+                {
+                    sc.filepath = path;
+                }
+            }
 
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {
@@ -589,13 +597,22 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
 
     if (!entity.HasComponent<ScriptComponent>())
     {
-        if (ImGui::MenuItem("Scripts"))
+        if (ImGui::BeginMenu("Scripts"))
         {
-            entity.AddComponent<ScriptComponent>();
-        }
+            if (ImGui::MenuItem("Scripts"))
+            {
+                // TODO
+                // Show list of available scripts
+                //
+                //entity.AddComponent<ScriptComponent>();
+            }
 
-        if (ImGui::MenuItem("New Script"))
-        {
+            if (ImGui::MenuItem("New Script"))
+            {
+                entity.AddComponent<ScriptComponent>();
+            }
+
+            ImGui::EndMenu();
         }
     }
 

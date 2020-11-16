@@ -177,6 +177,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
+        CopyComponent<ScriptComponent>(registry, other->registry, enttMap);
         CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
         CopyComponent<AudioComponent>(registry, other->registry, enttMap);
         CopyComponent<TextComponent>(registry, other->registry, enttMap);
@@ -194,6 +195,16 @@ void Scene::OnStart()
         {
             audioSource->Play();
         }
+    });
+
+    registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
+    {
+        if (!sc.instance)
+        {
+            sc.instance = sc.InstantiateScript();
+            sc.instance->entity = Entity(entity, this);
+        }
+        sc.instance->Start();
     });
 
     // Initialize scripts and run their Start()

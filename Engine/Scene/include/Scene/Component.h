@@ -314,18 +314,40 @@ struct NativeScriptComponent
 
 struct ScriptComponent
 {
-    ScriptComponent()
+    ScriptComponent() = default;
+
+    ScriptableEntity* instance = nullptr;
+
+    ScriptableEntity*(*InstantiateScript)();
+    void (*DestroyScript)(ScriptComponent*);
+
+    template <typename T>
+    void Bind()
     {
-        script = CreateSharedPtr<Script>();
+        InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
+        DestroyScript = [](ScriptComponent* sc) { delete sc->instance; sc->instance = nullptr; };
     }
 
     void Reset()
     {
-        script = CreateSharedPtr<Script>();
     }
 
-    SharedPtr<Script> script;
-    operator SharedPtr<Script>& () { return script; }
+    std::string filepath;
+
+//    ScriptableEntity* instance = nullptr;
+//
+//    ScriptComponent()
+//    {
+//        script = CreateSharedPtr<Script>();
+//    }
+//
+//    void Reset()
+//    {
+//        script = CreateSharedPtr<Script>();
+//    }
+//
+//    SharedPtr<Script> script;
+//    operator SharedPtr<Script>& () { return script; }
 };
 
 struct ParticleSystemComponent
