@@ -1,5 +1,6 @@
 #include "Scripting/ScriptEngine.h"
 #include "Core/Log.h"
+#include "Scripting/LuaTransform.h"
 
 lua_State* ScriptEngine::L;
 
@@ -29,6 +30,20 @@ void ScriptEngine::Init()
 void ScriptEngine::Register()
 {
     if (!L) return;
+    lua_newtable(L);
+
+    luaL_newmetatable(L, "TransformComponentMetaTable");
+    lua_pushstring(L, "__gc");
+    lua_pushcfunction(L, ResetTransform);
+    lua_settable(L, -3);
+
+    lua_pushcfunction(L, NewTransform);
+    lua_setfield(L, -2, "New");
+    lua_pushcfunction(L, SetPosition);
+    lua_setfield(L, -2, "SetPosition");
+
+    //meta method
+
 }
 
 void ScriptEngine::RunScript(const std::string& LuaScript)
