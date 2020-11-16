@@ -10,6 +10,7 @@ set(SCRIPTING_HEADERS
     include/Scripting/PlayerController.h
     include/Scripting/Script.h
     include/Scripting/ScriptEngine.h
+    include/Scripting/LuaTransform.h
 )
 
 set(SCRIPTING_SRC
