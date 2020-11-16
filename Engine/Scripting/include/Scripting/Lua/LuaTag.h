@@ -4,12 +4,6 @@
 #include <string>
 #include "Scene/Component.h"
 
-//static const struct luaL_reg tagLib[] =
-//{
-//    {"GetTag", GetTag},
-//    {"SetTag", SetTag},
-//};
-
 static int GetTag(lua_State* L)
 {
     TagComponent* tagComponent = (TagComponent*)lua_touserdata(L, -1);
@@ -27,3 +21,10 @@ static int SetTag(lua_State* L)
     tagComponent->tag = tag;
     return 1;
 }
+
+static const luaL_Reg tagLib[] =
+{
+    {"GetTag", GetTag},
+    {"SetTag", SetTag},
+    {NULL, NULL}
+};

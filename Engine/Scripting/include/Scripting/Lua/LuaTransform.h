@@ -1,12 +1,11 @@
 #pragma once
 
 #include <lua.hpp>
-//#include <functional>
 #include "Scene/Component.h"
 
 //static const struct luaL_reg {
 //    char* methodName;
-//    std::function<int(lua_State*)> method;
+//    std::function<int(lua_State*)> method; or //lua_CFunction method
 //} transformLib[] =
 //{
 //    {"New", NewTransform},
@@ -16,13 +15,14 @@
 //
 //    {"GetPosition", GetPosition},
 //    {"GetEuler", GetRotation},
-//    {"GetScale", GetScale}
+//    {"GetScale", GetScale},
+//    {NULL, NULL}
 //};
 
 static int NewTransform(lua_State* L)
 {
     void* transformComponent = lua_newuserdata(L, sizeof(TransformComponent));
-    new (transformComponent) TransformComponent();
+    new (transformComponent) TransformComponent();//using the pointer to use the allocated memory that was already alloacted by lua
     luaL_getmetatable(L, "TransComMT");
     assert(lua_istable(L, -1));
     lua_setmetatable(L, -2);
@@ -31,7 +31,7 @@ static int NewTransform(lua_State* L)
 
 static int GetPosition(lua_State* L)
 {
-    TransformComponent* tc = (TransformComponent*)lua_touserdata(L, -4);
+    TransformComponent* tc = (TransformComponent*)lua_touserdata(L, -1);
     lua_pushnumber(L, tc->position.x);
     lua_pushnumber(L, tc->position.y);
     lua_pushnumber(L, tc->position.z);
@@ -121,9 +121,22 @@ static int LuaTransfromTableIndex(lua_State* L)
     }
     else
     {
-        lua_getglobal(L, "Sprite");
+        lua_getglobal(L, "Transfrom");
         lua_pushstring(L, index);
         lua_rawget(L, -2);
         return 1;
     }
 }
+
+static const luaL_Reg transformLib[] =
+{
+    {"New", NewTransform},
+    {"SetPosition", SetPosition},
+    {"SetEuler", SetRotation},
+    {"SetScale", SetScale},
+
+    {"GetPosition", GetPosition},
+    {"GetEuler", GetRotation},
+    {"GetScale", GetScale},
+    {NULL, NULL}
+};

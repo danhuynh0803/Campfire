@@ -3,7 +3,10 @@ function Start()
 end
 
 function Update(dt)
-	print("Update dt = " .. dt)
+	tf = Transform.New()
+	print(tf.x)
+	
+	--print("Update dt = " .. dt)
 	
 	--[[ Need to be able to have components tied to entity
 	newEntity

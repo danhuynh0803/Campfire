@@ -14,7 +14,7 @@
 #include "Core/ResourceManager.h"
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
-#include <lua.hpp>
+#include "Scripting/Lua/LuaTransform.h"
 
 //#include <Tracy.hpp>
 
@@ -291,6 +291,17 @@ void Scene::OnUpdate(float dt)
         {
             lua_State* L = luaL_newstate();
             luaL_openlibs(L);
+
+            //lua_newtable(L);
+            //int luaTransfromTableIndex = lua_gettop(L);
+            //luaL_setfuncs(L, transformLib, luaTransfromTableIndex);
+            //lua_setglobal(L, "Transfrom");
+
+            //luaL_newmetatable(L, "TransComMT");
+            //lua_pushstring(L, "__index");
+            //lua_pushcfunction(L, LuaTransfromTableIndex);
+            //lua_settable(L, -3);
+
             luaL_dofile(L, sc.filepath.c_str());
             lua_getglobal(L, "Update");
             lua_pushnumber(L, dt);
