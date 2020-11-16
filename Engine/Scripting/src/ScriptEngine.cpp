@@ -1,6 +1,7 @@
 #include "Scripting/ScriptEngine.h"
 #include "Core/Log.h"
-#include "Scripting/LuaTransform.h"
+#include "Scripting/Lua/LuaTransform.h"
+#include "Scripting/Lua/LuaTag.h"
 
 lua_State* ScriptEngine::L;
 
@@ -30,20 +31,37 @@ void ScriptEngine::Init()
 void ScriptEngine::Register()
 {
     if (!L) return;
+
     lua_newtable(L);
+    int luaTagTableIndex = lua_gettop(L);
+    lua_pushvalue(L, luaTagTableIndex);
+    lua_setglobal(L, "Tag");
+    lua_setfield(L, -2, "GetTag");
+    lua_pushcfunction(L, GetTag);
+    lua_setfield(L, -2, "SetTag");
+    lua_pushcfunction(L, SetTag);
 
-    luaL_newmetatable(L, "TransformComponentMetaTable");
-    lua_pushstring(L, "__gc");
-    lua_pushcfunction(L, ResetTransform);
-    lua_settable(L, -3);
-
+    lua_newtable(L);
+    int luaTransfromTableIndex = lua_gettop(L);
+    lua_pushvalue(L, luaTransfromTableIndex);
+    lua_setglobal(L, "Transfrom");
+    luaL_newmetatable(L, "TransComMT");
     lua_pushcfunction(L, NewTransform);
     lua_setfield(L, -2, "New");
+    lua_setfield(L, -2, "GetPosition");
+    lua_pushcfunction(L, GetScale);
+    lua_setfield(L, -2, "GetRotation");
+    lua_pushcfunction(L, GetScale);
+    lua_setfield(L, -2, "GetScale");
     lua_pushcfunction(L, SetPosition);
     lua_setfield(L, -2, "SetPosition");
+    lua_pushcfunction(L, SetRotation);
+    lua_setfield(L, -2, "SetRotation");
+    lua_pushcfunction(L, GetRotation);
 
-    //meta method
-
+    lua_pushstring(L, "__index");
+    lua_pushcfunction(L, LuaTransfromTableIndex);
+    lua_settable(L, -3);
 }
 
 void ScriptEngine::RunScript(const std::string& LuaScript)

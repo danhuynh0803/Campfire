@@ -2,29 +2,26 @@
 
 #include <lua.hpp>
 #include <string>
+#include "Scene/Component.h"
 
-class LuaTag
-{
-    std::string tag;
-};
-
-static const struct luaL_reg tagLib[] =
-{
-    {"GetTag", GetTag},
-    {"SetTag", SetTag},
-};
+//static const struct luaL_reg tagLib[] =
+//{
+//    {"GetTag", GetTag},
+//    {"SetTag", SetTag},
+//};
 
 static int GetTag(lua_State* L)
 {
-    char* tag = lua_touserdata(L, 1);
-    luaL_argcheck(L, tag != nullptr, 1, "string expected");
-    lua_push
+    TagComponent* tagComponent = (TagComponent*)lua_touserdata(L, 1);
+    luaL_argcheck(L, tagComponent != nullptr, 1, "string expected");
+    lua_pushstring(L, tagComponent->tag.c_str());
+    return 1;
 }
 
 static int SetTag(lua_State* L)
 {
-    char* a = (char*)lua_touserdata(L, 1);
-    luaL_argcheck(L, a != NULL, 1, "'string' expected");
-
-    return 0;
+    TagComponent* tagComponent = (TagComponent*)lua_touserdata(L, -2);
+    luaL_argcheck(L, tagComponent != NULL, 1, "'string' expected");
+    tagComponent->tag = lua_tostring(L, -1);
+    return 1;
 }
