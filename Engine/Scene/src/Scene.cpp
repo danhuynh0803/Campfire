@@ -14,8 +14,8 @@
 #include "Core/ResourceManager.h"
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
-#include <lua.hpp>
-
+#include "Scripting/Lua/LuaTransform.h"
+#include "Scripting/Lua/LuaTag.h"
 //#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
@@ -291,12 +291,29 @@ void Scene::OnUpdate(float dt)
         {
             lua_State* L = luaL_newstate();
             luaL_openlibs(L);
+
+            lua_newtable(L);
+            int transformTableIndex = lua_gettop(L);
+            luaL_setfuncs(L, transformLib, 0);
+            lua_setglobal(L, "Transform");
+
+            luaL_newmetatable(L, "TransComMT");
+            lua_pushstring(L, "__index");
+            lua_pushcfunction(L, LuaTransformTableIndex);
+            lua_settable(L, -3);
+
+            lua_newtable(L);
+            int luaTagTableIndex = lua_gettop(L);
+            luaL_setfuncs(L, tagLib, 0);
+            lua_setglobal(L, "Tag");
+
             luaL_dofile(L, sc.filepath.c_str());
             lua_getglobal(L, "Update");
             lua_pushnumber(L, dt);
             if (lua_pcall(L, 1, 0, 0) != 0)
             {
                 LOG_ERROR("Cannot run Update() within {0}", sc.filepath);
+                LOG_ERROR("Error {0}", lua_tostring(L, -1));
             }
             sc.instance->Update(dt);
 

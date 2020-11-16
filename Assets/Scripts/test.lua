@@ -3,7 +3,16 @@ function Start()
 end
 
 function Update(dt)
-	print("Update dt = " .. dt)
+	tf = Transform.New()
+	--print(tf.x,tf.y,tf.z)
+	x = Tag.PushAOne()
+	x = x + 1
+	print(x)
+	Transform.SetPosition(tf,1,1,1)
+	--tf.SetPosition(1,1,1) //need to fix the access somehow
+	--print(tf:GetPosition())
+	--print(Transform:GetPosition(tf))
+	--print("Update dt = " .. dt)
 	
 	--[[ Need to be able to have components tied to entity
 	newEntity
