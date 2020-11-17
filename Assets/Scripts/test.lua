@@ -1,5 +1,5 @@
 function Start()
-	entity:SetPosition(3,4,5)
+	entity:test(pos)
 end
 
 function Update(dt)
