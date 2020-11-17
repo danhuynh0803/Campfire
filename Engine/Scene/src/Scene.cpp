@@ -16,6 +16,7 @@
 #include "Scene/Skybox.h"
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scripting/Lua/LuaTag.h"
+#include "Scripting/LuaScript.h"
 //#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
@@ -53,7 +54,7 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        player.AddComponent<ScriptComponent>().Bind<ScriptableEntity>();
+        player.AddComponent<ScriptComponent>().Bind<LuaScript>();
         player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         //player.AddComponent<RigidbodyComponent>();
@@ -208,17 +209,8 @@ void Scene::OnStart()
             {
                 sc.instance = sc.InstantiateScript();
                 sc.instance->entity = Entity(entity, this);
+                sc.instance->filepath = sc.filepath;
             }
-
-            lua_State* L = luaL_newstate();
-            luaL_openlibs(L);
-            luaL_dofile(L, sc.filepath.c_str());
-            lua_getglobal(L, "Start");
-            if (lua_pcall(L, 0, 0, 0) != 0)
-            {
-                LOG_ERROR("Cannot run Start() within {0}", sc.filepath);
-            }
-            lua_getglobal(L, "x");
 
             sc.instance->Start();
         }
@@ -307,14 +299,6 @@ void Scene::OnUpdate(float dt)
             luaL_setfuncs(L, tagLib, 0);
             lua_setglobal(L, "Tag");
 
-            luaL_dofile(L, sc.filepath.c_str());
-            lua_getglobal(L, "Update");
-            lua_pushnumber(L, dt);
-            if (lua_pcall(L, 1, 0, 0) != 0)
-            {
-                LOG_ERROR("Cannot run Update() within {0}", sc.filepath);
-                LOG_ERROR("Error {0}", lua_tostring(L, -1));
-            }
             sc.instance->Update(dt);
 
             Entity thisEntity = sc.instance->entity;

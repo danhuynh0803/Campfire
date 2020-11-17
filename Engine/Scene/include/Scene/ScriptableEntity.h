@@ -47,6 +47,7 @@ protected:
     virtual void OnTriggerStay(Entity other) {}
     virtual void OnTriggerExit(Entity other) {}
     Entity entity;
+    std::string filepath;
 
 private:
     friend class Scene;

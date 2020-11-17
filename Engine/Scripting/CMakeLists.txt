@@ -9,6 +9,7 @@ set(SCRIPTING_HEADERS
     include/Scripting/CameraController.h
     include/Scripting/PlayerController.h
     include/Scripting/Script.h
+    include/Scripting/LuaScript.h
     include/Scripting/ScriptEngine.h
     include/Scripting/Lua/LuaTransform.h
     include/Scripting/Lua/LuaTag.h
