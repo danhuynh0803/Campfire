@@ -14,6 +14,7 @@ set(SCRIPTING_HEADERS
     include/Scripting/Lua/LuaTransform.h
     include/Scripting/Lua/LuaTag.h
     include/Scripting/Lua/LuaEntity.h
+    include/Scripting/Lua/LuaInput.h
 )
 
 set(SCRIPTING_SRC
@@ -23,6 +24,7 @@ set(SCRIPTING_SRC
     src/Lua/LuaTransform.cpp
     src/Lua/LuaTag.cpp
     src/Lua/LuaEntity.cpp
+    src/Lua/LuaInput.cpp
 )
 
 target_sources(

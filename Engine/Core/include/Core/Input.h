@@ -50,7 +50,7 @@ private:
     static std::unordered_map<uint32_t, uint8_t> stateMap;
 
     /*
-    // modifier key(s) -- bitfield
+    // modifier key(s) -- bitfield(hexfield)
     ModShift    = 0x0001,
     ModControl  = 0x0002,
     ModAlt      = 0x0004,
