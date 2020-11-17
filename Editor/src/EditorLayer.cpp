@@ -35,7 +35,7 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach()
 {
     // TODO move all these resolution numbers into some global that can be accessed
-    editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
+    editorCamera = CreateSharedPtr<Camera>(1920, 1080, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
             editorCamera,
             glm::vec3(0.0f, 5.0f, 10.0f),
@@ -44,7 +44,7 @@ void EditorLayer::OnAttach()
 
     // TODO set up via render pass and pipeline
     gameCamFBO = Framebuffer::Create(1600, 900);
-    editorCamFBO = Framebuffer::Create(1600, 900);
+    editorCamFBO = Framebuffer::Create(1920, 1080);
 }
 
 void EditorLayer::OnDetach()

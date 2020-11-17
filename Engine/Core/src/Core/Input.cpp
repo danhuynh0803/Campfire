@@ -1,8 +1,7 @@
 #include "Core/Input.h"
 #include "Core/Application.h"
-
 #include <GLFW/glfw3.h>
-
+#include <map>
 
 //=====================================================
 //--------------------- Modifiers ---------------------
@@ -40,22 +39,161 @@ void Input::SetMod(int modKey)
 //=====================================================
 //----------------------Buttons------------------------
 //=====================================================
+static const std::map<std::string, KeyCode> str2KeyMap
+{
+    {"KEY_SPACE"           ,Key::Space      },
+    {"KEY_APOSTROPHE"      ,Key::Apostrophe }, /* ' */
+    {"KEY_COMMA"           ,Key::Comma      }, /* , */
+    {"KEY_MINUS"           ,Key::Minus      }, /* - */
+    {"KEY_PERIOD"          ,Key::Period     }, /* . */
+    {"KEY_SLASH"           ,Key::Slash      }, /* / */
 
-//bool Input::GetButton(const std::string& code)
-//{
-//
-//}
-//
-//bool Input::GetButtonDown(const std::string& code)
-//{
-//
-//}
-//
-//bool Input::GetButtonUp(const std::string& code)
-//{
-//
-//}
+    {"KEY_0"               ,Key::D0         },
+    {"KEY_1"               ,Key::D1         },
+    {"KEY_2"               ,Key::D2         },
+    {"KEY_3"               ,Key::D3         },
+    {"KEY_4"               ,Key::D4         },
+    {"KEY_5"               ,Key::D5         },
+    {"KEY_6"               ,Key::D6         },
+    {"KEY_7"               ,Key::D7         },
+    {"KEY_8"               ,Key::D8         },
+    {"KEY_9"               ,Key::D9         },
 
+    {"KEY_SEMICOLON"       ,Key::Semicolon  }, /* ; */
+    {"KEY_EQUAL"           ,Key::Equal      }, /* = */
+
+    {"KEY_A"               ,Key::A          },
+    {"KEY_B"               ,Key::B          },
+    {"KEY_C"               ,Key::C          },
+    {"KEY_D"               ,Key::D          },
+    {"KEY_E"               ,Key::E          },
+    {"KEY_F"               ,Key::F          },
+    {"KEY_G"               ,Key::G          },
+    {"KEY_H"               ,Key::H          },
+    {"KEY_I"               ,Key::I          },
+    {"KEY_J"               ,Key::J          },
+    {"KEY_K"               ,Key::K          },
+    {"KEY_L"               ,Key::L          },
+    {"KEY_M"               ,Key::M          },
+    {"KEY_N"               ,Key::N          },
+    {"KEY_O"               ,Key::O          },
+    {"KEY_P"               ,Key::P          },
+    {"KEY_Q"               ,Key::Q          },
+    {"KEY_R"               ,Key::R          },
+    {"KEY_S"               ,Key::S          },
+    {"KEY_T"               ,Key::T          },
+    {"KEY_U"               ,Key::U          },
+    {"KEY_V"               ,Key::V          },
+    {"KEY_W"               ,Key::W          },
+    {"KEY_X"               ,Key::X          },
+    {"KEY_Y"               ,Key::Y          },
+    {"KEY_Z"               ,Key::Z          },
+
+    {"KEY_LEFT_BRACKET"    ,Key::LeftBracket  }, /* [ */
+    {"KEY_BACKSLASH"       ,Key::Backslash    }, /* \ */
+    {"KEY_RIGHT_BRACKET"   ,Key::RightBracket }, /* ] */
+    {"KEY_GRAVE_ACCENT"    ,Key::GraveAccent  }, /* ` */
+    {"KEY_WORLD_1"         ,Key::World1       }, /* non-US #1 */
+    {"KEY_WORLD_2"         ,Key::World2       }, /* non-US #2 */
+
+    {"KEY_ESCAPE"          ,Key::Escape     },
+    {"KEY_ENTER"           ,Key::Enter      },
+    {"KEY_TAB"             ,Key::Tab        },
+    {"KEY_BACKSPACE"       ,Key::Backspace  },
+    {"KEY_INSERT"          ,Key::Insert     },
+    {"KEY_DELETE"          ,Key::Delete     },
+    {"KEY_RIGHT"           ,Key::Right      },
+    {"KEY_LEFT"            ,Key::Left       },
+    {"KEY_DOWN"            ,Key::Down       },
+    {"KEY_UP"              ,Key::Up         },
+    {"KEY_PAGE_UP"         ,Key::PageUp     },
+    {"KEY_PAGE_DOWN"       ,Key::PageDown   },
+    {"KEY_HOME"            ,Key::Home       },
+    {"KEY_END"             ,Key::End        },
+    {"KEY_CAPS_LOCK"       ,Key::CapsLock   },
+    {"KEY_SCROLL_LOCK"     ,Key::ScrollLock },
+    {"KEY_NUM_LOCK"        ,Key::NumLock    },
+    {"KEY_PRINT_SCREEN"    ,Key::PrintScreen},
+    {"KEY_PAUSE"           ,Key::Pause      },
+    {"KEY_F1"              ,Key::F1         },
+    {"KEY_F2"              ,Key::F2         },
+    {"KEY_F3"              ,Key::F3         },
+    {"KEY_F4"              ,Key::F4         },
+    {"KEY_F5"              ,Key::F5         },
+    {"KEY_F6"              ,Key::F6         },
+    {"KEY_F7"              ,Key::F7         },
+    {"KEY_F8"              ,Key::F8         },
+    {"KEY_F9"              ,Key::F9         },
+    {"KEY_F10"             ,Key::F10        },
+    {"KEY_F11"             ,Key::F11        },
+    {"KEY_F12"             ,Key::F12        },
+    {"KEY_F13"             ,Key::F13        },
+    {"KEY_F14"             ,Key::F14        },
+    {"KEY_F15"             ,Key::F15        },
+    {"KEY_F16"             ,Key::F16        },
+    {"KEY_F17"             ,Key::F17        },
+    {"KEY_F18"             ,Key::F18        },
+    {"KEY_F19"             ,Key::F19        },
+    {"KEY_F20"             ,Key::F20        },
+    {"KEY_F21"             ,Key::F21        },
+    {"KEY_F22"             ,Key::F22        },
+    {"KEY_F23"             ,Key::F23        },
+    {"KEY_F24"             ,Key::F24        },
+    {"KEY_F25"             ,Key::F25        },
+
+    {"KEY_LEFT_SHIFT"      ,Key::LeftShift      },
+    {"KEY_LEFT_CONTROL"    ,Key::LeftControl    },
+    {"KEY_LEFT_ALT"        ,Key::LeftAlt        },
+    {"KEY_LEFT_SUPER"      ,Key::LeftSuper      },
+    {"KEY_RIGHT_SHIFT"     ,Key::RightShift     },
+    {"KEY_RIGHT_CONTROL"   ,Key::RightControl   },
+    {"KEY_RIGHT_ALT"       ,Key::RightAlt       },
+    {"KEY_RIGHT_SUPER"     ,Key::RightSuper     },
+    {"KEY_MENU"            ,Key::Menu           },
+
+};
+
+bool Input::GetButton(const std::string& code)
+{
+    //KeyCode key = str2KeyMap.at(code);
+    if (str2KeyMap.find(code) != str2KeyMap.end())
+    {
+        return Input::GetKey(str2KeyMap.at(code));
+    }
+    else
+    {
+        LOG_WARN("{0} does not have a matching KeyCode.", code);
+        return false;
+    }
+}
+
+bool Input::GetButtonDown(const std::string& code)
+{
+    //KeyCode key = str2KeyMap.at(code);
+    if (str2KeyMap.find(code) != str2KeyMap.end())
+    {
+        return Input::GetKeyDown(str2KeyMap.at(code));
+    }
+    else
+    {
+        LOG_WARN("{0} does not have a matching KeyCode.", code);
+        return false;
+    }
+}
+
+bool Input::GetButtonUp(const std::string& code)
+{
+    //KeyCode key = str2KeyMap.at(code);
+    if (str2KeyMap.find(code) != str2KeyMap.end())
+    {
+        return Input::GetKeyUp(str2KeyMap.at(code));
+    }
+    else
+    {
+        LOG_WARN("{0} does not have a matching KeyCode.", code);
+        return false;
+    }
+}
 
 //=====================================================
 //----------------------- UINT ------------------------
