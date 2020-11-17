@@ -49,7 +49,8 @@ int LuaInput::GetMouseY(lua_State* L)
 	lua_pushnumber(L, Input::GetMouseY());
 	return 1;
 }
-const luaL_Reg LuaInput::LuaInput[]
+
+const luaL_Reg LuaInput::inputLib[]
 {
 	{"GetKey",LuaInput::GetKey},
 	{"GetKeyDown",LuaInput::GetKeyDown},
