@@ -14,10 +14,8 @@
 #include "Core/ResourceManager.h"
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
-#include "Scripting/Lua/LuaTransform.h"
-#include "Scripting/Lua/LuaTag.h"
 #include "Scripting/LuaScript.h"
-#include "Scripting/Lua/LuaEntity.h"
+
 //#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
@@ -282,30 +280,6 @@ void Scene::OnUpdate(float dt)
         //ZoneScopedN("UpdateNativeScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
-            lua_State* L = luaL_newstate();
-            luaL_openlibs(L);
-
-            lua_newtable(L);
-            luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
-            lua_setglobal(L, "Transform");
-
-            luaL_newmetatable(L, "TransComMT");
-            lua_pushstring(L, "__index");
-            lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);
-            lua_settable(L, -3);
-
-            lua_newtable(L);
-            luaL_setfuncs(L, LuaEntity::entityTransformLib, 0);
-            lua_setglobal(L, "entity");
-            //id might work?
-            lua_pushlightuserdata(L, &entity);
-            lua_pushcclosure(L, LuaEntity::SetEntityPosition, 1);
-
-            lua_newtable(L);
-            int luaTagTableIndex = lua_gettop(L);
-            luaL_setfuncs(L, LuaTag::tagLib, 0);
-            lua_setglobal(L, "Tag");
-
             sc.instance->Update(dt);
 
             Entity thisEntity = sc.instance->entity;
