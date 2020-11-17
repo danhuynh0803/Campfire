@@ -17,6 +17,7 @@
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scripting/Lua/LuaTag.h"
 #include "Scripting/LuaScript.h"
+#include "Scripting/Lua/LuaEntity.h"
 //#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
@@ -285,18 +286,24 @@ void Scene::OnUpdate(float dt)
             luaL_openlibs(L);
 
             lua_newtable(L);
-            int transformTableIndex = lua_gettop(L);
-            luaL_setfuncs(L, transformLib, 0);
+            luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
             lua_setglobal(L, "Transform");
 
             luaL_newmetatable(L, "TransComMT");
             lua_pushstring(L, "__index");
-            lua_pushcfunction(L, LuaTransformTableIndex);
+            lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);
             lua_settable(L, -3);
 
             lua_newtable(L);
+            luaL_setfuncs(L, LuaEntity::entityTransformLib, 0);
+            lua_setglobal(L, "entity");
+            //id might work?
+            lua_pushlightuserdata(L, &entity);
+            lua_pushcclosure(L, LuaEntity::SetEntityPosition, 1);
+
+            lua_newtable(L);
             int luaTagTableIndex = lua_gettop(L);
-            luaL_setfuncs(L, tagLib, 0);
+            luaL_setfuncs(L, LuaTag::tagLib, 0);
             lua_setglobal(L, "Tag");
 
             sc.instance->Update(dt);
@@ -549,5 +556,3 @@ void Scene::RemoveEntity(Entity entity)
     entityMap.erase(entity.GetComponent<IDComponent>());
     registry.destroy(entity);
 }
-
-
