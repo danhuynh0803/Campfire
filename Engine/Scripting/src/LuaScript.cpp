@@ -10,7 +10,7 @@ void LuaScript::Start()
 {
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
-    
+
     char* transformComponetMetaTableName = "TransComMT";
     lua_newtable(L);
     luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
