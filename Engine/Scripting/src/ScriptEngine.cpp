@@ -1,5 +1,5 @@
-#include "Scripting/ScriptEngine.h"
 #include "Core/Log.h"
+#include "Scripting/ScriptEngine.h"
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scripting/Lua/LuaTag.h"
 
@@ -25,26 +25,27 @@ void ScriptEngine::Init()
     char memory[POOL_SIZE];
     ArenaAllocator pool(memory, &memory[POOL_SIZE - 1]);
     L = lua_newstate(ArenaAllocator::l_alloc, &pool);
+    //might need to swap to luaL_newstate if we are going to use LuaJIT
     L ? Register() : printf("Error: Fail to initialize Lua stack\n");
 }
 
 void ScriptEngine::Register()
 {
-    if (!L) return;
-    lua_newtable(L);
-    int luaTagTableIndex = lua_gettop(L);
-    luaL_setfuncs(L, tagLib, 0);
-    lua_setglobal(L, "Tag");
+    //if (!L) return;
+    //lua_newtable(L);
+    //int luaTagTableIndex = lua_gettop(L);
+    //luaL_setfuncs(L, tagLib, 0);
+    //lua_setglobal(L, "Tag");
 
-    lua_newtable(L);
-    int luaTransfromTableIndex = lua_gettop(L);
-    luaL_setfuncs(L,transformLib, 0);
-    lua_setglobal(L, "Transfrom");
+    //lua_newtable(L);
+    //int luaTransfromTableIndex = lua_gettop(L);
+    //luaL_setfuncs(L,transformLib, 0);
+    //lua_setglobal(L, "Transfrom");
 
-    luaL_newmetatable(L, "TransComMT");
-    lua_pushstring(L, "__index");
-    lua_pushcfunction(L, LuaTransformTableIndex);
-    lua_settable(L, -3);
+    //luaL_newmetatable(L, "TransComMT");
+    //lua_pushstring(L, "__index");
+    //lua_pushcfunction(L, LuaTransformTableIndex);
+    //lua_settable(L, -3);
 }
 
 void ScriptEngine::RunScript(const std::string& LuaScript)
