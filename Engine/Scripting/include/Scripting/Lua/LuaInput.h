@@ -12,5 +12,5 @@ namespace LuaInput
 	int GetMouseX(lua_State*);
 	int GetMouseY(lua_State*);
 	
-	extern const luaL_Reg LuaInput[];
+	extern const luaL_Reg inputLib[];
 }

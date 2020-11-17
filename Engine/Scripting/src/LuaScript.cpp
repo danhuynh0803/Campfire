@@ -4,22 +4,22 @@
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scripting/Lua/LuaTag.h"
 #include "Scripting/Lua/LuaEntity.h"
+#include "Scripting/Lua/LuaInput.h"
 
 void LuaScript::Start()
 {
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
     
-    char* transformCompoentMetaTableName = "TransComMT";
+    char* transformComponetMetaTableName = "TransComMT";
     lua_newtable(L);
     luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
-    lua_pushstring(L, transformCompoentMetaTableName);
+    lua_pushstring(L, transformComponetMetaTableName);
     lua_pushcclosure(L, LuaTransfrom::NewTransform, 1);
     lua_setfield(L, -2, "New");
     lua_setglobal(L, "Transform");//names the table Transform
 
-
-    luaL_newmetatable(L, transformCompoentMetaTableName);
+    luaL_newmetatable(L, transformComponetMetaTableName);
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
     lua_settable(L, -3); //sets the (meta)table and pop above
@@ -32,9 +32,12 @@ void LuaScript::Start()
     lua_setglobal(L, "entity");//name the table entity
 
     lua_newtable(L);
-    int luaTagTableIndex = lua_gettop(L);
     luaL_setfuncs(L, LuaTag::tagLib, 0);
     lua_setglobal(L, "Tag");//name the table Tag
+
+    lua_newtable(L);
+    luaL_setfuncs(L, LuaInput::inputLib, 0);
+    lua_setglobal(L, "Input");//name the table Input
 
     luaL_dofile(L, filepath.c_str());
     lua_getglobal(L, "Start");
