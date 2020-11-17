@@ -5,18 +5,16 @@ function Start()
 end
 
 function Update(dt)
-    entity:SetPosition(5,5,5)
-
-    if (Input:GetButton("KEY_F")) then
-        print("KeyF")
+    if (Input:GetButtonDown("KEY_A")) then
+        entity:SetPosition(-5,0,0)
+    elseif (Input:GetButtonDown("KEY_D")) then
+        entity:SetPosition(5,0,0)
     end
 
-    if (Input:GetButtonDown("KEY_SPACE")) then
-        print("KeySpace down")
-    end
-
-    if (Input:GetButtonUp("KEY_D")) then
-        print("KeyD up")
+    if (Input:GetButtonDown("KEY_W")) then
+        entity:SetPosition(0,5,0)
+    elseif (Input:GetButtonDown("KEY_S")) then
+        entity:SetPosition(0,-5,0)
     end
 
     -- tf = Transform.New()
