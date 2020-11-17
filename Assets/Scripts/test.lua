@@ -1,8 +1,9 @@
 function Start()
-	entity:test(pos)
+	
 end
 
 function Update(dt)
+	entity.SetPosition(5,5,5)
 	-- tf = Transform.New()
 	-- --print(tf.x,tf.y,tf.z)
 	-- x = Tag.PushAOne()

@@ -26,29 +26,26 @@ public:
 
         lua_newtable(L);
         luaL_setfuncs(L, LuaEntity::entityTransformLib, 0);
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+        lua_pushcclosure(L, LuaEntity::SetEntityPosition, 1);
+        lua_setfield(L, -2, "SetPosition");
         lua_setglobal(L, "entity");
-
-        constexpr int NUMBER_OF_UPVALUES = 1;
-        //lua_pushlightuserdata(L, &entity);s
-        //lua_pushcclosure(L, LuaEntity::SetEntityPosition, NUMBER_OF_UPVALUES);
-        //lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-
-        //lua_pushcclosure(L, LuaEntity::SetEntityPosition, 2);
         
         lua_newtable(L);
         int luaTagTableIndex = lua_gettop(L);
         luaL_setfuncs(L, LuaTag::tagLib, 0);
         lua_setglobal(L, "Tag");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-        lua_setglobal(L, "pos");
-
+        //lua_pushlightuserdata(L, &GetComponent<TransformComponent>().position);
+        //lua_setglobal(L, "pos");
 
         luaL_dofile(L, filepath.c_str());
         lua_getglobal(L, "Start");
         if (lua_pcall(L, 0, 0, 0) != 0)
         {
             LOG_ERROR("Cannot run Start() within {0}", filepath);
+            LOG_ERROR("Error {0}", lua_tostring(L, -1));
+            lua_pop(L, 1);
         }
     }
 
@@ -61,6 +58,7 @@ public:
         {
             LOG_ERROR("Cannot run Update() within {0}", filepath);
             LOG_ERROR("Error {0}", lua_tostring(L, -1));
+            lua_pop(L, 1);
         }
     }
 
