@@ -3,10 +3,8 @@
 
 int LuaEntity::SetEntityPosition(lua_State* L)
 {
-    //lua_Number s = lua_tonumber(L, lua_upvalueindex(1));
-    //lua_Number o = lua_tonumber(L, lua_upvalueindex(2));
     glm::vec3* position = (glm::vec3*)lua_touserdata(L,lua_upvalueindex(1));
-    //assert(position);
+    assert(position);
     assert(lua_isnumber(L, -3));
     assert(lua_isnumber(L, -2));
     assert(lua_isnumber(L, -1));
