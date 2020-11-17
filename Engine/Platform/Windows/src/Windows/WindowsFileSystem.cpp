@@ -6,6 +6,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <Core/Application.h>
+#include <windows.h>
 
 wchar_t* CharToWChar(const char* text)
 {

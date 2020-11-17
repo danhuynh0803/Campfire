@@ -1,9 +1,7 @@
 #pragma once
 
 #include <lua.hpp>
-#include "Scripting/ArenaAllocator.h"
 #include <string>
-#include <typeinfo>
 
 class ScriptEngine
 {

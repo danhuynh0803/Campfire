@@ -2,6 +2,7 @@
 #include "Scripting/ScriptEngine.h"
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scripting/Lua/LuaTag.h"
+#include "Scripting/ArenaAllocator.h"
 
 lua_State* ScriptEngine::L;
 
