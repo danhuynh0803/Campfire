@@ -10,11 +10,16 @@ void LuaScript::Start()
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
     
+    char* transformCompoentMetaTableName = "TransComMT";
     lua_newtable(L);
-    luaL_setfuncs(L, LuaTransfrom::transformLib, 0);//uses set field on the table
+    luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
+    lua_pushstring(L, transformCompoentMetaTableName);
+    lua_pushcclosure(L, LuaTransfrom::NewTransform, 1);
+    lua_setfield(L, -2, "New");
     lua_setglobal(L, "Transform");//names the table Transform
 
-    luaL_newmetatable(L, "TransComMT");
+
+    luaL_newmetatable(L, transformCompoentMetaTableName);
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
     lua_settable(L, -3); //sets the (meta)table and pop above

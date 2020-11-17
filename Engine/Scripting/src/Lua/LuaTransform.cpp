@@ -19,9 +19,10 @@
 
 int LuaTransfrom::NewTransform(lua_State* L)
 {
+    const char* transformCompoentMetaTableName = lua_tostring(L, lua_upvalueindex(1));
     void* transformComponent = lua_newuserdata(L, sizeof(TransformComponent));
     new (transformComponent) TransformComponent();//using the pointer to use the allocated memory that was already alloacted by lua
-    luaL_getmetatable(L, "TransComMT");
+    luaL_getmetatable(L, transformCompoentMetaTableName);
     assert(lua_istable(L, -1));
     lua_setmetatable(L, -2);
 
@@ -146,7 +147,6 @@ int LuaTransfrom::LuaTransformTableIndex(lua_State* L)
 
 const luaL_Reg LuaTransfrom::transformLib[] =
 {
-    {"New", LuaTransfrom::NewTransform},
     { "SetPosition", LuaTransfrom::SetPosition },
     { "SetEuler", LuaTransfrom::SetRotation },
     { "SetScale", LuaTransfrom::SetScale },

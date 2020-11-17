@@ -1,9 +1,11 @@
 function Start()
-	
+	tf = Transform.New()
+	tf:SetPosition(2,4,5)
+	print(tf.x)
 end
 
 function Update(dt)
-	entity.SetPosition(5,5,5)
+	entity:SetPosition(5,5,5)
 	-- tf = Transform.New()
 	-- --print(tf.x,tf.y,tf.z)
 	-- x = Tag.PushAOne()
