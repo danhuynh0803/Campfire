@@ -13,14 +13,6 @@ void LuaScript::Start()
     luaL_openlibs(L); //opens all standard Lua libraries
 
     char* transformComponetMetaTableName = "TransComMT";
-
-    lua_newtable(L);
-    {
-        luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
-        lua_pushstring(L, transformComponetMetaTableName);
-        lua_pushcclosure(L, LuaTransfrom::NewTransform, 1);
-        lua_setfield(L, -2, "New");
-    }lua_setglobal(L, "Transform");
     
     luaL_newmetatable(L, transformComponetMetaTableName);
     {
@@ -62,22 +54,43 @@ void LuaScript::Start()
 
     }lua_setglobal(L, "Transform");
 
+
+    /*if(HasComponent<RigidbodyComponent>())
+    {
+        lua_newtable(L);
+        {
+            lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody));
+            lua_pushcclosure(L, LuaRigidbody::AddVelocity, 1);
+            lua_setfield(L, -2, "AddVelocity");
+
+            lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody));
+            lua_pushcclosure(L, LuaRigidbody::SetVelocity, 1);
+            lua_setfield(L, -2, "SetVelocity");
+
+
+            lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody->GetVelocity()));
+            lua_pushcclosure(L, LuaRigidbody::GetVelocity, 1);
+            lua_setfield(L, -2, "GetVelocity");
+
+        }lua_setglobal(L, "Rigidbody");
+    }*/
+
     lua_newtable(L);
     {
-        lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody));
+        lua_pushlightuserdata(L, &entity);
         lua_pushcclosure(L, LuaRigidbody::AddVelocity, 1);
         lua_setfield(L, -2, "AddVelocity");
 
-        lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody));
+        lua_pushlightuserdata(L, &entity);
         lua_pushcclosure(L, LuaRigidbody::SetVelocity, 1);
         lua_setfield(L, -2, "SetVelocity");
 
 
-        lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody->GetVelocity()));
+        lua_pushlightuserdata(L, &entity);
         lua_pushcclosure(L, LuaRigidbody::GetVelocity, 1);
         lua_setfield(L, -2, "GetVelocity");
 
-    }lua_setglobal(L, "Rigidbody"); 
+    }lua_setglobal(L, "Rigidbody");
 
     lua_newtable(L);
     {

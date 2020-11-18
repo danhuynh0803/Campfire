@@ -16,6 +16,12 @@ public:
         return entity.GetComponent<T>();
     }
 
+    template <typename T>
+    bool HasComponent()
+    {
+        return entity.HasComponent<T>();
+    }
+
     Entity Instantiate(Entity)
     {
     }

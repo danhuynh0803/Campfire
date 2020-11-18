@@ -2,6 +2,7 @@
 
 #include <cstdarg>
 #include <entt.hpp>
+#include <typeinfo>
 #include "Core/Base.h"
 #include "Scene/Scene.h"
 
@@ -35,7 +36,7 @@ public:
         if (HasComponent<T>())
             return scene->registry.template get<T>(entityHandle);
         else
-            LOG_ERROR("Component not found");
+            LOG_ERROR("{0} not found", typeid(T).name());
     }
 
     template <typename T>
