@@ -108,7 +108,7 @@ int LuaTransfrom::LuaTransformTableIndex(lua_State* L)
 
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -2);
     const char* index = lua_tostring(L, -1);
-    
+
     if (strcmp(index, "x") == 0)
     {
         lua_pushnumber(L, transfromComponet->position.x);

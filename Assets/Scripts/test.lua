@@ -1,24 +1,44 @@
 function Start()
-    tf = Transform.New()
-    tf:SetPosition(2,4,5)
-    print(tf.x)
-	entity:SetScale(2,2,2)
-	entity:SetRotation(90,-40,120)
+
+	--for func in transform do
+		--print(func)
+	
+    --tf = Transform.New()
+    --tf:SetPosition(2,4,5)
+    --print(tf.x)
+    --entity:SetScale(2,2,2)
+    --entity:SetRotation(90,-40,120)
 end
 
 function Update(dt)
-    if (Input:GetButtonDown("KEY_A")) then
-        entity:SetPosition(-5,0,0)
-    elseif (Input:GetButtonDown("KEY_D")) then
-        entity:SetPosition(5,0,0)
+	--print(Transform)
+	local vel =
+	{
+		x = 0,
+		y = 0,
+		z = 0
+	}
+	
+    if (Input:GetButton("KEY_A")) then
+		vel.x = -5 * dt		
+    elseif (Input:GetButton("KEY_D")) then
+		vel.x = 5 * dt
     end
-
+	
+	if (Input:GetButton("KEY_W")) then
+		vel.y = 5 * dt		
+    elseif (Input:GetButton("KEY_S")) then
+		vel.y = -5 * dt
+    end
+	
+	Transform:Translate(vel.x, vel.y, vel.z)
+--[[
     if (Input:GetButtonDown("KEY_W")) then
         entity:SetPosition(0,5,0)
     elseif (Input:GetButtonDown("KEY_S")) then
         entity:SetPosition(0,-5,0)
     end
-
+]]--
     -- tf = Transform.New()
     -- --print(tf.x,tf.y,tf.z)
     -- x = Tag.PushAOne()
