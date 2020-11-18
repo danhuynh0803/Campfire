@@ -58,3 +58,90 @@ int LuaRigidbody::GetVelocity(lua_State* L)
 
 	return 1;
 }
+
+int LuaRigidbody::SetMass(lua_State* L)
+{
+	Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+	lua_Number mass = lua_tonumber(L, -1);
+	if (entity->HasComponent<RigidbodyComponent>())
+	{
+		entity->GetComponent<RigidbodyComponent>().rigidbody->mass = mass;
+	}
+	else
+	{
+		LOG_ERROR("Entity missing RigidbodyComponent")
+	}
+	return 0;
+}
+
+int LuaRigidbody::GetMass(lua_State* L)
+{
+	Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+	if (entity->HasComponent<RigidbodyComponent>())
+	{
+		lua_pushnumber(L, entity->GetComponent<RigidbodyComponent>().rigidbody->mass);
+	}
+	else
+	{
+		LOG_ERROR("Entity missing RigidbodyComponent")
+	}
+	return 0;
+}
+
+int LuaRigidbody::SetDrag(lua_State* L)
+{
+	Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+	lua_Number drag = lua_tonumber(L, -1);
+	if (entity->HasComponent<RigidbodyComponent>())
+	{
+		entity->GetComponent<RigidbodyComponent>().rigidbody->drag = drag;
+	}
+	else
+	{
+		LOG_ERROR("Entity missing RigidbodyComponent")
+	}
+	return 0;
+}
+
+int LuaRigidbody::GetDrag(lua_State* L)
+{
+	Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+	if (entity->HasComponent<RigidbodyComponent>())
+	{
+		lua_pushnumber(L, entity->GetComponent<RigidbodyComponent>().rigidbody->drag);
+	}
+	else
+	{
+		LOG_ERROR("Entity missing RigidbodyComponent")
+	}
+	return 0;
+}
+
+int LuaRigidbody::SetAngularDrag(lua_State* L)
+{
+	Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+	lua_Number angularDrag = lua_tonumber(L, -1);
+	if (entity->HasComponent<RigidbodyComponent>())
+	{
+		entity->GetComponent<RigidbodyComponent>().rigidbody->angularDrag = angularDrag;
+	}
+	else
+	{
+		LOG_ERROR("Entity missing RigidbodyComponent")
+	}
+	return 0;
+}
+
+int LuaRigidbody::GetAngularDrag(lua_State* L)
+{
+	Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+	if (entity->HasComponent<RigidbodyComponent>())
+	{
+		lua_pushnumber(L, entity->GetComponent<RigidbodyComponent>().rigidbody->angularDrag);
+	}
+	else
+	{
+		LOG_ERROR("Entity missing RigidbodyComponent")
+	}
+	return 0;
+}
