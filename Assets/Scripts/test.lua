@@ -2,6 +2,8 @@ function Start()
     tf = Transform.New()
     tf:SetPosition(2,4,5)
     print(tf.x)
+	entity:SetScale(2,2,2)
+	entity:SetRotation(90,-40,120)
 end
 
 function Update(dt)

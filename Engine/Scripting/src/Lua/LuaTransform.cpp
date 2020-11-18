@@ -80,10 +80,7 @@ int LuaTransfrom::SetRotation(lua_State* L)
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
     lua_Number z = lua_tonumber(L, -1);
-    transfromComponet->rotation = glm::quat(glm::vec3(
-        glm::radians(x),
-        glm::radians(y),
-        glm::radians(z)));
+    transfromComponet->euler = glm::vec3(x, y, z);
     return 0;
 }
 

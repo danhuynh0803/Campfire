@@ -29,6 +29,12 @@ void LuaScript::Start()
     lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
     lua_pushcclosure(L, LuaEntity::SetEntityPosition, 1);
     lua_setfield(L, -2, "SetPosition");
+    lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
+    lua_pushcclosure(L, LuaEntity::SetEntityRotation, 1);
+    lua_setfield(L, -2, "SetRotation");
+    lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+    lua_pushcclosure(L, LuaEntity::SetEntityScale, 1);
+    lua_setfield(L, -2, "SetScale");
     lua_setglobal(L, "entity");//name the table entity
 
     lua_newtable(L);
