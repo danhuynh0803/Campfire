@@ -15,7 +15,7 @@ public:
     btRigidBody* GetBulletRigidbody();
     void SetVelocity(glm::vec3 newVelocity);
     void AddVelocity(glm::vec3 velocity);
-    btVector3 GetVelocity();
+    glm::vec3 GetVelocity();
     void SetTransform(const TransformComponent& transformComp);
 
 public:

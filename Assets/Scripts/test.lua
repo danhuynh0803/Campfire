@@ -8,9 +8,20 @@ function Start()
     --print(tf.x)
     --entity:SetScale(2,2,2)
     --entity:SetRotation(90,-40,120)
+	--Rigidbody:SetVelocity(5, 5, 5)
+	
 end
 
 function Update(dt)
+	if (Rigidbody == nil) then
+		print("Entity does not contain a rb")
+	end
+	
+	currVel = Rigidbody:GetVelocity()
+	--print(currVel.x)
+	
+	
+	--[[
 	--print(Transform)
 	local vel =
 	{
@@ -34,6 +45,9 @@ function Update(dt)
 	Transform:Translate(vel.x, vel.y, vel.z)
     p1 = Transform:GetPosition();
     print(p1.x)
+	
+	]]--
+	
 --[[
     if (Input:GetButtonDown("KEY_W")) then
         entity:SetPosition(0,5,0)

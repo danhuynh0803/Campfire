@@ -9,6 +9,12 @@ static btVector3 GlmToBtVec(glm::vec3 v)
     return btVector3(v.x, v.y, v.z);
 }
 
+static glm::vec3 btVecToGlm(btVector3 v)
+{
+    return glm::vec3(v.getX(), v.getY(), v.getZ());
+}
+
+
 void Rigidbody::SetTransform(const TransformComponent& transformComp)
 {
     btTransform transform;
@@ -115,9 +121,9 @@ void Rigidbody::AddVelocity(glm::vec3 velocity)
     bulletRigidbody->setLinearVelocity(GlmToBtVec(newVelocity));
 }
 
-btVector3 Rigidbody::GetVelocity()
+glm::vec3 Rigidbody::GetVelocity()
 {
-    return bulletRigidbody->getLinearVelocity();
+    return btVecToGlm(bulletRigidbody->getLinearVelocity());
 }
 
 btRigidBody* Rigidbody::GetBulletRigidbody()
