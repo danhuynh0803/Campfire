@@ -10,6 +10,11 @@ namespace LuaTransfrom {
 	int GetRotation(lua_State*);
 	int GetScale(lua_State*);
 	int LuaTransformTableIndex(lua_State*);
+	int SetEntityPosition(lua_State* L);
+	int SetEntityRotation(lua_State* L);
+	int SetEntityScale(lua_State* L);
+	int Translate(lua_State* L);
 
 	extern const luaL_Reg transformLib[];
+	extern const luaL_Reg entityTransformLib[];
 }

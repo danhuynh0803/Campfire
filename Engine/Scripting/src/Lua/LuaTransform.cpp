@@ -1,22 +1,6 @@
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scene/Component.h"
 
-//static const struct luaL_reg {
-//    char* methodName;
-//    std::function<int(lua_State*)> method; or //lua_CFunction method
-//} transformLib[] =
-//{
-//    {"New", NewTransform},
-//    {"SetPosition", SetPosition},
-//    {"SetEuler", SetRotation},
-//    {"SetScale", SetScale},
-//
-//    {"GetPosition", GetPosition},
-//    {"GetEuler", GetRotation},
-//    {"GetScale", GetScale},
-//    {NULL, NULL}
-//};
-
 int LuaTransfrom::NewTransform(lua_State* L)
 {
     const char* transformCompoentMetaTableName = lua_tostring(L, lua_upvalueindex(1));
@@ -143,8 +127,6 @@ int LuaTransfrom::LuaTransformTableIndex(lua_State* L)
     }
 }
 
-//TODO: __newIndex Mehod
-
 const luaL_Reg LuaTransfrom::transformLib[] =
 {
     { "SetPosition", LuaTransfrom::SetPosition },
@@ -154,5 +136,69 @@ const luaL_Reg LuaTransfrom::transformLib[] =
     { "GetPosition", LuaTransfrom::GetPosition },
     { "GetEuler", LuaTransfrom::GetRotation },
     { "GetScale", LuaTransfrom::GetScale },
+    { NULL, NULL }
+};
+
+int LuaTransfrom::SetEntityPosition(lua_State* L)
+{
+    glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    assert(position);
+    assert(lua_isnumber(L, -3));
+    assert(lua_isnumber(L, -2));
+    assert(lua_isnumber(L, -1));
+    lua_Number x = lua_tonumber(L, -3);
+    lua_Number y = lua_tonumber(L, -2);
+    lua_Number z = lua_tonumber(L, -1);
+    *position = glm::vec3(x, y, z);
+    return 0;
+}
+
+int LuaTransfrom::SetEntityRotation(lua_State* L)
+{
+    glm::quat* euler = (glm::quat*)lua_touserdata(L, lua_upvalueindex(1));
+    assert(euler);
+    assert(lua_isnumber(L, -3));
+    assert(lua_isnumber(L, -2));
+    assert(lua_isnumber(L, -1));
+    lua_Number x = lua_tonumber(L, -3);
+    lua_Number y = lua_tonumber(L, -2);
+    lua_Number z = lua_tonumber(L, -1);
+    *euler = glm::vec3(x, y, z);
+    return 0;
+}
+
+int LuaTransfrom::SetEntityScale(lua_State* L)
+{
+    glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    assert(scale);
+    assert(lua_isnumber(L, -3));
+    assert(lua_isnumber(L, -2));
+    assert(lua_isnumber(L, -1));
+    lua_Number x = lua_tonumber(L, -3);
+    lua_Number y = lua_tonumber(L, -2);
+    lua_Number z = lua_tonumber(L, -1);
+    *scale = glm::vec3(x, y, z);
+    return 0;
+}
+
+int LuaTransfrom::Translate(lua_State* L)
+{
+    glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+
+    assert(position);
+    assert(lua_isnumber(L, -3));
+    assert(lua_isnumber(L, -2));
+    assert(lua_isnumber(L, -1));
+
+    lua_Number x = lua_tonumber(L, -3);
+    lua_Number y = lua_tonumber(L, -2);
+    lua_Number z = lua_tonumber(L, -1);
+
+    *position += glm::vec3(x, y, z);
+
+    return 0;
+}
+const luaL_Reg LuaTransfrom::entityTransformLib[] =
+{
     { NULL, NULL }
 };

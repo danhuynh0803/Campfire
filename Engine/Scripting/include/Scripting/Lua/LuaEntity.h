@@ -3,9 +3,5 @@
 
 namespace LuaEntity
 {
-    int SetEntityPosition(lua_State*);
-    int SetEntityRotation(lua_State* L);
-    int SetEntityScale(lua_State* L);
-    int Translate(lua_State* L);
-    extern const luaL_Reg entityTransformLib[];
+    extern const luaL_Reg entityLib[];
 }

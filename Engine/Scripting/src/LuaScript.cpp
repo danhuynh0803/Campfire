@@ -12,56 +12,57 @@ void LuaScript::Start()
     luaL_openlibs(L); //opens all standard Lua libraries
 
     char* transformComponetMetaTableName = "TransComMT";
-    lua_newtable(L);
-    luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
-    lua_pushstring(L, transformComponetMetaTableName);
-    lua_pushcclosure(L, LuaTransfrom::NewTransform, 1);
-    lua_setfield(L, -2, "New");
-    lua_setglobal(L, "Transform");//names the table Transform
-
-    luaL_newmetatable(L, transformComponetMetaTableName);
-    lua_pushstring(L, "__index");
-    lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
-    lua_settable(L, -3); //sets the (meta)table and pop above
-
-    { // Transform
-        lua_newtable(L);
-        {
-            luaL_setfuncs(L, LuaEntity::entityTransformLib, 0);
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaEntity::SetEntityPosition, 1);
-            lua_setfield(L, -2, "SetPosition");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
-            lua_pushcclosure(L, LuaEntity::SetEntityRotation, 1);
-            lua_setfield(L, -2, "SetRotation");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
-            lua_pushcclosure(L, LuaEntity::SetEntityScale, 1);
-            lua_setfield(L, -2, "SetScale");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaEntity::Translate, 1);
-            lua_setfield(L, -2, "Translate");
-        }
-        //lua_settable(L, -1, "Transform"); //name the table entity
-        lua_setglobal(L, "Transform");
-    }
 
     lua_newtable(L);
     {
-        lua_getglobal(L, "Transform");
-        lua_setfield(L, -1, "Transform");
-    }
-    lua_setglobal(L, "entity"); //name the table entity
+        luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
+        lua_pushstring(L, transformComponetMetaTableName);
+        lua_pushcclosure(L, LuaTransfrom::NewTransform, 1);
+        lua_setfield(L, -2, "New");
+    }lua_setglobal(L, "Transform");
+    
+    luaL_newmetatable(L, transformComponetMetaTableName);
+    {
+        lua_pushstring(L, "__index");
+        lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
+    }lua_settable(L, -3); //sets the (meta)table and pop above
+    
+    lua_newtable(L);
+    {
+        //luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
+        
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+        lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
+        lua_setfield(L, -2, "SetPosition");
+
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
+        lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
+        lua_setfield(L, -2, "SetRotation");
+
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+        lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
+        lua_setfield(L, -2, "SetScale");
+
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+        lua_pushcclosure(L, LuaTransfrom::Translate, 1);
+        lua_setfield(L, -2, "Translate");
+    }lua_setglobal(L, "Transform");
 
     lua_newtable(L);
-    luaL_setfuncs(L, LuaTag::tagLib, 0);
-    lua_setglobal(L, "Tag");//name the table Tag
+    {
+        //lua_getglobal(L, "Transform");
+        //lua_setfield(L, -1, "Transform");
+    }lua_setglobal(L, "entity"); //name the table entity
 
     lua_newtable(L);
-    luaL_setfuncs(L, LuaInput::inputLib, 0);
-    lua_setglobal(L, "Input");//name the table Input
+    {
+        luaL_setfuncs(L, LuaTag::tagLib, 0);
+    }lua_setglobal(L, "Tag");//name the table Tag
+
+    lua_newtable(L);
+    {
+        luaL_setfuncs(L, LuaInput::inputLib, 0);
+    }lua_setglobal(L, "Input");//name the table Input
 
     luaL_dofile(L, filepath.c_str());
     lua_getglobal(L, "Start");
