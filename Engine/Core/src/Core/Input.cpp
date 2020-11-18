@@ -268,6 +268,20 @@ bool Input::GetKeyUp(KeyCode key)
 //=====================================================
 //----------------------Mouse--------------------------
 //=====================================================
+static const std::map<std::string, MouseCode> str2MouseCodeMap
+{
+
+    {"Mouse_0"               ,Mouse::Button0         },
+    {"Mouse_1"               ,Mouse::Button1         },
+    {"Mouse_2"               ,Mouse::Button2         },
+    {"Mouse_3"               ,Mouse::Button3         },
+    {"Mouse_4"               ,Mouse::Button4         },
+    {"Mouse_5"               ,Mouse::Button5         },
+    {"Mouse_6"               ,Mouse::Button6         },
+    {"Mouse_7"               ,Mouse::Button7         },
+
+};
+
 bool Input::GetMouseButton(MouseCode button)
 {
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
@@ -298,6 +312,44 @@ bool Input::GetMouseButtonUp(MouseCode button)
     return state == GLFW_RELEASE && oldState == GLFW_PRESS;
 }
 
+bool Input::GetMouseButton(const std::string& mouseCode)
+{
+    if (str2MouseCodeMap.find(mouseCode) != str2MouseCodeMap.end())
+    {
+        return Input::GetMouseButton(str2MouseCodeMap.at(mouseCode));
+    }
+    else
+    {
+        LOG_WARN("{0} does not have a matching MouseCode.", mouseCode);
+        return false;
+    }
+}
+
+bool Input::GetMouseButtonDown(const std::string& mouseCode)
+{
+    if (str2MouseCodeMap.find(mouseCode) != str2MouseCodeMap.end())
+    {
+        return Input::GetMouseButtonDown(str2MouseCodeMap.at(mouseCode));
+    }
+    else
+    {
+        LOG_WARN("{0} does not have a matching MouseCode.", mouseCode);
+        return false;
+    }
+}
+
+bool Input::GetMouseButtonUp(const std::string& mouseCode)
+{
+    if (str2MouseCodeMap.find(mouseCode) != str2MouseCodeMap.end())
+    {
+        return Input::GetMouseButtonUp(str2MouseCodeMap.at(mouseCode));
+    }
+    else
+    {
+        LOG_WARN("{0} does not have a matching MouseCode.", mouseCode);
+        return false;
+    }
+}
 std::pair<float, float> Input::GetMousePosition()
 {
     auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());

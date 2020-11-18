@@ -22,6 +22,10 @@ public:
     static bool GetMouseButtonDown(MouseCode button);
     static bool GetMouseButtonUp(MouseCode button);
 
+    static bool GetMouseButton(const std::string& mouseButton);
+    static bool GetMouseButtonDown(const std::string& mouseButton);
+    static bool GetMouseButtonUp(const std::string& mouseButton);
+
     // TODO For when we can map string names to certain input commands
     // e.g. "Fire0" for mouse button 0, etc
     // Need to map the string to the key

@@ -24,23 +24,23 @@ int LuaInput::GetButtonUp(lua_State* L)
 
 int LuaInput::GetMouseButton(lua_State* L)
 {
-    const char* mouseCode = lua_tostring(L, -1);
-    //lua_pushboolean(L, Input::GetMouseButton(std::string(mouseCode)));
-    return 1;
+	const char* mouseCode = lua_tostring(L, -1);
+	lua_pushboolean(L, Input::GetMouseButton(std::string(mouseCode)));
+	return 1;
 }
 
 int LuaInput::GetMouseButtonDown(lua_State* L)
 {
-    const char* mouseCode = lua_tostring(L, -1);
-    //lua_pushboolean(L, Input::GetMouseButton(std::string(mouseCode)));
-    return 1;
+	const char* mouseCode = lua_tostring(L, -1);
+	lua_pushboolean(L, Input::GetMouseButtonDown(std::string(mouseCode)));
+	return 1;
 }
 
 int LuaInput::GetMouseButtonUp(lua_State* L)
 {
-    const char* mouseCode = lua_tostring(L, -1);
-    //lua_pushboolean(L, Input::GetMouseButton(std::string(mouseCode)));
-    return 1;
+	const char* mouseCode = lua_tostring(L, -1);
+	lua_pushboolean(L, Input::GetMouseButtonUp(std::string(mouseCode)));
+	return 1;
 }
 
 int LuaInput::GetMouseX(lua_State* L)
