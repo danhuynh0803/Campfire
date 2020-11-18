@@ -115,6 +115,11 @@ void Rigidbody::AddVelocity(glm::vec3 velocity)
     bulletRigidbody->setLinearVelocity(GlmToBtVec(newVelocity));
 }
 
+btVector3 Rigidbody::GetVelocity()
+{
+    return bulletRigidbody->getLinearVelocity();
+}
+
 btRigidBody* Rigidbody::GetBulletRigidbody()
 {
     return bulletRigidbody;

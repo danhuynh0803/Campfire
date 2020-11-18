@@ -19,9 +19,15 @@ int LuaTransfrom::NewTransform(lua_State* L)
 int LuaTransfrom::GetPosition(lua_State* L)
 {
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -1);
+    lua_pushstring(L, "x");
     lua_pushnumber(L, transfromComponet->position.x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
     lua_pushnumber(L, transfromComponet->position.y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "z");
     lua_pushnumber(L, transfromComponet->position.z);
+    lua_settable(L, -3);
 
     return 1;
 }
@@ -29,18 +35,30 @@ int LuaTransfrom::GetPosition(lua_State* L)
 int LuaTransfrom::GetRotation(lua_State* L)
 {
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -1);
-    lua_pushnumber(L, transfromComponet->rotation.x);
-    lua_pushnumber(L, transfromComponet->rotation.y);
-    lua_pushnumber(L, transfromComponet->rotation.z);
+    lua_pushstring(L, "x");
+    lua_pushnumber(L, transfromComponet->euler.x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
+    lua_pushnumber(L, transfromComponet->euler.y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "z");
+    lua_pushnumber(L, transfromComponet->euler.z);
+    lua_settable(L, -3);
     return 1;
 }
 
 int LuaTransfrom::GetScale(lua_State* L)
 {
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -1);
+    lua_pushstring(L, "x");
     lua_pushnumber(L, transfromComponet->scale.x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
     lua_pushnumber(L, transfromComponet->scale.y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "z");
     lua_pushnumber(L, transfromComponet->scale.z);
+    lua_settable(L, -3);
     return 1;
 }
 

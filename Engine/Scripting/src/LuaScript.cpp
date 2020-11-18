@@ -5,6 +5,7 @@
 #include "Scripting/Lua/LuaTag.h"
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaInput.h"
+#include "Scripting/Lua/LuaRigidbody.h"
 
 void LuaScript::Start()
 {
@@ -60,6 +61,23 @@ void LuaScript::Start()
         lua_setfield(L, -2, "GetScale");
 
     }lua_setglobal(L, "Transform");
+
+    lua_newtable(L);
+    {
+        lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody));
+        lua_pushcclosure(L, LuaRigidbody::AddVelocity, 1);
+        lua_setfield(L, -2, "AddVelocity");
+
+        lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody));
+        lua_pushcclosure(L, LuaRigidbody::SetVelocity, 1);
+        lua_setfield(L, -2, "SetVelocity");
+
+
+        lua_pushlightuserdata(L, &(GetComponent<RigidbodyComponent>().rigidbody->GetVelocity()));
+        lua_pushcclosure(L, LuaRigidbody::GetVelocity, 1);
+        lua_setfield(L, -2, "GetVelocity");
+
+    }lua_setglobal(L, "Rigidbody"); 
 
     lua_newtable(L);
     {

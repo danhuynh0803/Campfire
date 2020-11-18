@@ -32,6 +32,8 @@ function Update(dt)
     end
 	
 	Transform:Translate(vel.x, vel.y, vel.z)
+    p1 = Transform:GetPosition();
+    print(p1.x)
 --[[
     if (Input:GetButtonDown("KEY_W")) then
         entity:SetPosition(0,5,0)
