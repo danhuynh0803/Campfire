@@ -46,6 +46,19 @@ void LuaScript::Start()
         lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
         lua_pushcclosure(L, LuaTransfrom::Translate, 1);
         lua_setfield(L, -2, "Translate");
+
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+        lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+        lua_setfield(L, -2, "GetPosition");
+
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().rotation));
+        lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+        lua_setfield(L, -2, "GetRotation");
+
+        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+        lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+        lua_setfield(L, -2, "GetScale");
+
     }lua_setglobal(L, "Transform");
 
     lua_newtable(L);

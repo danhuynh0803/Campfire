@@ -198,6 +198,58 @@ int LuaTransfrom::Translate(lua_State* L)
 
     return 0;
 }
+
+int LuaTransfrom::GetEntityPosition(lua_State* L)
+{
+    glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    assert(position);
+    lua_newtable(L);
+    lua_pushstring(L, "x");
+    lua_pushnumber(L, position->x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
+    lua_pushnumber(L, position->y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "z");
+    lua_pushnumber(L, position->z);
+    lua_settable(L, -3);
+    return 1;
+}
+
+int LuaTransfrom::GetEntityRotation(lua_State* L)
+{
+    glm::vec3* euler = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    assert(euler);
+    lua_newtable(L);
+    lua_pushstring(L, "x");
+    lua_pushnumber(L, euler->x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
+    lua_pushnumber(L, euler->y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "z");
+    lua_pushnumber(L, euler->z);
+    lua_settable(L, -3);
+    return 1;
+}
+
+int LuaTransfrom::GetEntityScale(lua_State* L)
+{
+    glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    assert(scale);
+    lua_newtable(L);
+    lua_pushstring(L, "x");
+    lua_pushnumber(L, scale->x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
+    lua_pushnumber(L, scale->y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "z");
+    lua_pushnumber(L, scale->z);
+    lua_settable(L, -3);
+    return 1;
+}
+
 const luaL_Reg LuaTransfrom::entityTransformLib[] =
 {
     { NULL, NULL }
