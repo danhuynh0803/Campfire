@@ -12,63 +12,65 @@ void LuaScript::Start()
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
 
+    /*
     char* transformComponetMetaTableName = "TransComMT";
-
-
     {luaL_newmetatable(L, transformComponetMetaTableName);
         lua_pushstring(L, "__index");
         lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
     }lua_settable(L, -3); //sets the (meta)table and pop above
+    */
 
+    if(HasComponent<TransformComponent>())
+    {
+        lua_newtable(L);
+        {
+            //luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
 
-    {lua_newtable(L);
-        //luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
+            lua_setfield(L, -2, "SetPosition");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-        lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
-        lua_setfield(L, -2, "SetPosition");
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
+            lua_setfield(L, -2, "SetRotation");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
-        lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
-        lua_setfield(L, -2, "SetRotation");
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
+            lua_setfield(L, -2, "SetScale");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
-        lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
-        lua_setfield(L, -2, "SetScale");
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::Translate, 1);
+            lua_setfield(L, -2, "Translate");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-        lua_pushcclosure(L, LuaTransfrom::Translate, 1);
-        lua_setfield(L, -2, "Translate");
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_setfield(L, -2, "GetPosition");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-        lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
-        lua_setfield(L, -2, "GetPosition");
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().rotation));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_setfield(L, -2, "GetRotation");
 
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().rotation));
-        lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
-        lua_setfield(L, -2, "GetRotation");
-
-        lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
-        lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
-        lua_setfield(L, -2, "GetScale");
-
-    }lua_setglobal(L, "Transform");
-
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_setfield(L, -2, "GetScale");
+        }
+        lua_setglobal(L, "Transform");
+    }
 
     if(HasComponent<RigidbodyComponent>())
     {
         lua_newtable(L);
         {
-            SharedPtr<Rigidbody> rb = GetComponent<RigidbodyComponent>().rigidbody;
-            lua_pushlightuserdata(L, rb.get());
+            Rigidbody* rb = GetComponent<RigidbodyComponent>().rigidbody.get();
+            lua_pushlightuserdata(L, rb);
             lua_pushcclosure(L, LuaRigidbody::AddVelocity, 1);
             lua_setfield(L, -2, "AddVelocity");
 
-            lua_pushlightuserdata(L, rb.get());
+            lua_pushlightuserdata(L, rb);
             lua_pushcclosure(L, LuaRigidbody::SetVelocity, 1);
             lua_setfield(L, -2, "SetVelocity");
 
-            lua_pushlightuserdata(L, &(rb->GetVelocity()));
+            lua_pushlightuserdata(L, rb);
             lua_pushcclosure(L, LuaRigidbody::GetVelocity, 1);
             lua_setfield(L, -2, "GetVelocity");
         }
@@ -78,7 +80,6 @@ void LuaScript::Start()
     //if(HasComponent<RigidbodyComponent>())
     //{
     //    lua_newtable(L);
-
     //    lua_pushcfunction_with_entity(LuaRigidbody::AddVelocity,"AddVelocity");
     //    lua_pushcfunction_with_entity(LuaRigidbody::GetVelocity, "GetVelocity");
     //    lua_pushcfunction_with_entity(LuaRigidbody::SetVelocity, "SetVelocity");

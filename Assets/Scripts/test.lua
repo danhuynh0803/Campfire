@@ -1,60 +1,64 @@
 function Start()
 
-	--for func in transform do
-		--print(func)
-	
+    --for func in transform do
+    --print(func)
+
     --tf = Transform.New()
     --tf:SetPosition(2,4,5)
     --print(tf.x)
     --entity:SetScale(2,2,2)
     --entity:SetRotation(90,-40,120)
-	--Rigidbody:SetVelocity(5, 5, 5)
-	
+    Rigidbody:SetVelocity(5, 5, 5)
+
 end
 
 function Update(dt)
-	if (Rigidbody == nil) then
-		print("Entity does not contain a rb")
-	end
-	
-	currVel = Rigidbody:GetVelocity()
-	--print(currVel.x)
-	
-	
-	--[[
-	--print(Transform)
-	local vel =
-	{
-		x = 0,
-		y = 0,
-		z = 0
-	}
-	
+    if (Rigidbody == nil) then
+        print("Entity does not contain a rb")
+    end
+
+    currVel = Rigidbody:GetVelocity()
+    print("Velocity = (" .. currVel.x .. "," .. currVel.y .. "," .. currVel.z .. ")")
+
+    --print(Transform)
+    local vel =
+    {
+        x = 0,
+        y = 0,
+        z = 0
+    }
+
     if (Input:GetButton("KEY_A")) then
-		vel.x = -5 * dt		
+        --vel.x = -5 * dt
+        Rigidbody:AddVelocity(-5 * dt, 0, 0)
     elseif (Input:GetButton("KEY_D")) then
-		vel.x = 5 * dt
+        --vel.x = 5 * dt
+        Rigidbody:AddVelocity(5 * dt, 0, 0)
     end
-	
-	if (Input:GetButton("KEY_W")) then
-		vel.y = 5 * dt		
+
+    if (Input:GetButton("KEY_W")) then
+        --vel.y = 5 * dt		
+        Rigidbody:AddVelocity(0, 0, -5 * dt)
     elseif (Input:GetButton("KEY_S")) then
-		vel.y = -5 * dt
+        --vel.y = -5 * dt
+        Rigidbody:AddVelocity(0, 0, 5 * dt)
     end
-	
-	Transform:Translate(vel.x, vel.y, vel.z)
-    p1 = Transform:GetPosition();
-    print(p1.x)
-	
-	]]--
-	
---[[
+
+    if (Input:GetButtonDown("KEY_SPACE")) then
+        Rigidbody:AddVelocity(0, 200 * dt, 0)
+    end
+
+    --Transform:Translate(vel.x, vel.y, vel.z)
+    --p1 = Transform:GetPosition();
+    --print(p1.x)
+
+    --[[
     if (Input:GetButtonDown("KEY_W")) then
-        entity:SetPosition(0,5,0)
+    entity:SetPosition(0,5,0)
     elseif (Input:GetButtonDown("KEY_S")) then
-        entity:SetPosition(0,-5,0)
+    entity:SetPosition(0,-5,0)
     end
-]]--
+    ]]--
     -- tf = Transform.New()
     -- --print(tf.x,tf.y,tf.z)
     -- x = Tag.PushAOne()

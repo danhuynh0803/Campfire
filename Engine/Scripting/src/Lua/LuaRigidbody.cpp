@@ -4,7 +4,7 @@
 
 int LuaRigidbody::SetVelocity(lua_State* L)
 {
-    Rigidbody* rbPtr = (Rigidbody*)lua_getuservalue(L, lua_upvalueindex(1));
+    Rigidbody* rbPtr = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     //Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -16,13 +16,13 @@ int LuaRigidbody::SetVelocity(lua_State* L)
 
 int LuaRigidbody::AddVelocity(lua_State* L)
 {
-    Rigidbody* rb = (Rigidbody*)lua_getuservalue(L, lua_upvalueindex(1));
-    //Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
+    Rigidbody* rb = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
     lua_Number z = lua_tonumber(L, -1);
     rb->AddVelocity(glm::vec3(x, y, z));
 
+    //Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
     //if (entity->HasComponent<RigidbodyComponent>())
     //{
     //    entity->GetComponent<RigidbodyComponent>().rigidbody->AddVelocity(glm::vec3(x, y, z));
@@ -36,16 +36,17 @@ int LuaRigidbody::AddVelocity(lua_State* L)
 
 int LuaRigidbody::GetVelocity(lua_State* L)
 {
+    Rigidbody* rb = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     //Entity* entity = (Entity*)lua_getuservalue(L, lua_upvalueindex(1));
-    glm::vec3* vel = (glm::vec3*)lua_getuservalue(L, lua_upvalueindex(1));
+    glm::vec3 vel = rb->GetVelocity();
     lua_pushstring(L, "x");
-    lua_pushnumber(L, vel->x);
+    lua_pushnumber(L, vel.x);
     lua_settable(L, -3);
     lua_pushstring(L, "y");
-    lua_pushnumber(L, vel->y);
+    lua_pushnumber(L, vel.y);
     lua_settable(L, -3);
     lua_pushstring(L, "z");
-    lua_pushnumber(L, vel->z);
+    lua_pushnumber(L, vel.z);
     lua_settable(L, -3);
 
     /*
