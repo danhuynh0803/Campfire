@@ -11,6 +11,7 @@
 
 #include "Renderer/Renderer.h"
 #include "Physics/PhysicsManager.h"
+#include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
 
 Application* Application::instance = nullptr;
@@ -21,6 +22,7 @@ Application::Application(const ApplicationProps& props)
     Time::Init();
     Random::Init();
     //JobSystem::Init();
+    AudioSystem::Init();
 
     instance = this;
     window = Window::Create({props.name, props.width, props.height});

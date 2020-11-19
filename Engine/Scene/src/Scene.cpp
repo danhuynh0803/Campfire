@@ -20,9 +20,7 @@
 
 Scene::Scene(bool isNewScene)
 {
-    AudioSystem::Init();
     SceneRenderer::Init();
-
     // Default objects within each new scene
     // if not loading object via scene file
     if (isNewScene) { Init(); }
@@ -475,19 +473,34 @@ void Scene::OnEvent(Event& e)
 {
 }
 
+std::string Scene::GetUniqueTag(const std::string& tag)
+{
+    std::string newTag = tag;
+    int count = 1;
+    while (tagMap.find(newTag) != tagMap.end())
+    {
+        newTag = tag + "(" + std::to_string(count) + ")";
+        count++;
+    }
+
+    return newTag;
+}
+
 Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
 {
     auto entity = Entity(registry.create(), this);
 
     // Default components all entities should have
     entity.AddComponent<IDComponent>(ID);
-    entity.AddComponent<TagComponent>(name);
+    std::string tag = GetUniqueTag(name);
+    entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
 
     if (isRootEntity)
     {
         entityMap[ID] = entity;
+        tagMap[tag] = entity;
     }
 
     return entity;
@@ -502,16 +515,64 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 
     // Default components all entities should have
     entity.AddComponent<IDComponent>(ID);
-    entity.AddComponent<TagComponent>(name);
+    std::string tag = GetUniqueTag(name);
+    entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
 
     if (isRootEntity)
     {
         entityMap[ID] = entity;
+        tagMap[tag] = entity;
     }
 
     return entity;
+}
+
+Entity Scene::DuplicateEntity(Entity entity)
+{
+    std::string tag = entity.GetComponent<TagComponent>();
+    Entity newEntity = CreateEntity(tag);
+
+    CopyComponentIfExists<TransformComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<MeshComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<SpriteComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<LightComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<RigidbodyComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<TriggerComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<CameraComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<ParticleSystemComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<ScriptComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<NativeScriptComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<AudioComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<TextComponent>(newEntity, entity, registry);
+    //CopyComponent<RelationshipComponent>(newEntity, entity, registry);
+
+    return newEntity;
+}
+
+Entity Scene::FindEntityWithTag(const std::string& tag)
+{
+    //auto view = registry.view<TagComponent>();
+    //for (auto entity : view)
+    //{
+    //    std::string currTag = view.get<TagComponent>(entity);
+    //    if (currTag == tag)
+    //    {
+    //        return Entity(entity, this);
+    //    }
+    //}
+
+    // TODO this is broken if tags are changed by user later
+    // Maybe better to just manually check each entity for now
+    // Or update it so that the map removes and readds the entity
+    // whenever the tag is changed
+    if (tagMap.find(tag) != tagMap.end())
+    {
+        return tagMap.at(tag);
+    }
+
+    return Entity {};
 }
 
 void Scene::RemoveEntity(Entity entity)

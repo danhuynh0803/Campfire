@@ -189,6 +189,11 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
         hasSelectedEntity = false;
     }
 
+    if (Input::GetKeyDown(KEY_D) && selected != -1)
+    {
+        activeScene->DuplicateEntity(selectedEntity);
+    }
+
     if (hasSelectedEntity)
     {
        wInspector.ShowInspector(selectedEntity, isOpen);
