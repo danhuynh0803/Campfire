@@ -3,8 +3,6 @@
 
 namespace LuaTag{
 	int GetTag(lua_State* L);
-	int SetTag(lua_State* L);
-	int PushAOne(lua_State* L);
 
 	extern const luaL_Reg tagLib[];
 }
