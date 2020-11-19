@@ -1,6 +1,7 @@
 #pragma once
 
 #include <lua.hpp>
+#include "Scene/ScriptableEntity.h"
 
 class LuaScript : public ScriptableEntity
 {

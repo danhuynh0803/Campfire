@@ -8,6 +8,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <string>
+#include "Scripting/LuaScript.h"
 
 std::string SceneManager::activeScenePath;
 std::string SceneManager::activeSceneName;
@@ -202,9 +203,13 @@ json SceneManager::SerializeEntity(Entity entity)
         eJson["AudioComponent"] = cJson;
     }
 
-    // TODO when lua incorporated
     if (entity.HasComponent<ScriptComponent>())
     {
+        auto comp = entity.GetComponent<ScriptComponent>();
+        json cJson;
+        cJson["filepath"] = comp.filepath;
+
+        eJson["ScriptComponent"] = cJson;
     }
 
     if (entity.HasComponent<TextComponent>())
@@ -310,6 +315,10 @@ void SceneManager::DeserializeEntity(json eJson)
 
     if (eJson.contains("ScriptComponent"))
     {
+        json cJson = eJson["ScriptComponent"];
+        auto& comp = e.AddComponent<ScriptComponent>();
+        comp.Bind<LuaScript>();
+        comp.filepath = cJson["filepath"];
     }
 
     if (eJson.contains("TextComponent"))
