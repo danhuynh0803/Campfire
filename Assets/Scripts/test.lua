@@ -9,6 +9,7 @@ function Start()
     --entity:SetScale(2,2,2)
     --entity:SetRotation(90,-40,120)
     Rigidbody:SetVelocity(5, 5, 5)
+	AudioSource.Play()
 
 end
 

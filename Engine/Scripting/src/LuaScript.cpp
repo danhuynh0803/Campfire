@@ -6,6 +6,7 @@
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaInput.h"
 #include "Scripting/Lua/LuaRigidbody.h"
+#include "Scripting/Lua/LuaAudioSource.h"
 
 void LuaScript::Start()
 {
@@ -60,32 +61,48 @@ void LuaScript::Start()
     if(HasComponent<RigidbodyComponent>())
     {
         lua_newtable(L);
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::AddVelocity,"AddVelocity");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetMass, "GetMass");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetMass, "SetMass");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetDrag, "GetDrag");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+        {
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::AddVelocity, "AddVelocity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetMass, "GetMass");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetMass, "SetMass");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetDrag, "GetDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+        }
         lua_setglobal(L, "Rigidbody");
     }
+    lua_newtable(L);
+    {
 
-    //entity:AddComponent("Rigidbody")
+    }
+    lua_setglobal(L, "entity"); //name the table entity
+    
+    lua_newtable(L);
+    {
+        lua_pushcfunction_with_tag(LuaTag::GetTag,"GetTag");
+    }
+    lua_setglobal(L, "Tag");//name the table Tag
 
-    {lua_newtable(L);
-        //lua_getglobal(L, "Transform");
-        //lua_setfield(L, -1, "Transform");
-    }lua_setglobal(L, "entity"); //name the table entity
-
-    {lua_newtable(L);
-        luaL_setfuncs(L, LuaTag::tagLib, 0);
-    }lua_setglobal(L, "Tag");//name the table Tag
-
-    {lua_newtable(L);
+    lua_newtable(L);
+    {
         luaL_setfuncs(L, LuaInput::inputLib, 0);
-    }lua_setglobal(L, "Input");//name the table Input
+    }
+    lua_setglobal(L, "Input");//name the table Input
+
+    if (HasComponent<AudioComponent>())
+    {
+        lua_newtable(L);
+        {
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Play, "Play");
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
+        }
+        lua_setglobal(L, "AudioSource");
+    }
+
 
     luaL_dofile(L, filepath.c_str());
     lua_getglobal(L, "Start");
@@ -126,6 +143,22 @@ void LuaScript::lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const c
 {
     SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
     lua_pushlightuserdata(L, rigidbody.get());
+    lua_pushcclosure(L, f, 1);
+    lua_setfield(L, -2, name);
+}
+
+void LuaScript::lua_pushcfunction_with_tag(const lua_CFunction& f, const char* name)
+{
+    const char* tag = GetComponent<TagComponent>().tag.c_str();
+    lua_pushstring(L, tag);
+    lua_pushcclosure(L, f, 1);
+    lua_setfield(L, -2, name);
+}
+
+void LuaScript::lua_pushcfunction_with_audioSource(const lua_CFunction& f, const char* name)
+{
+    SharedPtr<AudioSource> audioSource = GetComponent<AudioComponent>().audioSource;
+    lua_pushlightuserdata(L, audioSource.get());
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
