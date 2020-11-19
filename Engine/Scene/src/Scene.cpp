@@ -188,6 +188,18 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
 
 void Scene::OnStart()
 {
+    // Submit all entities with rbs to Physics
+    // FIXME: physics needs to be submitted before start
+    // in order to make use of RB functions in Start().
+    // But if an entity is instantiated in Start(), then
+    // it's physics wont be active since it wasn't submitted
+    // into the list
+    PhysicsManager::ClearLists();
+    for (auto entityPair : entityMap)
+    {
+        PhysicsManager::SubmitEntity(entityPair.second);
+    }
+
     // Play all OnAwake sounds
     registry.view<AudioComponent>().each([=](auto entity, auto &audioComp)
     {
@@ -214,22 +226,15 @@ void Scene::OnStart()
     });
 
     // Initialize scripts and run their Start()
-    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-    {
-        if (!nsc.instance)
-        {
-            nsc.instance = nsc.InstantiateScript();
-            nsc.instance->entity = Entity(entity, this);
-        }
-        nsc.instance->Start();
-    });
-
-    // Submit all entities with rbs to Physics
-    PhysicsManager::ClearLists();
-    for (auto entityPair : entityMap)
-    {
-        PhysicsManager::SubmitEntity(entityPair.second);
-    }
+    //registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+    //{
+    //    if (!nsc.instance)
+    //    {
+    //        nsc.instance = nsc.InstantiateScript();
+    //        nsc.instance->entity = Entity(entity, this);
+    //    }
+    //    nsc.instance->Start();
+    //});
 }
 
 void Scene::OnStop()
@@ -275,7 +280,7 @@ void Scene::OnUpdate(float dt)
 
     // Lua script update
     {
-        //ZoneScopedN("UpdateNativeScripts");
+        //ZoneScopedN("UpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
             sc.instance->Update(dt);
@@ -317,47 +322,47 @@ void Scene::OnUpdate(float dt)
     }
 
     // Update with Native C++ scripts
-    {
-        //ZoneScopedN("UpdateNativeScripts");
-        registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-        {
-            nsc.instance->Update(dt);
+    //{
+    //    //ZoneScopedN("UpdateNativeScripts");
+    //    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+    //    {
+    //        nsc.instance->Update(dt);
 
-            Entity thisEntity = nsc.instance->entity;
-            if (thisEntity.HasComponent<TriggerComponent>())
-            {
-                SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
-                for (auto enterEntity : trigger->overlapEnterList)
-                {
-                    Entity other(enterEntity, this);
-                    // Don't have the trigger apply on ourselves
-                    // since the trigger and rb will always be colliding
-                    if (enterEntity != nsc.instance->entity)
-                    {
-                        nsc.instance->OnTriggerEnter(other);
-                    }
-                }
+    //        Entity thisEntity = nsc.instance->entity;
+    //        if (thisEntity.HasComponent<TriggerComponent>())
+    //        {
+    //            SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
+    //            for (auto enterEntity : trigger->overlapEnterList)
+    //            {
+    //                Entity other(enterEntity, this);
+    //                // Don't have the trigger apply on ourselves
+    //                // since the trigger and rb will always be colliding
+    //                if (enterEntity != nsc.instance->entity)
+    //                {
+    //                    nsc.instance->OnTriggerEnter(other);
+    //                }
+    //            }
 
-                for (auto stayEntity : overlappingEntities)
-                {
-                    Entity other(stayEntity, this);
-                    if (stayEntity != nsc.instance->entity)
-                    {
-                        nsc.instance->OnTriggerStay(other);
-                    }
-                }
+    //            for (auto stayEntity : overlappingEntities)
+    //            {
+    //                Entity other(stayEntity, this);
+    //                if (stayEntity != nsc.instance->entity)
+    //                {
+    //                    nsc.instance->OnTriggerStay(other);
+    //                }
+    //            }
 
-                for (auto exitEntity : trigger->overlapExitList)
-                {
-                    Entity other(exitEntity, this);
-                    if (exitEntity != nsc.instance->entity)
-                    {
-                        nsc.instance->OnTriggerExit(other);
-                    }
-                }
-            }
-        });
-    }
+    //            for (auto exitEntity : trigger->overlapExitList)
+    //            {
+    //                Entity other(exitEntity, this);
+    //                if (exitEntity != nsc.instance->entity)
+    //                {
+    //                    nsc.instance->OnTriggerExit(other);
+    //                }
+    //            }
+    //        }
+    //    });
+    //}
 }
 
 // Render scene from perspective of designated camera
