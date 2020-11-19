@@ -16,6 +16,7 @@ set(SCRIPTING_HEADERS
     include/Scripting/Lua/LuaEntity.h
     include/Scripting/Lua/LuaInput.h
     include/Scripting/Lua/LuaRigidbody.h
+    include/Scripting/Lua/LuaAudioSource.h
 )
 
 set(SCRIPTING_SRC
@@ -27,6 +28,7 @@ set(SCRIPTING_SRC
     src/Lua/LuaEntity.cpp
     src/Lua/LuaInput.cpp
     src/Lua/LuaRigidbody.cpp
+    src/Lua/LuaAudioSource.cpp
 )
 
 target_sources(

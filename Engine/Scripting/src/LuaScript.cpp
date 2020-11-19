@@ -6,6 +6,7 @@
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaInput.h"
 #include "Scripting/Lua/LuaRigidbody.h"
+#include "Scripting/Lua/LuaAudioSource.h"
 
 void LuaScript::Start()
 {
@@ -91,6 +92,18 @@ void LuaScript::Start()
     }
     lua_setglobal(L, "Input");//name the table Input
 
+    if (HasComponent<AudioComponent>())
+    {
+        lua_newtable(L);
+        {
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Play, "Play");
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
+        }
+        lua_setglobal(L, "AudioSource");
+    }
+
+
     luaL_dofile(L, filepath.c_str());
     lua_getglobal(L, "Start");
     if (lua_pcall(L, 0, 0, 0) != 0)
@@ -138,6 +151,14 @@ void LuaScript::lua_pushcfunction_with_tag(const lua_CFunction& f, const char* n
 {
     const char* tag = GetComponent<TagComponent>().tag.c_str();
     lua_pushstring(L, tag);
+    lua_pushcclosure(L, f, 1);
+    lua_setfield(L, -2, name);
+}
+
+void LuaScript::lua_pushcfunction_with_audioSource(const lua_CFunction& f, const char* name)
+{
+    SharedPtr<AudioSource> audioSource = GetComponent<AudioComponent>().audioSource;
+    lua_pushlightuserdata(L, audioSource.get());
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
