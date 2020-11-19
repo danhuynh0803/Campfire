@@ -518,13 +518,13 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEnti
 
 Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
+    static uint64_t ID = 0;
+
     Entity entity = Entity(registry.create(), this);
-
     // Random ID for access in hashmap
-    auto ID = Random::UINT64T();
-
+    //auto ID = Random::UINT64T();
     // Default components all entities should have
-    entity.AddComponent<IDComponent>(ID);
+    entity.AddComponent<IDComponent>(ID++);
     std::string tag = GetUniqueTag(name);
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
