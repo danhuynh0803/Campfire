@@ -189,7 +189,7 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
         hasSelectedEntity = false;
     }
 
-    if (Input::GetKeyDown(KEY_D) && selected != -1)
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D) && selected != -1)
     {
         activeScene->DuplicateEntity(selectedEntity);
     }
