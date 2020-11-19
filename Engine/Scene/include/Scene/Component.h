@@ -201,6 +201,7 @@ struct LightComponent
     LightType type = LightType::DIRECTIONAL;
     glm::vec4 color = glm::vec4(1.0f);
     // Attenuation factors
+
     // TODO replace with range and more user friendly light options
     float constant = 1.0f; // Should stay at 1.0f
     float linear = 0.09f;

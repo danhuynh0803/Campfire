@@ -475,19 +475,34 @@ void Scene::OnEvent(Event& e)
 {
 }
 
+std::string Scene::GetUniqueTag(const std::string& tag)
+{
+    std::string newTag = tag;
+    int count = 1;
+    while (tagMap.find(newTag) != tagMap.end())
+    {
+        newTag = tag + "(" + std::to_string(count) + ")";
+        count++;
+    }
+
+    return newTag;
+}
+
 Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
 {
     auto entity = Entity(registry.create(), this);
 
     // Default components all entities should have
     entity.AddComponent<IDComponent>(ID);
-    entity.AddComponent<TagComponent>(name);
+    std::string tag = GetUniqueTag(name);
+    entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
 
     if (isRootEntity)
     {
         entityMap[ID] = entity;
+        tagMap[tag] = entity;
     }
 
     return entity;
@@ -502,15 +517,22 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 
     // Default components all entities should have
     entity.AddComponent<IDComponent>(ID);
-    entity.AddComponent<TagComponent>(name);
+    std::string tag = GetUniqueTag(name);
+    entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
 
     if (isRootEntity)
     {
         entityMap[ID] = entity;
+        tagMap[tag] = entity;
     }
 
+    return entity;
+}
+
+Entity Scene::DuplicateEntity(const Entity& entity)
+{
     return entity;
 }
 
