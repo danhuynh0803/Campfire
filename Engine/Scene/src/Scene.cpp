@@ -479,7 +479,7 @@ std::string Scene::GetUniqueTag(const std::string& tag)
     // But scene hierarchy will usually be small and this is done only once during entity creation.
     // Creating a tagList each time will keep track of any changes that were made to existing tags.
     std::vector<std::string> tagList;
-    std::string newTag = tag;
+    std::string subTag = tag.substr(0, tag.find_last_of("(")); // Dont include the '(' that comes from duplicate tags
     int count = 1;
     auto view = registry.view<TagComponent>();
     for (auto entity : view)
@@ -487,9 +487,10 @@ std::string Scene::GetUniqueTag(const std::string& tag)
         tagList.emplace_back(view.get<TagComponent>(entity));
     }
 
+    std::string newTag = subTag;
     while (std::find(tagList.begin(), tagList.end(), newTag) != tagList.end())
     {
-        newTag = tag + "(" + std::to_string(count) + ")";
+        newTag = subTag + "(" + std::to_string(count) + ")";
         count++;
     }
 
