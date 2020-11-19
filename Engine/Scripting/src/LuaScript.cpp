@@ -60,37 +60,17 @@ void LuaScript::Start()
     if(HasComponent<RigidbodyComponent>())
     {
         lua_newtable(L);
-        {
-            Rigidbody* rb = GetComponent<RigidbodyComponent>().rigidbody.get();
-            lua_pushlightuserdata(L, rb);
-            lua_pushcclosure(L, LuaRigidbody::AddVelocity, 1);
-            lua_setfield(L, -2, "AddVelocity");
-
-            lua_pushlightuserdata(L, rb);
-            lua_pushcclosure(L, LuaRigidbody::SetVelocity, 1);
-            lua_setfield(L, -2, "SetVelocity");
-
-            lua_pushlightuserdata(L, rb);
-            lua_pushcclosure(L, LuaRigidbody::GetVelocity, 1);
-            lua_setfield(L, -2, "GetVelocity");
-        }
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::AddVelocity,"AddVelocity");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetMass, "GetMass");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetMass, "SetMass");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetDrag, "GetDrag");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+        lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
         lua_setglobal(L, "Rigidbody");
     }
-
-    //if(HasComponent<RigidbodyComponent>())
-    //{
-    //    lua_newtable(L);
-    //    lua_pushcfunction_with_entity(LuaRigidbody::AddVelocity,"AddVelocity");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::GetVelocity, "GetVelocity");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::SetVelocity, "SetVelocity");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::GetDrag, "GetMass");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::SetMass, "SetMass");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::GetDrag, "GetDrag");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::SetDrag, "SetDrag");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-    //    lua_pushcfunction_with_entity(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-    //    lua_setglobal(L, "Rigidbody");
-    //}
 
     //entity:AddComponent("Rigidbody")
 
@@ -138,6 +118,14 @@ void LuaScript::Destroy()
 void LuaScript::lua_pushcfunction_with_entity(const lua_CFunction& f, const char* name)
 {
     lua_pushlightuserdata(L, &entity);
+    lua_pushcclosure(L, f, 1);
+    lua_setfield(L, -2, name);
+}
+
+void LuaScript::lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const char* name)
+{
+    SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
+    lua_pushlightuserdata(L, rigidbody.get());
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
