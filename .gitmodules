@@ -16,6 +16,3 @@
 [submodule "Vendor/bullet3"]
 	path = Vendor/bullet3
 	url = https://github.com/bulletphysics/bullet3
-[submodule "Vendor/luajit-2.0"]
-	path = Vendor/luajit-2.0
-	url = https://luajit.org/git/luajit-2.0.git
