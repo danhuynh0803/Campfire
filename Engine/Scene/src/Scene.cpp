@@ -475,9 +475,19 @@ void Scene::OnEvent(Event& e)
 
 std::string Scene::GetUniqueTag(const std::string& tag)
 {
+    // Probably a much better way than doing this
+    // But scene hierarchy will usually be small and this is done only once during entity creation.
+    // Creating a tagList each time will keep track of any changes that were made to existing tags.
+    std::vector<std::string> tagList;
     std::string newTag = tag;
     int count = 1;
-    while (tagMap.find(newTag) != tagMap.end())
+    auto view = registry.view<TagComponent>();
+    for (auto entity : view)
+    {
+        tagList.emplace_back(view.get<TagComponent>(entity));
+    }
+
+    while (std::find(tagList.begin(), tagList.end(), newTag) != tagList.end())
     {
         newTag = tag + "(" + std::to_string(count) + ")";
         count++;
@@ -500,7 +510,6 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEnti
     if (isRootEntity)
     {
         entityMap[ID] = entity;
-        tagMap[tag] = entity;
     }
 
     return entity;
@@ -523,7 +532,6 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     if (isRootEntity)
     {
         entityMap[ID] = entity;
-        tagMap[tag] = entity;
     }
 
     return entity;
@@ -553,23 +561,14 @@ Entity Scene::DuplicateEntity(Entity entity)
 
 Entity Scene::FindEntityWithTag(const std::string& tag)
 {
-    //auto view = registry.view<TagComponent>();
-    //for (auto entity : view)
-    //{
-    //    std::string currTag = view.get<TagComponent>(entity);
-    //    if (currTag == tag)
-    //    {
-    //        return Entity(entity, this);
-    //    }
-    //}
-
-    // TODO this is broken if tags are changed by user later
-    // Maybe better to just manually check each entity for now
-    // Or update it so that the map removes and readds the entity
-    // whenever the tag is changed
-    if (tagMap.find(tag) != tagMap.end())
+    auto view = registry.view<TagComponent>();
+    for (auto entity : view)
     {
-        return tagMap.at(tag);
+        std::string currTag = view.get<TagComponent>(entity);
+        if (currTag == tag)
+        {
+            return Entity(entity, this);
+        }
     }
 
     return Entity {};

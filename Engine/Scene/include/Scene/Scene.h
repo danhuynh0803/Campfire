@@ -50,7 +50,5 @@ private:
     entt::entity sceneEntity;
     entt::registry registry;
     std::map<uint64_t, Entity> entityMap;
-    std::map<std::string, Entity> tagMap;
-
     std::string GetUniqueTag(const std::string& tag);
 };
