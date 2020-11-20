@@ -53,6 +53,21 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
+    float focusDistance = 15.0f;
+    // Focus on selected object
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_F))
+    {
+        auto entity = wHierarchy.GetSelectedEntity();
+        if (entity)
+        {
+            glm::mat4 view = editorCamera->GetViewMatrix();
+            glm::vec3 camDir = -glm::vec3(view[0][2], view[1][2], view[2][2]);
+            glm::vec3 entPos = entity.GetComponent<TransformComponent>().position;
+            cameraController.position = entPos - camDir * focusDistance;
+        }
+    }
+
+
     //ZoneScoped;
 
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;

@@ -183,10 +183,11 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
     //    ++i;
     //}
 
-    if (Input::GetKeyDown(KEY_DELETE) && selected != -1)
+    if (Input::GetKeyDown(KEY_DELETE) && selectedEntity)
     {
         activeScene->RemoveEntity(selectedEntity);
         selectedEntity = Entity{};
+        selected = -1;
     }
 
     if (selectedEntity && Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D))
