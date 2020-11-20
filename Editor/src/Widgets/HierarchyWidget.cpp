@@ -75,6 +75,8 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
         Entity entity = entityPair.second;
         std::string tag = entity.GetComponent<TagComponent>().tag;
 
+        // FIXME: issues where this is overriding other index change calls,
+        // like instantiating objects or raycasting to pick objects
         RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
         if (relationshipComp.numChildren == 0)
         {
@@ -87,60 +89,62 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
                 childIdx = -1;
             }
         }
-        else
-        {
-            // Object contains children, so set as selectable tree
-            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
-            if (ImGui::IsItemClicked())
-            {
-                selected = rootIdx;
-                childIdx = -1;
-            }
-            if (node_open)
-            {
-                entt::entity curr = relationshipComp.first;
-                for (size_t numChildren = 0; numChildren < relationshipComp.numChildren; ++numChildren)
-                {
-                    node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
+        // TODO redo relationship structure
+        //else
+        //{
+        //    // Object contains children, so set as selectable tree
+        //    bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
+        //    if (ImGui::IsItemClicked())
+        //    {
+        //        selected = rootIdx;
+        //        childIdx = -1;
+        //    }
+        //    if (node_open)
+        //    {
+        //        entt::entity curr = relationshipComp.first;
+        //        for (size_t numChildren = 0; numChildren < relationshipComp.numChildren; ++numChildren)
+        //        {
+        //            node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
 
-                    Entity childEntity(curr, activeScene.get());
-                    std::string childTag = childEntity.GetComponent<TagComponent>();
-                    int letterIdx = numChildren + 97;
-                    ImGui::TreeNodeEx((void*)(char)letterIdx, node_flags, "%c. %s", letterIdx, childTag.c_str());
-                    if (ImGui::IsItemClicked())
-                    {
-                        selected = rootIdx;
-                        childIdx = numChildren;
-                    }
+        //            Entity childEntity(curr, activeScene.get());
+        //            std::string childTag = childEntity.GetComponent<TagComponent>();
+        //            int letterIdx = numChildren + 97;
+        //            ImGui::TreeNodeEx((void*)(char)letterIdx, node_flags, "%c. %s", letterIdx, childTag.c_str());
+        //            if (ImGui::IsItemClicked())
+        //            {
+        //                selected = rootIdx;
+        //                childIdx = numChildren;
+        //            }
 
-                    curr = childEntity.GetComponent<RelationshipComponent>().next;
-                }
-                ImGui::TreePop();
-            }
-        }
+        //            curr = childEntity.GetComponent<RelationshipComponent>().next;
+        //        }
+        //        ImGui::TreePop();
+        //    }
+        //}
 
         if (selected == rootIdx)
         {
-            auto rootEntity = entityPair.second;
-            if (childIdx == -1)
-            {
-                selectedEntity = rootEntity;
-            }
-            else
-            {
-                RelationshipComponent& relationshipComp = rootEntity.GetComponent<RelationshipComponent>();
-                entt::entity curr = relationshipComp.first;
-                Entity childEntity(curr, activeScene.get());
-                for (size_t numChildren = 0; numChildren < childIdx; ++numChildren)
-                {
-                    curr = childEntity.GetComponent<RelationshipComponent>().next;
-                    childEntity = Entity(curr, activeScene.get());
-                    //relationshipComp = childEntity.GetComponent<RelationshipComponent>();
-                }
+            OverrideSelectedEntity(entityPair.second, activeScene);
 
-                selectedEntity = childEntity;
-            }
-            hasSelectedEntity = true;
+            //auto rootEntity = entityPair.second;
+            //if (childIdx == -1)
+            //{
+            //    selectedEntity = rootEntity;
+            //}
+            //else
+            //{
+            //    RelationshipComponent& relationshipComp = rootEntity.GetComponent<RelationshipComponent>();
+            //    entt::entity curr = relationshipComp.first;
+            //    Entity childEntity(curr, activeScene.get());
+            //    for (size_t numChildren = 0; numChildren < childIdx; ++numChildren)
+            //    {
+            //        curr = childEntity.GetComponent<RelationshipComponent>().next;
+            //        childEntity = Entity(curr, activeScene.get());
+            //        //relationshipComp = childEntity.GetComponent<RelationshipComponent>();
+            //    }
+
+            //    selectedEntity = childEntity;
+            //}
         }
 
         ++rootIdx;
@@ -182,15 +186,15 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
     if (Input::GetKeyDown(KEY_DELETE) && selected != -1)
     {
         activeScene->RemoveEntity(selectedEntity);
-        hasSelectedEntity = false;
+        selectedEntity = Entity{};
     }
 
-    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D) && selected != -1)
+    if (selectedEntity && Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D))
     {
         activeScene->DuplicateEntity(selectedEntity);
     }
 
-    if (hasSelectedEntity)
+    if (selectedEntity)
     {
        wInspector.ShowInspector(selectedEntity, isOpen);
     }
@@ -335,7 +339,23 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene, const Sha
     if (entity)
     {
         entity.GetComponent<TransformComponent>().position = pos;
-        hasSelectedEntity = true;
-        selectedEntity = entity;
+        OverrideSelectedEntity(entity, activeScene);
+    }
+}
+
+void HierarchyWidget::OverrideSelectedEntity(Entity overrideEntity, const SharedPtr<Scene>& activeScene)
+{
+    int index = 0;
+    for (auto entityPair : activeScene->GetEntityMap())
+    {
+        //uint64_t entityID = entityPair.second.GetComponent<IDComponent>();
+        entt::entity currHandle = entityPair.second;
+        if (overrideEntity == currHandle)
+        {
+            selectedEntity = overrideEntity;
+            selected = index;
+            break;
+        }
+        index++;
     }
 }

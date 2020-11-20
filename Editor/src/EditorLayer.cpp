@@ -168,14 +168,12 @@ void EditorLayer::OnUpdate(float dt)
             PhysicsManager::DebugDraw();
         }
 
-        if (wHierarchy.HasSelectedEntity())
+        // Draw camera frustum
+        auto& entity = wHierarchy.GetSelectedEntity();
+        if (entity && entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
         {
-            auto& entity = wHierarchy.GetSelectedEntity();
-            if (entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
-            {
-                auto camera = entity.GetComponent<CameraComponent>().camera;
-                camera->DrawFrustum(entity.GetComponent<TransformComponent>());
-            }
+            auto camera = entity.GetComponent<CameraComponent>().camera;
+            camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
 
         SceneRenderer::EndScene();
@@ -264,7 +262,9 @@ void EditorLayer::OnImGuiRender()
         // FIXME: gizmo not moving with runtimescene transform
         // disable in runtime, since moving in runtime causes crashes
         //if (state == State::STOP && wHierarchy.hasSelectedEntity)
-        if (wHierarchy.HasSelectedEntity())
+
+        auto& entity = wHierarchy.GetSelectedEntity();
+        if (entity)
         {
             float rw = (float)ImGui::GetWindowWidth();
             float rh = (float)ImGui::GetWindowHeight();
@@ -283,7 +283,6 @@ void EditorLayer::OnImGuiRender()
                     wTransform.operation = ImGuizmo::SCALE;
             }
 
-            auto& entity = wHierarchy.GetSelectedEntity();
             wTransform.EditTransform(entity, *editorCamera);
 
             /*
