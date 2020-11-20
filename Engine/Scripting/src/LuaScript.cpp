@@ -7,19 +7,47 @@
 #include "Scripting/Lua/LuaInput.h"
 #include "Scripting/Lua/LuaRigidbody.h"
 #include "Scripting/Lua/LuaAudioSource.h"
+#include "Scripting/Lua/LuaVector.h"
 
 void LuaScript::Start()
 {
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
 
-    /*
-    char* transformComponetMetaTableName = "TransComMT";
+    /* for objects managed by lua stack(gc and all that)
+    char* transformComponetMetaTableName = "TransformComponetMetaTable";
     {luaL_newmetatable(L, transformComponetMetaTableName);
         lua_pushstring(L, "__index");
         lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
     }lua_settable(L, -3); //sets the (meta)table and pop above
     */
+
+    char* vec2MetaTableName = "LuaVec2MetaTable";
+    luaL_newmetatable(L, vec2MetaTableName);
+    lua_pushstring(L, "__add");
+    lua_pushcfunction(L, LuaVector::LuaVec2Add);
+    lua_settable(L, -3);
+    lua_pushstring(L, "__sub");
+    lua_pushcfunction(L, LuaVector::LuaVec2Sub);
+    lua_settable(L, -3);
+
+    char* vec3MetaTableName = "LuaVec3MetaTable";
+    luaL_newmetatable(L, vec3MetaTableName);
+    lua_pushstring(L, "__add");
+    lua_pushcfunction(L, LuaVector::LuaVec3Add);
+    lua_settable(L, -3);
+    lua_pushstring(L, "__sub");
+    lua_pushcfunction(L, LuaVector::LuaVec3Sub);
+    lua_settable(L, -3);
+
+    char* vec4MetaTableName = "LuaVec4MetaTable";
+    luaL_newmetatable(L, vec4MetaTableName);
+    lua_pushstring(L, "__add");
+    lua_pushcfunction(L, LuaVector::LuaVec4Add);
+    lua_settable(L, -3);
+    lua_pushstring(L, "__sub");
+    lua_pushcfunction(L, LuaVector::LuaVec4Sub);
+    lua_settable(L, -3); //sets the (meta)table and pop above
 
     if(HasComponent<TransformComponent>())
     {
@@ -74,11 +102,12 @@ void LuaScript::Start()
         }
         lua_setglobal(L, "Rigidbody");
     }
+
     lua_newtable(L);
     {
 
     }
-    lua_setglobal(L, "entity"); //name the table entity
+    lua_setglobal(L, "Entity"); //name the table entity
     
     lua_newtable(L);
     {
@@ -108,8 +137,7 @@ void LuaScript::Start()
     lua_getglobal(L, "Start");
     if (lua_pcall(L, 0, 0, 0) != 0)
     {
-        LOG_ERROR("Cannot run Start() within {0}", filepath);
-        LOG_ERROR("Error {0}", lua_tostring(L, -1));
+        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));;
         lua_pop(L, 1);
     }
 }
@@ -121,8 +149,7 @@ void LuaScript::Update(float dt)
     lua_pushnumber(L, dt);
     if (lua_pcall(L, 1, 0, 0) != 0)
     {
-        LOG_ERROR("Cannot run Update() within {0}", filepath);
-        LOG_ERROR("Error {0}", lua_tostring(L, -1));
+        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
 }

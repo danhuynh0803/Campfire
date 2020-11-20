@@ -2,7 +2,15 @@
 
 #include <lua.hpp>
 
-static int SetVector3(lua_State* L)
+namespace LuaVector
 {
-    glm::vec3* v = (glm::vec3*)lua_touserdata(L, 1);
+	int LuaVec2(lua_State*);
+	int LuaVec3(lua_State* L);
+	int LuaVec4(lua_State* L);
+	int LuaVec2Add(lua_State* L);
+	int LuaVec3Add(lua_State* L);
+	int LuaVec4Add(lua_State* L);
+	int LuaVec2Sub(lua_State* L);
+	int LuaVec3Sub(lua_State* L);
+	int LuaVec4Sub(lua_State* L);
 }
