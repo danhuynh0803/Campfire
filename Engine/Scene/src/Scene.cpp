@@ -16,7 +16,7 @@
 #include "Scene/Skybox.h"
 #include "Scripting/LuaScript.h"
 
-//#include <Tracy.hpp>
+#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
 {
@@ -255,7 +255,7 @@ void Scene::OnUpdate(float dt)
 
     // Update rigidbodies
     {
-        //ZoneScopedN("UpdateRigidbodies");
+        ZoneScopedN("UpdateRigidbodies");
         auto group = registry.group<RigidbodyComponent>(entt::get<TransformComponent>);
         for (auto entity : group)
         {
@@ -268,7 +268,7 @@ void Scene::OnUpdate(float dt)
     // Update triggers
     std::vector<entt::entity> overlappingEntities;
     {
-        //ZoneScopedN("UpdateTriggers");
+        ZoneScopedN("UpdateTriggers");
         auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
         for (auto entity : triggerGroup)
         {
@@ -280,7 +280,7 @@ void Scene::OnUpdate(float dt)
 
     // Lua script update
     {
-        //ZoneScopedN("UpdateScripts");
+        ZoneScopedN("LuaUpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
             sc.instance->Update(dt);
@@ -370,7 +370,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 {
     // Render particles first since they're transparent
     {
-        //ZoneScopedN("RenderParticles");
+        ZoneScopedN("RenderParticles");
         {
             auto group = registry.group<ParticleSystemComponent>(entt::get<TransformComponent>);
             for (auto entity : group)
@@ -390,7 +390,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
     // Render sprites
     {
-        //ZoneScopedN("RenderSprites");
+        ZoneScopedN("RenderSprites");
         {
             auto group = registry.group<SpriteComponent>(entt::get<TransformComponent>);
             for (auto entity : group)
@@ -404,7 +404,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
     // Render opaque meshes
     {
-        //ZoneScopedN("RenderMeshes");
+        ZoneScopedN("RenderMeshes");
         // Only render objects that have mesh components
         auto group = registry.group<MeshComponent>(entt::get<TransformComponent, RelationshipComponent>);
         for (auto entity : group)
@@ -460,7 +460,7 @@ void Scene::OnRender(float dt, const Camera& camera)
 
     // Render Text objects
     {
-        //ZoneScopedN("RenderText");
+        ZoneScopedN("RenderText");
         // Only render objects that have mesh components
         auto group = registry.group<TextComponent>(entt::get<TransformComponent>);
         for (auto entity : group)

@@ -56,10 +56,7 @@ add_definitions(
 
 # glm
 add_library(glm INTERFACE)
-target_include_directories(glm
-    INTERFACE
-        "glm/"
-)
+target_include_directories(glm INTERFACE "glm/")
 #add_subdirectory(glm)
 #set_target_properties(glm PROPERTIES FOLDER "Vendor")
 
@@ -69,10 +66,7 @@ set_target_properties(imgui PROPERTIES FOLDER "Vendor")
 
 # spdlog
 add_library(spdlog INTERFACE)
-target_include_directories(spdlog
-    INTERFACE
-        "spdlog/include/"
-)
+target_include_directories(spdlog INTERFACE "spdlog/include/")
 #set_target_properties(spdlog PROPERTIES FOLDER "Vendor")
 
 # stb
@@ -101,10 +95,19 @@ add_subdirectory(lua-5.4.0)
 set_target_properties(lua PROPERTIES FOLDER "Vendor")
 
 # Tracy
-#add_compile_options(/D TRACY_ENABLE)
-# For multidll projects
-#add_compile_options(/D TRACY_IMPORTS)
-#add_subdirectory(tracy)
+add_library(tracy)
+target_include_directories(tracy INTERFACE "tracy")
+target_sources(tracy PRIVATE tracy/TracyClient.cpp)
+if (MSVC)
+    target_compile_options(
+        tracy
+        PUBLIC
+            /D TRACY_ENABLE
+    )
+    ## For multidll projects
+    #add_compile_options(/D TRACY_IMPORTS)
+endif()
+set_target_properties(tracy PROPERTIES FOLDER "Vendor")
 
 # Vulkan
 #project(vulkan)

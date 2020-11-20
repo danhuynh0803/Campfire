@@ -40,3 +40,9 @@ target_sources(
         ${VULKAN_SRC}
         ${VULKAN_HEADERS}
 )
+
+target_link_libraries(
+    Engine
+    PUBLIC
+        Vulkan::Vulkan
+)

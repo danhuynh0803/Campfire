@@ -49,6 +49,11 @@ target_link_libraries(
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
 set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
 if(MSVC)
+    ## Enable Tracy
+    #add_compile_options(/D TRACY_ENABLE)
+    ## For multidll projects
+    #add_compile_options(/D TRACY_IMPORTS)
+
     add_custom_command(
         TARGET Editor
         POST_BUILD COMMAND

@@ -36,7 +36,7 @@ target_link_libraries(
         glad
         glfw
         lua
-        Vulkan::Vulkan
+        tracy
     PRIVATE
         BulletDynamics BulletCollision LinearMath
         stb

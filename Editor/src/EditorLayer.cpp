@@ -14,7 +14,7 @@
 #include "ImGui/ImGuiLayer.h"
 #include "Widgets/LogWidget.h"
 
-//#include <Tracy.hpp>
+#include <Tracy.hpp>
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -67,8 +67,7 @@ void EditorLayer::OnUpdate(float dt)
         }
     }
 
-
-    //ZoneScoped;
+    ZoneScoped;
 
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
 
