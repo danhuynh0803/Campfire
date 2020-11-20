@@ -16,7 +16,7 @@ static void HelpMarker(const char* desc)
     }
 }
 
-void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
+void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedPtr<Camera>& editorCam, bool* isOpen)
 {
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
@@ -44,14 +44,10 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
     ImGui::PopStyleColor(1);
 
     // Also open New Entity menu when right clicking into hierarchy
-    if (ImGui::BeginPopupContextWindow(0, 1, false))
+    if (ImGui::BeginPopupContextWindow(0, 1, false)
+        || ImGui::BeginPopup("NewEntityPopup"))
     {
-        ShowNewEntityMenu(activeScene);
-        ImGui::EndPopup();
-    }
-    if (ImGui::BeginPopup("NewEntityPopup"))
-    {
-        ShowNewEntityMenu(activeScene);
+        ShowNewEntityMenu(activeScene, editorCam);
         ImGui::EndPopup();
     }
 
@@ -202,8 +198,22 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen)
     ImGui::End();
 }
 
-void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
+void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene, const SharedPtr<Camera>& editorCam)
 {
+    // Instantiate new object in front of camera
+    glm::mat4 view = editorCam->GetViewMatrix();
+    glm::vec3 front =
+        glm::vec3(
+            view[0][2],
+            view[1][2],
+            view[2][2]
+        );
+    // Negative since camera faces in the opposite direction of front
+    front *= -1;
+    // TODO maybe scale distance by zoom?
+    float distance = 7.0f;
+    glm::vec3 pos = editorCam->pos + (front * distance);
+
     if (ImGui::MenuItem("Create Empty"))
     {
         activeScene->CreateEntity("Empty");
@@ -215,32 +225,50 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         {
             auto entity = activeScene->CreateEntity("Cube");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         if (ImGui::MenuItem("Sphere"))
         {
             auto entity = activeScene->CreateEntity("Sphere");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         if (ImGui::MenuItem("Plane"))
         {
             // TODO - no plane model currently, should be like a larger quad
             auto entity = activeScene->CreateEntity("Plane");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::PLANE);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         if (ImGui::MenuItem("Quad"))
         {
             auto entity = activeScene->CreateEntity("Quad");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::QUAD);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         if (ImGui::MenuItem("Cone"))
         {
             auto entity = activeScene->CreateEntity("Cone");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CONE);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         if (ImGui::MenuItem("Cylinder"))
         {
             auto entity = activeScene->CreateEntity("Cylinder");
             entity.AddComponent<MeshComponent>(MeshComponent::Geometry::CYLINDER);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         ImGui::EndMenu();
     }
@@ -251,6 +279,9 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         {
             auto entity = activeScene->CreateEntity("Sprite");
             entity.AddComponent<SpriteComponent>();
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         ImGui::EndMenu();
     }
@@ -261,6 +292,9 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         {
             auto entity = activeScene->CreateEntity("Particle System");
             entity.AddComponent<ParticleSystemComponent>();
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         ImGui::EndMenu();
     }
@@ -271,23 +305,35 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         {
             auto entity = activeScene->CreateEntity("Directional Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::DIRECTIONAL);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         if (ImGui::MenuItem("Point Light"))
         {
             auto entity = activeScene->CreateEntity("Point Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         // TODO
         if (ImGui::MenuItem("Spot Light"))
         {
             auto entity = activeScene->CreateEntity("Spot Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::SPOT);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         // TODO
         if (ImGui::MenuItem("Area Light"))
         {
             auto entity = activeScene->CreateEntity("Area Light");
             entity.AddComponent<LightComponent>(LightComponent::LightType::AREA);
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
 
         ImGui::EndMenu();
@@ -310,6 +356,9 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
         {
             auto entity = activeScene->CreateEntity("Text");
             entity.AddComponent<TextComponent>();
+            entity.GetComponent<TransformComponent>().position = pos;
+            hasSelectedEntity = true;
+            selectedEntity = entity;
         }
         ImGui::EndMenu();
     }
@@ -318,5 +367,8 @@ void HierarchyWidget::ShowNewEntityMenu(SharedPtr<Scene>& activeScene)
     {
         auto entity = activeScene->CreateEntity("Camera");
         entity.AddComponent<CameraComponent>();
+        entity.GetComponent<TransformComponent>().position = pos;
+        hasSelectedEntity = true;
+        selectedEntity = entity;
     }
 }

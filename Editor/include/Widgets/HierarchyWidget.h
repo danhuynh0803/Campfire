@@ -7,7 +7,7 @@
 class HierarchyWidget
 {
 public:
-    void ShowHierarchy(SharedPtr<Scene>& activeScene, bool* isOpen);
+    void ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedPtr<Camera>& editorCam, bool* isOpen);
 
     void Reset()
     {
@@ -21,7 +21,7 @@ public:
     int GetSelectedIndex() const { return selected; }
 
 private:
-    void ShowNewEntityMenu(SharedPtr<Scene>& activeScene);
+    void ShowNewEntityMenu(SharedPtr<Scene>& activeScene, const SharedPtr<Camera>& editorCam);
 
     // For displaying entity properties
     Entity selectedEntity;

@@ -504,6 +504,10 @@ std::string Scene::GetUniqueTag(const std::string& tag)
 
 Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
 {
+    // FIXME
+    // ID needs to increment as well when adding objects
+    // maybe move to some refCounting class
+
     auto entity = Entity(registry.create(), this);
 
     // Default components all entities should have

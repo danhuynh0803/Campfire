@@ -228,7 +228,7 @@ void EditorLayer::OnImGuiRender()
     //}
     if (showHierarchy)
     {
-        wHierarchy.ShowHierarchy(activeScene, &showHierarchy);
+        wHierarchy.ShowHierarchy(activeScene, editorCamera, &showHierarchy);
     }
     if (showTransformSettings)
     {
