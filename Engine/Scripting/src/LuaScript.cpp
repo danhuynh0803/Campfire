@@ -21,6 +21,26 @@ void LuaScript::Start()
         lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
     }lua_settable(L, -3); //sets the (meta)table and pop above
     */
+    lua_newtable(L);
+    {
+        lua_pushcfunction(L, LuaVector::LuaVec2);
+        lua_setfield(L, -2, "New");
+    }
+    lua_setglobal(L, "Vec2");
+
+    lua_newtable(L);
+    {
+        lua_pushcfunction(L, LuaVector::LuaVec3);
+        lua_setfield(L, -2, "New");
+    }
+    lua_setglobal(L, "Vec3");
+
+    lua_newtable(L);
+    {
+        lua_pushcfunction(L, LuaVector::LuaVec4);
+        lua_setfield(L, -2, "New");
+    }
+    lua_setglobal(L, "Vec4");
 
     char* vec2MetaTableName = "LuaVec2MetaTable";
     luaL_newmetatable(L, vec2MetaTableName);
