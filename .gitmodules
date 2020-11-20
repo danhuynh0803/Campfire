@@ -16,3 +16,6 @@
 [submodule "Vendor/bullet3"]
 	path = Vendor/bullet3
 	url = https://github.com/bulletphysics/bullet3
+[submodule "Vendor/tracy"]
+	path = Vendor/tracy
+	url = https://github.com/wolfpld/tracy
