@@ -337,21 +337,6 @@ struct ScriptComponent
     }
 
     std::string filepath;
-
-//    ScriptableEntity* instance = nullptr;
-//
-//    ScriptComponent()
-//    {
-//        script = CreateSharedPtr<Script>();
-//    }
-//
-//    void Reset()
-//    {
-//        script = CreateSharedPtr<Script>();
-//    }
-//
-//    SharedPtr<Script> script;
-//    operator SharedPtr<Script>& () { return script; }
 };
 
 struct ParticleSystemComponent

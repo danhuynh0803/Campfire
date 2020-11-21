@@ -317,7 +317,6 @@ void SceneManager::DeserializeEntity(json eJson)
     {
         json cJson = eJson["ScriptComponent"];
         auto& comp = e.AddComponent<ScriptComponent>();
-        comp.Bind<LuaScript>();
         comp.filepath = cJson["filepath"];
     }
 

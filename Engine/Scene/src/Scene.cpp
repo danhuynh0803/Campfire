@@ -216,6 +216,7 @@ void Scene::OnStart()
         {
             if (!sc.instance)
             {
+                sc.Bind<LuaScript>();
                 sc.instance = sc.InstantiateScript();
                 sc.instance->entity = Entity(entity, this);
                 sc.instance->filepath = sc.filepath;
