@@ -267,10 +267,18 @@ void EditorLayer::OnUpdate(float dt)
 
         if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
+            auto [mouseX , mouseY] = GetMouseViewportSpace();
+            LOG_TRACE("MouseX = {0}", mouseX);
+            LOG_TRACE("MouseX = {0}", mouseY);
+            LOG_TRACE("cameraW = {0}", editorCamera->width);
+            LOG_TRACE("cameraH = {0}", editorCamera->height);
+            LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
+            LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
+
             glm::vec3 rayOrig, rayDir;
             ScreenToWorldRay(
-                Input::GetMouseX(),
-                Input::GetMouseY(),
+                mouseX,
+                mouseY,
                 editorCamera->width,
                 editorCamera->height,
                 editorCamera->GetViewMatrix(),
@@ -280,7 +288,8 @@ void EditorLayer::OnUpdate(float dt)
             );
             Ray ray(rayOrig, rayDir);
 
-            LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+            //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
+            //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
 
             glm::vec3 color(1.0f, 0.0f, 0.0f);
             GLfloat vertices[] =
@@ -380,8 +389,10 @@ void EditorLayer::OnImGuiRender()
         ImVec2 minBound = ImGui::GetWindowPos();
         minBound.x += viewportOffset.x;
         minBound.y += viewportOffset.y;
+        minViewportBound = { minBound.x, minBound.y };
 
         ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
+        maxViewportBound = { maxBound.x, maxBound.y };
         allowViewportCameraEvents = ImGui::IsMouseHoveringRect(minBound, maxBound);
 
         // FIXME: gizmo not moving with runtimescene transform
@@ -654,17 +665,19 @@ static void ScreenToWorldRay(
 {
     // Get a ray from camera but converted into NDC
     glm::vec4 rayStartNDC(
-        (mouseX / (float)screenWidth - 0.5f) * 2.0f,
-        // Invert since mouseY is set so that top left is (0, 0) and bottom right is (scrWidth, scrHeight)
-        -1.0f * (mouseY / (float)screenHeight - 0.5f) * 2.0f,
+        mouseX,
+        mouseY,
+        //(mouseX / (float)screenWidth - 0.5f) * 2.0f,
+        //(mouseY / (float)screenHeight - 0.5f) * 2.0f,
         -1.0f, // Z=-1 since near plane maps to -1 in NDC
         1.0f
     );
 
     glm::vec4 rayEndNDC(
-        (mouseX / (float)screenWidth - 0.5f) * 2.0f,
-        // Invert since mouseY is set so that top left is (0, 0) and bottom right is (scrWidth, scrHeight)
-        -1.0f * (mouseY / (float)screenHeight - 0.5f) * 2.0f,
+        mouseX,
+        mouseY,
+        //(mouseX / (float)screenWidth - 0.5f) * 2.0f,
+        //(mouseY / (float)screenHeight - 0.5f) * 2.0f,
         0.0f, // Z=0 for farplane in NDC
         1.0f
     );
@@ -693,10 +706,11 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
     //LOG_INFO("Mouse Button x={0}, y={1}", Input::GetMouseX(), Input::GetMouseY());
     if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
+        auto [mouseX , mouseY] = GetMouseViewportSpace();
         glm::vec3 rayOrig, rayDir;
         ScreenToWorldRay(
-            Input::GetMouseX(),
-            Input::GetMouseY(),
+            mouseX,
+            mouseY,
             editorCamera->width,
             editorCamera->height,
             editorCamera->GetViewMatrix(),
@@ -944,6 +958,21 @@ void EditorLayer::OpenClosePrompt()
         }
         ImGui::EndPopup();
     }
+}
+
+std::pair<float, float> EditorLayer::GetMouseViewportSpace()
+{
+    auto [mouseX, mouseY] = ImGui::GetMousePos();
+    mouseX -= minViewportBound.x;
+    mouseY -= minViewportBound.y;
+
+    auto viewportWidth = maxViewportBound.x - minViewportBound.x;
+    auto viewportHeight = maxViewportBound.y - minViewportBound.y;
+
+    return {
+        (mouseX / viewportWidth) * 2.0f - 1.0f,
+        ((mouseY / viewportHeight) * 2.0f - 1.0f) * -1.0f // mouse.y is inverted
+    };
 }
 
 //void EditorLayer::ShowLog(bool* p_open)

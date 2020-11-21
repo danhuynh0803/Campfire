@@ -37,6 +37,7 @@ private:
     bool shouldOpenExitPrompt = false;
     bool OpenConfirmPrompt(const char* msg);
     void OpenClosePrompt();
+    std::pair<float, float> GetMouseViewportSpace();
 
 private:
     int editorSelectedIndex = -1;
@@ -78,6 +79,8 @@ private:
     bool showTransformSettings = false;
     bool showEditorCameraSettings = false;
     bool allowViewportCameraEvents = false;
+    glm::vec2 minViewportBound;
+    glm::vec2 maxViewportBound;
 
     // Rendering
     bool showLightSettings = false;
