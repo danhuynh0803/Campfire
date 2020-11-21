@@ -1,5 +1,6 @@
 #include "Renderer/Mesh.h"
 #include "Core/ResourceManager.h"
+#include "Util/AABB.h"
 
 std::vector<SharedPtr<Texture>> textureCache;
 
@@ -70,6 +71,9 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<SharedPtr<Texture>> textures;
+    AABB aabb;
+    aabb.mMin = { FLT_MAX, FLT_MAX, FLT_MAX };
+    aabb.mMax = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
     // Process vertex info
     for (size_t i = 0; i < mesh->mNumVertices; ++i)
@@ -82,6 +86,14 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
         tempVector.y = mesh->mVertices[i].y;
         tempVector.z = mesh->mVertices[i].z;
         vertex.position = tempVector;
+
+        // Update AABB bounds
+        aabb.mMin.x = glm::min(vertex.position.x, aabb.mMin.x);
+        aabb.mMin.y = glm::min(vertex.position.y, aabb.mMin.y);
+        aabb.mMin.z = glm::min(vertex.position.z, aabb.mMin.z);
+        aabb.mMax.x = glm::max(vertex.position.x, aabb.mMax.x);
+        aabb.mMax.y = glm::max(vertex.position.y, aabb.mMax.y);
+        aabb.mMax.z = glm::max(vertex.position.z, aabb.mMax.z);
 
         // Normals
         tempVector.x = mesh->mNormals[i].x;
@@ -137,7 +149,10 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
         LOG_WARN("No Textures associated with {0}", name);
     }
 
-    return Submesh(vertices, indices, textures);
+    Submesh submesh(vertices, indices, textures);
+    submesh.boundingBox = aabb;
+
+    return submesh;
 }
 
 std::vector<SharedPtr<Texture>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)

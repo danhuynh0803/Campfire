@@ -13,6 +13,7 @@
 #include "Renderer/Buffer.h"
 #include "Renderer/VertexArray.h"
 #include "Core/Base.h"
+#include "util/AABB.h"
 
 struct Vertex
 {
@@ -64,6 +65,7 @@ struct Submesh
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<SharedPtr<Texture>> textures;
+    AABB boundingBox;
 };
 
 class Mesh

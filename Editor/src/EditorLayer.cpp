@@ -13,7 +13,7 @@
 #include "Renderer/Text.h"
 #include "ImGui/ImGuiLayer.h"
 #include "Widgets/LogWidget.h"
-
+#include "Util/Ray.h"
 #include <Tracy.hpp>
 
 // TODO refactor task: FBOs should be handled by a renderer
@@ -593,29 +593,58 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             rayOrig,
             rayDir
         );
+        Ray ray(rayOrig, rayDir);
 
-        uint64_t selectedHandle;
-        if (PhysicsManager::Raycast(rayOrig, rayDir, selectedHandle))
+        LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+
+        wHierarchy.Reset();
+        // Check all mesh objects for intersection
+        auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
+        for (auto e : meshGroup)
         {
-            LOG_TRACE("Has hit for {0}", selectedHandle);
+            Entity entity { e, activeScene.get() };
+            auto mesh = entity.GetComponent<MeshComponent>().mesh;
+            // Skip if no mesh exists
+            if (!mesh) { continue; }
 
-            int index = 0;
-            for (auto entityPair : activeScene->GetEntityMap())
+            auto& submeshes = mesh->GetSubmeshes();
+            for (auto submesh : submeshes)
             {
-                uint64_t entityID = entityPair.second.GetComponent<IDComponent>();
-                if (selectedHandle == entityID)
+                float t = FLT_MAX;
+                if (ray.IntersectAABB(submesh.boundingBox, t))
                 {
-                    selectedHandle = index;
-                    wHierarchy.OverrideSelectedIndex(index);
-                    break;
+                    LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
+                    wHierarchy.OverrideSelectedEntity(entity, activeScene);
+
+                    // TODO check if ray intersects the triangles for more precise picking
                 }
-                index++;
             }
         }
-        else
-        {
-            wHierarchy.Reset();
-        }
+
+
+        // Old raycast pick using bullet
+        // Cons is that objects must have a bullet RB in order to be checked
+        //if (PhysicsManager::Raycast(rayOrig, rayDir, selectedHandle))
+        //{
+        //    LOG_TRACE("Has hit for {0}", selectedHandle);
+
+        //    int index = 0;
+        //    for (auto entityPair : activeScene->GetEntityMap())
+        //    {
+        //        uint64_t entityID = entityPair.second.GetComponent<IDComponent>();
+        //        if (selectedHandle == entityID)
+        //        {
+        //            selectedHandle = index;
+        //            wHierarchy.OverrideSelectedIndex(index);
+        //            break;
+        //        }
+        //        index++;
+        //    }
+        //}
+        //else
+        //{
+        //    wHierarchy.Reset();
+        //}
     }
 
     return true;
