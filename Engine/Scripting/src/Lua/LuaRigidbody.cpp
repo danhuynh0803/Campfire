@@ -68,7 +68,7 @@ int LuaRigidbody::GetDrag(lua_State* L)
 {
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_pushnumber(L, rigidbody->drag);
-    return 0;
+    return 1;
 }
 
 int LuaRigidbody::SetAngularDrag(lua_State* L)
@@ -76,12 +76,43 @@ int LuaRigidbody::SetAngularDrag(lua_State* L)
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number angularDrag = lua_tonumber(L, -1);
     rigidbody->angularDrag = angularDrag;
-    return 1;
+    return 0;
 }
 
 int LuaRigidbody::GetAngularDrag(lua_State* L)
 {
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_pushnumber(L, rigidbody->angularDrag);
+    return 1;
+}
+
+int LuaRigidbody::UseGravity(lua_State* L)
+{
+    Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
+    rigidbody->useGravity = lua_toboolean(L, -1);
+    return 0;
+}
+
+int LuaRigidbody::FreezePosition(lua_State* L)
+{
+    Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
+    bool x = lua_toboolean(L, -3);
+    bool y = lua_toboolean(L, -2);
+    bool z = lua_toboolean(L, -1);
+    rigidbody->freezePosition[0] = x;
+    rigidbody->freezePosition[1] = y;
+    rigidbody->freezePosition[2] = z;
+    return 0;
+}
+
+int LuaRigidbody::FreezeRotation(lua_State* L)
+{
+    Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
+    bool x = lua_toboolean(L, -3);
+    bool y = lua_toboolean(L, -2);
+    bool z = lua_toboolean(L, -1);
+    rigidbody->freezeRotation[0] = x;
+    rigidbody->freezeRotation[1] = y;
+    rigidbody->freezeRotation[2] = z;
     return 0;
 }
