@@ -3,6 +3,10 @@
 #include <lua.hpp>
 #include "Scene/ScriptableEntity.h"
 
+namespace LuaScriptCallBack {
+    int lua_callback(lua_State*);
+}
+
 class LuaScript : public ScriptableEntity
 {
 public:

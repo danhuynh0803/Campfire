@@ -157,10 +157,11 @@ void LuaScript::Start()
 
 
     luaL_dofile(L, filepath.c_str());
+    lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "Start");
-    if (lua_pcall(L, 0, 0, 0) != 0)
+    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
-        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));;
+        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
 }
@@ -168,9 +169,10 @@ void LuaScript::Start()
 void LuaScript::Update(float dt)
 {
     luaL_dofile(L, filepath.c_str());
+    lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "Update");
     lua_pushnumber(L, dt);
-    if (lua_pcall(L, 1, 0, 0) != 0)
+    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
         LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -211,4 +213,14 @@ void LuaScript::lua_pushcfunction_with_audioSource(const lua_CFunction& f, const
     lua_pushlightuserdata(L, audioSource.get());
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
+}
+
+int LuaScriptCallBack::lua_callback(lua_State* L)
+{
+    const char* message = lua_tostring(L, 1);
+    if (message)
+    {
+        luaL_traceback(L, L, message, 1);
+    }
+    return 1;
 }
