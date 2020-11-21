@@ -47,6 +47,9 @@ struct TransformComponent
     glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
     glm::mat4 transform = glm::mat4(1.0f);
 
+    // FIXME, need to rewrite this
+    // Dont remember why there's an override,
+    // maybe needed for when using ImGuizmo?
     void Override()
     {
         transform = glm::mat4(1.0f);

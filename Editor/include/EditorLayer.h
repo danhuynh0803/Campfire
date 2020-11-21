@@ -11,6 +11,12 @@
 
 class EditorLayer : public Layer
 {
+    // For drawing submesh bounding boxes
+    // move to renderer
+    SharedPtr<VertexArray> VAO;
+    SharedPtr<VertexBuffer> VBO;
+    SharedPtr<Shader> lineShader;
+
 public:
     EditorLayer();
     ~EditorLayer() = default;

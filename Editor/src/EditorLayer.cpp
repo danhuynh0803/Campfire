@@ -16,6 +16,8 @@
 #include "Util/Ray.h"
 #include <Tracy.hpp>
 
+#include "Renderer/Renderer.h"
+
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Framebuffer> editorCamFBO;
@@ -45,6 +47,33 @@ void EditorLayer::OnAttach()
     // TODO set up via render pass and pipeline
     gameCamFBO = Framebuffer::Create(1600, 900);
     editorCamFBO = Framebuffer::Create(1920, 1080);
+
+    // TODO move to renderer
+    VAO = VertexArray::Create();
+    VAO->Bind();
+    VBO = VertexBuffer::Create(3 * 3 * 8 * sizeof(float));
+    VBO->Bind();
+    lineShader = ShaderManager::Get("line");
+    BufferLayout layout =
+    {
+        { ShaderDataType::FLOAT3, "aPos" },
+        { ShaderDataType::FLOAT3, "aColor" }
+    };
+    VBO->SetLayout(layout);
+    VAO->AddVertexBuffer(VBO);
+
+    uint32_t indices[] =
+    {
+        0, 1,   1, 2,   2, 3,   3, 0,
+        4, 5,   5, 6,   6, 7,   7, 4,
+        0, 4,   1, 5,   2, 6,   3, 7
+    };
+
+    SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+    VAO->SetIndexBuffer(indexBuffer);
+
+    VBO->Unbind();
+    VAO->Unbind();
 }
 
 void EditorLayer::OnDetach()
@@ -177,9 +206,46 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnRender(deltaTime, *editorCamera);
 
         // TODO make this a toggle instead of needing to hold down
-        if (Input::GetKey(KEY_B))
+        //if (Input::GetKey(KEY_B))
+        // Draw AABB of submeshes
         {
-            PhysicsManager::DebugDraw();
+            //PhysicsManager::DebugDraw();
+            glm::vec3 color(1.0f);
+
+            auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
+            for (auto e : meshGroup)
+            {
+                Entity entity { e, activeScene.get() };
+                auto mesh = entity.GetComponent<MeshComponent>().mesh;
+                // Skip if no mesh exists
+                if (!mesh) { continue; }
+
+                auto& submeshes = mesh->GetSubmeshes();
+                for (auto submesh : submeshes)
+                {
+                    // Need to transform the BB based on entity's TransformComponent
+                    glm::vec4 min = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMin, 1.0f);
+                    glm::vec4 max = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMax, 1.0f);
+
+                    GLfloat vertices[] =
+                    {
+                        min.x, max.y, min.z, color.r, color.g, color.b,
+                        min.x, min.y, min.z, color.r, color.g, color.b,
+                        max.x, min.y, min.z, color.r, color.g, color.b,
+                        max.x, max.y, min.z, color.r, color.g, color.b,
+
+                        min.x, max.y, max.z, color.r, color.g, color.b,
+                        min.x, min.y, max.z, color.r, color.g, color.b,
+                        max.x, min.y, max.z, color.r, color.g, color.b,
+                        max.x, max.y, max.z, color.r, color.g, color.b
+                    };
+
+                    VBO->SetData(vertices, sizeof(vertices));
+
+                    Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
+                }
+            }
+
         }
 
         // Draw camera frustum
@@ -574,7 +640,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    if (io.WantCaptureKeyboard)
+    if (!allowViewportCameraEvents)
     {
         return false;
     }
@@ -610,8 +676,13 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             auto& submeshes = mesh->GetSubmeshes();
             for (auto submesh : submeshes)
             {
+                // Need to transform the BB based on entity's TransformComponent
+                glm::vec4 transMin = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMin, 1.0f);
+                glm::vec4 transMax = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMax, 1.0f);
+                AABB transformedBB(transMin, transMax);
                 float t = FLT_MAX;
-                if (ray.IntersectAABB(submesh.boundingBox, t))
+
+                if (ray.IntersectAABB(transformedBB, t))
                 {
                     LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
                     wHierarchy.OverrideSelectedEntity(entity, activeScene);
