@@ -91,6 +91,7 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
+    // Move to some input handler to put all hotkeys in one place
     if (Input::GetKeyDown(KEY_B))
     {
         showBoundingBoxes ^= 1;
@@ -98,7 +99,7 @@ void EditorLayer::OnUpdate(float dt)
 
     float focusDistance = 15.0f;
     // Focus on selected object
-    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_F))
+    if (Input::GetKeyDown(KEY_F))
     {
         auto entity = wHierarchy.GetSelectedEntity();
         if (entity)
@@ -703,8 +704,20 @@ static void ScreenToWorldRay(
     outDirection = glm::normalize(rayEndWorld - rayStartWorld);
 }
 
-bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
+bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
 {
+    /*
+    if ((e.GetMouseButton() == MOUSE_BUTTON_LEFT))
+    {
+        LOG_TRACE("Event pressed");
+    }
+    // FIXME GetMouseButtonDown in input handler not getting refreshed?
+    if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
+    {
+        LOG_TRACE("MB pressed");
+    }
+    */
+
     ImGuiIO& io = ImGui::GetIO();
 
     if (!allowViewportCameraEvents)
@@ -713,7 +726,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
     }
 
     // Don't raycast for an object if clicking ImGuizmo
-    if (Input::GetMouseButton(MOUSE_BUTTON_LEFT)
+    if ((e.GetMouseButton() == MOUSE_BUTTON_LEFT)
         && !ImGuizmo::IsOver())
     {
         auto [mouseX , mouseY] = GetMouseViewportSpace();
@@ -750,7 +763,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
                 float t = FLT_MAX;
                 if (ray.IntersectAABB(submesh.boundingBox, t))
                 {
-                    LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
+                    //LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
                     wHierarchy.OverrideSelectedEntity(entity, activeScene);
 
                     // TODO check if ray intersects the triangles for more precise picking
@@ -759,7 +772,7 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
         }
     }
 
-    return true;
+    return false;
 }
 
 // TODO remove later.. just for testing FBO

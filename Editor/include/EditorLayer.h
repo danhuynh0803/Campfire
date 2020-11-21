@@ -28,7 +28,7 @@ public:
     virtual void OnEvent(Event& event) override;
 
     bool OnWindowResize(WindowResizeEvent& e);
-    bool OnMouseClick(MouseButtonEvent& e);
+    bool OnMouseClick(MouseButtonPressedEvent& e);
     bool OnWindowClose(WindowCloseEvent& e);
 
 private:
