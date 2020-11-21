@@ -119,6 +119,16 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
         }
     }
 
+    if (selectedEntity && Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D))
+    {
+        activeScene->DuplicateEntity(selectedEntity);
+    }
+
+    if (selectedEntity)
+    {
+        wInspector.ShowInspector(selectedEntity, isOpen);
+    }
+
     if (Input::GetKeyDown(KEY_DELETE) && selectedEntity)
     {
         activeScene->RemoveEntity(selectedEntity);
@@ -134,20 +144,7 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
             // Select the new last object now
             selected--;
         }
-
-        // TODO After deleting replace with the entity below it in the hierarchy
         selectedEntity = Entity{};
-        //selected = -1;
-    }
-
-    if (selectedEntity && Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D))
-    {
-        activeScene->DuplicateEntity(selectedEntity);
-    }
-
-    if (selectedEntity)
-    {
-       wInspector.ShowInspector(selectedEntity, isOpen);
     }
 
     ImGui::End();

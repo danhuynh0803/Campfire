@@ -190,6 +190,10 @@ void EditorLayer::OnUpdate(float dt)
         // Disable playmode tint
         ImGuiLayer::SetStopTheme();
         wHierarchy.OverrideSelectedIndex(editorSelectedIndex);
+        if (editorSelectedIndex == -1)
+        {
+            wHierarchy.Reset();
+        }
         activeScene->OnStop();
         activeScene = editorScene;
 
