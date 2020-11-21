@@ -32,6 +32,7 @@ public:
     bool OnWindowClose(WindowCloseEvent& e);
 
 private:
+    void ProcessUserInput();
     void OnRenderEditor();
     void OnRenderRuntime();
     bool shouldOpenExitPrompt = false;

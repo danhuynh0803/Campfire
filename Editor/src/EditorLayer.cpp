@@ -89,16 +89,22 @@ void EditorLayer::OnDetach()
 {
 }
 
-void EditorLayer::OnUpdate(float dt)
+void EditorLayer::ProcessUserInput()
 {
-    // Move to some input handler to put all hotkeys in one place
+    ZoneScoped;
+
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
+    {
+        ShaderManager::ReloadShaders();
+    }
+
     if (Input::GetKeyDown(KEY_B))
     {
         showBoundingBoxes ^= 1;
     }
 
-    float focusDistance = 15.0f;
     // Focus on selected object
+    float focusDistance = 15.0f; // have this be dynamic
     if (Input::GetKeyDown(KEY_F))
     {
         auto entity = wHierarchy.GetSelectedEntity();
@@ -111,14 +117,59 @@ void EditorLayer::OnUpdate(float dt)
         }
     }
 
+    // New Scene
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_N))
+    {
+        //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
+        {
+            ClearScene();
+            editorScene = SceneManager::LoadNewScene();
+            activeScene = editorScene;
+        }
+    }
+
+    // Open scene
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_O))
+    {
+        std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
+        if (!loadPath.empty())
+        {
+            //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
+            {
+                ClearScene();
+                editorScene = SceneManager::LoadScene(loadPath);
+                activeScene = editorScene;
+            }
+        }
+    }
+
+    // Save current scene
+    if (Input::GetMod(MOD_KEY_CONTROL, true)
+        && Input::GetKeyDown(KEY_S))
+    {
+        SceneManager::SaveCurrentScene(activeScene);
+    }
+
+    // Save to a new scene file
+    if (Input::GetMod(MOD_KEY_CONTROL | MOD_KEY_SHIFT)
+        && Input::GetKeyDown(KEY_S))
+    {
+        std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
+        if (!savePath.empty())
+        {
+            SceneManager::SaveScene(activeScene, savePath);
+        }
+    }
+
+}
+
+void EditorLayer::OnUpdate(float dt)
+{
+    ProcessUserInput();
+
     ZoneScoped;
 
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
-
-    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
-    {
-        ShaderManager::ReloadShaders();
-    }
 
     static int editorSelectedIndex = -1;
     if (startScene)
@@ -545,7 +596,7 @@ void EditorLayer::ClearScene()
 
 void EditorLayer::ShowMenuFile()
 {
-    if (ImGui::MenuItem("New Scene"))
+    if (ImGui::MenuItem("New Scene", "Ctrl+N"))
     {
         //if (OpenConfirmPrompt("All unsaved progress will be lost!"))
         {
@@ -554,9 +605,8 @@ void EditorLayer::ShowMenuFile()
             activeScene = editorScene;
         }
     }
-    if (ImGui::MenuItem("Open Scene", "Ctrl+O")
-        //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_O))
-        )
+
+    if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
     {
         std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
         if (!loadPath.empty())
@@ -569,15 +619,13 @@ void EditorLayer::ShowMenuFile()
             }
         }
     }
-    if (ImGui::MenuItem("Save", "Ctrl+S")
-        //|| (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_S))
-        )
+
+    if (ImGui::MenuItem("Save", "Ctrl+S"))
     {
         SceneManager::SaveCurrentScene(activeScene);
     }
-    if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")
-        //|| ( Input::GetMod(MOD_KEY_CONTROL | MOD_KEY_SHIFT) && Input::GetKeyDown(KEY_S) )
-        )
+
+    if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
     {
         std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
         if (!savePath.empty())

@@ -26,6 +26,7 @@ bool Input::GetMod(ModKeyCode modKey, bool isExact)
 
 // Handles combination modifiers like
 // Ctrl + Shift, etc
+// Combo keys are exact
 bool Input::GetMod(uint8_t comboModKey)
 {
     return (mod == comboModKey);
