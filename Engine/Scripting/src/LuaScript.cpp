@@ -96,11 +96,11 @@ void LuaScript::Start()
             lua_setfield(L, -2, "GetPosition");
 
             lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().rotation));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_pushcclosure(L, LuaTransfrom::GetEntityRotation, 1);
             lua_setfield(L, -2, "GetRotation");
 
             lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_pushcclosure(L, LuaTransfrom::GetEntityScale, 1);
             lua_setfield(L, -2, "GetScale");
         }
         lua_setglobal(L, "Transform");
@@ -119,6 +119,9 @@ void LuaScript::Start()
             lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
             lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
             lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::UseGravity, "UseGravity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezePosition, "FreezePosition");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezeRotation, "FreezeRotation");
         }
         lua_setglobal(L, "Rigidbody");
     }
