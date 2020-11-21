@@ -18,12 +18,7 @@ static void HelpMarker(const char* desc)
 
 void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedPtr<Camera>& editorCam, bool* isOpen)
 {
-    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1.0f, 0.6f, 0.4f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
     ImGui::Begin("Scene Hierarchy", isOpen);
-    ImGui::PopStyleColor(1);
 
     // TODO cleanup later
     static ImGuiTextFilter filter;
@@ -65,6 +60,7 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
     auto entityMap = activeScene->GetEntityMap();
     for (auto entityPair : entityMap)
     {
+        //    if (filter.PassFilter(tag.c_str()))
         ImGuiTreeNodeFlags node_flags = base_flags;
         const bool is_selected = (selection_mask & (1 << rootIdx)) != 0;
 
@@ -109,29 +105,19 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
             selection_mask = (1 << selected);           // Click to single-select
     }
 
-    //for (auto entityPair : activeScene->GetEntityMap())
-    //{
-    //    std::string tag = entityPair.second.GetComponent<TagComponent>().tag;
-    //    if (filter.PassFilter(tag.c_str()))
-    //    {
-    //        char buf[128];
-    //        // FIXME: adding an index into tag since duplicate tags
-    //        // cause us to only be able to select the first of that matching tag
-    //        sprintf(buf, "%d. %s", i, tag.c_str());
-    //        if (ImGui::Selectable(buf, selected == i))
-    //        {
-    //            selected = i;
-    //        }
-
-    //        if (selected == i)
-    //        {
-    //            // Open inspector for selected object
-    //            selectedEntity = entityPair.second;
-    //            hasSelectedEntity = true;
-    //        }
-    //    }
-    //    ++i;
-    //}
+    if (ImGui::IsWindowFocused())
+    {
+        if (Input::GetKeyDown(KEY_UP))
+        {
+            selected--;
+            selected = selected < 0 ? 0 : selected;
+        }
+        else if (Input::GetKeyDown(KEY_DOWN))
+        {
+            selected++;
+            selected = selected >= entityMap.size() ? entityMap.size() - 1 : selected;
+        }
+    }
 
     if (Input::GetKeyDown(KEY_DELETE) && selectedEntity)
     {
@@ -163,7 +149,7 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
     {
        wInspector.ShowInspector(selectedEntity, isOpen);
     }
-    ImGui::PopStyleColor(3);
+
     ImGui::End();
 }
 
