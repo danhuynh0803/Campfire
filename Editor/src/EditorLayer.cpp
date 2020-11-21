@@ -215,10 +215,12 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnRender(deltaTime, *editorCamera);
 
         // TODO make this a toggle instead of needing to hold down
-        //if (Input::GetKey(KEY_B))
-        // Draw AABB of submeshes
+        if (Input::GetKey(KEY_B))
         {
-            //PhysicsManager::DebugDraw();
+            PhysicsManager::DebugDraw();
+
+            // TODO move this elsewhere later
+            // Draw AABB of submeshes
             glm::vec3 color(1.0f);
 
             auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
@@ -265,50 +267,53 @@ void EditorLayer::OnUpdate(float dt)
             camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
 
-        if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
-        {
-            auto [mouseX , mouseY] = GetMouseViewportSpace();
-            LOG_TRACE("MouseX = {0}", mouseX);
-            LOG_TRACE("MouseX = {0}", mouseY);
-            LOG_TRACE("cameraW = {0}", editorCamera->width);
-            LOG_TRACE("cameraH = {0}", editorCamera->height);
-            LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
-            LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
+        // TODO don't remove yet, still need to figure out
+        // slight mismatch from raycast not matching mouse pos
+        // Most likely a mismatch with resolution somewhere
+        //if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
+        //{
+        //    auto [mouseX , mouseY] = GetMouseViewportSpace();
+        //    LOG_TRACE("MouseX = {0}", mouseX);
+        //    LOG_TRACE("MouseX = {0}", mouseY);
+        //    LOG_TRACE("cameraW = {0}", editorCamera->width);
+        //    LOG_TRACE("cameraH = {0}", editorCamera->height);
+        //    LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
+        //    LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
 
-            glm::vec3 rayOrig, rayDir;
-            ScreenToWorldRay(
-                mouseX,
-                mouseY,
-                editorCamera->width,
-                editorCamera->height,
-                editorCamera->GetViewMatrix(),
-                editorCamera->GetProjMatrix(),
-                rayOrig,
-                rayDir
-            );
-            Ray ray(rayOrig, rayDir);
+        //    glm::vec3 rayOrig, rayDir;
+        //    ScreenToWorldRay(
+        //        mouseX,
+        //        mouseY,
+        //        editorCamera->width,
+        //        editorCamera->height,
+        //        editorCamera->GetViewMatrix(),
+        //        editorCamera->GetProjMatrix(),
+        //        rayOrig,
+        //        rayDir
+        //    );
+        //    Ray ray(rayOrig, rayDir);
 
-            //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
-            //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+        //    //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
+        //    //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
 
-            glm::vec3 color(1.0f, 0.0f, 0.0f);
-            GLfloat vertices[] =
-            {
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //    glm::vec3 color(1.0f, 0.0f, 0.0f);
+        //    GLfloat vertices[] =
+        //    {
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
 
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-            };
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //    };
 
-            VBO->SetData(vertices, sizeof(vertices));
+        //    VBO->SetData(vertices, sizeof(vertices));
 
-            Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
-        }
+        //    Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
+        //}
 
         SceneRenderer::EndScene();
     editorCamFBO->Unbind();
@@ -703,8 +708,9 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
         return false;
     }
 
-    //LOG_INFO("Mouse Button x={0}, y={1}", Input::GetMouseX(), Input::GetMouseY());
-    if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
+    // Don't raycast for an object if clicking ImGuizmo
+    if (Input::GetMouseButton(MOUSE_BUTTON_LEFT)
+        && !ImGuizmo::IsOver())
     {
         auto [mouseX , mouseY] = GetMouseViewportSpace();
         glm::vec3 rayOrig, rayDir;
@@ -719,26 +725,6 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             rayDir
         );
         Ray ray(rayOrig, rayDir);
-
-        LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
-
-        glm::vec3 color(1.0f, 0.0f, 0.0f);
-        GLfloat vertices[] =
-        {
-            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-
-            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-        };
-
-        VBO->SetData(vertices, sizeof(vertices));
-
-        Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
 
         wHierarchy.Reset();
         // Check all mesh objects for intersection
@@ -768,31 +754,6 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
                 }
             }
         }
-
-
-        // Old raycast pick using bullet
-        // Cons is that objects must have a bullet RB in order to be checked
-        //if (PhysicsManager::Raycast(rayOrig, rayDir, selectedHandle))
-        //{
-        //    LOG_TRACE("Has hit for {0}", selectedHandle);
-
-        //    int index = 0;
-        //    for (auto entityPair : activeScene->GetEntityMap())
-        //    {
-        //        uint64_t entityID = entityPair.second.GetComponent<IDComponent>();
-        //        if (selectedHandle == entityID)
-        //        {
-        //            selectedHandle = index;
-        //            wHierarchy.OverrideSelectedIndex(index);
-        //            break;
-        //        }
-        //        index++;
-        //    }
-        //}
-        //else
-        //{
-        //    wHierarchy.Reset();
-        //}
     }
 
     return true;
