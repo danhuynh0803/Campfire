@@ -22,6 +22,15 @@
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Framebuffer> editorCamFBO;
 
+static void ScreenToWorldRay(
+    float mouseX, float mouseY,
+    int screenWidth, int screenHeight,
+    glm::mat4 viewMatrix,
+    glm::mat4 projMatrix,
+    glm::vec3& outOrigin,
+    glm::vec3& outDirection
+);
+
 // Curr display for the game viewport
 static uint32_t currDisplay = 0;
 
@@ -254,6 +263,42 @@ void EditorLayer::OnUpdate(float dt)
         {
             auto camera = entity.GetComponent<CameraComponent>().camera;
             camera->DrawFrustum(entity.GetComponent<TransformComponent>());
+        }
+
+        if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
+        {
+            glm::vec3 rayOrig, rayDir;
+            ScreenToWorldRay(
+                Input::GetMouseX(),
+                Input::GetMouseY(),
+                editorCamera->width,
+                editorCamera->height,
+                editorCamera->GetViewMatrix(),
+                editorCamera->GetProjMatrix(),
+                rayOrig,
+                rayDir
+            );
+            Ray ray(rayOrig, rayDir);
+
+            LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+
+            glm::vec3 color(1.0f, 0.0f, 0.0f);
+            GLfloat vertices[] =
+            {
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+            };
+
+            VBO->SetData(vertices, sizeof(vertices));
+
+            Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
         }
 
         SceneRenderer::EndScene();
@@ -662,6 +707,24 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
         Ray ray(rayOrig, rayDir);
 
         LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+
+        glm::vec3 color(1.0f, 0.0f, 0.0f);
+        GLfloat vertices[] =
+        {
+            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+
+            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+            rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+            rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        };
+
+        VBO->SetData(vertices, sizeof(vertices));
+
+        Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
 
         wHierarchy.Reset();
         // Check all mesh objects for intersection
