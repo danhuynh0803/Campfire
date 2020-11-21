@@ -62,7 +62,8 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
 
     int rootIdx = 0;
     static int childIdx = -1;
-    for (auto entityPair : activeScene->GetEntityMap())
+    auto entityMap = activeScene->GetEntityMap();
+    for (auto entityPair : entityMap)
     {
         ImGuiTreeNodeFlags node_flags = base_flags;
         const bool is_selected = (selection_mask & (1 << rootIdx)) != 0;
@@ -73,10 +74,11 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
         }
 
         Entity entity = entityPair.second;
+        if (!entity) {
+            continue;
+        }
         std::string tag = entity.GetComponent<TagComponent>().tag;
 
-        // FIXME: issues where this is overriding other index change calls,
-        // like instantiating objects or raycasting to pick objects
         RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
         if (relationshipComp.numChildren == 0)
         {
@@ -89,62 +91,10 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
                 childIdx = -1;
             }
         }
-        // TODO redo relationship structure
-        //else
-        //{
-        //    // Object contains children, so set as selectable tree
-        //    bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
-        //    if (ImGui::IsItemClicked())
-        //    {
-        //        selected = rootIdx;
-        //        childIdx = -1;
-        //    }
-        //    if (node_open)
-        //    {
-        //        entt::entity curr = relationshipComp.first;
-        //        for (size_t numChildren = 0; numChildren < relationshipComp.numChildren; ++numChildren)
-        //        {
-        //            node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
-
-        //            Entity childEntity(curr, activeScene.get());
-        //            std::string childTag = childEntity.GetComponent<TagComponent>();
-        //            int letterIdx = numChildren + 97;
-        //            ImGui::TreeNodeEx((void*)(char)letterIdx, node_flags, "%c. %s", letterIdx, childTag.c_str());
-        //            if (ImGui::IsItemClicked())
-        //            {
-        //                selected = rootIdx;
-        //                childIdx = numChildren;
-        //            }
-
-        //            curr = childEntity.GetComponent<RelationshipComponent>().next;
-        //        }
-        //        ImGui::TreePop();
-        //    }
-        //}
 
         if (selected == rootIdx)
         {
-            OverrideSelectedEntity(entityPair.second, activeScene);
-
-            //auto rootEntity = entityPair.second;
-            //if (childIdx == -1)
-            //{
-            //    selectedEntity = rootEntity;
-            //}
-            //else
-            //{
-            //    RelationshipComponent& relationshipComp = rootEntity.GetComponent<RelationshipComponent>();
-            //    entt::entity curr = relationshipComp.first;
-            //    Entity childEntity(curr, activeScene.get());
-            //    for (size_t numChildren = 0; numChildren < childIdx; ++numChildren)
-            //    {
-            //        curr = childEntity.GetComponent<RelationshipComponent>().next;
-            //        childEntity = Entity(curr, activeScene.get());
-            //        //relationshipComp = childEntity.GetComponent<RelationshipComponent>();
-            //    }
-
-            //    selectedEntity = childEntity;
-            //}
+            OverrideSelectedEntity(entity, activeScene);
         }
 
         ++rootIdx;
@@ -186,8 +136,22 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
     if (Input::GetKeyDown(KEY_DELETE) && selectedEntity)
     {
         activeScene->RemoveEntity(selectedEntity);
+        auto numEntities = activeScene->GetEntityMap().size();
+
+        if (numEntities == 0)
+        {
+            selected = -1;
+        }
+        // Deleted entry was the last object
+        else if (selected == numEntities)
+        {
+            // Select the new last object now
+            selected--;
+        }
+
+        // TODO After deleting replace with the entity below it in the hierarchy
         selectedEntity = Entity{};
-        selected = -1;
+        //selected = -1;
     }
 
     if (selectedEntity && Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_D))

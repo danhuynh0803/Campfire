@@ -9,9 +9,6 @@
 
 void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
-    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0.6f,0.2f,1.0f,1.0f));
-    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.6f, 0.2f, 1.0f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(0.6f, 0.2f, 1.0f, 1.0f));
     ImGui::Begin("Inspector", isOpen);
 
     // TODO change tag to be a name
@@ -512,7 +509,6 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ShowComponentMenu(entity);
         ImGui::EndPopup();
     }
-    ImGui::PopStyleColor(3);
     ImGui::End();
 }
 

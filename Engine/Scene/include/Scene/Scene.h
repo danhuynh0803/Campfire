@@ -11,6 +11,7 @@ class Camera;
 class Entity;
 class SceneRenderer;
 class SceneManager;
+class HierarchyWidget;
 
 class Scene
 {
@@ -45,6 +46,7 @@ private:
     friend class Skybox;
     friend class SceneRenderer;
     friend class SceneManager;
+    friend class HierarchyWidget;
 
     std::string name = "Untitled";
     entt::entity sceneEntity;

@@ -533,7 +533,7 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     // Random ID for access in hashmap
     //auto ID = Random::UINT64T();
     // Default components all entities should have
-    entity.AddComponent<IDComponent>(ID++);
+    entity.AddComponent<IDComponent>(ID);
     std::string tag = GetUniqueTag(name);
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
@@ -542,7 +542,12 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     if (isRootEntity)
     {
         entityMap[ID] = entity;
+        //entityMap[entt::entity(entity)] = entity;
     }
+
+    // TODO Probably replace this with just the entity handles?
+    // Increment ID for the next object
+    ID++;
 
     return entity;
 }
@@ -592,11 +597,15 @@ void Scene::RemoveEntity(Entity entity)
         entity.GetComponent<NativeScriptComponent>().DestroyScript(&entity.GetComponent<NativeScriptComponent>());
     }
 
-    if (entity.HasComponent<RigidbodyComponent>())
+    if (entity.HasComponent<ScriptComponent>())
     {
-        //PhysicsManager::RemoveEntity(entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody());
+        entity.GetComponent<ScriptComponent>().DestroyScript(&entity.GetComponent<ScriptComponent>());
     }
 
-    entityMap.erase(entity.GetComponent<IDComponent>());
-    registry.destroy(entity);
+    auto it = entityMap.find(entity.GetComponent<IDComponent>());
+    if (it != entityMap.end())
+    {
+        entityMap.erase(it);
+        registry.destroy(entity);
+    }
 }
