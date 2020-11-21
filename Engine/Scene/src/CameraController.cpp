@@ -31,7 +31,7 @@ void CameraController::OnUpdate(float dt)
 {
     movementSpeed = (Input::GetKey(KEY_LEFT_SHIFT)) ? (normalSpeed * 2.0f) : normalSpeed;
 
-    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
         if (Input::GetKey(KEY_W))
             ProcessKeyboard(FORWARD, dt);
@@ -49,7 +49,7 @@ void CameraController::OnUpdate(float dt)
 
 bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 {
-    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
         normalSpeed = std::clamp(normalSpeed += e.GetYOffset(), 0.1f, 50.0f);
     }
@@ -98,7 +98,7 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e)
     lastX = e.GetX();
     lastY = e.GetY();
 
-    if (Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
         xOffset *= mouseSensitivity;
         yOffset *= mouseSensitivity;

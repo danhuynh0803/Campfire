@@ -270,16 +270,14 @@ bool Input::GetKeyUp(KeyCode key)
 //=====================================================
 static const std::map<std::string, MouseCode> str2MouseCodeMap
 {
-
-    {"Mouse_0"               ,Mouse::Button0         },
-    {"Mouse_1"               ,Mouse::Button1         },
-    {"Mouse_2"               ,Mouse::Button2         },
-    {"Mouse_3"               ,Mouse::Button3         },
-    {"Mouse_4"               ,Mouse::Button4         },
-    {"Mouse_5"               ,Mouse::Button5         },
-    {"Mouse_6"               ,Mouse::Button6         },
-    {"Mouse_7"               ,Mouse::Button7         },
-
+    { "Mouse_0", Mouse::Button0 },
+    { "Mouse_1", Mouse::Button1 },
+    { "Mouse_2", Mouse::Button2 },
+    { "Mouse_3", Mouse::Button3 },
+    { "Mouse_4", Mouse::Button4 },
+    { "Mouse_5", Mouse::Button5 },
+    { "Mouse_6", Mouse::Button6 },
+    { "Mouse_7", Mouse::Button7 },
 };
 
 bool Input::GetMouseButton(MouseCode button)
@@ -298,7 +296,7 @@ bool Input::GetMouseButtonDown(MouseCode button)
 
     SetKeyState(static_cast<uint32_t>(button), state);
 
-    return state == GLFW_PRESS;
+    return state == GLFW_PRESS && oldState == GLFW_RELEASE;
 }
 
 bool Input::GetMouseButtonUp(MouseCode button)
