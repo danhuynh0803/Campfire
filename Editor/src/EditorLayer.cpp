@@ -91,6 +91,11 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
+    if (Input::GetKeyDown(KEY_B))
+    {
+        showBoundingBoxes ^= 1;
+    }
+
     float focusDistance = 15.0f;
     // Focus on selected object
     if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_F))
@@ -214,10 +219,9 @@ void EditorLayer::OnUpdate(float dt)
             cameraController.OnUpdate(dt);
         activeScene->OnRender(deltaTime, *editorCamera);
 
-        // TODO make this a toggle instead of needing to hold down
-        if (Input::GetKey(KEY_B))
+        if (showBoundingBoxes)
         {
-            PhysicsManager::DebugDraw();
+            //PhysicsManager::DebugDraw();
 
             // TODO move this elsewhere later
             // Draw AABB of submeshes
@@ -234,9 +238,9 @@ void EditorLayer::OnUpdate(float dt)
                 auto& submeshes = mesh->GetSubmeshes();
                 for (auto submesh : submeshes)
                 {
-                    // Need to transform the BB based on entity's TransformComponent
-                    glm::vec4 min = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMin, 1.0f);
-                    glm::vec4 max = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMax, 1.0f);
+                    // Need to apply transform to get the correct position of the BB
+                    glm::vec4 min = glm::vec4(submesh.boundingBox.mMin, 1.0f);
+                    glm::vec4 max = glm::vec4(submesh.boundingBox.mMax, 1.0f);
 
                     GLfloat vertices[] =
                     {
@@ -253,7 +257,7 @@ void EditorLayer::OnUpdate(float dt)
 
                     VBO->SetData(vertices, sizeof(vertices));
 
-                    Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
+                    Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
                 }
             }
 
@@ -270,7 +274,7 @@ void EditorLayer::OnUpdate(float dt)
         // TODO don't remove yet, still need to figure out
         // slight mismatch from raycast not matching mouse pos
         // Most likely a mismatch with resolution somewhere
-        //if (Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT))
+        //if (Input::GetMouseButton(MOUSE_BUTTON_LEFT))
         //{
         //    auto [mouseX , mouseY] = GetMouseViewportSpace();
         //    LOG_TRACE("MouseX = {0}", mouseX);
@@ -724,7 +728,6 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             rayOrig,
             rayDir
         );
-        Ray ray(rayOrig, rayDir);
 
         wHierarchy.Reset();
         // Check all mesh objects for intersection
@@ -739,13 +742,13 @@ bool EditorLayer::OnMouseClick(MouseButtonEvent& e)
             auto& submeshes = mesh->GetSubmeshes();
             for (auto submesh : submeshes)
             {
-                // Need to transform the BB based on entity's TransformComponent
-                glm::vec4 transMin = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMin, 1.0f);
-                glm::vec4 transMax = glm::mat4(entity.GetComponent<TransformComponent>()) * glm::vec4(submesh.boundingBox.mMax, 1.0f);
-                AABB transformedBB(transMin, transMax);
-                float t = FLT_MAX;
+                Ray ray = {
+                    glm::inverse(glm::mat4(entity.GetComponent<TransformComponent>())) * glm::vec4(rayOrig, 1.0f),
+                    glm::inverse(glm::mat3(entity.GetComponent<TransformComponent>())) * rayDir
+                };
 
-                if (ray.IntersectAABB(transformedBB, t))
+                float t = FLT_MAX;
+                if (ray.IntersectAABB(submesh.boundingBox, t))
                 {
                     LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
                     wHierarchy.OverrideSelectedEntity(entity, activeScene);

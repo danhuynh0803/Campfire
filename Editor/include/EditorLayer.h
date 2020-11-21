@@ -72,6 +72,7 @@ private:
     // Audio
     bool showAudioSettings = false;
     // General
+    bool showBoundingBoxes = false;
     bool showLog = true;
     bool showConsole = false;
     bool showHierarchy = true;
