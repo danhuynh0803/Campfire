@@ -16,7 +16,7 @@ class HierarchyWidget;
 class Scene
 {
 public:
-    Scene(bool isNewScene = true);
+    Scene(bool isDefaultScene = true);
     void Init();
     void OnEvent(Event& e);
 
