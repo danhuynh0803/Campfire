@@ -12,6 +12,8 @@ set(CORE_HEADERS
     include/Core/Layer.h
     include/Core/LayerStack.h
     include/Core/Log.h
+    include/Core/LogWidget.h
+    include/Core/ImGuiLog.h
     include/Core/MouseCodes.h
     include/Core/Random.h
     include/Core/ResourceManager.h
@@ -27,6 +29,7 @@ set(CORE_SRC
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
     src/Core/Log.cpp
+    src/Core/LogWidget.cpp
     src/Core/Random.cpp
     src/Core/ResourceManager.cpp
     src/Core/Time.cpp
