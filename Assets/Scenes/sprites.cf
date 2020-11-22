@@ -1,0 +1,126 @@
+{
+  "Entities": [
+    {
+      "IDComponent": 6,
+      "SpriteComponent": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "filepath": "../../Assets/Textures/AlienUFO/shipGreen_manned.png",
+        "flip": [
+          false,
+          false
+        ]
+      },
+      "TagComponent": "Player",
+      "TransformComponent": {
+        "euler": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "position": [
+          -6.988630294799805,
+          1.2637029886245728,
+          -25.011743545532227
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "IDComponent": 5,
+      "SpriteComponent": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "filepath": "../../Assets/Textures/Skyboxes/lightblue/back.png",
+        "flip": [
+          false,
+          false
+        ]
+      },
+      "TagComponent": "Sprite",
+      "TransformComponent": {
+        "euler": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "position": [
+          0.30626773834228516,
+          2.3067781925201416,
+          -32.977882385253906
+        ],
+        "scale": [
+          20.719999313354492,
+          20.719999313354492,
+          20.719999313354492
+        ]
+      }
+    },
+    {
+      "AudioComponent": {
+        "clipPath": "../../Assets/Audio/test.wav",
+        "loop": false,
+        "mute": false,
+        "pitch": 1.0,
+        "playOnAwake": true,
+        "priority": 128,
+        "stereoPan": 0.0,
+        "volume": 1.0
+      },
+      "CameraComponent": {
+        "depth": 0.0,
+        "farPlane": 100.0,
+        "height": 900.0,
+        "isPerspective": false,
+        "nearPlane": 0.10000000149011612,
+        "size": 5.0,
+        "targetDisplay": 0,
+        "vFov": 60.0,
+        "width": 1600.0,
+        "x": 0.0,
+        "y": 0.0
+      },
+      "IDComponent": 0,
+      "TagComponent": "Camera",
+      "TransformComponent": {
+        "euler": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "position": [
+          0.0,
+          0.0,
+          10.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  ],
+  "Environment": {
+    "skybox": [
+      "../../Assets/Textures/Skyboxes/Lake/right.jpg",
+      "../../Assets/Textures/Skyboxes/Lake/left.jpg",
+      "../../Assets/Textures/Skyboxes/Lake/top.jpg",
+      "../../Assets/Textures/Skyboxes/Lake/bottom.jpg",
+      "../../Assets/Textures/Skyboxes/Lake/front.jpg",
+      "../../Assets/Textures/Skyboxes/Lake/back.jpg"
+    ]
+  }
+}

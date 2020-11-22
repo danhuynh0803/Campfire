@@ -210,6 +210,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             }
 
             auto& comp = entity.GetComponent<SpriteComponent>();
+            ImGui::Text(comp.sprite->GetName().c_str());
             if (ImGui::ImageButton((ImTextureID)comp.sprite->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
             {
                 std::string path = FileSystem::OpenFile();
