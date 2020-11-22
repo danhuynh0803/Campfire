@@ -2,11 +2,13 @@
 #include <algorithm>
 #include <regex>
 #include <sstream>
+#include <string>
+#include <windows.h>
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <Core/Application.h>
-#include <windows.h>
+#include <Core/Log.h>
 
 wchar_t* CharToWChar(const char* text)
 {
@@ -26,6 +28,17 @@ std::string WSTRToStr(const std::wstring& wstr)
     delete[] szTo;
     return strTo;
 }
+
+//Campfire::CoGenerator<std::string> FindFileInfo(HANDLE hFind, WIN32_FIND_DATA pNextInfo)
+//{
+//    while (FindNextFileA(hFind, &pNextInfo))
+//    {
+//        if (pNextInfo.cFileName[0] == '.')
+//            continue;
+//        std::string str(pNextInfo.cFileName);
+//        co_yield str;
+//    }
+//}
 
 
 std::string WindowsFileSystem::OpenFile(const char* filter)
@@ -96,4 +109,45 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
     }
 
     return fileNameStr;
+}
+
+void WindowsFileSystem::FindFiles(const char* fileName)
+{
+    //"{path}\\*.h" for all header file in C root directory
+    //run this in a thread
+    HANDLE hFind;
+    LPCTSTR lpFileName = fileName;
+    WIN32_FIND_DATA pNextInfo;
+    hFind = FindFirstFileA(lpFileName, &pNextInfo);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        std::string firstFindFile = pNextInfo.cFileName;
+        //auto fileInfoIterator = FindFileInfo(hFind, pNextInfo);
+        while (FindNextFileA(hFind, &pNextInfo))
+        {
+            std::string nextFindFile(pNextInfo.cFileName);
+        }
+    }
+    FindClose(hFind);
+}
+
+bool WindowsFileSystem::DeleteAFile(const char* fileName)
+{
+    if (!DeleteFileA(fileName))
+    {
+        switch (GetLastError())
+        {
+            case ERROR_FILE_NOT_FOUND:
+                LOG_ERROR("{0} not found", fileName);
+                break;
+            case ERROR_ACCESS_DENIED:
+                LOG_ERROR("{0} access denied", fileName);
+                break;
+            default:
+                LOG_ERROR("Something went wrong :(");
+                break;
+        }
+        return false;
+    }
+    return true;
 }
