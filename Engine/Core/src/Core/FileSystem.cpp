@@ -1,5 +1,6 @@
 #include "Core/Base.h"
 #include "Core/FileSystem.h"
+#include "Core/ResourceManager.h"
 
 #ifdef PLATFORM_WINDOWS
 #include "Platform/Windows/WindowsFileSystem.h"
@@ -7,15 +8,34 @@
 #include "Platform/Linux/LinuxFileSystem.h"
 #endif
 
+// To force loading of just assets within the "Assets" dir.
+// This sets filepath to be relative to the "Assets" dir
+bool FileSystem::restrictToAssets = true;
+
 std::string FileSystem::OpenFile(const char* filter)
 {
+    std::string path;
     #ifdef PLATFORM_WINDOWS
-        return WindowsFileSystem::OpenFile(filter);
+        path = WindowsFileSystem::OpenFile(filter);
     #else
-        return LinuxFileSystem::OpenFile(filter);
+        path = LinuxFileSystem::OpenFile(filter);
     #endif
 
-    return "ERROR";
+    if (restrictToAssets)
+    {
+        std::size_t found = path.rfind("Assets");
+        if (found == std::string::npos)
+        {
+            LOG_ERROR("Please import {0} into Assets or file will be saved with the absolute path!", path);
+        }
+        else
+        {
+            // Update path to be relative to the "Assets" directory
+            path = ASSETS + path.substr(found + 7);
+        }
+    }
+
+    return path;
 }
 
 std::string FileSystem::SaveFile(const char* filter)

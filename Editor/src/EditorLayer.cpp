@@ -892,24 +892,24 @@ void EditorLayer::ShowAudioSettings(bool* isOpen)
 
     ImGui::NewLine();
 
-    for (size_t i = 0; i < clips.size(); ++i)
-    {
-        if (clips[i].empty()) { clipName = "Blank"; }
-        else { clipName = clips[i]; }
-        if (ImGui::Button(clipName.c_str()))
-        {
-            std::string path = FileSystem::OpenFile("*.wav");
-            if (!path.empty())
-            {
-                clips[i] = path;
-            }
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Play"))
-        {
-            AudioSystem::PlaySound(clips[i].c_str());
-        }
-    }
+    //for (size_t i = 0; i < clips.size(); ++i)
+    //{
+    //    if (clips[i].empty()) { clipName = "Blank"; }
+    //    else { clipName = clips[i]; }
+    //    if (ImGui::Button(clipName.c_str()))
+    //    {
+    //        std::string path = FileSystem::OpenFile("*.wav");
+    //        if (!path.empty())
+    //        {
+    //            clips[i] = path;
+    //        }
+    //    }
+    //    ImGui::SameLine();
+    //    if (ImGui::Button("Play"))
+    //    {
+    //        AudioSystem::PlaySound(clips[i].c_str());
+    //    }
+    //}
 
     ImGui::End();
 }

@@ -19,6 +19,7 @@ Application* Application::instance = nullptr;
 Application::Application(const ApplicationProps& props)
 {
     Log::Init();
+    LogWidget::Init();
     Time::Init();
     Random::Init();
     //JobSystem::Init();
