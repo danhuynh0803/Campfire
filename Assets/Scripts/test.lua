@@ -8,7 +8,7 @@ function Start()
     --print(tf.x)
     --entity:SetScale(2,2,2)
     --entity:SetRotation(90,-40,120)
-    Rigidbody:SetVelocity(5, 100, 5)
+    --Rigidbody:SetVelocity(5, 100, 5)
 	AudioSource.Play()
 
 end

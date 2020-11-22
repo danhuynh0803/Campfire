@@ -236,6 +236,12 @@ struct RigidbodyComponent
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
 };
 
+struct Colliders
+{
+    std::vector<SharedPtr<Collider>> colliders;
+    operator std::vector<SharedPtr<Collider>>& () { return colliders; }
+};
+
 struct TriggerComponent
 {
     TriggerComponent()
