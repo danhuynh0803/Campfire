@@ -21,11 +21,11 @@ wchar_t* CharToWChar(const char* text)
 std::string WSTRToStr(const std::wstring& wstr)
 {
     std::string strTo;
-    char* szTo = new char[wstr.length() + 1];
-    szTo[wstr.size()] = '\0';
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, szTo, (int)wstr.length(), NULL, NULL);
-    strTo = szTo;
-    delete[] szTo;
+    char* buffer = new char[wstr.length() + 1];
+    buffer[wstr.size()] = '\0';
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, (int)wstr.length(), NULL, NULL);
+    strTo = buffer;
+    delete[] buffer;
     return strTo;
 }
 
@@ -150,4 +150,70 @@ bool WindowsFileSystem::DeleteAFile(const char* fileName)
         return false;
     }
     return true;
+}
+
+void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
+{
+    HANDLE hDirectory = CreateFile(watchDirectory,
+        GENERIC_READ | GENERIC_WRITE | FILE_LIST_DIRECTORY,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+        NULL);
+    if (hDirectory == INVALID_HANDLE_VALUE)
+    {
+        DWORD dwErr = GetLastError();
+        return;
+    }
+
+    char notify[1024];
+    ZeroMemory(notify, 0, sizeof(notify));
+    FILE_NOTIFY_INFORMATION* pNotification = (FILE_NOTIFY_INFORMATION*)notify;
+    DWORD bytesReturned = 0;
+
+    while (TRUE)
+    {
+        ZeroMemory(pNotification, sizeof(notify));
+
+        auto watchState = ReadDirectoryChangesW(hDirectory,
+            &notify,
+            sizeof(notify),
+            TRUE,   //Watch subdirectory
+            FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE,
+            (LPDWORD)&bytesReturned,
+            NULL,
+            NULL);
+
+        if (GetLastError() == ERROR_INVALID_FUNCTION)
+        {
+            break;
+        }
+        else if (watchState == FALSE)
+        {
+            DWORD dwErr = GetLastError();
+            break;
+        }
+        else if (GetLastError() == ERROR_NOTIFY_ENUM_DIR)
+        {
+            continue;
+        }
+        else
+        {
+            std::wstring fileName(pNotification->FileName, pNotification->FileNameLength / sizeof(wchar_t));
+            //std::string fullFileName = watchDirectory + "/" + WSTRToStr(fileName);
+            switch (pNotification->Action)
+            {
+                case FILE_ACTION_ADDED:
+                    break;
+                case FILE_ACTION_REMOVED:
+                    break;
+                case FILE_ACTION_MODIFIED:
+                    break;
+                case FILE_ACTION_RENAMED_OLD_NAME:
+                    break;
+            }
+        }
+    }
+    CloseHandle(hDirectory);
 }
