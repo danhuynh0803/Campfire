@@ -10,6 +10,11 @@ class WindowsFileSystem
 public:
     static std::string OpenFile(const char*);
     static std::string SaveFile(const char*);
+    static void FindFiles(const char*);
+    static bool CopyAFile(const char*, const char*, bool);
+    static bool MoveFiles(const char*, const char*);
+    static bool DeleteAFile(const char*);
+    static void WindowsFileSystem::RunFileDirectoryWatcher(const char*);
 };
 
 #endif // WINDOWS_FILE_SYSTEM_H
