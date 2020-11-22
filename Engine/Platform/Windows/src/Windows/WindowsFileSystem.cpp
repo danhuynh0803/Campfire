@@ -57,7 +57,7 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     ofn.lpstrDefExt = "";
     std::string fileNameStr;
-    if (GetOpenFileName(&ofn))
+    if (GetOpenFileNameA(&ofn))
     {
         fileNameStr = szFilename;
     }
@@ -97,7 +97,7 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
     ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
     std::string fileNameStr;
 
-    if (GetSaveFileName(&ofn))
+    if (GetSaveFileNameA(&ofn))
     {
         fileNameStr = szFilename;
         // Check if extension was added in file name, if not, then append filetype
@@ -129,6 +129,42 @@ void WindowsFileSystem::FindFiles(const char* fileName)
         }
     }
     FindClose(hFind);
+}
+
+bool WindowsFileSystem::CopyAFile(const char* source, const char* target, bool checkIfAlreadyExist)
+{
+    if (!CopyFileA(source,target, checkIfAlreadyExist))
+    {
+        switch (GetLastError())
+        {
+            case ERROR_ACCESS_DENIED:
+                LOG_ERROR("The destination file already exists");
+                break;
+            default:
+                LOG_ERROR("Something went wrong :(");
+            break;
+        }
+        return false;
+    }
+    return true;
+}
+
+bool WindowsFileSystem::MoveFiles(const char* source, const char* target)
+{
+    if (!MoveFileA(source, target))
+    {
+        switch (GetLastError())
+        {
+        case ERROR_ACCESS_DENIED:
+            LOG_ERROR("");
+            break;
+        default:
+            LOG_ERROR("Something went wrong :(");
+            break;
+        }
+        return false;
+    }
+    return true;
 }
 
 bool WindowsFileSystem::DeleteAFile(const char* fileName)
