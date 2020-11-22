@@ -10,6 +10,8 @@
 #include <Core/Application.h>
 #include <Core/Log.h>
 
+#define MAX_PATH_LENGTH 260
+
 wchar_t* CharToWChar(const char* text)
 {
     size_t size = strlen(text) + 1;
@@ -66,13 +68,13 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
 
     HWND hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
     OPENFILENAME ofn;
-    char szFilename[MAX_PATH] = "";
+    char szFilename[MAX_PATH_LENGTH] = "";
     ZeroMemory(&ofn, sizeof(ofn));//=memset(&ofn, 0, sizeof(ofn));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hwndOwner;
     ofn.lpstrFilter = filter;
     ofn.lpstrFile = szFilename;
-    ofn.nMaxFile = MAX_PATH;
+    ofn.nMaxFile = MAX_PATH_LENGTH;
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     ofn.lpstrDefExt = "";
     std::string fileNameStr;
@@ -106,10 +108,10 @@ std::string WindowsFileSystem::SaveFile(const char* filter)
 
     HWND hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
     OPENFILENAME ofn;
-    char szFilename[MAX_PATH] = "";
+    char szFilename[MAX_PATH_LENGTH] = "";
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
-    ofn.nMaxFile = MAX_PATH;
+    ofn.nMaxFile = MAX_PATH_LENGTH;
     ofn.hwndOwner = hwndOwner;
     ofn.lpstrFile = szFilename;
     ofn.lpstrFilter = sFilter.c_str();
@@ -161,7 +163,7 @@ bool WindowsFileSystem::CopyAFile(const char* source, const char* target, bool c
                 break;
             default:
                 LOG_ERROR("Something went wrong :(");
-            break;
+                break;
         }
         return false;
     }
@@ -174,12 +176,12 @@ bool WindowsFileSystem::MoveFiles(const char* source, const char* target)
     {
         switch (GetLastError())
         {
-        case ERROR_ACCESS_DENIED:
-            LOG_ERROR("");
-            break;
-        default:
-            LOG_ERROR("Something went wrong :(");
-            break;
+            case ERROR_ACCESS_DENIED:
+                LOG_ERROR("Access denied");
+                break;
+            default:
+                LOG_ERROR("Something went wrong :(");
+                break;
         }
         return false;
     }
@@ -207,12 +209,21 @@ bool WindowsFileSystem::DeleteAFile(const char* fileName)
     return true;
 }
 
-void WindowsFileSystem::OpenInExplorer(const char*)
+void WindowsFileSystem::OpenInExplorer(const char* fileDirectory)
 {
-    //const uintptr_t res = (uintptr_t)ShellExecuteA(NULL, L"explore", wpath, NULL, NULL, SW_SHOWNORMAL);
-    //if (res > 32) return ExecuteOpenResult::SUCCESS;
-    //if (res == SE_ERR_NOASSOC) return ExecuteOpenResult::NO_ASSOCIATION;
-    //return ExecuteOpenResult::OTHER_ERROR;
+    const int res = (int)ShellExecuteA(NULL, "explore", fileDirectory, NULL, NULL, SW_SHOWNORMAL);
+    if (res <= 32)
+    {
+        switch (res)
+        {
+            case ERROR_PATH_NOT_FOUND:
+                LOG_ERROR("Path not found");
+                break;
+            default:
+                LOG_ERROR("Something went wrong :(");
+                break;
+        }
+    }
 }
 
 void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
