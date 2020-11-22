@@ -156,6 +156,17 @@ json SceneManager::SerializeEntity(Entity entity)
         eJson["MeshComponent"] = cJson;
     }
 
+    if (entity.HasComponent<SpriteComponent>())
+    {
+        auto comp = entity.GetComponent<SpriteComponent>();
+        json cJson;
+        cJson["filepath"] = comp.sprite->GetName();
+        cJson["color"] = { comp.color.r, comp.color.g, comp.color.b, comp.color.a };
+        cJson["flip"] = { comp.flip[0], comp.flip[1] };
+
+        eJson["SpriteComponent"] = cJson;
+    }
+
     if (entity.HasComponent<LightComponent>())
     {
         auto comp = entity.GetComponent<LightComponent>();
@@ -201,15 +212,6 @@ json SceneManager::SerializeEntity(Entity entity)
         cJson["stereoPan"]   = comp->stereoPan;
 
         eJson["AudioComponent"] = cJson;
-    }
-
-    if (entity.HasComponent<ScriptComponent>())
-    {
-        auto comp = entity.GetComponent<ScriptComponent>();
-        json cJson;
-        cJson["filepath"] = comp.filepath;
-
-        eJson["ScriptComponent"] = cJson;
     }
 
     if (entity.HasComponent<TextComponent>())
@@ -265,6 +267,18 @@ void SceneManager::DeserializeEntity(json eJson)
     {
         auto cJson = eJson["MeshComponent"];
         auto& comp = e.AddComponent<MeshComponent>(cJson["filepath"].get<std::string>());
+    }
+
+    if (eJson.contains("SpriteComponent"))
+    {
+        auto cJson = eJson["SpriteComponent"];
+        auto& comp = e.AddComponent<SpriteComponent>();
+        comp.sprite = Texture2D::Create(cJson["filepath"]);
+        auto color = cJson["color"];
+        comp.color = glm::vec4(color[0], color[1], color[2], color[3]);
+        auto flip = cJson["flip"];
+        comp.flip[0] = flip[0];
+        comp.flip[1] = flip[1];
     }
 
     if (eJson.contains("LightComponent"))

@@ -178,6 +178,7 @@ struct SpriteComponent
     SharedPtr<Texture2D> sprite;
     glm::vec4 color;
     bool flip[2] = { false, false };
+    // TODO add uv tiling and other options
 
     void Reset()
     {
