@@ -13,12 +13,20 @@
 wchar_t* CharToWChar(const char* text)
 {
     size_t size = strlen(text) + 1;
-    wchar_t* wa = new wchar_t[size];
-    mbstowcs(wa, text, size);
-    return wa;
+    wchar_t* wchar = new wchar_t[size];
+    mbstowcs(wchar, text, size);
+    return wchar;
 }
 
-std::string WSTRToStr(const std::wstring& wstr)
+char* WCharToChar(const wchar_t* text)
+{
+    size_t size = wcslen(text) + 1;
+    char* c = new char[size];
+    wcstombs(c, text, size);
+    return c;
+}
+
+std::string WSTRToSTR(const std::wstring& wstr)
 {
     std::string strTo;
     char* buffer = new char[wstr.length() + 1];
@@ -27,6 +35,17 @@ std::string WSTRToStr(const std::wstring& wstr)
     strTo = buffer;
     delete[] buffer;
     return strTo;
+}
+
+std::wstring STRToWSTR(const std::string& string)
+{
+    std::wstring wstrTo;
+    wchar_t* buffer = new wchar_t[string.length() + 1];
+    buffer[string.size()] = '\0';
+    MultiByteToWideChar(CP_ACP, 0, string.c_str(), -1, buffer, (int)string.length());
+    wstrTo = buffer;
+    delete[] buffer;
+    return wstrTo;
 }
 
 //Campfire::CoGenerator<std::string> FindFileInfo(HANDLE hFind, WIN32_FIND_DATA pNextInfo)
@@ -186,6 +205,14 @@ bool WindowsFileSystem::DeleteAFile(const char* fileName)
         return false;
     }
     return true;
+}
+
+void WindowsFileSystem::OpenInExplorer(const char*)
+{
+    //const uintptr_t res = (uintptr_t)ShellExecuteA(NULL, L"explore", wpath, NULL, NULL, SW_SHOWNORMAL);
+    //if (res > 32) return ExecuteOpenResult::SUCCESS;
+    //if (res == SE_ERR_NOASSOC) return ExecuteOpenResult::NO_ASSOCIATION;
+    //return ExecuteOpenResult::OTHER_ERROR;
 }
 
 void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
