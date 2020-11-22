@@ -1,3 +1,5 @@
+find_package(Vulkan REQUIRED)
+
 target_include_directories(
     Engine
     PUBLIC

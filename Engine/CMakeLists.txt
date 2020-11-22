@@ -14,8 +14,6 @@ target_sources(
         EntryPoint.h
 )
 
-find_package(Vulkan REQUIRED)
-
 if(NOT MSVC)
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
