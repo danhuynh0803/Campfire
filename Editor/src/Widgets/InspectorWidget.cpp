@@ -233,6 +233,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     }
 
     // Trigger
+    // TODO remove
     if (entity.HasComponent<TriggerComponent>())
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -263,7 +264,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                     {
                         collider = Collider::Create(static_cast<Collider::Shape>(currType));
                     }
-
+                    ImGui::Checkbox("isTrigger", &collider->isTrigger);
                     ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
                     collider->ShowData();
 
@@ -358,6 +359,8 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                     //ImGui::OpenPopup("ComponentOptionsPopup");
                 }
 
+                ImGui::Checkbox("isTrigger", &collider->isTrigger);
+
                 const char* colliderTypes[] = { "Box", "Sphere", "Capsule" };
                 int currType = static_cast<int>(collider->type);
                 ImGui::Combo("Type", &currType, colliderTypes, IM_ARRAYSIZE(colliderTypes));
@@ -368,6 +371,8 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 }
 
                 ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
+
+                // For showing specific shape parameters
                 collider->ShowData();
 
                 // TODO replace with some componentList popup

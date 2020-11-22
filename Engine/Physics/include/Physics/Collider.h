@@ -35,6 +35,7 @@ struct Collider
     virtual void Reset() = 0;
 
     Shape type = Collider::Shape::BOX;
+    bool isTrigger = false;
     btCollisionShape* shape = nullptr;
     glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
 
