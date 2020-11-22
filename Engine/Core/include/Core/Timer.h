@@ -18,7 +18,7 @@ struct Timer
 
     ~Timer()
     {
-        LOG_TRACE("Timer: {0}: {1}ms", msg, GetTime());
+        CORE_TRACE("Timer: {0}: {1}ms", msg, GetTime());
     }
 
     void Reset()

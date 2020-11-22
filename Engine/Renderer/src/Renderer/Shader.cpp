@@ -81,7 +81,7 @@ SharedPtr<Shader> ShaderManager::Get(const std::string& tag)
     }
     else
     {
-        LOG_ERROR("No shader named {0} is found");
+        CORE_ERROR("No shader named {0} is found");
     }
 }
 
@@ -94,5 +94,5 @@ void ShaderManager::ReloadShaders()
 
         pair.second->SetRenderID(reloadedShader->GetRenderID());
     }
-    LOG_INFO("Reloaded Shaders");
+    CORE_INFO("Reloaded Shaders");
 }

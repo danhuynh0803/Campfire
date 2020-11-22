@@ -286,11 +286,11 @@ bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, uint64_t& ha
     if (closestHit.hasHit())
     {
         handle = (uint64_t)(closestHit.m_collisionObject->getUserPointer());
-        LOG_TRACE("Hit Index = {0}", handle);
+        CORE_TRACE("Hit Index = {0}", handle);
         return true;
     }
 
-    LOG_INFO("No closest hit");
+    CORE_INFO("No closest hit");
     return false;
 }
 

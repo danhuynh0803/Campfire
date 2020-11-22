@@ -6,7 +6,7 @@ OpenGLContext::OpenGLContext(GLFWwindow* window)
     : windowHandle(window)
 {
     if (windowHandle == nullptr) {
-        LOG_ERROR("Failed to create OpenGL Context");
+        CORE_ERROR("Failed to create OpenGL Context");
     }
 }
 
@@ -18,7 +18,7 @@ void OpenGLContext::Init()
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("Failed to initialize GLAD");
+        CORE_ERROR("Failed to initialize GLAD");
         //return -1;
     }
     //LOG_INFO("OpenGL {0}", glGetString(GL_VERSION));

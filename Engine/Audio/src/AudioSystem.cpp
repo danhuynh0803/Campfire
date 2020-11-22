@@ -144,7 +144,7 @@ void AudioSystem::PlayEvent(const std::string& eventName, bool isImmediate)
         foundIt = fmod->events.find(eventName);
         if (foundIt == fmod->events.end())
         {
-            LOG_WARN("Event could not be loaded: {0}", eventName);
+            CORE_WARN("Event could not be loaded: {0}", eventName);
             return;
         }
     }

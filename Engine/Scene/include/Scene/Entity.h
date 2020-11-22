@@ -36,7 +36,7 @@ public:
         if (HasComponent<T>())
             return scene->registry.template get<T>(entityHandle);
         else
-            LOG_ERROR("{0} not found", typeid(T).name());
+            CORE_ERROR("{0} not found", typeid(T).name());
     }
 
     template <typename T>

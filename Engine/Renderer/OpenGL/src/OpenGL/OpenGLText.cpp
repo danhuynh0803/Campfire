@@ -12,7 +12,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath, uint32_t fontSize)
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
-        LOG_ERROR("OpenGLFont::Unable to init library");
+        CORE_ERROR("OpenGLFont::Unable to init library");
         return;
     }
 
@@ -20,7 +20,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath, uint32_t fontSize)
     // Check that font is valid
     if (FT_New_Face(ft, fontPath.c_str(), 0, &face))
     {
-        LOG_ERROR("OpenGLFont::Failed to load font: {0}", fontPath);
+        CORE_ERROR("OpenGLFont::Failed to load font: {0}", fontPath);
         return;
     }
 
@@ -37,7 +37,7 @@ OpenGLFont::OpenGLFont(const std::string& fontPath, uint32_t fontSize)
         // Load character glype
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
-            LOG_ERROR("OpenGLFont::Failed to load glype {0}", c);
+            CORE_ERROR("OpenGLFont::Failed to load glype {0}", c);
             continue;
         }
 

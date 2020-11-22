@@ -42,8 +42,8 @@ protected:
 using widget_sink_mt = widget_sink<std::mutex>;
 using widget_sink_st = widget_sink<spdlog::details::null_mutex>;
 
-#define DEBUG_TRACE(...)     { LogWidget::GetLogger()->trace(__VA_ARGS__);    }
-#define DEBUG_INFO(...)      { LogWidget::GetLogger()->info(__VA_ARGS__);     }
-#define DEBUG_WARN(...)      { LogWidget::GetLogger()->warn(__VA_ARGS__);     }
-#define DEBUG_ERROR(...)     { LogWidget::GetLogger()->error(__VA_ARGS__);    }
-#define DEBUG_CRITICAL(...)  { LogWidget::GetLogger()->critical(__VA_ARGS__); }
+#define LOG_TRACE(...)     { LogWidget::GetLogger()->trace(__VA_ARGS__);    }
+#define LOG_INFO(...)      { LogWidget::GetLogger()->info(__VA_ARGS__);     }
+#define LOG_WARN(...)      { LogWidget::GetLogger()->warn(__VA_ARGS__);     }
+#define LOG_ERROR(...)     { LogWidget::GetLogger()->error(__VA_ARGS__);    }
+#define LOG_CRITICAL(...)  { LogWidget::GetLogger()->critical(__VA_ARGS__); }

@@ -117,7 +117,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
         return true;
     }
 
-    LOG_INFO("Resize to {0} : {1}", e.GetWidth(), e.GetHeight());
+    CORE_INFO("Resize to {0} : {1}", e.GetWidth(), e.GetHeight());
     Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
     return false;
 }

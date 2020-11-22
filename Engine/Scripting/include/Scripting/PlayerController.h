@@ -56,7 +56,7 @@ public:
 
     void OnTriggerEnter(Entity other)
     {
-        LOG_INFO("Collider Enter {0}", other.GetComponent<TagComponent>().tag);
+        CORE_INFO("Collider Enter {0}", other.GetComponent<TagComponent>().tag);
         SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
         //rb->AddVelocity(up * jumpForce * 5.0f);
 
@@ -84,7 +84,7 @@ public:
 
     void OnTriggerExit(Entity other)
     {
-        LOG_INFO("Collider Exit {0}", other.GetComponent<TagComponent>().tag);
+        CORE_INFO("Collider Exit {0}", other.GetComponent<TagComponent>().tag);
         //SharedPtr<Rigidbody> rb = other.GetComponent<RigidbodyComponent>();
         //rb->AddVelocity(up * jumpForce);
 

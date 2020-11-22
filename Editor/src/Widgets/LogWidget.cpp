@@ -7,5 +7,5 @@ void LogWidget::Init()
 {
     mImGuiLog = std::make_shared<ImGuiLog>();
     auto widget_sink = std::make_shared<widget_sink_mt>();
-    mLogger = std::make_shared<spdlog::logger>("Campfire", widget_sink);
+    mLogger = std::make_shared<spdlog::logger>("", widget_sink);
 }

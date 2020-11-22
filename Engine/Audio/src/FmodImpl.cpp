@@ -10,7 +10,7 @@ FmodImpl::FmodImpl()
     FMOD_RESULT result = FMOD::Studio::System::create(&studioSystem);
     if (result != FMOD_OK)
     {
-        LOG_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
+        CORE_ERROR("FMOD System could not be created: {0}", FMOD_ErrorString(result));
         exit(-1);
     }
     studioSystem->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);

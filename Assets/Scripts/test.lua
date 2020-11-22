@@ -15,11 +15,11 @@ end
 
 function Update(dt)
     if (Rigidbody == nil) then
-        print("Entity does not contain a rb")
+        Log("Entity does not contain a rb")
     end
 
     currVel = Rigidbody:GetVelocity()
-    print("Velocity = (" .. currVel.x .. "," .. currVel.y .. "," .. currVel.z .. ")")
+    Log("Velocity = (" .. currVel.x .. "," .. currVel.y .. "," .. currVel.z .. ")")
 
     --print(Transform)
     local vel =

@@ -21,7 +21,7 @@ void Rigidbody::SetTransform(const TransformComponent& transformComp)
     transform.setIdentity();
     glm::vec3 pos = transformComp.position;
 
-    LOG_INFO("RB Transform ({0}, {1}, {2})", pos.x, pos.y, pos.z);
+    CORE_INFO("RB Transform ({0}, {1}, {2})", pos.x, pos.y, pos.z);
     transform.setOrigin(GlmToBtVec(pos));
 
     glm::vec3 euler = transformComp.euler;

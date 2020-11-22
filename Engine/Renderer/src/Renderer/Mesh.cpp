@@ -41,7 +41,7 @@ void Mesh::LoadModel(const std::string& path)
 
     if (!scene || !scene->HasMeshes())
     {
-        LOG_ERROR("ERROR::ASSIMP::{0}", importer.GetErrorString());
+        CORE_ERROR("ERROR::ASSIMP::{0}", importer.GetErrorString());
         return;
     }
 
@@ -146,7 +146,7 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
     }
     else
     {
-        LOG_WARN("No Textures associated with {0}", name);
+        CORE_WARN("No Textures associated with {0}", name);
     }
 
     Submesh submesh(vertices, indices, textures);
@@ -178,7 +178,7 @@ std::vector<SharedPtr<Texture>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTe
         }
         if (!inCache)
         {
-            LOG_INFO("Loading Texture from {0}", path);
+            CORE_INFO("Loading Texture from {0}", path);
             texture = Texture2D::Create(path.c_str());
             textureCache.push_back(texture);
         }

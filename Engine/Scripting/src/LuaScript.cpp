@@ -1,5 +1,4 @@
 #include "Scene/ScriptableEntity.h"
-#include "Core/Log.h"
 #include "Scripting/LuaScript.h"
 #include "Scripting/Lua/LuaTransform.h"
 #include "Scripting/Lua/LuaTag.h"
@@ -8,11 +7,23 @@
 #include "Scripting/Lua/LuaRigidbody.h"
 #include "Scripting/Lua/LuaAudioSource.h"
 #include "Scripting/Lua/LuaVector.h"
+#include "Core/Log.h"
+
+static int Log(lua_State* L)
+{
+    const char* msg = lua_tostring(L, -1);
+    LOG_INFO(msg);
+    return 0;
+}
 
 void LuaScript::Start()
 {
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
+
+    // Setup logs
+    lua_pushcfunction(L, Log);
+    lua_setglobal(L, "Log");
 
     /* for objects managed by lua stack(gc and all that)
     char* transformComponetMetaTableName = "TransformComponetMetaTable";
@@ -131,7 +142,7 @@ void LuaScript::Start()
 
     }
     lua_setglobal(L, "Entity"); //name the table entity
-    
+
     lua_newtable(L);
     {
         lua_pushcfunction_with_tag(LuaTag::GetTag,"GetTag");
@@ -154,7 +165,6 @@ void LuaScript::Start()
         }
         lua_setglobal(L, "AudioSource");
     }
-
 
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);

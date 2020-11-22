@@ -163,7 +163,7 @@ bool Input::GetButton(const std::string& code)
     }
     else
     {
-        LOG_WARN("{0} does not have a matching KeyCode.", code);
+        CORE_WARN("{0} does not have a matching KeyCode.", code);
         return false;
     }
 }
@@ -177,7 +177,7 @@ bool Input::GetButtonDown(const std::string& code)
     }
     else
     {
-        LOG_WARN("{0} does not have a matching KeyCode.", code);
+        CORE_WARN("{0} does not have a matching KeyCode.", code);
         return false;
     }
 }
@@ -191,7 +191,7 @@ bool Input::GetButtonUp(const std::string& code)
     }
     else
     {
-        LOG_WARN("{0} does not have a matching KeyCode.", code);
+        CORE_WARN("{0} does not have a matching KeyCode.", code);
         return false;
     }
 }
@@ -319,7 +319,7 @@ bool Input::GetMouseButton(const std::string& mouseCode)
     }
     else
     {
-        LOG_WARN("{0} does not have a matching MouseCode.", mouseCode);
+        CORE_WARN("{0} does not have a matching MouseCode.", mouseCode);
         return false;
     }
 }
@@ -332,7 +332,7 @@ bool Input::GetMouseButtonDown(const std::string& mouseCode)
     }
     else
     {
-        LOG_WARN("{0} does not have a matching MouseCode.", mouseCode);
+        CORE_WARN("{0} does not have a matching MouseCode.", mouseCode);
         return false;
     }
 }
@@ -345,7 +345,7 @@ bool Input::GetMouseButtonUp(const std::string& mouseCode)
     }
     else
     {
-        LOG_WARN("{0} does not have a matching MouseCode.", mouseCode);
+        CORE_WARN("{0} does not have a matching MouseCode.", mouseCode);
         return false;
     }
 }
