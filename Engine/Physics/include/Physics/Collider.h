@@ -1,8 +1,12 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <btBulletDynamicsCommon.h>
+#include <glm/glm.hpp>
+#include <entt.hpp>
 #include "Core/Base.h"
+
+class PhysicsManager;
 
 struct Collider
 {
@@ -33,19 +37,34 @@ struct Collider
     virtual void UpdateShape(glm::vec3 scale) {};
     virtual void ShowData() {};
     virtual void Reset() {};
+    Shape type = Collider::Shape::NONE;
+    glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
 
-    Shape type = Collider::Shape::BOX;
+    // ================================================
+    // For converting collider to trigger
     bool isTrigger = false;
     btCollisionShape* shape = nullptr;
-    glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
+    void ConstructTrigger(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale);
+
+    btGhostObject* GetBulletGhostObject() { return ghostObject; }
+
+    std::vector<entt::entity> prevList;
+    std::vector<entt::entity> overlapEnterList;
+    std::vector<entt::entity> overlapExitList;
+    std::vector<entt::entity> overlapStayList;
+
+private:
+    btGhostObject* ghostObject = nullptr;
+    friend class PhysicsManager;
 };
+
 
 struct BoxCollider : public Collider
 {
     BoxCollider();
     virtual void UpdateShape(glm::vec3 scale);
     virtual void ShowData();
-    virtual void Reset()
+    virtual void Reset() override
     {
         size = glm::vec3(1.0f);
         center = glm::vec3(1.0f);

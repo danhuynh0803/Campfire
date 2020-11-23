@@ -6,7 +6,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include "Physics/Rigidbody.h"
-#include "Physics/Trigger.h"
+#include "Physics/Collider.h"
 #include "Scene/Entity.h"
 
 class PhysicsManager
@@ -17,12 +17,11 @@ public:
     static void Shutdown();
 
     static void SubmitEntity(Entity entity);
+    static void RemoveEntity(Entity entity);
     static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
-    static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent&);
-    // TODO remove generic collision object
-    static void RemoveEntity(btRigidBody* rigidBody);
-    static void ClearLists();
+    static std::vector<entt::entity> UpdateTrigger(SharedPtr<Collider>& trigger, const TransformComponent&);
 
+    static void ClearLists();
     static void DebugDraw();
 
     // TODO Move to general picking or maybe make my own

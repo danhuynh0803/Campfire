@@ -234,6 +234,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
     // Trigger
     // TODO remove
+    /*
     if (entity.HasComponent<TriggerComponent>())
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -282,6 +283,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         }
         ImGui::Separator();
     }
+    */
 
 
     // Rigidbody

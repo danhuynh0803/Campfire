@@ -198,9 +198,7 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnStop();
         activeScene = editorScene;
 
-        // TODO Hacky way of just refreshing the colliders
-        // so that raycasting works with the original positions
-        // of the objects, instead of their runtime positions
+        // Refresh bullet colliders back to their original positions
         PhysicsManager::ClearLists();
         auto entityMap = activeScene->GetEntityMap();
         for (auto entityPair : entityMap)
@@ -494,18 +492,11 @@ void EditorLayer::OnImGuiRender()
 
             if (state == State::STOP)
             {
-                if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+                //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<Colliders>())
                 {
-                    SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
-                    //auto transformComp = entity.GetComponent<TransformComponent>();
-                    //rb->SetTransform(transformComp);
-
-                    PhysicsManager::RemoveEntity(rb->GetBulletRigidbody());
+                    PhysicsManager::RemoveEntity(entity);
                     PhysicsManager::SubmitEntity(entity);
                 }
-                //PhysicsManager::ClearLists();
-                //PhysicsManager::SubmitEntity(entity);
-                //PhysicsManager::DebugDraw();
             }
         }
     }

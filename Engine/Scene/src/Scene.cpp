@@ -52,10 +52,12 @@ void Scene::Init()
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         player.AddComponent<ScriptComponent>().Bind<LuaScript>();
-        //player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
+        player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+        player.AddComponent<Colliders>();
+        player.GetComponent<Colliders>().colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
         //player.AddComponent<TriggerComponent>();
         //player.AddComponent<AudioComponent>();
         //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
@@ -86,6 +88,8 @@ void Scene::Init()
         cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
         cube.AddComponent<RigidbodyComponent>();
         cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
+        cube.AddComponent<Colliders>();
+        cube.GetComponent<Colliders>().colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
     {
@@ -96,6 +100,8 @@ void Scene::Init()
         floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
         floor.AddComponent<RigidbodyComponent>();
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
+        floor.AddComponent<Colliders>();
+        floor.GetComponent<Colliders>().colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material1 = floor.GetComponent<MeshComponent>().material;
     }
@@ -176,7 +182,7 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
         CopyComponent<Colliders>(registry, other->registry, enttMap);
-        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
+        //CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
         CopyComponent<ScriptComponent>(registry, other->registry, enttMap);
@@ -261,67 +267,74 @@ void Scene::OnUpdate(float dt)
         }
     }
 
-    {
-    }
-
     // Update triggers
-    std::vector<entt::entity> overlappingEntities;
+    //std::vector<entt::entity> overlappingEntities;
     {
         ZoneScopedN("UpdateTriggers");
-        auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
-        for (auto entity : triggerGroup)
+        auto colliderGroup = registry.group<Colliders>(entt::get<TransformComponent>);
+        for (auto entity : colliderGroup)
         {
-            auto [transformComponent, triggerComponent] = triggerGroup.get<TransformComponent, TriggerComponent>(entity);
-
-            overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
+            //auto [transformComponent, triggerComponent] = colliderGroup.get<TransformComponent, TriggerComponent>(entity);
+            auto [transformComponent, collidersComp] = colliderGroup.get<TransformComponent, Colliders>(entity);
+            for (auto collider : collidersComp.colliders)
+            {
+                if (collider->isTrigger) {
+                    PhysicsManager::UpdateTrigger(collider, transformComponent);
+                }
+            }
         }
     }
 
     // Lua script update
+    ZoneScopedN("LuaUpdateScripts");
+    registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
     {
-        ZoneScopedN("LuaUpdateScripts");
-        registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
+        // FIXME crash when script path is empty
+        sc.instance->Update(dt);
+
+        Entity thisEntity = sc.instance->entity;
+        if (thisEntity.HasComponent<Colliders>())
         {
-            if (sc.instance)
+            auto colliders = thisEntity.GetComponent<Colliders>().colliders;
+            for (auto collider : colliders)
             {
-                sc.instance->Update(dt);
+                // Skip if not collider, no need to check overlap
+                if (!collider->isTrigger) { continue; }
 
-                Entity thisEntity = sc.instance->entity;
-                if (thisEntity.HasComponent<TriggerComponent>())
+                for (auto enterEntity : collider->overlapEnterList)
                 {
-                    SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
-                    for (auto enterEntity : trigger->overlapEnterList)
+                    Entity other(enterEntity, this);
+                    // Don't have the trigger apply on ourselves
+                    // since the trigger and rb will always be colliding
+                    if (enterEntity != sc.instance->entity)
                     {
-                        Entity other(enterEntity, this);
-                        // Don't have the trigger apply on ourselves
-                        // since the trigger and rb will always be colliding
-                        if (enterEntity != sc.instance->entity)
-                        {
-                            sc.instance->OnTriggerEnter(other);
-                        }
+                        LOG_INFO("Enter: {0}", other.GetComponent<TagComponent>().tag);
+                        sc.instance->OnTriggerEnter(other);
                     }
+                }
 
-                    for (auto stayEntity : overlappingEntities)
+                for (auto stayEntity : collider->overlapStayList)
+                {
+                    Entity other(stayEntity, this);
+                    if (stayEntity != sc.instance->entity)
                     {
-                        Entity other(stayEntity, this);
-                        if (stayEntity != sc.instance->entity)
-                        {
-                            sc.instance->OnTriggerStay(other);
-                        }
+                        LOG_INFO("Stay: {0}", other.GetComponent<TagComponent>().tag);
+                        sc.instance->OnTriggerStay(other);
                     }
+                }
 
-                    for (auto exitEntity : trigger->overlapExitList)
+                for (auto exitEntity : collider->overlapExitList)
+                {
+                    Entity other(exitEntity, this);
+                    if (exitEntity != sc.instance->entity)
                     {
-                        Entity other(exitEntity, this);
-                        if (exitEntity != sc.instance->entity)
-                        {
-                            sc.instance->OnTriggerExit(other);
-                        }
+                        LOG_INFO("Exit: {0}", other.GetComponent<TagComponent>().tag);
+                        sc.instance->OnTriggerExit(other);
                     }
                 }
             }
-        });
-    }
+        }
+    });
 
     // Update with Native C++ scripts
     //{
