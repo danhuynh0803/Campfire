@@ -54,8 +54,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
             else
             {
                 hasRbCollider = true;
-                SharedPtr<Rigidbody> rigidbody = CreateSharedPtr<Rigidbody>();
-
+                SharedPtr<Rigidbody> rigidbody;
                 if (entity.HasComponent<RigidbodyComponent>())
                 {
                     auto rbComponent = entity.GetComponent<RigidbodyComponent>();
@@ -65,6 +64,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
                 {
                     // If there is no rigidbody component then the collider
                     // should act statically and not have physics applied to it
+                    rigidbody = CreateSharedPtr<Rigidbody>();
                     rigidbody->type = Rigidbody::BodyType::STATIC;
                 }
 
@@ -83,6 +83,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
                 entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
                 dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
+                collider->rigidbodyObject = rigidbody->GetBulletRigidbody();
 
                 // NOTE: this needs to be set after its added to dynamics world
                 if (!rigidbody->useGravity)
@@ -117,7 +118,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
 
 void PhysicsManager::RemoveEntity(Entity entity)
 {
-    if (entity.HasComponent<RigidbodyComponent>())
+    if (entity.HasComponent<RigidbodyComponent>() && !entity.HasComponent<Colliders>())
     {
         SharedPtr<Rigidbody> rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
 
@@ -140,12 +141,29 @@ void PhysicsManager::RemoveEntity(Entity entity)
         auto& colliders = entity.GetComponent<Colliders>().colliders;
         for (auto& collider : colliders)
         {
-            btCollisionObject* obj = collider->GetBulletGhostObject();
-            if (obj)
+            if (!collider->isTrigger)
             {
-                dynamicsWorld->removeCollisionObject(obj);
-                delete obj;
-                collider->ghostObject = nullptr;
+                btRigidBody* btRB = collider->rigidbodyObject;
+                if (btRB)
+                {
+                    if (btRB->getMotionState())
+                        delete btRB->getMotionState();
+
+                    delete btRB->getCollisionShape();
+                    dynamicsWorld->removeRigidBody(btRB);
+                    delete btRB;
+                    collider->rigidbodyObject = nullptr;
+                }
+            }
+            else
+            {
+                btCollisionObject* obj = collider->GetBulletGhostObject();
+                if (obj)
+                {
+                    dynamicsWorld->removeCollisionObject(obj);
+                    delete obj;
+                    collider->ghostObject = nullptr;
+                }
             }
         }
     }
