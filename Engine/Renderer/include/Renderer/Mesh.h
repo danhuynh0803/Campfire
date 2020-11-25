@@ -13,7 +13,7 @@
 #include "Renderer/Buffer.h"
 #include "Renderer/VertexArray.h"
 #include "Core/Base.h"
-#include "util/AABB.h"
+#include "Util/AABB.h"
 
 struct Vertex
 {
@@ -79,7 +79,7 @@ public:
     static SharedPtr<Mesh> Create(const std::string& filename);
 
     //SharedPtr<VertexArray> GetVertexArray() { return vertexArray; }
-    std::vector<Submesh> GetSubmeshes() { return submeshes; }
+    std::vector<Submesh>& GetSubmeshes() { return submeshes; }
 
     std::string GetFilePath() { return filepath; }
     std::string GetName() const { return name; }

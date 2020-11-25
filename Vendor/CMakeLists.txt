@@ -84,7 +84,7 @@ target_include_directories(entt INTERFACE "entt/include/")
 
 # fmod
 add_subdirectory(fmod)
-set_target_properties(fmod PROPERTIES FOLDER "Vendor")
+set_target_properties(fmodLib PROPERTIES FOLDER "Vendor")
 
 # freetype
 add_subdirectory(freetype)

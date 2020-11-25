@@ -1,23 +1,23 @@
 file(WRITE null.cpp "")
-add_library(fmod null.cpp)
+add_library(fmodLib null.cpp)
 
 if(MSVC)
     target_link_libraries(
-        fmod
+        fmodLib
         PRIVATE
             fmod_vc
             fmodstudio_vc
     )
 
     target_include_directories(
-        fmod
+        fmodLib
         PUBLIC
             "Windows/core/inc"
             "Windows/studio/inc"
     )
 
     target_link_directories(
-        fmod
+        fmodLib
         PUBLIC
             "Windows/core/lib/"
             "Windows/studio/lib/"
@@ -31,6 +31,24 @@ if(MSVC)
 #    )
 
 else()
-    #    target_link_libraries(Engine PRIVATE fmod fmodstudio)
-    #    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DIR}/Linux/core/lib/x86_64/libfmod.so ${FMOD_DIR}/Linux/studio/lib/x86_64/libfmodstudio.so ${CMAKE_BINARY_DIR}/lib)
+    target_link_libraries(
+        fmodLib
+        PRIVATE
+            fmod
+            fmodstudio
+    )
+
+    target_include_directories(
+        fmodLib
+        PUBLIC
+            "Linux/core/inc"
+            "Linux/studio/inc"
+    )
+
+    target_link_directories(
+        fmodLib
+        PUBLIC
+            "Linux/core/lib/"
+            "Linux/studio/lib/"
+    )
 endif()

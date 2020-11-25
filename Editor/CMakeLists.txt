@@ -65,4 +65,21 @@ if(MSVC)
                 ${FT_DIR}/win64/freetype.dll
             ${CMAKE_CURRENT_BINARY_DIR}
     )
+else()
+    add_custom_command(
+        TARGET Editor
+        POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy
+                ${FMOD_DIR}/Linux/core/lib/x86_64/libfmod.so
+                ${FMOD_DIR}/Linux/studio/lib/x86_64/libfmodstudio.so
+            ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+#    add_custom_command(
+#        TARGET Editor
+#        POST_BUILD COMMAND
+#            ${CMAKE_COMMAND} -E copy
+#                ${FT_DIR}/win64/freetype.dll
+#            ${CMAKE_CURRENT_BINARY_DIR}
+#    )
 endif()

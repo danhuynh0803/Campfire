@@ -4,12 +4,12 @@
 #include "Core/Window.h"
 #include "Renderer/GraphicsContext.h"
 
-// Window for Windows platform
-class WindowsWindow : public Window
+// Window for Linux platform
+class LinuxWindow : public Window
 {
 public:
-    WindowsWindow(const WindowProps& props);
-    virtual ~WindowsWindow();
+    LinuxWindow(const WindowProps& props);
+    virtual ~LinuxWindow();
 
     void OnUpdate() override;
 

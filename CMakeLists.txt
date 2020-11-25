@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.13)
 
 # Set all libs to be static
 option(BUILD_SHARED_LIBS OFF)
@@ -17,9 +17,9 @@ if(MSVC)
 endif()
 
 project(Campfire
-    VERSION 0.1
-    DESCRIPTION "Game Engine"
-    LANGUAGES CXX
+    #    VERSION 0.1
+    #    DESCRIPTION "Game Engine"
+    #    LANGUAGES CXX
 )
 
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
@@ -30,5 +30,5 @@ endif()
 add_subdirectory(Engine)
 add_subdirectory(Vendor)
 add_subdirectory(Editor)
-add_subdirectory(Game)
+#add_subdirectory(Game)
 #add_subdirectory(VulkanApp)

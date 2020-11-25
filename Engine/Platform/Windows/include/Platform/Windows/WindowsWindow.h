@@ -1,17 +1,15 @@
-#ifndef LINUX_WINDOW_H
-#define LINUX_WINDOW_H
+#pragma once
 
+#include <GLFW/glfw3.h>
 #include "Core/Window.h"
 #include "Renderer/GraphicsContext.h"
 
-#include <GLFW/glfw3.h>
-
-// Window for Linux platform
-class LinuxWindow : public Window
+// Window for Windows platform
+class WindowsWindow : public Window
 {
 public:
-    LinuxWindow(const WindowProps& props);
-    virtual ~LinuxWindow();
+    WindowsWindow(const WindowProps& props);
+    virtual ~WindowsWindow();
 
     void OnUpdate() override;
 
@@ -33,7 +31,7 @@ private:
 
 private:
     GLFWwindow* window;
-    std::unique_ptr<GraphicsContext> context;
+    SharedPtr<GraphicsContext> context;
 
     struct WindowData
     {
@@ -46,5 +44,3 @@ private:
 
     WindowData data;
 };
-
-#endif // LINUX_WINDOW_H

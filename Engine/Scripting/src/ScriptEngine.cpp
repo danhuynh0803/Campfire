@@ -27,7 +27,10 @@ void ScriptEngine::Init()
     ArenaAllocator pool(memory, &memory[POOL_SIZE - 1]);
     L = lua_newstate(ArenaAllocator::l_alloc, &pool);
     //might need to swap to luaL_newstate if we are going to use LuaJIT
-    L ? Register() : printf("Error: Fail to initialize Lua stack\n");
+    if (L)
+        Register();
+    else
+        printf("Error: Failed to initialize Lua stack\n");
 }
 
 void ScriptEngine::Register()

@@ -51,7 +51,7 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        player.AddComponent<ScriptComponent>().Bind<LuaScript>();
+        player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
         player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
@@ -223,7 +223,7 @@ void Scene::OnStart()
         {
             if (!sc.instance)
             {
-                sc.Bind<LuaScript>();
+                sc.template Bind<LuaScript>();
                 sc.instance = sc.InstantiateScript();
                 sc.instance->entity = Entity(entity, this);
                 sc.instance->filepath = sc.filepath;

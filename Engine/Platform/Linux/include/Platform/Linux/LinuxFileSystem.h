@@ -1,5 +1,4 @@
-#ifndef LINUX_FILE_SYSTEM_H
-#define LINUX_FILE_SYSTEM_H
+#pragma once
 
 #include <string>
 
@@ -9,8 +8,5 @@ public:
     static std::string OpenFile(const char* filter);
     static std::string SaveFile(const char* filter);
     static bool MoveFiles(const char*, const char*);
-    static bool DeleteFiles(const char*, const char*);
+    static bool DeleteFiles(const char*);
 };
-
-
-#endif // LINUX_FILE_SYSTEM_H

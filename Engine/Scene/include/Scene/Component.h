@@ -314,7 +314,7 @@ struct NativeScriptComponent
     template <typename T>
     void Bind()
     {
-        InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
+        InstantiateScript = []() { return static_cast<ScriptableEntity*>( new T()); };
         DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->instance; nsc->instance = nullptr; };
     }
 

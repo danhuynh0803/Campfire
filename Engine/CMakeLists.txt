@@ -25,7 +25,7 @@ target_link_libraries(
     PUBLIC
         assimp
         freetype2
-        fmod
+        fmodLib
         glm
         entt
         imgui
@@ -73,4 +73,4 @@ add_subdirectory(Platform)
 add_subdirectory(Renderer)
 add_subdirectory(Scene)
 add_subdirectory(Scripting)
-add_subdirectory(util)
+add_subdirectory(Util)

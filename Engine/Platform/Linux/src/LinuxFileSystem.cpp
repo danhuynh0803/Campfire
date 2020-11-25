@@ -46,7 +46,7 @@ std::string LinuxFileSystem::SaveFile(const char* filter)
     return "";
 }
 
-bool LinuxFileSystem::MoveFile(const char* source, const char* target)
+bool LinuxFileSystem::MoveFiles(const char* source, const char* target)
 {
     errno = 0;
     if (rename(source, target) < 0)
