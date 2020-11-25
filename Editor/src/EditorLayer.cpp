@@ -277,46 +277,45 @@ void EditorLayer::OnUpdate(float dt)
 
         if (showBoundingBoxes)
         {
-            //PhysicsManager::DebugDraw();
+            PhysicsManager::DebugDraw();
 
             // TODO move this elsewhere later
             // Draw AABB of submeshes
-            glm::vec3 color(1.0f);
+            //glm::vec3 color(1.0f);
 
-            auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
-            for (auto e : meshGroup)
-            {
-                Entity entity { e, activeScene.get() };
-                auto mesh = entity.GetComponent<MeshComponent>().mesh;
-                // Skip if no mesh exists
-                if (!mesh) { continue; }
+            //auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
+            //for (auto e : meshGroup)
+            //{
+            //    Entity entity { e, activeScene.get() };
+            //    auto mesh = entity.GetComponent<MeshComponent>().mesh;
+            //    // Skip if no mesh exists
+            //    if (!mesh) { continue; }
 
-                auto& submeshes = mesh->GetSubmeshes();
-                for (auto submesh : submeshes)
-                {
-                    // Need to apply transform to get the correct position of the BB
-                    glm::vec4 min = glm::vec4(submesh.boundingBox.mMin, 1.0f);
-                    glm::vec4 max = glm::vec4(submesh.boundingBox.mMax, 1.0f);
+            //    auto& submeshes = mesh->GetSubmeshes();
+            //    for (auto submesh : submeshes)
+            //    {
+            //        // Need to apply transform to get the correct position of the BB
+            //        glm::vec4 min = glm::vec4(submesh.boundingBox.mMin, 1.0f);
+            //        glm::vec4 max = glm::vec4(submesh.boundingBox.mMax, 1.0f);
 
-                    GLfloat vertices[] =
-                    {
-                        min.x, max.y, min.z, color.r, color.g, color.b,
-                        min.x, min.y, min.z, color.r, color.g, color.b,
-                        max.x, min.y, min.z, color.r, color.g, color.b,
-                        max.x, max.y, min.z, color.r, color.g, color.b,
+            //        GLfloat vertices[] =
+            //        {
+            //            min.x, max.y, min.z, color.r, color.g, color.b,
+            //            min.x, min.y, min.z, color.r, color.g, color.b,
+            //            max.x, min.y, min.z, color.r, color.g, color.b,
+            //            max.x, max.y, min.z, color.r, color.g, color.b,
 
-                        min.x, max.y, max.z, color.r, color.g, color.b,
-                        min.x, min.y, max.z, color.r, color.g, color.b,
-                        max.x, min.y, max.z, color.r, color.g, color.b,
-                        max.x, max.y, max.z, color.r, color.g, color.b
-                    };
+            //            min.x, max.y, max.z, color.r, color.g, color.b,
+            //            min.x, min.y, max.z, color.r, color.g, color.b,
+            //            max.x, min.y, max.z, color.r, color.g, color.b,
+            //            max.x, max.y, max.z, color.r, color.g, color.b
+            //        };
 
-                    VBO->SetData(vertices, sizeof(vertices));
+            //        VBO->SetData(vertices, sizeof(vertices));
 
-                    Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
-                }
-            }
-
+            //        Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
+            //    }
+            //}
         }
 
         // Draw camera frustum

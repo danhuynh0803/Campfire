@@ -33,6 +33,29 @@ void PhysicsManager::Init()
 void PhysicsManager::SubmitEntity(Entity entity)
 {
     auto transformComponent = entity.GetComponent<TransformComponent>();
+
+    btCompoundShape* rigidShape = new btCompoundShape();
+    btCompoundShape* triggerShape = new btCompoundShape();
+    if (entity.HasComponent<Colliders>())
+    {
+        auto colliders = entity.GetComponent<Colliders>().colliders;
+        for (auto collider : colliders)
+        {
+            collider->UpdateShape(transformComponent.scale);
+            btTransform transform;
+            transform.setIdentity();
+            transform.setOrigin(GlmToBtVec(collider->center));
+            if (collider->isTrigger)
+            {
+                triggerShape->addChildShape(transform, collider->shape);
+            }
+            else
+            {
+                rigidShape->addChildShape(transform, collider->shape);
+            }
+        }
+    }
+
     if (entity.HasComponent<RigidbodyComponent>())
     {
         auto rbComponent = entity.GetComponent<RigidbodyComponent>();
@@ -40,7 +63,8 @@ void PhysicsManager::SubmitEntity(Entity entity)
         rigidbody->Construct(
             transformComponent.position,
             transformComponent.euler,
-            transformComponent.scale
+            transformComponent.scale,
+            rigidShape
         );
 
         // Match entt handle with rigidbody for referencing overlapping objects with triggers
@@ -61,7 +85,12 @@ void PhysicsManager::SubmitEntity(Entity entity)
     if (entity.HasComponent<TriggerComponent>())
     {
         auto triggerComp = entity.GetComponent<TriggerComponent>();
-        triggerComp.trigger->Construct(transformComponent.position, transformComponent.euler, transformComponent.scale);
+        triggerComp.trigger->Construct(
+            transformComponent.position,
+            transformComponent.euler,
+            transformComponent.scale,
+            triggerShape
+        );
         dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
         //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
         dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());

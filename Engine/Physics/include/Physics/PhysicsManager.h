@@ -9,6 +9,16 @@
 #include "Physics/Trigger.h"
 #include "Scene/Entity.h"
 
+static btVector3 GlmToBtVec(glm::vec3 v)
+{
+    return btVector3(v.x, v.y, v.z);
+}
+
+static glm::vec3 btVecToGlm(btVector3 v)
+{
+    return glm::vec3(v.getX(), v.getY(), v.getZ());
+}
+
 class PhysicsManager
 {
 public:

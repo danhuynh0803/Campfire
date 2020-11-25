@@ -11,6 +11,7 @@ class Rigidbody
 {
 public:
     void Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale);
+    void Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, btCollisionShape* shape);
 
     btRigidBody* GetBulletRigidbody();
     void SetVelocity(glm::vec3 newVelocity);

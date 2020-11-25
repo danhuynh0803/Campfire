@@ -56,6 +56,8 @@ void Scene::Init()
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
+        auto& colliders = player.GetComponent<Colliders>().colliders;
+        colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
         //player.AddComponent<TriggerComponent>();
         //player.AddComponent<AudioComponent>();
         //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
@@ -86,6 +88,8 @@ void Scene::Init()
         cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
         cube.AddComponent<RigidbodyComponent>();
         cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
+        auto& colliders = cube.GetComponent<Colliders>().colliders;
+        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
     {
@@ -98,6 +102,8 @@ void Scene::Init()
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material1 = floor.GetComponent<MeshComponent>().material;
+        auto& colliders = floor.GetComponent<Colliders>().colliders;
+        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
     //auto snow = CreateEntity("Snow");
@@ -175,6 +181,8 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
+        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
+        CopyComponent<Colliders>(registry, other->registry, enttMap);
         CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
@@ -517,6 +525,7 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEnti
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
+    entity.AddComponent<Colliders>();
 
     if (isRootEntity)
     {
@@ -539,6 +548,7 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
+    entity.AddComponent<Colliders>();
 
     if (isRootEntity)
     {
@@ -563,6 +573,7 @@ Entity Scene::DuplicateEntity(Entity entity)
     CopyComponentIfExists<SpriteComponent>(newEntity, entity, registry);
     CopyComponentIfExists<LightComponent>(newEntity, entity, registry);
     CopyComponentIfExists<RigidbodyComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<Colliders>(newEntity, entity, registry);
     CopyComponentIfExists<TriggerComponent>(newEntity, entity, registry);
     CopyComponentIfExists<CameraComponent>(newEntity, entity, registry);
     CopyComponentIfExists<ParticleSystemComponent>(newEntity, entity, registry);

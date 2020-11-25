@@ -10,6 +10,7 @@ class Trigger
 {
 public:
     void Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale);
+    void Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, btCollisionShape* shape);
 
     btGhostObject* GetBulletGhostObject() { return ghostObject; }
     SharedPtr<Collider> collider = Collider::Create(Collider::Shape::BOX);

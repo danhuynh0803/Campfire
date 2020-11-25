@@ -4,17 +4,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-static btVector3 GlmToBtVec(glm::vec3 v)
-{
-    return btVector3(v.x, v.y, v.z);
-}
-
-static glm::vec3 btVecToGlm(btVector3 v)
-{
-    return glm::vec3(v.getX(), v.getY(), v.getZ());
-}
-
-
 void Rigidbody::SetTransform(const TransformComponent& transformComp)
 {
     btTransform transform;
@@ -39,6 +28,71 @@ void Rigidbody::SetTransform(const TransformComponent& transformComp)
     bulletRigidbody->setWorldTransform(transform);
     bulletRigidbody->getMotionState()->setWorldTransform(transform);
     bulletRigidbody->setCenterOfMassTransform(transform);
+}
+
+void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, btCollisionShape* shape)
+{
+    btTransform transform;
+    transform.setIdentity();
+    glm::vec3 colliderPos = pos + collider->center;
+    transform.setOrigin(GlmToBtVec(colliderPos));
+
+    glm::quat rotation = glm::quat(
+            glm::vec3(
+                glm::radians(euler.x),
+                glm::radians(euler.y),
+                glm::radians(euler.z)
+            )
+        );
+
+    btQuaternion quat(rotation.x, rotation.y, rotation.z, rotation.w);
+    transform.setRotation(quat);
+
+    btVector3 localInertia(angularDrag, angularDrag, angularDrag);
+
+    if (!shape)
+    {
+        shape = new btBoxShape(btVector3(0, 0, 0));
+    }
+    shape->calculateLocalInertia(mass, localInertia);
+
+    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
+    bulletRigidbody = new btRigidBody(rbInfo);
+
+    bulletRigidbody->setLinearFactor(
+        btVector3(
+            static_cast<int>(freezePosition[0]) ^ 1,
+            static_cast<int>(freezePosition[1]) ^ 1,
+            static_cast<int>(freezePosition[2]) ^ 1
+        )
+    );
+
+    bulletRigidbody->setAngularFactor(
+        btVector3(
+            static_cast<int>(freezeRotation[0]) ^ 1,
+            static_cast<int>(freezeRotation[1]) ^ 1,
+            static_cast<int>(freezeRotation[2]) ^ 1
+        )
+    );
+
+    switch (type)
+    {
+        case (BodyType::STATIC):
+        {
+            bulletRigidbody->setMassProps(0, btVector3(0, 0, 0));
+            break;
+        }
+        case (BodyType::KINEMATIC):
+        {
+            bulletRigidbody->setActivationState(DISABLE_DEACTIVATION);
+            break;
+        }
+        case (BodyType::DYNAMIC):
+        {
+            break;
+        }
+    }
 }
 
 void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale)
