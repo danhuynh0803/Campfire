@@ -494,13 +494,13 @@ void EditorLayer::OnImGuiRender()
 
             if (state == State::STOP)
             {
-                if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+                //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
                 {
-                    SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
+                    //SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
                     //auto transformComp = entity.GetComponent<TransformComponent>();
                     //rb->SetTransform(transformComp);
 
-                    PhysicsManager::RemoveEntity(rb->GetBulletRigidbody());
+                    PhysicsManager::RemoveEntity(entity);
                     PhysicsManager::SubmitEntity(entity);
                 }
                 //PhysicsManager::ClearLists();

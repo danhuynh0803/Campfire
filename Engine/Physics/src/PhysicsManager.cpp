@@ -82,8 +82,12 @@ void PhysicsManager::SubmitEntity(Entity entity)
         }
     }
 
-    if (entity.HasComponent<TriggerComponent>())
+    if (triggerShape->getNumChildShapes() > 0)
     {
+        if (!entity.HasComponent<TriggerComponent>())
+        {
+            entity.AddComponent<TriggerComponent>();
+        }
         auto triggerComp = entity.GetComponent<TriggerComponent>();
         triggerComp.trigger->Construct(
             transformComponent.position,
@@ -102,16 +106,33 @@ void PhysicsManager::SubmitEntity(Entity entity)
 }
 
 // TODO submit entity instead of just the btRB
-void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
+//void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
+void PhysicsManager::RemoveEntity(Entity entity)
 {
     // TODO should also remove the triggerbody and rigidbody
-    if (rigidBody)
+    if (entity.HasComponent<RigidbodyComponent>())
     {
-        delete rigidBody->getMotionState();
-        delete rigidBody->getCollisionShape();
-        dynamicsWorld->removeRigidBody(rigidBody);
-        delete rigidBody;
+        btRigidBody* btRB = entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody();
+        if (btRB)
+        {
+            delete btRB->getMotionState();
+            delete btRB->getCollisionShape();
+            dynamicsWorld->removeRigidBody(btRB);
+            delete btRB;
+        }
     }
+
+    if (entity.HasComponent<TriggerComponent>())
+    {
+        btCollisionObject* btObj = entity.GetComponent<TriggerComponent>().trigger->GetBulletGhostObject();
+        if (btObj)
+        {
+            dynamicsWorld->removeCollisionObject(btObj);
+            delete btObj;
+        }
+    }
+
+
 }
 
 std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent& transformComp)

@@ -30,7 +30,7 @@ public:
     static void UpdateEntity(SharedPtr<Rigidbody>&, TransformComponent&);
     static std::vector<entt::entity> UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent&);
     // TODO remove generic collision object
-    static void RemoveEntity(btRigidBody* rigidBody);
+    static void RemoveEntity(Entity entity);
     static void ClearLists();
 
     static void DebugDraw();
