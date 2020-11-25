@@ -224,7 +224,11 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
 
     // Position needs to be offset by the collider center
     // or the mesh will always move to where the collider is centered to
-    transComp.position = translation - rb->collider->center;
+    glm::vec3 colliderCenter(0.0f);
+    if (rb->collider) {
+        rb->collider->center;
+    }
+    transComp.position = translation - colliderCenter;
     transComp.rotation = orientation;
     transComp.euler = glm::degrees(glm::eulerAngles(orientation));
     // NOTE: Scale isn't updated since the rb transform doesn't get initialized with that info
