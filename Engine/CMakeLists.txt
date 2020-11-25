@@ -24,7 +24,7 @@ target_link_libraries(
     Engine
     PUBLIC
         assimp
-        freetype2
+        freetype
         fmodLib
         glm
         entt

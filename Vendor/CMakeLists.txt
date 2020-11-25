@@ -87,8 +87,8 @@ add_subdirectory(fmod)
 set_target_properties(fmodLib PROPERTIES FOLDER "Vendor")
 
 # freetype
-add_subdirectory(freetype)
-set_target_properties(freetype2 PROPERTIES FOLDER "Vendor")
+add_subdirectory(freetype-2.10.4)
+set_target_properties(freetype PROPERTIES FOLDER "Vendor")
 
 # LUA
 add_subdirectory(lua-5.4.0)
