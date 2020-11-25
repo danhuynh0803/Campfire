@@ -33,87 +33,42 @@ void PhysicsManager::Init()
 void PhysicsManager::SubmitEntity(Entity entity)
 {
     auto transformComponent = entity.GetComponent<TransformComponent>();
-
-    int numColliders = 0;
-    if (entity.HasComponent<Colliders>())
+    if (entity.HasComponent<RigidbodyComponent>())
     {
-        numColliders = entity.GetComponent<Colliders>().colliders.size();
-    }
+        auto rbComponent = entity.GetComponent<RigidbodyComponent>();
+        SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
+        rigidbody->Construct(
+            transformComponent.position,
+            transformComponent.euler,
+            transformComponent.scale
+        );
 
-    if (entity.HasComponent<RigidbodyComponent>() && numColliders <= 0)
-    {
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.euler, transformComponent.scale);
+        // Match entt handle with rigidbody for referencing overlapping objects with triggers
+        // TODO downcast to collision object
+        uint64_t handle = entity.GetComponent<IDComponent>();
+        rigidbody->GetBulletRigidbody()->setUserPointer((void*)handle);
+        entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
 
+        // NOTE: this needs to be set after its added to dynamics world
         if (!rigidbody->useGravity)
         {
             rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
         }
-        // Disable collisions since no collider is attached
-        rigidbody->GetBulletRigidbody()->setCollisionFlags(rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
-    else if (numColliders > 0)
+
+    if (entity.HasComponent<TriggerComponent>())
     {
-        auto colliders = entity.GetComponent<Colliders>().colliders;
-        for (auto collider : colliders)
-        {
-            // Create btGhostObject for triggers
-            if (collider->isTrigger)
-            {
-                //if (entity.HasComponent<TriggerComponent>())
-                //{
-                //    auto triggerComp = entity.GetComponent<TriggerComponent>();
-                //    triggerComp.trigger->Construct(transformComponent.position, transformComponent.euler, transformComponent.scale);
-                //    dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
-                //    //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
-                //    dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+        auto triggerComp = entity.GetComponent<TriggerComponent>();
+        triggerComp.trigger->Construct(transformComponent.position, transformComponent.euler, transformComponent.scale);
+        dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
+        //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
+        dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-                //    triggerComp.trigger->overlapEnterList.clear();
-                //    triggerComp.trigger->overlapExitList.clear();
-                //    triggerComp.trigger->prevList.clear();
-                //}
-            }
-            else
-            {
-                SharedPtr<Rigidbody> rigidbody = CreateSharedPtr<Rigidbody>();
-
-                if (entity.HasComponent<RigidbodyComponent>())
-                {
-                    auto rbComponent = entity.GetComponent<RigidbodyComponent>();
-                    rigidbody = rbComponent.rigidbody;
-                }
-                else
-                {
-                    // If there is no rigidbody component then the collider
-                    // should act statically and not have physics applied to it
-                    rigidbody->type = Rigidbody::BodyType::STATIC;
-                }
-
-                rigidbody->collider = collider;
-                rigidbody->Construct(
-                        transformComponent.position,
-                        transformComponent.euler,
-                        transformComponent.scale
-                        );
-
-                // Match entt handle with rigidbody for referencing overlapping
-                // objects with triggers
-                // TODO downcast to collision object
-                uint64_t handle = entity.GetComponent<IDComponent>();
-                rigidbody->GetBulletRigidbody()->setUserPointer((void*)handle);
-                entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
-
-                dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-
-                // NOTE: this needs to be set after its added to dynamics world
-                if (!rigidbody->useGravity)
-                {
-                    rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-                }
-            }
-        }
+        triggerComp.trigger->overlapEnterList.clear();
+        triggerComp.trigger->overlapExitList.clear();
+        triggerComp.trigger->prevList.clear();
     }
 }
 
@@ -224,11 +179,7 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
 
     // Position needs to be offset by the collider center
     // or the mesh will always move to where the collider is centered to
-    glm::vec3 colliderCenter(0.0f);
-    if (rb->collider) {
-        rb->collider->center;
-    }
-    transComp.position = translation - colliderCenter;
+    transComp.position = translation - rb->collider->center;
     transComp.rotation = orientation;
     transComp.euler = glm::degrees(glm::eulerAngles(orientation));
     // NOTE: Scale isn't updated since the rb transform doesn't get initialized with that info

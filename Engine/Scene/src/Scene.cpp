@@ -18,12 +18,12 @@
 
 #include <Tracy.hpp>
 
-Scene::Scene(bool isDefaultScene)
+Scene::Scene(bool isNewScene)
 {
     SceneRenderer::Init();
     // Default objects within each new scene
     // if not loading object via scene file
-    if (isDefaultScene) { Init(); }
+    if (isNewScene) { Init(); }
 }
 
 void Scene::Init()
@@ -37,7 +37,7 @@ void Scene::Init()
     //auto mainCamera = CreateEntity("Camera", false); // false for not setting it as a root object in entityMap
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
-    //mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
+    mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/test.wav";
     mainCamera.GetComponent<AudioComponent>().audioSource->playOnAwake = true;
@@ -52,7 +52,7 @@ void Scene::Init()
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         player.AddComponent<ScriptComponent>().Bind<LuaScript>();
-        //player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
+        player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
@@ -175,7 +175,6 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
-        CopyComponent<Colliders>(registry, other->registry, enttMap);
         CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
@@ -241,6 +240,12 @@ void Scene::OnStart()
 
 void Scene::OnStop()
 {
+    //PhysicsManager::ClearLists();
+    //for (auto entityPair : entityMap)
+    //{
+    //    PhysicsManager::SubmitEntity(entityPair.second);
+    //}
+
     AudioSystem::StopAllChannels();
 }
 
@@ -261,9 +266,6 @@ void Scene::OnUpdate(float dt)
         }
     }
 
-    {
-    }
-
     // Update triggers
     std::vector<entt::entity> overlappingEntities;
     {
@@ -282,41 +284,38 @@ void Scene::OnUpdate(float dt)
         ZoneScopedN("LuaUpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
-            if (sc.instance)
+            sc.instance->Update(dt);
+
+            Entity thisEntity = sc.instance->entity;
+            if (thisEntity.HasComponent<TriggerComponent>())
             {
-                sc.instance->Update(dt);
-
-                Entity thisEntity = sc.instance->entity;
-                if (thisEntity.HasComponent<TriggerComponent>())
+                SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
+                for (auto enterEntity : trigger->overlapEnterList)
                 {
-                    SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
-                    for (auto enterEntity : trigger->overlapEnterList)
+                    Entity other(enterEntity, this);
+                    // Don't have the trigger apply on ourselves
+                    // since the trigger and rb will always be colliding
+                    if (enterEntity != sc.instance->entity)
                     {
-                        Entity other(enterEntity, this);
-                        // Don't have the trigger apply on ourselves
-                        // since the trigger and rb will always be colliding
-                        if (enterEntity != sc.instance->entity)
-                        {
-                            sc.instance->OnTriggerEnter(other);
-                        }
+                        sc.instance->OnTriggerEnter(other);
                     }
+                }
 
-                    for (auto stayEntity : overlappingEntities)
+                for (auto stayEntity : overlappingEntities)
+                {
+                    Entity other(stayEntity, this);
+                    if (stayEntity != sc.instance->entity)
                     {
-                        Entity other(stayEntity, this);
-                        if (stayEntity != sc.instance->entity)
-                        {
-                            sc.instance->OnTriggerStay(other);
-                        }
+                        sc.instance->OnTriggerStay(other);
                     }
+                }
 
-                    for (auto exitEntity : trigger->overlapExitList)
+                for (auto exitEntity : trigger->overlapExitList)
+                {
+                    Entity other(exitEntity, this);
+                    if (exitEntity != sc.instance->entity)
                     {
-                        Entity other(exitEntity, this);
-                        if (exitEntity != sc.instance->entity)
-                        {
-                            sc.instance->OnTriggerExit(other);
-                        }
+                        sc.instance->OnTriggerExit(other);
                     }
                 }
             }

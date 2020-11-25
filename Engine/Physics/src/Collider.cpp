@@ -7,8 +7,6 @@ SharedPtr<Collider> Collider::Create(Collider::Shape shape)
     SharedPtr<Collider> collider = nullptr;
     switch (shape)
     {
-        default: // None case
-            collider = CreateSharedPtr<Collider>();
         case Collider::Shape::BOX:
             collider = CreateSharedPtr<BoxCollider>();
             break;
@@ -19,6 +17,7 @@ SharedPtr<Collider> Collider::Create(Collider::Shape shape)
             collider = CreateSharedPtr<CapsuleCollider>();
             break;
     }
+
     return collider;
 }
 

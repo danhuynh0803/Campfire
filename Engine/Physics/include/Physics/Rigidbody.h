@@ -34,7 +34,8 @@ public:
     bool freezePosition[3] { false, false, false };
     bool freezeRotation[3] { false, false, false };
 
-    SharedPtr<Collider> collider = Collider::Create(Collider::Shape::NONE);
+    // TODO separate collider shape from the bodies
+    SharedPtr<Collider> collider = Collider::Create(Collider::Shape::BOX);
 
 private:
     btRigidBody* bulletRigidbody;
