@@ -48,7 +48,7 @@ else()
     target_link_directories(
         fmodLib
         PUBLIC
-            "Linux/core/lib/"
-            "Linux/studio/lib/"
+            "Linux/core/lib/x86_64/"
+            "Linux/studio/lib/x86_64/"
     )
 endif()

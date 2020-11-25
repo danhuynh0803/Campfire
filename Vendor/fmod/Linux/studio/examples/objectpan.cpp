@@ -24,6 +24,7 @@ FMOD will fallback to standard 3D panning.
 int FMOD_Main()
 {
     bool isOnGround = false;
+    bool useListenerAttenuationPosition = false;
     
     void *extraDriverData = NULL;
     Common_Init(&extraDriverData);
@@ -115,6 +116,11 @@ int FMOD_Main()
             isOnGround = !isOnGround;
         }
 
+        if (Common_BtnPress(BTN_ACTION4))
+        {
+            useListenerAttenuationPosition = !useListenerAttenuationPosition;
+        }
+
         FMOD_3D_ATTRIBUTES vec = { };
         vec.forward.z = 1.0f;
         vec.up.y = 1.0f;
@@ -138,7 +144,13 @@ int FMOD_Main()
         listener_vec.forward.z = 1.0f;
         listener_vec.up.y = 1.0f;
 
-        ERRCHECK( system->setListenerAttributes(0, &listener_vec) );
+
+        FMOD_VECTOR listener_attenuationPos = vec.position;
+        listener_attenuationPos.z -= -10.0f;
+
+        ERRCHECK( system->setListenerAttributes(0, &listener_vec, useListenerAttenuationPosition ? &listener_attenuationPos : nullptr) );
+
+
         ERRCHECK( system->update() );
 
         Common_Draw("==================================================");
@@ -152,6 +164,7 @@ int FMOD_Main()
         Common_Draw("Press %s to switch stations.", Common_BtnStr(BTN_ACTION1));
         Common_Draw("Press %s to switch panning to %s.", Common_BtnStr(BTN_ACTION2), (spatializer == 0.00f) ? "Standard 3D Panner" : "Object Panner");
         Common_Draw("Press %s to elevate the event instance.", Common_BtnStr(BTN_ACTION3));
+        Common_Draw("Press %s to %s use of attenuation position.", Common_BtnStr(BTN_ACTION4), useListenerAttenuationPosition ? "disable" : "enable");
         Common_Draw("");
         Common_Draw("Press %s to quit", Common_BtnStr(BTN_QUIT));
 

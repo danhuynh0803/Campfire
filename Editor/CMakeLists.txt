@@ -66,6 +66,11 @@ if(MSVC)
             ${CMAKE_CURRENT_BINARY_DIR}
     )
 else()
+    link_directories(
+        ${FMOD_DIR}/Linux/core/lib/x86_64/
+        ${FMOD_DIR}/Linux/studio/lib/x86_64/
+    )
+
     add_custom_command(
         TARGET Editor
         POST_BUILD COMMAND
