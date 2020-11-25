@@ -234,54 +234,54 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
     // Trigger
     // TODO remove
-    if (entity.HasComponent<TriggerComponent>())
-    {
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Trigger"))
-        {
-            if (ImGui::Button("..."))
-            {
-                ImGui::OpenPopup("ComponentOptionsPopup");
-            }
+    //if (entity.HasComponent<TriggerComponent>())
+    //{
+    //    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    //    if (ImGui::TreeNode("Trigger"))
+    //    {
+    //        if (ImGui::Button("..."))
+    //        {
+    //            ImGui::OpenPopup("ComponentOptionsPopup");
+    //        }
 
-            //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    //        //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 
-            ImGui::NewLine();
+    //        ImGui::NewLine();
 
-            auto& collider = entity.GetComponent<TriggerComponent>().trigger->collider;
-            if (collider)
-            {
-                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                // Collider
-                //if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
-                if (ImGui::TreeNode("Collider Shape"))
-                {
-                    const char* colliderTypes[] = { "Box", "Sphere", "Capsule" };
-                    int currType = static_cast<int>(collider->type);
-                    ImGui::Combo("Type", &currType, colliderTypes, IM_ARRAYSIZE(colliderTypes));
-                    // Reinit the collider shape if it changes
-                    if (currType != static_cast<int>(collider->type))
-                    {
-                        collider = Collider::Create(static_cast<Collider::Shape>(currType));
-                    }
-                    ImGui::Checkbox("isTrigger", &collider->isTrigger);
-                    ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
-                    collider->ShowData();
+    //        auto& collider = entity.GetComponent<TriggerComponent>().trigger->collider;
+    //        if (collider)
+    //        {
+    //            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    //            // Collider
+    //            //if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
+    //            if (ImGui::TreeNode("Collider Shape"))
+    //            {
+    //                const char* colliderTypes[] = { "Box", "Sphere", "Capsule" };
+    //                int currType = static_cast<int>(collider->type);
+    //                ImGui::Combo("Type", &currType, colliderTypes, IM_ARRAYSIZE(colliderTypes));
+    //                // Reinit the collider shape if it changes
+    //                if (currType != static_cast<int>(collider->type))
+    //                {
+    //                    collider = Collider::Create(static_cast<Collider::Shape>(currType));
+    //                }
+    //                ImGui::Checkbox("isTrigger", &collider->isTrigger);
+    //                ImGui::DragFloat3("Center", (float*)&collider->center, 0.1f);
+    //                collider->ShowData();
 
-                    ImGui::TreePop();
-                }
-            }
+    //                ImGui::TreePop();
+    //            }
+    //        }
 
-            if (ImGui::BeginPopup("ComponentOptionsPopup"))
-            {
-                //ShowComponentOptionsMenu<ColliderComponent>(entity);
-                ImGui::EndPopup();
-            }
+    //        if (ImGui::BeginPopup("ComponentOptionsPopup"))
+    //        {
+    //            //ShowComponentOptionsMenu<ColliderComponent>(entity);
+    //            ImGui::EndPopup();
+    //        }
 
-            ImGui::TreePop();
-        }
-        ImGui::Separator();
-    }
+    //        ImGui::TreePop();
+    //    }
+    //    ImGui::Separator();
+    //}
 
 
     // Rigidbody
@@ -585,13 +585,13 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             }
         }
 
-        if (!entity.HasComponent<TriggerComponent>())
-        {
-            if (ImGui::MenuItem("Trigger"))
-            {
-                entity.AddComponent<TriggerComponent>();
-            }
-        }
+        //if (!entity.HasComponent<TriggerComponent>())
+        //{
+        //    if (ImGui::MenuItem("Trigger"))
+        //    {
+        //        entity.AddComponent<TriggerComponent>();
+        //    }
+        //}
 
         if (ImGui::BeginMenu("Colliders"))
         {
