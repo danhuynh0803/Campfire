@@ -54,7 +54,6 @@ struct Collider
     std::vector<entt::entity> overlapStayList;
 
 private:
-    btRigidBody* rigidbodyObject = nullptr;
     btGhostObject* ghostObject = nullptr;
     friend class PhysicsManager;
 };

@@ -313,7 +313,6 @@ void Scene::OnUpdate(float dt)
                     }
                 }
 
-                // TODO somehow overlapping the floor constantly
                 for (auto stayEntity : collider->overlapStayList)
                 {
                     Entity other(stayEntity, this);
