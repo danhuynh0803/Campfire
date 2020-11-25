@@ -6,7 +6,6 @@
 #include "Physics/Collider.h"
 
 class TransformComponent;
-class PhysicsManager;
 
 class Rigidbody
 {
@@ -39,7 +38,6 @@ public:
 
 private:
     btRigidBody* bulletRigidbody;
-    friend class PhysicsManager;
 };
 
 #endif // RIGIDBODY_H

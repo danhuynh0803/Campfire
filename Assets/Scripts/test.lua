@@ -19,7 +19,7 @@ function Update(dt)
     end
 
     currVel = Rigidbody:GetVelocity()
-    --Log("Velocity = (" .. currVel.x .. "," .. currVel.y .. "," .. currVel.z .. ")")
+    Log("Velocity = (" .. currVel.x .. "," .. currVel.y .. "," .. currVel.z .. ")")
 
     --print(Transform)
     local vel =
