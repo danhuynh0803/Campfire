@@ -13,7 +13,7 @@ public:
     static void FindFiles(const char*);
     static bool CopyAFile(const char*, const char*, bool);
     static bool MoveFiles(const char*, const char*);
-    static bool DeleteAFile(const char*);
+    static bool DeleteFiles(const char*);
     static void OpenInExplorer(const char*);
     static void WindowsFileSystem::RunFileDirectoryWatcher(const char*);
 };

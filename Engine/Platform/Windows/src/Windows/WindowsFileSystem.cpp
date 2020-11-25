@@ -188,7 +188,7 @@ bool WindowsFileSystem::MoveFiles(const char* source, const char* target)
     return true;
 }
 
-bool WindowsFileSystem::DeleteAFile(const char* fileName)
+bool WindowsFileSystem::DeleteFiles(const char* fileName)
 {
     if (!DeleteFileA(fileName))
     {

@@ -45,3 +45,41 @@ std::string LinuxFileSystem::SaveFile(const char* filter)
 {
     return "";
 }
+
+bool LinuxFileSystem::MoveFile(const char* source, const char* target)
+{
+    errno = 0;
+    if (rename(source, target) < 0)
+    {
+        switch (errno)
+        {
+            case EIO:
+                break;
+            case EACCES:
+                break;
+            default:
+                break;
+        }
+        return 0;
+    }
+    return 1;
+}
+
+bool LinuxFileSystem::DeleteFiles(const char* source)
+{
+    errno = 0;
+    if (remove(source) < 0)
+    {
+        switch (errno)
+        {
+        case EIO:
+            break;
+        case EACCES:
+            break;
+        default:
+            break;
+        }
+        return 0;
+    }
+    return 1;
+}
