@@ -103,6 +103,10 @@ void PhysicsManager::SubmitEntity(Entity entity)
         triggerComp.trigger->overlapExitList.clear();
         triggerComp.trigger->prevList.clear();
     }
+    else
+    {
+        entity.RemoveComponent<TriggerComponent>();
+    }
 }
 
 // TODO submit entity instead of just the btRB
