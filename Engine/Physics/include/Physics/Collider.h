@@ -1,12 +1,8 @@
 #pragma once
 
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
-#include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
-#include <entt.hpp>
+#include <btBulletDynamicsCommon.h>
 #include "Core/Base.h"
-
-class PhysicsManager;
 
 struct Collider
 {
@@ -34,38 +30,41 @@ struct Collider
     };
 
     static SharedPtr<Collider> Create(Collider::Shape shape);
-    virtual void UpdateShape(glm::vec3 scale) {};
-    virtual void ShowData() {};
-    virtual void Reset() {};
-    Shape type = Collider::Shape::NONE;
-    glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
+    virtual void UpdateShape(glm::vec3 scale) = 0;
+    virtual void ShowData() = 0;
+    virtual void Reset() = 0;
 
-    // ================================================
-    // For converting collider to trigger
+    Shape type = Collider::Shape::BOX;
     bool isTrigger = false;
     btCollisionShape* shape = nullptr;
-    void ConstructTrigger(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale);
+    glm::vec3 center = glm::vec3(0.0f); // Is an offset based from the parent's position
 
-    btGhostObject* GetBulletGhostObject() { return ghostObject; }
-
-    std::vector<entt::entity> prevList;
-    std::vector<entt::entity> overlapEnterList;
-    std::vector<entt::entity> overlapExitList;
-    std::vector<entt::entity> overlapStayList;
-
-private:
-    btRigidBody* rigidbodyObject = nullptr;
-    btGhostObject* ghostObject = nullptr;
-    friend class PhysicsManager;
+    //std::string GetShapeTypeString()
+    //{
+    //    std::string ShapeTypes[] = {"Box","Sphere","Capsule"};
+    //    std::string shapeTypeName;
+    //    switch (type)
+    //    {
+    //        case Shape::Box:
+    //            shapeTypeName = ShapeTypes[0];
+    //            break;
+    //        case Shape::Sphere:
+    //            shapeTypeName = ShapeTypes[1];
+    //            break;
+    //        case Shape::Capsule:
+    //            shapeTypeName = ShapeTypes[2];
+    //            break;
+    //    }
+    //    return shapeTypeName.append(" Collider");
+    //}
 };
-
 
 struct BoxCollider : public Collider
 {
     BoxCollider();
     virtual void UpdateShape(glm::vec3 scale);
     virtual void ShowData();
-    virtual void Reset() override
+    virtual void Reset()
     {
         size = glm::vec3(1.0f);
         center = glm::vec3(1.0f);

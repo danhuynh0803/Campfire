@@ -37,8 +37,7 @@ static uint32_t currDisplay = 0;
 EditorLayer::EditorLayer()
     : Layer("Editor")
 {
-    // TODO
-    //editorScene = SceneManager::LoadScene("path");
+    LogWidget::Init();
     editorScene = CreateSharedPtr<Scene>();
     runtimeScene = CreateSharedPtr<Scene>(false);
     activeScene = editorScene;
@@ -198,7 +197,9 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnStop();
         activeScene = editorScene;
 
-        // Refresh bullet colliders back to their original positions
+        // TODO Hacky way of just refreshing the colliders
+        // so that raycasting works with the original positions
+        // of the objects, instead of their runtime positions
         PhysicsManager::ClearLists();
         auto entityMap = activeScene->GetEntityMap();
         for (auto entityPair : entityMap)
@@ -281,6 +282,7 @@ void EditorLayer::OnUpdate(float dt)
             // TODO move this elsewhere later
             // Draw AABB of submeshes
             //glm::vec3 color(1.0f);
+
             //auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
             //for (auto e : meshGroup)
             //{
@@ -492,11 +494,18 @@ void EditorLayer::OnImGuiRender()
 
             if (state == State::STOP)
             {
-                //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<Colliders>())
+                //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
                 {
+                    //SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
+                    //auto transformComp = entity.GetComponent<TransformComponent>();
+                    //rb->SetTransform(transformComp);
+
                     PhysicsManager::RemoveEntity(entity);
                     PhysicsManager::SubmitEntity(entity);
                 }
+                //PhysicsManager::ClearLists();
+                //PhysicsManager::SubmitEntity(entity);
+                //PhysicsManager::DebugDraw();
             }
         }
     }
@@ -824,7 +833,6 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
     return false;
 }
 
-// TODO move this to the tool bar instead of a window settings
 void EditorLayer::ShowEditorCameraSettings(bool* isOpen)
 {
     ImGui::Begin("Editor Camera Settings", isOpen);

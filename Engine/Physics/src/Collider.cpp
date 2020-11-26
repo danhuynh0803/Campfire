@@ -1,5 +1,3 @@
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include "Physics/Collider.h"
 #include <imgui.h>
 
@@ -9,8 +7,6 @@ SharedPtr<Collider> Collider::Create(Collider::Shape shape)
     SharedPtr<Collider> collider = nullptr;
     switch (shape)
     {
-        default: // None case
-            collider = CreateSharedPtr<Collider>();
         case Collider::Shape::BOX:
             collider = CreateSharedPtr<BoxCollider>();
             break;
@@ -21,42 +17,9 @@ SharedPtr<Collider> Collider::Create(Collider::Shape shape)
             collider = CreateSharedPtr<CapsuleCollider>();
             break;
     }
+
     return collider;
 }
-
-
-static btVector3 GlmToBtVec(glm::vec3 v)
-{
-    return btVector3(v.x, v.y, v.z);
-}
-
-void Collider::ConstructTrigger(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale)
-{
-    btTransform transform;
-    transform.setIdentity();
-
-    glm::vec3 colliderPos = pos + center;
-    transform.setOrigin(GlmToBtVec(colliderPos));
-
-    glm::quat rotation =
-        glm::quat(
-            glm::vec3(
-                glm::radians(euler.x),
-                glm::radians(euler.y),
-                glm::radians(euler.z)
-            )
-        );
-
-    btQuaternion quat(rotation.x, rotation.y, rotation.z, rotation.w);
-    transform.setRotation(quat);
-
-    UpdateShape(scale);
-    ghostObject = new btGhostObject();
-    ghostObject->setCollisionShape(shape);
-    ghostObject->setWorldTransform(transform);
-    ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-}
-
 
 //===================================================================
 BoxCollider::BoxCollider()

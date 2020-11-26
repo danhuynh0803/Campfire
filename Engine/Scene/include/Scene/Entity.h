@@ -48,7 +48,8 @@ public:
     template <typename T>
     void RemoveComponent()
     {
-        scene->registry.template remove<T>(entityHandle);
+        if (HasComponent<T>())
+            scene->registry.template remove<T>(entityHandle);
     }
 
     operator bool() const { return entityHandle != entt::null; }

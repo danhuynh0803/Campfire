@@ -34,147 +34,117 @@ void PhysicsManager::SubmitEntity(Entity entity)
 {
     auto transformComponent = entity.GetComponent<TransformComponent>();
 
-    bool hasRbCollider = false;
+    btCompoundShape* rigidShape = new btCompoundShape();
+    btCompoundShape* triggerShape = new btCompoundShape();
     if (entity.HasComponent<Colliders>())
     {
         auto colliders = entity.GetComponent<Colliders>().colliders;
         for (auto collider : colliders)
         {
+            collider->UpdateShape(transformComponent.scale);
+            btTransform transform;
+            transform.setIdentity();
+            transform.setOrigin(GlmToBtVec(collider->center));
             if (collider->isTrigger)
             {
-                // Create btGhostObject for triggers
-                collider->ConstructTrigger(transformComponent.position, transformComponent.euler, transformComponent.scale);
-                dynamicsWorld->addCollisionObject(collider->GetBulletGhostObject());
-                dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-
-                collider->overlapEnterList.clear();
-                collider->overlapExitList.clear();
-                collider->prevList.clear();
+                triggerShape->addChildShape(transform, collider->shape);
             }
             else
             {
-                hasRbCollider = true;
-                SharedPtr<Rigidbody> rigidbody;
-                if (entity.HasComponent<RigidbodyComponent>())
-                {
-                    auto rbComponent = entity.GetComponent<RigidbodyComponent>();
-                    rigidbody = rbComponent.rigidbody;
-                }
-                else
-                {
-                    // If there is no rigidbody component then the collider
-                    // should act statically and not have physics applied to it
-                    rigidbody = CreateSharedPtr<Rigidbody>();
-                    rigidbody->type = Rigidbody::BodyType::STATIC;
-                }
-
-                rigidbody->collider = collider;
-                rigidbody->Construct(
-                    transformComponent.position,
-                    transformComponent.euler,
-                    transformComponent.scale
-                );
-
-                // Match entt handle with rigidbody for referencing overlapping
-                // objects with triggers
-                // TODO downcast to collision object
-                uint64_t handle = entity.GetComponent<IDComponent>();
-                rigidbody->GetBulletRigidbody()->setUserPointer((void*)handle);
-                entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
-
-                dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
-                collider->rigidbodyObject = rigidbody->GetBulletRigidbody();
-
-                // NOTE: this needs to be set after its added to dynamics world
-                if (!rigidbody->useGravity)
-                {
-                    rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
-                }
+                rigidShape->addChildShape(transform, collider->shape);
             }
         }
     }
 
-    if (entity.HasComponent<RigidbodyComponent>()
-        && (!hasRbCollider || !entity.HasComponent<Colliders>())
-    ) {
-        auto rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-        rigidbody->Construct(transformComponent.position, transformComponent.euler, transformComponent.scale);
+    if (entity.HasComponent<RigidbodyComponent>())
+    {
+        auto rbComponent = entity.GetComponent<RigidbodyComponent>();
+        SharedPtr<Rigidbody> rigidbody = rbComponent.rigidbody;
+        rigidbody->Construct(
+            transformComponent.position,
+            transformComponent.euler,
+            transformComponent.scale,
+            rigidShape
+        );
+
+        // Match entt handle with rigidbody for referencing overlapping objects with triggers
+        // TODO downcast to collision object
+        uint64_t handle = entity.GetComponent<IDComponent>();
+        rigidbody->GetBulletRigidbody()->setUserPointer((void*)handle);
+        entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
         dynamicsWorld->addRigidBody(rigidbody->GetBulletRigidbody());
 
+        // NOTE: this needs to be set after its added to dynamics world
         if (!rigidbody->useGravity)
         {
             rigidbody->GetBulletRigidbody()->setGravity(btVector3(0, 0, 0));
         }
-
-        rigidbody->GetBulletRigidbody()->setCollisionFlags(rigidbody->GetBulletRigidbody()->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
 
-    if (!hasRbCollider)
+    if (triggerShape->getNumChildShapes() > 0)
     {
+        if (!entity.HasComponent<TriggerComponent>())
+        {
+            entity.AddComponent<TriggerComponent>();
+        }
+        auto triggerComp = entity.GetComponent<TriggerComponent>();
+        triggerComp.trigger->Construct(
+            transformComponent.position,
+            transformComponent.euler,
+            transformComponent.scale,
+            triggerShape
+        );
+        dynamicsWorld->addCollisionObject(triggerComp.trigger->GetBulletGhostObject());
+        //dynamicsWorld->addCollisionObject(triggerComp.trigger->trigger, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::StaticFilter);
+        dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
+        triggerComp.trigger->overlapEnterList.clear();
+        triggerComp.trigger->overlapExitList.clear();
+        triggerComp.trigger->prevList.clear();
+    }
+    else
+    {
+        entity.RemoveComponent<TriggerComponent>();
     }
 }
 
+// TODO submit entity instead of just the btRB
+//void PhysicsManager::RemoveEntity(btRigidBody* rigidBody)
 void PhysicsManager::RemoveEntity(Entity entity)
 {
-    if (entity.HasComponent<RigidbodyComponent>() && !entity.HasComponent<Colliders>())
+    // TODO should also remove the triggerbody and rigidbody
+    if (entity.HasComponent<RigidbodyComponent>())
     {
-        SharedPtr<Rigidbody> rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
-
-        // TODO Convert to unique pointer
-        btRigidBody* btRB = rigidbody->GetBulletRigidbody();
+        btRigidBody* btRB = entity.GetComponent<RigidbodyComponent>().rigidbody->GetBulletRigidbody();
         if (btRB)
         {
-            if (btRB->getMotionState())
-                delete btRB->getMotionState();
-
+            delete btRB->getMotionState();
             delete btRB->getCollisionShape();
             dynamicsWorld->removeRigidBody(btRB);
             delete btRB;
-            rigidbody->bulletRigidbody = nullptr;
         }
     }
 
-    if (entity.HasComponent<Colliders>())
+    if (entity.HasComponent<TriggerComponent>())
     {
-        auto& colliders = entity.GetComponent<Colliders>().colliders;
-        for (auto& collider : colliders)
+        btCollisionObject* btObj = entity.GetComponent<TriggerComponent>().trigger->GetBulletGhostObject();
+        if (btObj)
         {
-            if (!collider->isTrigger)
-            {
-                btRigidBody* btRB = collider->rigidbodyObject;
-                if (btRB)
-                {
-                    if (btRB->getMotionState())
-                        delete btRB->getMotionState();
-
-                    delete btRB->getCollisionShape();
-                    dynamicsWorld->removeRigidBody(btRB);
-                    delete btRB;
-                    collider->rigidbodyObject = nullptr;
-                }
-            }
-            else
-            {
-                btCollisionObject* obj = collider->GetBulletGhostObject();
-                if (obj)
-                {
-                    dynamicsWorld->removeCollisionObject(obj);
-                    delete obj;
-                    collider->ghostObject = nullptr;
-                }
-            }
+            dynamicsWorld->removeCollisionObject(btObj);
+            delete btObj;
         }
     }
+
+
 }
 
-std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Collider>& trigger, const TransformComponent& transformComp)
+std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Trigger>& trigger, const TransformComponent& transformComp)
 {
     btTransform transform;
     transform.setIdentity();
     glm::vec3 pos = transformComp.position;
-    glm::vec3 triggerPos = pos + trigger->center;
+    glm::vec3 triggerPos = pos + trigger->collider->center;
     transform.setOrigin(btVector3(triggerPos.x, triggerPos.y, triggerPos.z));
 
     glm::vec3 euler = transformComp.euler;
@@ -229,7 +199,6 @@ std::vector<entt::entity> PhysicsManager::UpdateTrigger(SharedPtr<Collider>& tri
     trigger->overlapExitList = exitDiff;
 
     trigger->prevList = overlappingEntities;
-    trigger->overlapStayList = overlappingEntities;
 
     return overlappingEntities;
 }
@@ -274,11 +243,33 @@ void PhysicsManager::UpdateEntity(SharedPtr<Rigidbody>& rb, TransformComponent& 
 void PhysicsManager::DebugDraw()
 {
     dynamicsWorld->debugDrawWorld();
+    //LOG_INFO("Size of dynamicsWorld = {0}", dynamicsWorld->getNumCollisionObjects());
 }
 
 void PhysicsManager::OnUpdate(float dt)
 {
     dynamicsWorld->stepSimulation(dt, 10);
+
+    /*
+    int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+    for (int i = 0; i < numManifolds; ++i)
+    {
+        btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+
+        const btCollisionObject* obA = contactManifold->getBody0();
+        const btCollisionObject* obB = contactManifold->getBody1();
+
+        int numContacts = contactManifold->getNumContacts();
+        for (int j = 0; j < numContacts; ++j)
+        {
+            btManifoldPoint& pt = contactManifold->getContactPoint(j);
+            if (pt.getDistance() < 0.0f)
+            {
+
+            }
+        }
+    }
+    */
 }
 
 void PhysicsManager::ClearLists()
@@ -327,7 +318,6 @@ void PhysicsManager::Shutdown()
 // all entities to be submitted to it. This would cause objects withouth rigidbodies to also
 // be submitted to dynamicsWorld for processing.
 // Maybe use a seperate world which adds all entities so that we can raycast to their AABB
-// NOT USED ANYMORE: but keep in case we want to raycast using bullet for w/e reason
 bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, uint64_t& handle)
 {
     glm::vec3 rayEnd = rayOrigin + rayDir * 10000.0f;
@@ -357,3 +347,5 @@ bool PhysicsManager::Raycast(glm::vec3 rayOrigin, glm::vec3 rayDir, uint64_t& ha
     CORE_INFO("No closest hit");
     return false;
 }
+
+

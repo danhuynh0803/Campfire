@@ -6,12 +6,12 @@
 #include "Physics/Collider.h"
 
 class TransformComponent;
-class PhysicsManager;
 
 class Rigidbody
 {
 public:
     void Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale);
+    void Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, btCollisionShape* shape);
 
     btRigidBody* GetBulletRigidbody();
     void SetVelocity(glm::vec3 newVelocity);
@@ -35,11 +35,11 @@ public:
     bool freezePosition[3] { false, false, false };
     bool freezeRotation[3] { false, false, false };
 
-    SharedPtr<Collider> collider = Collider::Create(Collider::Shape::NONE);
+    // TODO separate collider shape from the bodies
+    SharedPtr<Collider> collider = Collider::Create(Collider::Shape::BOX);
 
 private:
     btRigidBody* bulletRigidbody;
-    friend class PhysicsManager;
 };
 
 #endif // RIGIDBODY_H

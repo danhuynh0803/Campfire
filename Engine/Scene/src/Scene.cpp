@@ -18,12 +18,12 @@
 
 #include <Tracy.hpp>
 
-Scene::Scene(bool isDefaultScene)
+Scene::Scene(bool isNewScene)
 {
     SceneRenderer::Init();
     // Default objects within each new scene
     // if not loading object via scene file
-    if (isDefaultScene) { Init(); }
+    if (isNewScene) { Init(); }
 }
 
 void Scene::Init()
@@ -37,7 +37,7 @@ void Scene::Init()
     //auto mainCamera = CreateEntity("Camera", false); // false for not setting it as a root object in entityMap
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
-    //mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
+    mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/test.wav";
     mainCamera.GetComponent<AudioComponent>().audioSource->playOnAwake = true;
@@ -56,8 +56,8 @@ void Scene::Init()
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
-        player.AddComponent<Colliders>();
-        player.GetComponent<Colliders>().colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
+        auto& colliders = player.GetComponent<Colliders>().colliders;
+        colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
         //player.AddComponent<TriggerComponent>();
         //player.AddComponent<AudioComponent>();
         //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
@@ -88,8 +88,8 @@ void Scene::Init()
         cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
         cube.AddComponent<RigidbodyComponent>();
         cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
-        cube.AddComponent<Colliders>();
-        cube.GetComponent<Colliders>().colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
+        auto& colliders = cube.GetComponent<Colliders>().colliders;
+        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
     {
@@ -100,10 +100,10 @@ void Scene::Init()
         floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
         floor.AddComponent<RigidbodyComponent>();
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
-        floor.AddComponent<Colliders>();
-        floor.GetComponent<Colliders>().colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material1 = floor.GetComponent<MeshComponent>().material;
+        auto& colliders = floor.GetComponent<Colliders>().colliders;
+        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
     //auto snow = CreateEntity("Snow");
@@ -181,8 +181,9 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
         CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
         CopyComponent<LightComponent>(registry, other->registry, enttMap);
         CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
+        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<Colliders>(registry, other->registry, enttMap);
-        //CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
+        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
         CopyComponent<CameraComponent>(registry, other->registry, enttMap);
         CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
         CopyComponent<ScriptComponent>(registry, other->registry, enttMap);
@@ -247,6 +248,12 @@ void Scene::OnStart()
 
 void Scene::OnStop()
 {
+    //PhysicsManager::ClearLists();
+    //for (auto entityPair : entityMap)
+    //{
+    //    PhysicsManager::SubmitEntity(entityPair.second);
+    //}
+
     AudioSystem::StopAllChannels();
 }
 
@@ -268,74 +275,60 @@ void Scene::OnUpdate(float dt)
     }
 
     // Update triggers
-    //std::vector<entt::entity> overlappingEntities;
+    std::vector<entt::entity> overlappingEntities;
     {
         ZoneScopedN("UpdateTriggers");
-        auto colliderGroup = registry.group<Colliders>(entt::get<TransformComponent>);
-        for (auto entity : colliderGroup)
+        auto triggerGroup = registry.group<TriggerComponent>(entt::get<TransformComponent>);
+        for (auto entity : triggerGroup)
         {
-            //auto [transformComponent, triggerComponent] = colliderGroup.get<TransformComponent, TriggerComponent>(entity);
-            auto [transformComponent, collidersComp] = colliderGroup.get<TransformComponent, Colliders>(entity);
-            for (auto collider : collidersComp.colliders)
-            {
-                if (collider->isTrigger) {
-                    PhysicsManager::UpdateTrigger(collider, transformComponent);
-                }
-            }
+            auto [transformComponent, triggerComponent] = triggerGroup.get<TransformComponent, TriggerComponent>(entity);
+
+            overlappingEntities = PhysicsManager::UpdateTrigger(triggerComponent, transformComponent);
         }
     }
 
     // Lua script update
-    ZoneScopedN("LuaUpdateScripts");
-    registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
     {
-        // FIXME crash when script path is empty
-        sc.instance->Update(dt);
-
-        Entity thisEntity = sc.instance->entity;
-        if (thisEntity.HasComponent<Colliders>())
+        ZoneScopedN("LuaUpdateScripts");
+        registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
-            auto colliders = thisEntity.GetComponent<Colliders>().colliders;
-            for (auto collider : colliders)
-            {
-                // Skip if not collider, no need to check overlap
-                if (!collider->isTrigger) { continue; }
+            sc.instance->Update(dt);
 
-                for (auto enterEntity : collider->overlapEnterList)
+            Entity thisEntity = sc.instance->entity;
+            if (thisEntity.HasComponent<TriggerComponent>())
+            {
+                SharedPtr<Trigger> trigger = thisEntity.GetComponent<TriggerComponent>();
+                for (auto enterEntity : trigger->overlapEnterList)
                 {
                     Entity other(enterEntity, this);
                     // Don't have the trigger apply on ourselves
                     // since the trigger and rb will always be colliding
                     if (enterEntity != sc.instance->entity)
                     {
-                        LOG_INFO("Enter: {0}", other.GetComponent<TagComponent>().tag);
                         sc.instance->OnTriggerEnter(other);
                     }
                 }
 
-                // TODO somehow overlapping the floor constantly
-                for (auto stayEntity : collider->overlapStayList)
+                for (auto stayEntity : overlappingEntities)
                 {
                     Entity other(stayEntity, this);
                     if (stayEntity != sc.instance->entity)
                     {
-                        LOG_INFO("Stay: {0}", other.GetComponent<TagComponent>().tag);
                         sc.instance->OnTriggerStay(other);
                     }
                 }
 
-                for (auto exitEntity : collider->overlapExitList)
+                for (auto exitEntity : trigger->overlapExitList)
                 {
                     Entity other(exitEntity, this);
                     if (exitEntity != sc.instance->entity)
                     {
-                        LOG_INFO("Exit: {0}", other.GetComponent<TagComponent>().tag);
                         sc.instance->OnTriggerExit(other);
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Update with Native C++ scripts
     //{
@@ -532,6 +525,7 @@ Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEnti
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
+    entity.AddComponent<Colliders>();
 
     if (isRootEntity)
     {
@@ -554,6 +548,7 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
+    entity.AddComponent<Colliders>();
 
     if (isRootEntity)
     {
@@ -578,6 +573,7 @@ Entity Scene::DuplicateEntity(Entity entity)
     CopyComponentIfExists<SpriteComponent>(newEntity, entity, registry);
     CopyComponentIfExists<LightComponent>(newEntity, entity, registry);
     CopyComponentIfExists<RigidbodyComponent>(newEntity, entity, registry);
+    CopyComponentIfExists<Colliders>(newEntity, entity, registry);
     CopyComponentIfExists<TriggerComponent>(newEntity, entity, registry);
     CopyComponentIfExists<CameraComponent>(newEntity, entity, registry);
     CopyComponentIfExists<ParticleSystemComponent>(newEntity, entity, registry);
