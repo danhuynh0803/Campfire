@@ -21,4 +21,7 @@ private:
     void lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const char* name);
     void lua_pushcfunction_with_tag(const lua_CFunction& f, const char* name);
     void lua_pushcfunction_with_audioSource(const lua_CFunction& f, const char* name);
+    
+    template<typename T>
+    void lua_push_componet_table();
 };

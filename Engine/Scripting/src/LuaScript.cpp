@@ -8,6 +8,7 @@
 #include "Scripting/Lua/LuaAudioSource.h"
 #include "Scripting/Lua/LuaVector.h"
 #include "Core/Log.h"
+#include  <type_traits>
 
 static int Log(lua_State* L)
 {
@@ -80,62 +81,10 @@ void LuaScript::Start()
     lua_pushcfunction(L, LuaVector::LuaVec4Sub);
     lua_settable(L, -3); //sets the (meta)table and pop above
 
-    if(HasComponent<TransformComponent>())
-    {
-        lua_newtable(L);
-        {
-            //luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
-            lua_setfield(L, -2, "SetPosition");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
-            lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
-            lua_setfield(L, -2, "SetRotation");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
-            lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
-            lua_setfield(L, -2, "SetScale");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaTransfrom::Translate, 1);
-            lua_setfield(L, -2, "Translate");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
-            lua_setfield(L, -2, "GetPosition");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().rotation));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityRotation, 1);
-            lua_setfield(L, -2, "GetRotation");
-
-            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityScale, 1);
-            lua_setfield(L, -2, "GetScale");
-        }
-        lua_setglobal(L, "Transform");
-    }
-
-    if(HasComponent<RigidbodyComponent>())
-    {
-        lua_newtable(L);
-        {
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::AddVelocity, "AddVelocity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetMass, "GetMass");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetMass, "SetMass");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetDrag, "GetDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::UseGravity, "UseGravity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezePosition, "FreezePosition");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezeRotation, "FreezeRotation");
-        }
-        lua_setglobal(L, "Rigidbody");
-    }
+    lua_push_componet_table<TransformComponent>();
+    lua_push_componet_table<RigidbodyComponent>();
+    lua_push_componet_table<AudioSource>();
+    lua_push_componet_table<Colliders>();
 
     lua_newtable(L);
     {
@@ -155,16 +104,6 @@ void LuaScript::Start()
     }
     lua_setglobal(L, "Input");//name the table Input
 
-    if (HasComponent<AudioComponent>())
-    {
-        lua_newtable(L);
-        {
-            lua_pushcfunction_with_audioSource(LuaAudioSource::Play, "Play");
-            lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
-            lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
-        }
-        lua_setglobal(L, "AudioSource");
-    }
 
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
@@ -225,12 +164,87 @@ void LuaScript::lua_pushcfunction_with_audioSource(const lua_CFunction& f, const
     lua_setfield(L, -2, name);
 }
 
+template <class T>
+void LuaScript::lua_push_componet_table()
+{
+    if (HasComponent<T>())
+    {
+        if (std::is_same<T, TransformComponent>::value)
+        {
+            lua_newtable(L);
+            //luaL_setfuncs(L, LuaTransfrom::transformLib, 0);
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
+            lua_setfield(L, -2, "SetPosition");
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().euler));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
+            lua_setfield(L, -2, "SetRotation");
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
+            lua_setfield(L, -2, "SetScale");
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::Translate, 1);
+            lua_setfield(L, -2, "Translate");
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_setfield(L, -2, "GetPosition");
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().rotation));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityRotation, 1);
+            lua_setfield(L, -2, "GetRotation");
+
+            lua_pushlightuserdata(L, &(GetComponent<TransformComponent>().scale));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityScale, 1);
+            lua_setfield(L, -2, "GetScale");
+            lua_setglobal(L, "Transform");
+        }
+        else if (std::is_same<T, RigidbodyComponent>::value)
+        {
+            lua_newtable(L);
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::AddVelocity, "AddVelocity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetMass, "GetMass");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetMass, "SetMass");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetDrag, "GetDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::UseGravity, "UseGravity");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezePosition, "FreezePosition");
+            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezeRotation, "FreezeRotation");
+            lua_setglobal(L, "Rigidbody");
+        }
+        else if (std::is_same<T, AudioComponent>::value)
+        {
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Play, "Play");
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
+            lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
+            lua_setglobal(L, "AudioSource");
+        }
+        else
+        {
+            CORE_INFO("{0} was found, but Lua Table for was not created", typeid(T).name());
+        }
+    }
+    else
+    {
+        CORE_INFO("Missing {0} component", typeid(T).name());
+    }
+}
+
 int LuaScriptCallBack::lua_callback(lua_State* L)
 {
     const char* message = lua_tostring(L, 1);
     if (message)
     {
-        luaL_traceback(L, L, message, 1);
+        //replace and push an error message that includes stack trace
+        luaL_traceback(L, L, message, 1); 
     }
     return 1;
 }
