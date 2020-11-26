@@ -56,7 +56,7 @@ void Scene::Init()
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
-        auto& colliders = player.GetComponent<Colliders>().colliders;
+        auto& colliders = player.GetComponent<Colliders>().list;
         colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
         //player.AddComponent<TriggerComponent>();
         //player.AddComponent<AudioComponent>();
@@ -88,7 +88,7 @@ void Scene::Init()
         cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
         cube.AddComponent<RigidbodyComponent>();
         cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
-        auto& colliders = cube.GetComponent<Colliders>().colliders;
+        auto& colliders = cube.GetComponent<Colliders>().list;
         colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
@@ -102,7 +102,7 @@ void Scene::Init()
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
         auto& material1 = floor.GetComponent<MeshComponent>().material;
-        auto& colliders = floor.GetComponent<Colliders>().colliders;
+        auto& colliders = floor.GetComponent<Colliders>().list;
         colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 

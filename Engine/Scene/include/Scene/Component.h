@@ -238,8 +238,8 @@ struct RigidbodyComponent
 
 struct Colliders
 {
-    std::vector<SharedPtr<Collider>> colliders;
-    operator std::vector<SharedPtr<Collider>>& () { return colliders; }
+    std::vector<SharedPtr<Collider>> list;
+    operator std::vector<SharedPtr<Collider>>& () { return list; }
 };
 
 struct TriggerComponent

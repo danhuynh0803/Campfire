@@ -1,5 +1,4 @@
-#ifndef INSPECTOR_WIDGET_H
-#define INSPECTOR_WIDGET_H
+#pragma once
 
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
@@ -15,6 +14,6 @@ private:
     template <typename T>
     void ShowComponentOptionsMenu(Entity& entity);
 
+    template <typename T>
+    void ShowComponentListOptionsMenu(Entity& entity, size_t index);
 };
-
-#endif // INSPECTOR_WIDGET_H

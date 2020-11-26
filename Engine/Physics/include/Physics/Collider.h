@@ -67,7 +67,7 @@ struct BoxCollider : public Collider
     virtual void Reset()
     {
         size = glm::vec3(1.0f);
-        center = glm::vec3(1.0f);
+        center = glm::vec3(0.0f);
     }
 
     glm::vec3 size = glm::vec3(1.0f);
@@ -81,7 +81,7 @@ struct SphereCollider : public Collider
     virtual void Reset()
     {
         radius = 1.0f;
-        center = glm::vec3(1.0f);
+        center = glm::vec3(0.0f);
     }
 
     float radius = 1.0f;
@@ -96,7 +96,7 @@ struct CapsuleCollider : public Collider
     {
         radius = 1.0f;
         height = 1.0f;
-        center = glm::vec3(1.0f);
+        center = glm::vec3(0.0f);
     }
 
     float radius = 1.0f;

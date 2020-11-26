@@ -38,7 +38,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
     btCompoundShape* triggerShape = new btCompoundShape();
     if (entity.HasComponent<Colliders>())
     {
-        auto colliders = entity.GetComponent<Colliders>().colliders;
+        auto colliders = entity.GetComponent<Colliders>().list;
         for (auto collider : colliders)
         {
             collider->UpdateShape(transformComponent.scale);

@@ -342,7 +342,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     // Colliders
     if (entity.HasComponent<Colliders>())
     {
-        auto& colliders = entity.GetComponent<Colliders>().colliders;
+        auto& colliders = entity.GetComponent<Colliders>().list;
         for (size_t i = 0; i < colliders.size(); ++i)
         {
             auto& collider = colliders[i];
@@ -356,7 +356,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 // TODO, this should remove the item in the list and not the entire component
                 if (ImGui::Button("..."))
                 {
-                    //ImGui::OpenPopup("ComponentOptionsPopup");
+                    ImGui::OpenPopup("ComponentListOptionsPopup");
                 }
 
                 ImGui::Checkbox("isTrigger", &collider->isTrigger);
@@ -375,13 +375,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 // For showing specific shape parameters
                 collider->ShowData();
 
-                // TODO replace with some componentList popup
-                // which removes the target from list instead of entire comp
-                //if (ImGui::BeginPopup("ComponentOptionsPopup"))
-                //{
-                //    ShowComponentOptionsMenu<RigidbodyComponent>(entity);
-                //    ImGui::EndPopup();
-                //}
+                if (ImGui::BeginPopup("ComponentListOptionsPopup"))
+                {
+                    ShowComponentListOptionsMenu<Colliders>(entity, i);
+                    ImGui::EndPopup();
+                }
 
                 ImGui::TreePop();
             }
@@ -601,7 +599,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             }
 
             // TODO 2D collider shapes
-            auto& cols = entity.GetComponent<Colliders>().colliders;
+            auto& cols = entity.GetComponent<Colliders>().list;
 
             if (ImGui::MenuItem("Box Collider"))
             {
@@ -690,4 +688,21 @@ void InspectorWidget::ShowComponentOptionsMenu(Entity& entity)
     // Component specific options
 }
 
+template <typename T>
+void InspectorWidget::ShowComponentListOptionsMenu(Entity& entity, size_t index)
+{
+    auto& list = entity.GetComponent<T>().list;
+    if (ImGui::MenuItem("Reset"))
+    {
+        list.at(index)->Reset();
+    }
 
+    ImGui::Separator();
+
+    if (ImGui::MenuItem("Remove Component"))
+    {
+        list.erase(list.begin() + index);
+    }
+
+    ImGui::Separator();
+}
