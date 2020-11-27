@@ -180,6 +180,11 @@ struct SpriteComponent
     bool flip[2] = { false, false };
     // TODO add uv tiling and other options
 
+    AABB boundingBox {
+        glm::vec3(-1.0f, -1.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 0.0f)
+    };
+
     void Reset()
     {
         color = glm::vec4(1.0f);

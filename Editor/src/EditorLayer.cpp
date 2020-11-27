@@ -280,8 +280,35 @@ void EditorLayer::OnUpdate(float dt)
             PhysicsManager::DebugDraw();
 
             // TODO move this elsewhere later
-            // Draw AABB of submeshes
-            //glm::vec3 color(1.0f);
+            //glm::vec3 color(1.0f, 0.0f, 1.0f);
+
+            //auto spriteGroup = activeScene->GetAllEntitiesWith<SpriteComponent>();
+            //for (auto e : spriteGroup)
+            //{
+            //    Entity entity { e, activeScene.get() };
+            //    // Need to apply transform to get the correct position of the BB
+            //    SpriteComponent comp = entity.GetComponent<SpriteComponent>();
+
+            //    glm::vec4 min = glm::vec4(comp.boundingBox.mMin, 1.0f);
+            //    glm::vec4 max = glm::vec4(comp.boundingBox.mMax, 1.0f);
+
+            //    GLfloat vertices[] =
+            //    {
+            //        min.x, max.y, min.z, color.r, color.g, color.b,
+            //        min.x, min.y, min.z, color.r, color.g, color.b,
+            //        max.x, min.y, min.z, color.r, color.g, color.b,
+            //        max.x, max.y, min.z, color.r, color.g, color.b,
+
+            //        min.x, max.y, max.z, color.r, color.g, color.b,
+            //        min.x, min.y, max.z, color.r, color.g, color.b,
+            //        max.x, min.y, max.z, color.r, color.g, color.b,
+            //        max.x, max.y, max.z, color.r, color.g, color.b
+            //    };
+
+            //    VBO->SetData(vertices, sizeof(vertices));
+
+            //    Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
+            //}
 
             //auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
             //for (auto e : meshGroup)
@@ -791,6 +818,33 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
         );
 
         wHierarchy.Reset();
+
+        // Check all sprite objects for intersection
+        float tHit = FLT_MAX;
+        Entity selectedEntity {};
+        auto spriteGroup = activeScene->GetAllEntitiesWith<SpriteComponent>();
+        for (auto e : spriteGroup)
+        {
+            Entity entity { e, activeScene.get() };
+
+            Ray ray = {
+                glm::inverse(glm::mat4(entity.GetComponent<TransformComponent>())) * glm::vec4(rayOrig, 1.0f),
+                glm::inverse(glm::mat3(entity.GetComponent<TransformComponent>())) * rayDir
+            };
+
+            SpriteComponent comp = entity.GetComponent<SpriteComponent>();
+            float t = FLT_MAX;
+            if (ray.IntersectAABB(comp.boundingBox, t))
+            {
+                if (t < tHit)
+                {
+                    tHit = t;
+                    selectedEntity = entity;
+                }
+            }
+
+        }
+
         // Check all mesh objects for intersection
         auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
         for (auto e : meshGroup)
@@ -812,11 +866,20 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
                 if (ray.IntersectAABB(submesh.boundingBox, t))
                 {
                     //LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
-                    wHierarchy.OverrideSelectedEntity(entity, activeScene);
-
+                    //wHierarchy.OverrideSelectedEntity(entity, activeScene);
+                    if (t < tHit)
+                    {
+                        tHit = t;
+                        selectedEntity = entity;
+                    }
                     // TODO check if ray intersects the triangles for more precise picking
                 }
             }
+        }
+
+        if (selectedEntity)
+        {
+            wHierarchy.OverrideSelectedEntity(selectedEntity, activeScene);
         }
     }
 
