@@ -7,8 +7,10 @@
 #include "Scripting/Lua/LuaRigidbody.h"
 #include "Scripting/Lua/LuaAudioSource.h"
 #include "Scripting/Lua/LuaVector.h"
+#include "Scripting/Lua/LuaCollider.h"
 #include "Core/Log.h"
 #include  <type_traits>
+#include "Physics/Collider.h"
 
 static int Log(lua_State* L)
 {
@@ -258,14 +260,35 @@ void LuaScript::lua_push_componet_table()
         }
         else if (std::is_same<T, AudioComponent>::value)
         {
+            lua_newtable(L);
             lua_pushcfunction_with_audioSource(LuaAudioSource::Play, "Play");
             lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
             lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
             lua_setglobal(L, "AudioSource");
         }
-        else if (std::is_same<T, Colliders>::value)
+        else if (std::is_same<T, BoxCollider>::value)
         {
-
+            lua_newtable(L);
+            lua_pushlightuserdata(L, &(GetComponent<BoxCollider>().center));
+            lua_pushcclosure(L, LuaCollider::Box::GetCenter, 1);
+            lua_setfield(L, -2, "GetCenter");
+            lua_setglobal(L, "BoxCollider");
+        }
+        else if (std::is_same<T, SphereCollider>::value)
+        {
+            lua_newtable(L);
+            lua_pushlightuserdata(L, &(GetComponent<SphereCollider>().center));
+            lua_pushcclosure(L, LuaCollider::Sphere::GetCenter, 1);
+            lua_setfield(L, -2, "GetCenter");
+            lua_setglobal(L, "SphereCollider");
+        }
+        else if (std::is_same<T, CapsuleCollider>::value)
+        {
+            lua_newtable(L);
+            lua_pushlightuserdata(L, &(GetComponent<CapsuleCollider>().center));
+            lua_pushcclosure(L, LuaCollider::Capsule::GetCenter, 1);
+            lua_setfield(L, -2, "GetCenter");
+            lua_setglobal(L, "CapsuleCollider");
         }
         else
         {
