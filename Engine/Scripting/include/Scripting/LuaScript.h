@@ -14,6 +14,7 @@ public:
     void Start();
     void Update(float);
     void Destroy();
+    void OnTriggerEnter(Entity);
 
 private:
     lua_State* L;

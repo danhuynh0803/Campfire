@@ -22,6 +22,21 @@ void LuaScript::Start()
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
 
+    //lua_newtable(L);
+    //{
+    //    lua_pushnumber(L, 5);
+    //    lua_setfield(L, -2, "x");
+    //}
+    //lua_setglobal(L, "S");
+
+    //lua_newtable(L);
+    //{
+    //    lua_getglobal(L, "S");
+    //    lua_setfield(L, -2, "S");
+    //}
+    //lua_setglobal(L, "N");
+
+
     // Setup logs
     lua_pushcfunction(L, Log);
     lua_setglobal(L, "Log");
@@ -104,6 +119,9 @@ void LuaScript::Start()
     }
     lua_setglobal(L, "Input");//name the table Input
 
+    lua_newtable(L);
+    lua_setglobal(L, "other");//for trigger
+
 
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
@@ -117,11 +135,13 @@ void LuaScript::Start()
 
 void LuaScript::Update(float dt)
 {
+    lua_pushnumber(L, dt);
+    lua_setglobal(L, "dt");
+    
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "Update");
-    lua_pushnumber(L, dt);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
         LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -131,6 +151,25 @@ void LuaScript::Update(float dt)
 void LuaScript::Destroy()
 {
     lua_close(L);
+}
+
+void LuaScript::OnTriggerEnter(Entity other)
+{
+
+    luaL_dofile(L, filepath.c_str());
+    lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
+    lua_getglobal(L, "OnTriggerEnter");
+
+    lua_getglobal(L, "other");
+    lua_pushstring(L, "tag");
+    lua_pushstring(L, other.GetComponent<TagComponent>().tag.c_str());
+    lua_rawset(L, -2);//other.tag returns the tag
+
+    if (lua_pcall(L, 1, 0, -2) != LUA_OK)
+    {
+        LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+        lua_pop(L, 1);
+    }
 }
 
 void LuaScript::lua_pushcfunction_with_entity(const lua_CFunction& f, const char* name)
@@ -226,6 +265,10 @@ void LuaScript::lua_push_componet_table()
             lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
             lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
             lua_setglobal(L, "AudioSource");
+        }
+        else if (std::is_same<T, Colliders>::value)
+        {
+
         }
         else
         {

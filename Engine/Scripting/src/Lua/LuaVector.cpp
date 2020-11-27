@@ -7,9 +7,9 @@ int LuaVector::LuaVec2(lua_State* L)
 	//new(ptr)glm::vec2();
 
 	lua_newtable(L);
-	lua_pushstring(L, "x");
+	lua_pushstring(L, "x"); 
 	lua_pushnumber(L, 0);
-	lua_settable(L, -3);
+	lua_settable(L, -3);//might be able to be replace by lua_setfield(L,-2,name)
 	lua_pushstring(L, "y");
 	lua_pushnumber(L, 0);
 	lua_settable(L, -3);

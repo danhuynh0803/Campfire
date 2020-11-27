@@ -13,7 +13,7 @@ function Start()
 
 end
 
-function Update(dt)
+function Update()
     if (Rigidbody == nil) then
         Log("Entity does not contain a rb")
     end
