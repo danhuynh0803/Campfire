@@ -10,7 +10,6 @@ namespace LuaScriptCallBack {
 class LuaScript : public ScriptableEntity
 {
 public:
-
     void Start();
     void Update(float);
     void Destroy();
@@ -18,11 +17,13 @@ public:
 
 private:
     lua_State* L;
+    void LuaPushEntity(Entity entity);
     void lua_pushcfunction_with_entity(const lua_CFunction& f, const char* name);
+    void lua_pushcfunction_with_rigidbody(Entity entity, const lua_CFunction& f, const char* name);
     void lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const char* name);
     void lua_pushcfunction_with_tag(const lua_CFunction& f, const char* name);
     void lua_pushcfunction_with_audioSource(const lua_CFunction& f, const char* name);
-    
+
     template<typename T>
     void lua_push_componet_table();
 };

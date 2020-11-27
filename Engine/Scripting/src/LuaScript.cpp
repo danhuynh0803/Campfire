@@ -134,7 +134,7 @@ void LuaScript::Start()
 void LuaScript::Update(float dt)
 {
     lua_pushnumber(L, dt);
-    //lua_setglobal(L, "dt");
+    lua_setglobal(L, "dt");
 
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
@@ -157,12 +157,7 @@ void LuaScript::OnTriggerEnter(Entity other)
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "OnTriggerEnter");
 
-    lua_newtable(L);
-    {
-        lua_pushstring(L, other.GetComponent<TagComponent>().tag.c_str());
-        lua_setfield(L, -2, "tag");
-    }
-    // newtable is still left on the stack
+    LuaPushEntity(other);
 
     if (lua_pcall(L, 1, 0, -2) != LUA_OK)
     {
@@ -178,6 +173,15 @@ void LuaScript::lua_pushcfunction_with_entity(const lua_CFunction& f, const char
     lua_setfield(L, -2, name);
 }
 
+void LuaScript::lua_pushcfunction_with_rigidbody(Entity entity, const lua_CFunction& f, const char* name)
+{
+    SharedPtr<Rigidbody> rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
+    lua_pushlightuserdata(L, rigidbody.get());
+    lua_pushcclosure(L, f, 1);
+    lua_setfield(L, -2, name);
+}
+
+
 void LuaScript::lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
@@ -188,8 +192,7 @@ void LuaScript::lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const c
 
 void LuaScript::lua_pushcfunction_with_tag(const lua_CFunction& f, const char* name)
 {
-    const char* tag = GetComponent<TagComponent>().tag.c_str();
-    lua_pushstring(L, tag);
+    const char* tag = GetComponent<TagComponent>().tag.c_str(); lua_pushstring(L, tag);
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
@@ -200,6 +203,99 @@ void LuaScript::lua_pushcfunction_with_audioSource(const lua_CFunction& f, const
     lua_pushlightuserdata(L, audioSource.get());
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
+}
+
+void LuaScript::LuaPushEntity(Entity entity)
+{
+    lua_newtable(L);
+
+    if (entity.HasComponent<TagComponent>())
+    {
+        lua_pushstring(L, entity.GetComponent<TagComponent>().tag.c_str());
+        lua_setfield(L, -2, "tag");
+    }
+
+    if (entity.HasComponent<TransformComponent>())
+    {
+        lua_newtable(L);
+        {
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
+            lua_setfield(L, -2, "SetPosition");
+
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().euler));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
+            lua_setfield(L, -2, "SetRotation");
+
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().scale));
+            lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
+            lua_setfield(L, -2, "SetScale");
+
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::Translate, 1);
+            lua_setfield(L, -2, "Translate");
+
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().position));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
+            lua_setfield(L, -2, "GetPosition");
+
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().rotation));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityRotation, 1);
+            lua_setfield(L, -2, "GetRotation");
+
+            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().scale));
+            lua_pushcclosure(L, LuaTransfrom::GetEntityScale, 1);
+            lua_setfield(L, -2, "GetScale");
+        }
+        lua_setfield(L, -2, "Transform");
+    }
+
+    if (entity.HasComponent<RigidbodyComponent>())
+    {
+        lua_newtable(L);
+        {
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::AddVelocity, "AddVelocity");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetVelocity, "GetVelocity");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetVelocity, "SetVelocity");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetMass, "GetMass");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetMass, "SetMass");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetDrag, "GetDrag");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetDrag, "SetDrag");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::UseGravity, "UseGravity");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::FreezePosition, "FreezePosition");
+            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::FreezeRotation, "FreezeRotation");
+        }
+        lua_setfield(L, -2, "Rigidbody");
+    }
+
+    if (entity.HasComponent<AudioComponent>())
+    {
+
+    }
+
+    //if (entity.HasComponent<CameraComponent>())
+    //{
+    //}
+    //if (entity.HasComponent<MeshComponent>())
+    //{
+    //}
+    //if (entity.HasComponent<SpriteComponent>())
+    //{
+    //}
+    //if (entity.HasComponent<LightComponent>())
+    //{
+    //}
+    //if (entity.HasComponent<Colliders>())
+    //{
+    //}
+    //if (entity.HasComponent<TextComponent>())
+    //{
+    //}
+    //if (entity.HasComponent<ScriptComponent>())
+    //{
+    //}
 }
 
 template <class T>

@@ -263,6 +263,7 @@ struct TriggerComponent
     operator SharedPtr<Trigger>& () { return trigger; }
 };
 
+// Convert to audio list
 struct AudioComponent
 {
     AudioComponent()
