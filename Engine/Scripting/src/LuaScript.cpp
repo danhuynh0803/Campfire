@@ -26,21 +26,6 @@ void LuaScript::Start()
     L = luaL_newstate();
     luaL_openlibs(L); //opens all standard Lua libraries
 
-    //lua_newtable(L);
-    //{
-    //    lua_pushnumber(L, 5);
-    //    lua_setfield(L, -2, "x");
-    //}
-    //lua_setglobal(L, "S");
-
-    //lua_newtable(L);
-    //{
-    //    lua_getglobal(L, "S");
-    //    lua_setfield(L, -2, "S");
-    //}
-    //lua_setglobal(L, "N");
-
-
     // Setup logs
     lua_pushcfunction(L, Log);
     lua_setglobal(L, "Log");
@@ -131,21 +116,28 @@ void LuaScript::Start()
         LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
+    lua_pop(L, 1);
 }
 
 void LuaScript::Update(float dt)
 {
     lua_pushnumber(L, dt);
-    lua_setglobal(L, "dt");
-
+    lua_setglobal(L, "deltatime");
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "Update");
-    if (lua_pcall(L, 1, 0, -2) != LUA_OK)
+    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
         LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
+#ifdef  _DEBUG 
+    luaL_checktype(L, -1, LUA_TFUNCTION);
+    lua_pop(L, 1); //pop the LuaCallback function
+#else
+    lua_pop(L, 1);
+#endif //  _DEBUG 
+    CORE_INFO("{0}", lua_gettop(L));
 }
 
 void LuaScript::Destroy()
@@ -161,11 +153,13 @@ void LuaScript::OnTriggerEnter(Entity other)
 
     LuaPushEntity(other);
 
-    if (lua_pcall(L, 1, 0, -2) != LUA_OK)
+    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
         LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+    /*CORE_INFO("{0}", lua_gettop(L));*/
 }
 
 void LuaScript::LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name)
