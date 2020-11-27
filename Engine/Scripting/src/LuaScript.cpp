@@ -119,16 +119,12 @@ void LuaScript::Start()
     }
     lua_setglobal(L, "Input");//name the table Input
 
-    lua_newtable(L);
-    lua_setglobal(L, "other");//for trigger
-
-
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "Start");
     if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
-        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+        LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
 }
@@ -137,7 +133,7 @@ void LuaScript::Update(float dt)
 {
     lua_pushnumber(L, dt);
     lua_setglobal(L, "dt");
-    
+
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "Update");
@@ -155,15 +151,19 @@ void LuaScript::Destroy()
 
 void LuaScript::OnTriggerEnter(Entity other)
 {
-
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
     lua_getglobal(L, "OnTriggerEnter");
 
-    lua_getglobal(L, "other");
-    lua_pushstring(L, "tag");
-    lua_pushstring(L, other.GetComponent<TagComponent>().tag.c_str());
-    lua_rawset(L, -2);//other.tag returns the tag
+    lua_newtable(L);
+    {
+        lua_newtable(L);
+        {
+            lua_pushstring(L, other.GetComponent<TagComponent>().tag.c_str());
+            lua_setfield(L, -2, "tag");
+        }
+    }
+    lua_setglobal(L, "other");
 
     if (lua_pcall(L, 1, 0, -2) != LUA_OK)
     {
