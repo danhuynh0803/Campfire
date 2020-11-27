@@ -12,6 +12,8 @@
 #include  <type_traits>
 #include "Physics/Collider.h"
 
+
+
 static int Log(lua_State* L)
 {
     const char* msg = lua_tostring(L, -1);
@@ -98,10 +100,10 @@ void LuaScript::Start()
     lua_pushcfunction(L, LuaVector::LuaVec4Sub);
     lua_settable(L, -3); //sets the (meta)table and pop above
 
-    lua_push_componet_table<TransformComponent>();
-    lua_push_componet_table<RigidbodyComponent>();
-    lua_push_componet_table<AudioSource>();
-    lua_push_componet_table<Colliders>();
+    LuaPushComponetTable<TransformComponent>();
+    LuaPushComponetTable<RigidbodyComponent>();
+    LuaPushComponetTable<AudioSource>();
+    LuaPushComponetTable<Colliders>();
 
     lua_newtable(L);
     {
@@ -111,7 +113,7 @@ void LuaScript::Start()
 
     lua_newtable(L);
     {
-        lua_pushcfunction_with_tag(LuaTag::GetTag,"GetTag");
+        LuaPushCFunctionWithTag(LuaTag::GetTag,"GetTag");
     }
     lua_setglobal(L, "Tag");//name the table Tag
 
@@ -122,7 +124,7 @@ void LuaScript::Start()
     lua_setglobal(L, "Input");//name the table Input
 
     luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
+    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "Start");
     if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
@@ -137,7 +139,7 @@ void LuaScript::Update(float dt)
     lua_setglobal(L, "dt");
 
     luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
+    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "Update");
     if (lua_pcall(L, 1, 0, -2) != LUA_OK)
     {
@@ -154,7 +156,7 @@ void LuaScript::Destroy()
 void LuaScript::OnTriggerEnter(Entity other)
 {
     luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::lua_callback);
+    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerEnter");
 
     LuaPushEntity(other);
@@ -166,14 +168,14 @@ void LuaScript::OnTriggerEnter(Entity other)
     }
 }
 
-void LuaScript::lua_pushcfunction_with_entity(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name)
 {
     lua_pushlightuserdata(L, &entity);
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::lua_pushcfunction_with_rigidbody(Entity entity, const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithRigidbody(Entity entity, const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
     lua_pushlightuserdata(L, rigidbody.get());
@@ -182,7 +184,7 @@ void LuaScript::lua_pushcfunction_with_rigidbody(Entity entity, const lua_CFunct
 }
 
 
-void LuaScript::lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
     lua_pushlightuserdata(L, rigidbody.get());
@@ -190,14 +192,14 @@ void LuaScript::lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const c
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::lua_pushcfunction_with_tag(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithTag(const lua_CFunction& f, const char* name)
 {
     const char* tag = GetComponent<TagComponent>().tag.c_str(); lua_pushstring(L, tag);
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::lua_pushcfunction_with_audioSource(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const char* name)
 {
     SharedPtr<AudioSource> audioSource = GetComponent<AudioComponent>().audioSource;
     lua_pushlightuserdata(L, audioSource.get());
@@ -254,18 +256,18 @@ void LuaScript::LuaPushEntity(Entity entity)
     {
         lua_newtable(L);
         {
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::AddVelocity, "AddVelocity");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetVelocity, "GetVelocity");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetVelocity, "SetVelocity");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetMass, "GetMass");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetMass, "SetMass");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetDrag, "GetDrag");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetDrag, "SetDrag");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::UseGravity, "UseGravity");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::FreezePosition, "FreezePosition");
-            lua_pushcfunction_with_rigidbody(entity, LuaRigidbody::FreezeRotation, "FreezeRotation");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::AddVelocity, "AddVelocity");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetVelocity, "GetVelocity");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetVelocity, "SetVelocity");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetMass, "GetMass");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetMass, "SetMass");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetDrag, "GetDrag");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetDrag, "SetDrag");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::UseGravity, "UseGravity");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::FreezePosition, "FreezePosition");
+            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::FreezeRotation, "FreezeRotation");
         }
         lua_setfield(L, -2, "Rigidbody");
     }
@@ -299,7 +301,7 @@ void LuaScript::LuaPushEntity(Entity entity)
 }
 
 template <class T>
-void LuaScript::lua_push_componet_table()
+void LuaScript::LuaPushComponetTable()
 {
     if (HasComponent<T>())
     {
@@ -340,26 +342,26 @@ void LuaScript::lua_push_componet_table()
         else if (std::is_same<T, RigidbodyComponent>::value)
         {
             lua_newtable(L);
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::AddVelocity, "AddVelocity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetMass, "GetMass");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetMass, "SetMass");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetDrag, "GetDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetDrag, "SetDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::UseGravity, "UseGravity");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezePosition, "FreezePosition");
-            lua_pushcfunction_with_rigidbody(LuaRigidbody::FreezeRotation, "FreezeRotation");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::AddVelocity, "AddVelocity");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetMass, "GetMass");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetMass, "SetMass");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetDrag, "GetDrag");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetDrag, "SetDrag");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::UseGravity, "UseGravity");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::FreezePosition, "FreezePosition");
+            LuaPushCFunctionWithRigidbody(LuaRigidbody::FreezeRotation, "FreezeRotation");
             lua_setglobal(L, "Rigidbody");
         }
         else if (std::is_same<T, AudioComponent>::value)
         {
             lua_newtable(L);
-            lua_pushcfunction_with_audioSource(LuaAudioSource::Play, "Play");
-            lua_pushcfunction_with_audioSource(LuaAudioSource::Pause, "Pause");
-            lua_pushcfunction_with_audioSource(LuaAudioSource::Stop, "Stop");
+            LuaPushCFunctionWithAudioSource(LuaAudioSource::Play, "Play");
+            LuaPushCFunctionWithAudioSource(LuaAudioSource::Pause, "Pause");
+            LuaPushCFunctionWithAudioSource(LuaAudioSource::Stop, "Stop");
             lua_setglobal(L, "AudioSource");
         }
         else if (std::is_same<T, BoxCollider>::value)
@@ -397,7 +399,7 @@ void LuaScript::lua_push_componet_table()
     }
 }
 
-int LuaScriptCallBack::lua_callback(lua_State* L)
+int LuaScriptCallBack::LuaCallback(lua_State* L)
 {
     const char* message = lua_tostring(L, 1);
     if (message)

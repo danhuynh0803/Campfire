@@ -4,7 +4,7 @@
 #include "Scene/ScriptableEntity.h"
 
 namespace LuaScriptCallBack {
-    int lua_callback(lua_State*);
+    int LuaCallback(lua_State*);
 }
 
 class LuaScript : public ScriptableEntity
@@ -18,12 +18,12 @@ public:
 private:
     lua_State* L;
     void LuaPushEntity(Entity entity);
-    void lua_pushcfunction_with_entity(const lua_CFunction& f, const char* name);
-    void lua_pushcfunction_with_rigidbody(Entity entity, const lua_CFunction& f, const char* name);
-    void lua_pushcfunction_with_rigidbody(const lua_CFunction& f, const char* name);
-    void lua_pushcfunction_with_tag(const lua_CFunction& f, const char* name);
-    void lua_pushcfunction_with_audioSource(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithRigidbody(Entity entity, const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithTag(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const char* name);
 
     template<typename T>
-    void lua_push_componet_table();
+    void LuaPushComponetTable();
 };
