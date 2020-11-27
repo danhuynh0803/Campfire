@@ -16,6 +16,7 @@
 
 static int Log(lua_State* L)
 {
+    luaL_checkstring(L, -1);
     const char* msg = lua_tostring(L, -1);
     LOG_INFO(msg);
     return 0;
@@ -137,7 +138,6 @@ void LuaScript::Update(float dt)
 #else
     lua_pop(L, 1);
 #endif //  _DEBUG 
-    CORE_INFO("{0}", lua_gettop(L));
 }
 
 void LuaScript::Destroy()
@@ -150,16 +150,13 @@ void LuaScript::OnTriggerEnter(Entity other)
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerEnter");
-
     LuaPushEntity(other);
-
     if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
         LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
-    /*CORE_INFO("{0}", lua_gettop(L));*/
 }
 
 void LuaScript::LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name)
@@ -384,12 +381,12 @@ void LuaScript::LuaPushComponetTable()
         }
         else
         {
-            CORE_INFO("{0} was found, but Lua Table for was not created", typeid(T).name());
+            CORE_WARN("{0} was found, but Lua Table for was not created", typeid(T).name());
         }
     }
     else
     {
-        CORE_INFO("Missing {0} component", typeid(T).name());
+        CORE_WARN("Missing {0} component", typeid(T).name());
     }
 }
 

@@ -7,7 +7,6 @@ int LuaTransfrom::NewTransform(lua_State* L)
     void* transformComponent = lua_newuserdata(L, sizeof(TransformComponent));
     new (transformComponent) TransformComponent();//using the pointer to use the allocated memory that was already alloacted by lua
     luaL_getmetatable(L, transformCompoentMetaTableName);
-    assert(lua_istable(L, -1));
     lua_setmetatable(L, -2);
 
     /*lua_newtable(L);
@@ -64,10 +63,10 @@ int LuaTransfrom::GetScale(lua_State* L)
 
 int LuaTransfrom::SetPosition(lua_State* L)
 {
-    assert(lua_isuserdata(L, -4));
-    assert(lua_isnumber(L, -3));
-    assert(lua_isnumber(L, -2));
-    assert(lua_isnumber(L, -1));
+    luaL_checktype(L, 1, LUA_TUSERDATA);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
+    luaL_checknumber(L, 4);
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -4);
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -78,6 +77,10 @@ int LuaTransfrom::SetPosition(lua_State* L)
 
 int LuaTransfrom::SetRotation(lua_State* L)
 {
+    luaL_checktype(L, 1, LUA_TUSERDATA);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
+    luaL_checknumber(L, 4);
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -4);
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -88,6 +91,10 @@ int LuaTransfrom::SetRotation(lua_State* L)
 
 int LuaTransfrom::SetScale(lua_State* L)
 {
+    luaL_checktype(L, 1, LUA_TUSERDATA);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
+    luaL_checknumber(L, 4);
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -4);
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -105,8 +112,8 @@ int LuaTransfrom::SetScale(lua_State* L)
 
 int LuaTransfrom::LuaTransformTableIndex(lua_State* L)
 {
-    assert(lua_isuserdata(L, -2));
-    assert(lua_isstring(L, -1));
+    luaL_checktype(L, 1, LUA_TUSERDATA);
+    luaL_checkstring(L, 2);
 
     TransformComponent* transfromComponet = (TransformComponent*)lua_touserdata(L, -2);
     const char* index = lua_tostring(L, -1);
@@ -159,11 +166,10 @@ const luaL_Reg LuaTransfrom::transformLib[] =
 
 int LuaTransfrom::SetEntityPosition(lua_State* L)
 {
+    luaL_checknumber(L, 1);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    assert(position);
-    assert(lua_isnumber(L, -3));
-    assert(lua_isnumber(L, -2));
-    assert(lua_isnumber(L, -1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
     lua_Number z = lua_tonumber(L, -1);
@@ -173,11 +179,10 @@ int LuaTransfrom::SetEntityPosition(lua_State* L)
 
 int LuaTransfrom::SetEntityRotation(lua_State* L)
 {
+    luaL_checknumber(L, 1);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
     glm::quat* euler = (glm::quat*)lua_touserdata(L, lua_upvalueindex(1));
-    assert(euler);
-    assert(lua_isnumber(L, -3));
-    assert(lua_isnumber(L, -2));
-    assert(lua_isnumber(L, -1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
     lua_Number z = lua_tonumber(L, -1);
@@ -187,11 +192,10 @@ int LuaTransfrom::SetEntityRotation(lua_State* L)
 
 int LuaTransfrom::SetEntityScale(lua_State* L)
 {
+    luaL_checknumber(L, 1);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
     glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    assert(scale);
-    assert(lua_isnumber(L, -3));
-    assert(lua_isnumber(L, -2));
-    assert(lua_isnumber(L, -1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
     lua_Number z = lua_tonumber(L, -1);
@@ -201,12 +205,10 @@ int LuaTransfrom::SetEntityScale(lua_State* L)
 
 int LuaTransfrom::Translate(lua_State* L)
 {
+    luaL_checknumber(L, 1);
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-
-    assert(position);
-    assert(lua_isnumber(L, -3));
-    assert(lua_isnumber(L, -2));
-    assert(lua_isnumber(L, -1));
 
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -220,7 +222,6 @@ int LuaTransfrom::Translate(lua_State* L)
 int LuaTransfrom::GetEntityPosition(lua_State* L)
 {
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    assert(position);
     lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, position->x);
@@ -237,7 +238,6 @@ int LuaTransfrom::GetEntityPosition(lua_State* L)
 int LuaTransfrom::GetEntityRotation(lua_State* L)
 {
     glm::vec3* euler = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    assert(euler);
     lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, euler->x);

@@ -60,6 +60,8 @@ int LuaVector::LuaVec4(lua_State* L)
 
 int LuaVector::LuaVec2Add(lua_State* L)
 {
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_pushstring(L, "x");
 	lua_gettable(L, -3);
 	lua_Number x1 = lua_tonumber(L, -1);
@@ -92,6 +94,8 @@ int LuaVector::LuaVec2Add(lua_State* L)
 
 int LuaVector::LuaVec3Add(lua_State* L)
 {
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_pushstring(L, "x");
 	lua_gettable(L, -3);
 	lua_Number x1 = lua_tonumber(L, -1);
@@ -135,6 +139,8 @@ int LuaVector::LuaVec3Add(lua_State* L)
 
 int LuaVector::LuaVec4Add(lua_State* L)
 {
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_pushstring(L, "x");
 	lua_gettable(L, -3);
 	lua_Number x1 = lua_tonumber(L, -1);
@@ -189,6 +195,8 @@ int LuaVector::LuaVec4Add(lua_State* L)
 
 int LuaVector::LuaVec2Sub(lua_State* L)
 {
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_pushstring(L, "x");
 	lua_gettable(L, -3);
 	lua_Number x1 = lua_tonumber(L, -1);
@@ -221,6 +229,8 @@ int LuaVector::LuaVec2Sub(lua_State* L)
 
 int LuaVector::LuaVec3Sub(lua_State* L)
 {
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_pushstring(L, "x");
 	lua_gettable(L, -3);
 	lua_Number x1 = lua_tonumber(L, -1);
@@ -264,6 +274,8 @@ int LuaVector::LuaVec3Sub(lua_State* L)
 
 int LuaVector::LuaVec4Sub(lua_State* L)
 {
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
 	lua_pushstring(L, "x");
 	lua_gettable(L, -3);
 	lua_Number x1 = lua_tonumber(L, -1);
