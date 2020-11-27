@@ -2,10 +2,10 @@ function Start()
 
 end
 
-function Update()
-
+function Update(dt)
+    Log(dt)
 end
 
-function OnTriggerEnter()
+function OnTriggerEnter(other)
     Log(other.tag)
 end
