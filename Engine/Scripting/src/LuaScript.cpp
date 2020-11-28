@@ -32,13 +32,6 @@ void LuaScript::Start()
     lua_pushcfunction(L, Log);
     lua_setglobal(L, "Log");
 
-    /* for objects managed by lua stack(gc and all that)
-    char* transformComponetMetaTableName = "TransformComponetMetaTable";
-    {luaL_newmetatable(L, transformComponetMetaTableName);
-        lua_pushstring(L, "__index");
-        lua_pushcfunction(L, LuaTransfrom::LuaTransformTableIndex);//indexing method for the Transfrom table above
-    }lua_settable(L, -3); //sets the (meta)table and pop above
-    */
     lua_newtable(L);
     {
         lua_pushcfunction(L, LuaVector::LuaVec2);
@@ -412,7 +405,7 @@ void LuaScript::LuaPushComponetTable()
         }
         else
         {
-            CORE_WARN("{0} was found, but Lua Table for was not created", typeid(T).name());
+            CORE_WARN("{0} was found, but the Lua Table is not implemented yet", typeid(T).name());
         }
     }
     else

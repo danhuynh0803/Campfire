@@ -44,6 +44,7 @@ target_link_libraries(
     Editor
     PRIVATE
         Engine
+        font-awesome-5
 )
 
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
