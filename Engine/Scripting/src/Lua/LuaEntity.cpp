@@ -4,9 +4,16 @@
 
 int LuaEntity::Instantiate(lua_State* L)
 {
+    luaL_checkstring(L, 1);//path to .prefab or something
+    luaL_checknumber(L, 2);
+    luaL_checknumber(L, 3);
+    luaL_checknumber(L, 4);
+    lua_Number x = lua_tonumber(L, 2);
+    lua_Number y = lua_tonumber(L, 3);
+    lua_Number z = lua_tonumber(L, 4);
     Entity other;
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
-    Entity newEntity =script->Instantiate(other,glm::vec3(0.0f, 0.0f, 0.0f));
+    Entity newEntity = script->Instantiate(other, glm::vec3(x,y,z));
     lua_newtable(L);
     {
         lua_newtable(L);
