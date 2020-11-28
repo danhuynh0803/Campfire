@@ -1,9 +1,11 @@
 #include "Core/ResourceManager.h"
 #include "Renderer/RendererAPI.h"
 #include "OpenGL/OpenGLTexture.h"
+#include "Scene/Entity.h"
 
 std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
 std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
+std::unordered_map<std::string, Entity> ResourceManager::mCachedEntityMap;
 
 std::string ResourceManager::mAssetsPath = "../../Assets/";
 std::string ResourceManager::mShaderPath = "../../Shaders/";
@@ -33,4 +35,15 @@ SharedPtr<Mesh> ResourceManager::GetMesh(const std::string& path)
         mCachedMeshMap.emplace(path, CreateSharedPtr<Mesh>(path));
     }
     return mCachedMeshMap.at(path);
+}
+
+Entity ResourceManager::GetEntityWithTag(const std::string& tag)
+{
+    auto it = mCachedEntityMap.find(tag);
+    if (it == mCachedEntityMap.end())
+    {
+        LOG_WARN("No prefab for {0} is found", tag);
+        return Entity {};
+    }
+    return mCachedEntityMap.at(tag);
 }

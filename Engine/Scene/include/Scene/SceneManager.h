@@ -22,9 +22,9 @@ public:
     static std::string GetActiveSceneName() { return activeSceneName; }
     static bool HasSceneLoaded() { return !(activeScenePath.empty()); }
 
-private:
     static json SerializeEntity(Entity entity);
     static void DeserializeEntity(json eJson);
+private:
 
     void SerializeScene(const std::string& filepath);
     void SerializeSceneRuntime(const std::string& filepath);

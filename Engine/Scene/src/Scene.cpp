@@ -197,6 +197,9 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
 
 void Scene::OnStart()
 {
+    // Initialize prefabs into memory
+
+
     // Submit all entities with rbs to Physics
     // FIXME: physics needs to be submitted before start
     // in order to make use of RB functions in Start().

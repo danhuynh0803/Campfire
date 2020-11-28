@@ -1,15 +1,29 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include <type_traits>
+#include <fstream>
+#include <iomanip>
 
 #include "Widgets/InspectorWidget.h"
 #include "Core/FileSystem.h"
 #include "Renderer/Material.h"
-
-#include <type_traits>
+#include "Scene/SceneManager.h"
 
 void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
     ImGui::Begin("Inspector", isOpen);
+
+    if (ImGui::Button("Save Prefab"))
+    {
+        std::string path = FileSystem::SaveFile("Prefab Files(*.prefab)\0");
+        if (!path.empty())
+        {
+            json eJson = SceneManager::SerializeEntity(entity);
+            std::ofstream out(path);
+            out << std::setw(2) << eJson << std::endl;
+            out.close();
+        }
+    }
 
     // TODO change tag to be a name
     // and tag later is an identifier for filtering objects
