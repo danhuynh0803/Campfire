@@ -111,3 +111,7 @@ set_target_properties(tracy PROPERTIES FOLDER "Vendor")
 
 # Vulkan
 #project(vulkan)
+
+#font-awesome-5
+add_library(font-awesome-5 INTERFACE)
+target_include_directories(font-awesome-5 INTERFACE "font-awesome-5/include/")
