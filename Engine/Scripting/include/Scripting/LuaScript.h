@@ -14,7 +14,8 @@ public:
     void Update(float);
     void Destroy();
     void OnTriggerEnter(Entity);
-
+    void OnTriggerStay(Entity);
+    void OnTriggerExit(Entity);
 private:
     lua_State* L;
     void LuaPushEntity(Entity entity);

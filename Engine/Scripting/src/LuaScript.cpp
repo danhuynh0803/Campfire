@@ -162,6 +162,34 @@ void LuaScript::OnTriggerEnter(Entity other)
     lua_pop(L, 1);
 }
 
+void LuaScript::OnTriggerStay(Entity other)
+{
+    luaL_dofile(L, filepath.c_str());
+    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_getglobal(L, "OnTriggerStay");
+    LuaPushEntity(other);
+    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+    {
+        LOG_ERROR("Cannot run OnTriggerStay() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+}
+
+void LuaScript::OnTriggerExit(Entity other)
+{
+    luaL_dofile(L, filepath.c_str());
+    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_getglobal(L, "OnTriggerExit");
+    LuaPushEntity(other);
+    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+    {
+        LOG_ERROR("Cannot run OnTriggerExit() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+}
+
 void LuaScript::LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name)
 {
     lua_pushlightuserdata(L, &entity);
