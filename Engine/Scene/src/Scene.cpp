@@ -198,7 +198,18 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
 void Scene::OnStart()
 {
     // Initialize prefabs into memory
+    auto prefabs = FileSystem::GetAllFiles(ASSETS.c_str(), ".prefab");
+    for (auto path : prefabs)
+    {
+        // TODO move to scene instead? also needs to be added
+        // to registry in order to get component info
+        // But this will mean itll be visible by entityMap
+        // Maybe split to a prefab map?
+        // Want to load into memory but not yet instantiated
 
+        //Entity entity = SceneManager::DeserializeEntity(
+        //ResourceManager::SetEntityWithTag(
+    }
 
     // Submit all entities with rbs to Physics
     // FIXME: physics needs to be submitted before start

@@ -15,6 +15,7 @@ public:
     static SharedPtr<Texture2D> GetTexture2D(const std::string& path);
     static SharedPtr<Mesh> GetMesh(const std::string& path);
     static Entity GetEntityWithTag(const std::string& tag);
+    static void SetEntityWithTag(Entity entity, const std::string& tag);
     //SharedPtr<Audio> GetAudio(const std::string& path);
 
     inline static std::string GetAssetsPath() { return mAssetsPath; }

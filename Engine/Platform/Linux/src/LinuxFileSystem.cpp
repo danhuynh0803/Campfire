@@ -61,7 +61,7 @@ std::string LinuxFileSystem::SaveFile(const char* filter)
     // redirect standard output from cmd
     cmd += " 2>&1";
 
-    outputStream = popen(cmd.c_str(), "r");
+    outputStream = popen(cmd.c_str(), "w");
     if (outputStream)
     {
         while (!feof(outputStream))
