@@ -1,13 +1,15 @@
-#include "Platform/Linux/LinuxFileSystem.h"
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
+
+#include "Platform/Linux/LinuxFileSystem.h"
+#include "Core/ResourceManager.h"
 
 std::string LinuxFileSystem::OpenFile(const char* filter)
 {
     std::string outputString;
 
-    std::string cmd = "zenity --file-selection";
+    std::string cmd = "zenity --file-selection --filename=" + ASSETS + "/*";
 
     // File extension filtering
     if (strcmp(filter, "") != 0)
@@ -43,7 +45,40 @@ std::string LinuxFileSystem::OpenFile(const char* filter)
 
 std::string LinuxFileSystem::SaveFile(const char* filter)
 {
-    return "";
+    std::string outputString;
+
+    std::string cmd = "zenity --file-selection --save --filename=" + ASSETS + "/*";
+
+    // File extension filtering
+    if (strcmp(filter, "") != 0)
+    {
+        cmd += " --file-filter=";
+        cmd += filter;
+    }
+    FILE* outputStream;
+    const int maxLength = 128;
+    char outputLine[maxLength];
+    // redirect standard output from cmd
+    cmd += " 2>&1";
+
+    outputStream = popen(cmd.c_str(), "r");
+    if (outputStream)
+    {
+        while (!feof(outputStream))
+        {
+            if (fgets(outputLine, maxLength, outputStream) != NULL)
+            {
+                // Replace new line if present
+                char* ptr = strchr(outputLine, '\n');
+                if (ptr) { *ptr = '\0'; }
+
+                outputString += outputLine;
+            }
+        }
+        pclose(outputStream);
+    }
+
+    return outputString;
 }
 
 bool LinuxFileSystem::MoveFiles(const char* source, const char* target)
