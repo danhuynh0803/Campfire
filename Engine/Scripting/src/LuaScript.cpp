@@ -8,6 +8,7 @@
 #include "Scripting/Lua/LuaAudioSource.h"
 #include "Scripting/Lua/LuaVector.h"
 #include "Scripting/Lua/LuaCollider.h"
+#include "Scripting/Lua/LuaEntity.h"
 #include "Core/Log.h"
 #include  <type_traits>
 #include "Physics/Collider.h"
@@ -93,7 +94,9 @@ void LuaScript::Start()
 
     lua_newtable(L);
     {
-
+        lua_pushlightuserdata(L, this);
+        lua_pushcclosure(L, LuaEntity::Instantiate, 1);
+        lua_setfield(L, -2, "Instantiate");
     }
     lua_setglobal(L, "Entity"); //name the table entity
 
