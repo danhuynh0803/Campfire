@@ -54,9 +54,9 @@ void EditorLayer::OnAttach()
     static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
-    std::string fontFilePath = FONTS + "fa-regular-400.ttf";
+    std::string FontAwesomeFontFilePath = FONTS + "fa-regular-400.ttf";
     float iconFontSize = 16.0f;
-    io.Fonts->AddFontFromFileTTF(fontFilePath.c_str(), iconFontSize, &icons_config, icons_ranges);
+    io.Fonts->AddFontFromFileTTF(FontAwesomeFontFilePath.c_str(), iconFontSize, &icons_config, icons_ranges);
 
 
     // TODO move all these resolution numbers into some global that can be accessed
