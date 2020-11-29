@@ -54,7 +54,7 @@ void EditorLayer::OnAttach()
     static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
-    std::string FontAwesomeFontFilePath = FONTS + "fa-regular-400.ttf";
+    std::string FontAwesomeFontFilePath = FONTS + "fa-solid-900.ttf";
     float iconFontSize = 16.0f;
     io.Fonts->AddFontFromFileTTF(FontAwesomeFontFilePath.c_str(), iconFontSize, &icons_config, icons_ranges);
 
@@ -648,7 +648,8 @@ void EditorLayer::ShowMenuFile()
             activeScene = editorScene;
         }
     }
-
+    ImGui::Text(ICON_FA_FOLDER_OPEN);
+    ImGui::SameLine();
     if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
     {
         std::string loadPath = FileSystem::OpenFile("Campfire Files(*.cf)\0");
@@ -662,12 +663,14 @@ void EditorLayer::ShowMenuFile()
             }
         }
     }
-
+    ImGui::Text(ICON_FA_SAVE);
+    ImGui::SameLine();
     if (ImGui::MenuItem("Save", "Ctrl+S"))
     {
         SceneManager::SaveCurrentScene(activeScene);
     }
-
+    ImGui::Text(ICON_FA_SAVE);
+    ImGui::SameLine();
     if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S"))
     {
         std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
