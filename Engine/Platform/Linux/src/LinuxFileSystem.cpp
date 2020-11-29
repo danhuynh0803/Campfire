@@ -11,12 +11,14 @@ std::string LinuxFileSystem::OpenFile(const char* filter)
 
     std::string cmd = "zenity --file-selection --filename=" + ASSETS + "/*";
 
+    // FIXME filtering is broken from
+    // switching to Windows filter format
     // File extension filtering
-    if (strcmp(filter, "") != 0)
-    {
-        cmd += " --file-filter=";
-        cmd += filter;
-    }
+    //if (strcmp(filter, "") != 0)
+    //{
+    //    cmd += " --file-filter=";
+    //    cmd += filter;
+    //}
     FILE* outputStream;
     const int maxLength = 128;
     char outputLine[maxLength];
@@ -47,26 +49,28 @@ std::string LinuxFileSystem::SaveFile(const char* filter)
 {
     std::string outputString;
 
-    std::string cmd = "zenity --file-selection --save --filename=" + ASSETS + "/*";
+    // FIXME relative paths dont seem to work when --save is set
+    std::string cmd = "zenity --file-selection --save --confirm-overwrite --filename=${HOME}/repos/Campfire/Assets/";
+    //std::string cmd = "zenity --file-selection --save --confirm-overwrite --filename=" + ASSETS;
 
+    // FIXME filtering is broken from
+    // switching to Windows filter format
     // File extension filtering
-    if (strcmp(filter, "") != 0)
-    {
-        cmd += " --file-filter=";
-        cmd += filter;
-    }
-    FILE* outputStream;
+    //if (strcmp(filter, "") != 0)
+    //{
+    //    cmd += " --file-filter=";
+    //    cmd += filter;
+    //}
     const int maxLength = 128;
     char outputLine[maxLength];
-    // redirect standard output from cmd
+    // redirect standard error from cmd
     cmd += " 2>&1";
-
-    outputStream = popen(cmd.c_str(), "w");
-    if (outputStream)
+    FILE* fp = popen(cmd.c_str(), "r");
+    if (fp)
     {
-        while (!feof(outputStream))
+        while (!feof(fp))
         {
-            if (fgets(outputLine, maxLength, outputStream) != NULL)
+            if (fgets(outputLine, maxLength, fp) != NULL)
             {
                 // Replace new line if present
                 char* ptr = strchr(outputLine, '\n');
@@ -75,7 +79,7 @@ std::string LinuxFileSystem::SaveFile(const char* filter)
                 outputString += outputLine;
             }
         }
-        pclose(outputStream);
+        pclose(fp);
     }
 
     return outputString;
