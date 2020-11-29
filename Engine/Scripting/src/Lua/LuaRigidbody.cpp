@@ -4,9 +4,10 @@
 
 int LuaRigidbody::SetVelocity(lua_State* L)
 {
-    luaL_checknumber(L, 1);
-    luaL_checknumber(L, 2);
-    luaL_checknumber(L, 3);
+    int topIndex = lua_gettop(L);
+    luaL_checknumber(L, topIndex - 2);
+    luaL_checknumber(L, topIndex - 1);
+    luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -18,9 +19,10 @@ int LuaRigidbody::SetVelocity(lua_State* L)
 
 int LuaRigidbody::AddVelocity(lua_State* L)
 {
-    luaL_checknumber(L, 1);
-    luaL_checknumber(L, 2);
-    luaL_checknumber(L, 3);
+    int topIndex = lua_gettop(L);
+    luaL_checknumber(L, topIndex - 2);
+    luaL_checknumber(L, topIndex - 1);
+    luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number x = lua_tonumber(L, -3);
     lua_Number y = lua_tonumber(L, -2);
@@ -49,7 +51,8 @@ int LuaRigidbody::GetVelocity(lua_State* L)
 
 int LuaRigidbody::SetMass(lua_State* L)
 {
-    luaL_checknumber(L, 1);
+    int topIndex = lua_gettop(L);
+    luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number mass = lua_tonumber(L, -1);
     rigidbody->mass = mass;
@@ -58,7 +61,6 @@ int LuaRigidbody::SetMass(lua_State* L)
 
 int LuaRigidbody::GetMass(lua_State* L)
 {
-    luaL_checknumber(L, 1);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_pushnumber(L, rigidbody->mass);
     return 1;
@@ -66,7 +68,8 @@ int LuaRigidbody::GetMass(lua_State* L)
 
 int LuaRigidbody::SetDrag(lua_State* L)
 {
-    luaL_checknumber(L, 1);
+    int topIndex = lua_gettop(L);
+    luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number drag = lua_tonumber(L, -1);
     rigidbody->drag = drag;
@@ -82,7 +85,8 @@ int LuaRigidbody::GetDrag(lua_State* L)
 
 int LuaRigidbody::SetAngularDrag(lua_State* L)
 {
-    luaL_checknumber(L, 1);
+    int topIndex = lua_gettop(L);
+    luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     lua_Number angularDrag = lua_tonumber(L, -1);
     rigidbody->angularDrag = angularDrag;
@@ -98,7 +102,8 @@ int LuaRigidbody::GetAngularDrag(lua_State* L)
 
 int LuaRigidbody::UseGravity(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TBOOLEAN);
+    int topIndex = lua_gettop(L);
+    luaL_checktype(L, topIndex, LUA_TBOOLEAN);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     rigidbody->useGravity = lua_toboolean(L, -1);
     return 0;
@@ -106,9 +111,10 @@ int LuaRigidbody::UseGravity(lua_State* L)
 
 int LuaRigidbody::FreezePosition(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TBOOLEAN);
-    luaL_checktype(L, 2, LUA_TBOOLEAN);
-    luaL_checktype(L, 3, LUA_TBOOLEAN);
+    int topIndex = lua_gettop(L);
+    luaL_checktype(L, topIndex - 2, LUA_TBOOLEAN);
+    luaL_checktype(L, topIndex - 1, LUA_TBOOLEAN);
+    luaL_checktype(L, topIndex, LUA_TBOOLEAN);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     bool x = lua_toboolean(L, -3);
     bool y = lua_toboolean(L, -2);
@@ -121,9 +127,10 @@ int LuaRigidbody::FreezePosition(lua_State* L)
 
 int LuaRigidbody::FreezeRotation(lua_State* L)
 {
-    luaL_checktype(L, 1, LUA_TBOOLEAN);
-    luaL_checktype(L, 2, LUA_TBOOLEAN);
-    luaL_checktype(L, 3, LUA_TBOOLEAN);
+    int topIndex = lua_gettop(L);
+    luaL_checktype(L, topIndex - 2, LUA_TBOOLEAN);
+    luaL_checktype(L, topIndex - 1, LUA_TBOOLEAN);
+    luaL_checktype(L, topIndex, LUA_TBOOLEAN);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
     bool x = lua_toboolean(L, -3);
     bool y = lua_toboolean(L, -2);

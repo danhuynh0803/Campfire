@@ -5,20 +5,21 @@
 
 int LuaEntity::Instantiate(lua_State* L)
 {
-    luaL_checkstring(L, 2);
-    luaL_checknumber(L, 3);
-    luaL_checknumber(L, 4);
-    luaL_checknumber(L, 5);
+    int topIndex = lua_gettop(L);
+    luaL_checkstring(L, topIndex-3);
+    luaL_checknumber(L, topIndex-2);
+    luaL_checknumber(L, topIndex-1);
+    luaL_checknumber(L, topIndex);
 
-    lua_Number x = lua_tonumber(L, 3);
-    lua_Number y = lua_tonumber(L, 4);
-    lua_Number z = lua_tonumber(L, 5);
+    lua_Number x = lua_tonumber(L, -3);
+    lua_Number y = lua_tonumber(L, -2);
+    lua_Number z = lua_tonumber(L, -1);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
 
     // Deserialize the requested prefab
-    std::string prefabPath = std::string(lua_tostring(L, 2));
+    std::string prefabPath = std::string(lua_tostring(L, -4));
     Entity newEntity = script->Instantiate(prefabPath, glm::vec3(x, y, z));
-    //Entity newEntity = script->Instantiate(other, glm::vec3(x,y,z));
+
     lua_newtable(L);
     {
         lua_newtable(L);
