@@ -20,6 +20,7 @@ public:
 
     inline static std::string GetAssetsPath() { return mAssetsPath; }
     inline static std::string GetShaderPath() { return mShaderPath; }
+    inline static std::string GetFontsPath() { return mFontsPath; }
 
 private:
     static std::unordered_map<std::string, SharedPtr<Texture2D>> mCachedTextureMap;
@@ -28,7 +29,9 @@ private:
 
     static std::string mAssetsPath;
     static std::string mShaderPath;
+    static std::string mFontsPath;
 };
 
 #define ASSETS  ResourceManager::GetAssetsPath()
 #define SHADERS ResourceManager::GetShaderPath()
+#define FONTS ResourceManager::GetFontsPath()

@@ -17,6 +17,7 @@
 #include <Tracy.hpp>
 
 #include "Renderer/Renderer.h"
+#include "IconsFontAwesome5.h"
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -45,6 +46,19 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach()
 {
+    ImGuiIO& io = ImGui::GetIO();
+    //setup FontAwesome Icon Fonts
+    io.Fonts->AddFontDefault();
+    ImFontConfig icons_config;
+    //must be static for some reason...
+    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    std::string fontFilePath = FONTS + "fa-regular-400.ttf";
+    float iconFontSize = 16.0f;
+    io.Fonts->AddFontFromFileTTF(fontFilePath.c_str(), iconFontSize, &icons_config, icons_ranges);
+
+
     // TODO move all these resolution numbers into some global that can be accessed
     editorCamera = CreateSharedPtr<Camera>(1920, 1080, 0.1f, 1000.0f);
     cameraController.SetActiveCamera(
@@ -623,6 +637,8 @@ void EditorLayer::ClearScene()
 
 void EditorLayer::ShowMenuFile()
 {
+    ImGui::Text(ICON_FA_FILE);
+    ImGui::SameLine();
     if (ImGui::MenuItem("New Scene", "Ctrl+N"))
     {
         //if (OpenConfirmPrompt("All unsaved progress will be lost!"))

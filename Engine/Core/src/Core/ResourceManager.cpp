@@ -9,6 +9,7 @@ std::unordered_map<std::string, Entity> ResourceManager::mCachedEntityMap;
 
 std::string ResourceManager::mAssetsPath = "../../Assets/";
 std::string ResourceManager::mShaderPath = "../../Shaders/";
+std::string ResourceManager::mFontsPath = "../../Assets/Fonts/";
 
 SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
 {
