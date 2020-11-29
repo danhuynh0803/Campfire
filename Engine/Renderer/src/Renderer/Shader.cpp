@@ -37,11 +37,11 @@ std::unordered_map<std::string, SharedPtr<Shader>> ShaderManager::shaderMap;
 
 void ShaderManager::Init()
 {
-    ShaderManager::Create("line"  , SHADERS + "line.vert", SHADERS + "line.frag");
-    ShaderManager::Create("pbr"   , SHADERS + "pbr.vert" , SHADERS + "pbr.frag");
-    ShaderManager::Create("quad"  , SHADERS + "sprite_default.vert", SHADERS + "sprite_default.frag");
-    ShaderManager::Create("text"  , SHADERS + "text.vert", SHADERS + "text.frag");
-    ShaderManager::Create("skybox", SHADERS + "skybox.vert", SHADERS + "skybox.frag");
+    ShaderManager::Create("line"  , SHADERS + "/line.vert", SHADERS + "/line.frag");
+    ShaderManager::Create("pbr"   , SHADERS + "/pbr.vert" , SHADERS + "/pbr.frag");
+    ShaderManager::Create("quad"  , SHADERS + "/sprite_default.vert", SHADERS + "/sprite_default.frag");
+    ShaderManager::Create("text"  , SHADERS + "/text.vert", SHADERS + "/text.frag");
+    ShaderManager::Create("skybox", SHADERS + "/skybox.vert", SHADERS + "/skybox.frag");
 }
 
 void ShaderManager::Add(const std::string& tag, SharedPtr<Shader> shader)

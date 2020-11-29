@@ -8,9 +8,9 @@ std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap
 std::unordered_map<std::string, Entity> ResourceManager::mCachedEntityMap;
 std::unordered_map<std::string, nlohmann::json> ResourceManager::mPrefabMap;
 
-std::string ResourceManager::mAssetsPath = "../../Assets/";
-std::string ResourceManager::mShaderPath = "../../Shaders/";
-std::string ResourceManager::mFontsPath = "../../Assets/Fonts/";
+std::string ResourceManager::mAssetsPath = "../../Assets";
+std::string ResourceManager::mShaderPath = "../../Shaders";
+std::string ResourceManager::mFontsPath = "../../Assets/Fonts";
 
 SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
 {

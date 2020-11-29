@@ -19,7 +19,7 @@
 void ParticleSystem::Init()
 {
     // Default texture
-    particleTexture = Texture2D::Create(ASSETS + "Particles/circle_05.png");
+    particleTexture = Texture2D::Create(ASSETS + "/Particles/circle_05.png");
 }
 
 void ParticleSystem::GenerateParticles(uint32_t numParticles)

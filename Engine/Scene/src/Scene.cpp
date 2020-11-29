@@ -43,7 +43,7 @@ void Scene::Init()
     mainCamera.AddComponent<CameraComponent>();
     mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
-    mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/test.wav";
+    mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "/Audio/test.wav";
     mainCamera.GetComponent<AudioComponent>().audioSource->playOnAwake = true;
 
     auto directionalLight = CreateEntity("Directional Light");
@@ -56,7 +56,7 @@ void Scene::Init()
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
         player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
-        player.GetComponent<ScriptComponent>().filepath = ASSETS + "Scripts/test.lua";
+        player.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         //player.AddComponent<RigidbodyComponent>();
         //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
@@ -99,12 +99,12 @@ void Scene::Init()
     skybox = CreateUniquePtr<Skybox>();
     std::vector<std::string> skyboxTextures =
     {
-        ASSETS + "Textures/Skyboxes/Lake/right.jpg",
-        ASSETS + "Textures/Skyboxes/Lake/left.jpg",
-        ASSETS + "Textures/Skyboxes/Lake/top.jpg",
-        ASSETS + "Textures/Skyboxes/Lake/bottom.jpg",
-        ASSETS + "Textures/Skyboxes/Lake/front.jpg",
-        ASSETS + "Textures/Skyboxes/Lake/back.jpg"
+        ASSETS + "/Textures/Skyboxes/Lake/right.jpg",
+        ASSETS + "/Textures/Skyboxes/Lake/left.jpg",
+        ASSETS + "/Textures/Skyboxes/Lake/top.jpg",
+        ASSETS + "/Textures/Skyboxes/Lake/bottom.jpg",
+        ASSETS + "/Textures/Skyboxes/Lake/front.jpg",
+        ASSETS + "/Textures/Skyboxes/Lake/back.jpg"
     };
     skybox->Load(skyboxTextures);
 }

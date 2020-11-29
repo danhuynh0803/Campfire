@@ -31,7 +31,7 @@ std::string FileSystem::OpenFile(const char* filter)
         else
         {
             // Update path to be relative to the "Assets" directory
-            path = ASSETS + path.substr(found + 7);
+            path = ASSETS + "/" + path.substr(found + 7);
         }
     }
 

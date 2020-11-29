@@ -59,7 +59,7 @@ public:
     glm::vec2 uiPos = glm::vec2(0.5f);
 
 protected:
-    SharedPtr<Font> font = Font::Create(ASSETS + "Fonts/arial.ttf");
+    SharedPtr<Font> font = Font::Create(ASSETS + "/Fonts/arial.ttf");
 };
 
 // TODO setup batching for all text objects
