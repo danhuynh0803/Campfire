@@ -12,7 +12,7 @@ function OnTriggerEnter(other)
     --Log(other.Rigidbody.GetMass())
     other.Rigidbody.AddVelocity(0, 20, 0);
 
-    Entity:Instantiate("light.prefab", 0, 0, 0)
+    Entity:Instantiate("light.prefab", 3, 5, 1)
 end
 
 function OnTriggerStay(other)
