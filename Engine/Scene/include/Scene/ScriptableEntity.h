@@ -1,8 +1,9 @@
 #pragma once
 
+#include <lua.hpp>
 #include "Scene/Entity.h"
 #include "Scene/Component.h"
-#include <lua.hpp>
+#include "Scene/SceneManager.h"
 
 class ScriptableEntity
 {
@@ -26,13 +27,22 @@ public:
     {
     }
 
-    Entity Instantiate(Entity, glm::vec3 position)
+    Entity Instantiate(Entity other, glm::vec3 position)
     {
-        Entity newEntity = entity.scene->CreateEntity("InstObject");
+        Entity newEntity = entity.scene->DuplicateEntity(other);
         newEntity.GetComponent<TransformComponent>().position = position;
-        //newEntity.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+    }
 
-        return newEntity;
+    Entity Instantiate(const std::string& prefabName, glm::vec3 position)
+    {
+        if (ResourceManager::mPrefabMap.find(prefabName) != ResourceManager::mPrefabMap.end())
+        {
+            nlohmann::json eJson = ResourceManager::mPrefabMap.at(prefabName);
+            Entity newEntity = SceneManager::DeserializeEntity(eJson, entity.scene);
+            newEntity.GetComponent<TransformComponent>().position = position;
+            return newEntity;
+        }
+        CORE_WARN("No prefab named {0} is found within Assets", prefabName);
     }
 
     void Destroy(Entity other, float timer = 0.0f)

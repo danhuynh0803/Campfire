@@ -6,6 +6,7 @@
 std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
 std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
 std::unordered_map<std::string, Entity> ResourceManager::mCachedEntityMap;
+std::unordered_map<std::string, nlohmann::json> ResourceManager::mPrefabMap;
 
 std::string ResourceManager::mAssetsPath = "../../Assets/";
 std::string ResourceManager::mShaderPath = "../../Shaders/";

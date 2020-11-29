@@ -2,8 +2,6 @@
 #include "Core/FileSystem.h"
 #include "Core/ResourceManager.h"
 
-#include <filesystem>
-
 #ifdef PLATFORM_WINDOWS
 #include "Platform/Windows/WindowsFileSystem.h"
 #else
@@ -51,13 +49,13 @@ std::string FileSystem::SaveFile(const char* filter)
     return "";
 }
 
-std::vector<std::string> FileSystem::GetAllFiles(const char* root, const char* ext)
+std::vector<std::filesystem::path> FileSystem::GetAllFiles(const char* root, const char* ext)
 {
-    std::vector<std::string> matches;
+    std::vector<std::filesystem::path> matches;
     for (auto f : std::filesystem::recursive_directory_iterator(root))
     {
         if (f.path().extension() == ext) {
-            matches.emplace_back(f.path().string());
+            matches.emplace_back(f.path());
         }
     }
 

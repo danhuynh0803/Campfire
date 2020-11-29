@@ -1,6 +1,7 @@
 #include "Scripting/LuaScript.h"
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaTransform.h"
+#include "Core/ResourceManager.h"
 
 int LuaEntity::Instantiate(lua_State* L)
 {
@@ -8,12 +9,16 @@ int LuaEntity::Instantiate(lua_State* L)
     luaL_checknumber(L, 2);
     luaL_checknumber(L, 3);
     luaL_checknumber(L, 4);
+
     lua_Number x = lua_tonumber(L, 2);
     lua_Number y = lua_tonumber(L, 3);
     lua_Number z = lua_tonumber(L, 4);
-    Entity other;
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
-    Entity newEntity = script->Instantiate(other, glm::vec3(x,y,z));
+
+    // Deserialize the requested prefab
+    std::string prefabPath = std::string(lua_tostring(L, 1));
+    Entity newEntity = script->Instantiate(prefabPath, glm::vec3(x, y, z));
+    //Entity newEntity = script->Instantiate(other, glm::vec3(x,y,z));
     lua_newtable(L);
     {
         lua_newtable(L);

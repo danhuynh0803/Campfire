@@ -6,6 +6,7 @@
 #include "Base.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Mesh.h"
+#include <nlohmann/json.hpp>
 
 class Entity;
 
@@ -21,6 +22,8 @@ public:
     inline static std::string GetAssetsPath() { return mAssetsPath; }
     inline static std::string GetShaderPath() { return mShaderPath; }
     inline static std::string GetFontsPath() { return mFontsPath; }
+
+    static std::unordered_map<std::string, nlohmann::json> mPrefabMap;
 
 private:
     static std::unordered_map<std::string, SharedPtr<Texture2D>> mCachedTextureMap;

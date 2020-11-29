@@ -50,6 +50,8 @@ public:
     {
         if (HasComponent<T>())
             scene->registry.template remove<T>(entityHandle);
+        else
+            CORE_WARN("{0} not found for removal", typeid(T).name());
     }
 
     operator bool() const { return entityHandle != entt::null; }

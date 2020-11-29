@@ -66,24 +66,7 @@ void Scene::Init()
         //player.AddComponent<TriggerComponent>();
         //player.AddComponent<AudioComponent>();
         //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
-        //player.AddComponent<NativeScriptComponent>().Bind<Script::PlayerController>();
-        //player.AddComponent<NativeScriptComponent>().Bind<Script::MazeGenerator>();
         //player.AddChild(mainCamera);
-
-        //auto child = CreateEntity("Child", false);
-        //child.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        //child.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 1.0f, 0.0f);
-        //player.AddChild(child);
-
-        //auto child1 = CreateEntity("Child1", false);
-        //child1.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        //child1.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
-        //player.AddChild(child1);
-
-        //auto child2 = CreateEntity("Child2", false);
-        //child2.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
-        //child2.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        //player.AddChild(child2);
     }
 
     {
@@ -111,18 +94,7 @@ void Scene::Init()
         colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
     }
 
-    //auto snow = CreateEntity("Snow");
-    //snow.AddComponent<ParticleSystemComponent>();
-    //snow.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 30.901f, 0.0f);
-    //auto snowPS = snow.GetComponent<ParticleSystemComponent>().ps;
-    //snowPS->acceleration = glm::vec3(0.0f, -0.65f, 0.0f);
-    //snowPS->colorOverLifeEnd = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
-    //snowPS->velocityRandomX = glm::vec2(-5.0f, 5.0f);
-    //snowPS->velocityRandomY = glm::vec2(0.0f, 0.0f);
-    //snowPS->velocityRandomZ = glm::vec2(-5.0f, 5.0f);
-    //snowPS->pColor = COLOR_PATTERN_OVER_LIFE_TIME;
-    //snowPS->lifetime = 28.1f;
-
+    // TODO replace with HDR skybox
     // Setup default skybox
     skybox = CreateUniquePtr<Skybox>();
     std::vector<std::string> skyboxTextures =
@@ -201,22 +173,16 @@ void Scene::DeepCopy(const SharedPtr<Scene>& other)
 
 void Scene::OnStart()
 {
+    // TODO
     // Initialize prefabs into memory
     auto prefabs = FileSystem::GetAllFiles(ASSETS.c_str(), ".prefab");
     for (auto path : prefabs)
     {
-        // TODO move to scene instead? also needs to be added
-        // to registry in order to get component info
-        // But this will mean itll be visible by entityMap
-        // Maybe split to a prefab map?
-        // Want to load into memory but not yet instantiated
-
-        std::ifstream input(path);
+        std::ifstream input(path.string());
         json eJson;
         input >> eJson;
-        Entity entity = SceneManager::DeserializeEntity(eJson, this);
-        LOG_INFO("Deserialized {0}", path);
-        //ResourceManager::SetEntityWithTag()
+        LOG_INFO("Deserialized {0} stored at {1}", path.string(), path.filename().string());
+        ResourceManager::mPrefabMap[path.filename().string()] = eJson;
     }
 
     // Submit all entities with rbs to Physics
@@ -226,9 +192,11 @@ void Scene::OnStart()
     // it's physics wont be active since it wasn't submitted
     // into the list
     PhysicsManager::ClearLists();
-    for (auto entityPair : entityMap)
+    auto group = registry.group<Colliders>(entt::get<TransformComponent>);
+    for (auto handle : group)
     {
-        PhysicsManager::SubmitEntity(entityPair.second);
+        Entity entity(handle, this);
+        PhysicsManager::SubmitEntity(entity);
     }
 
     // Play all OnAwake sounds
@@ -271,12 +239,6 @@ void Scene::OnStart()
 
 void Scene::OnStop()
 {
-    //PhysicsManager::ClearLists();
-    //for (auto entityPair : entityMap)
-    //{
-    //    PhysicsManager::SubmitEntity(entityPair.second);
-    //}
-
     AudioSystem::StopAllChannels();
 }
 
@@ -533,30 +495,6 @@ std::string Scene::GetUniqueTag(const std::string& tag)
 
     return newTag;
 }
-
-//Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
-//{
-//    // FIXME
-//    // ID needs to increment as well when adding objects
-//    // maybe move to some refCounting class
-//
-//    auto entity = Entity(registry.create(), this);
-//
-//    // Default components all entities should have
-//    entity.AddComponent<IDComponent>(ID);
-//    std::string tag = GetUniqueTag(name);
-//    entity.AddComponent<TagComponent>(tag);
-//    entity.AddComponent<TransformComponent>();
-//    entity.AddComponent<RelationshipComponent>();
-//    entity.AddComponent<Colliders>();
-//
-//    if (isRootEntity)
-//    {
-//        entityMap[ID] = entity;
-//    }
-//
-//    return entity;
-//}
 
 Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
