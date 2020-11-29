@@ -1,5 +1,4 @@
-#ifndef HIERARCHY_WIDGET_H
-#define HIERARCHY_WIDGET_H
+#pragma once
 
 #include "Scene/Scene.h"
 #include "Widgets/InspectorWidget.h"
@@ -28,5 +27,3 @@ private:
     InspectorWidget wInspector;
     int selected = -1;
 };
-
-#endif // HIERARCHY_WIDGET_H

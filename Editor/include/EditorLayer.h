@@ -8,6 +8,7 @@
 #include "Widgets/HierarchyWidget.h"
 #include "Widgets/InspectorWidget.h"
 #include "Widgets/TransformWidget.h"
+#include "Widgets/AssetBrowser.h"
 
 class EditorLayer : public Layer
 {
@@ -61,6 +62,7 @@ private:
     HierarchyWidget wHierarchy;
     InspectorWidget wInspector;
     TransformWidget wTransform;
+    AssetBrowser wAssetBrowser;
 
     // TODO convert to widget
     void ShowAudioSettings(bool* isOpen);
@@ -73,6 +75,7 @@ private:
     // Audio
     bool showAudioSettings = false;
     // General
+    bool showAssetBrowser = true;
     bool showBoundingBoxes = false;
     bool showLog = true;
     bool showConsole = false;

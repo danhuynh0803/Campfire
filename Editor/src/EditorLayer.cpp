@@ -433,6 +433,9 @@ void EditorLayer::OnImGuiRender()
         ImGui::DockSpace(dockSpaceID, ImVec2(0.0f, 0.0f), dockFlags);
     }
 
+    // Show AssetBrowser
+    wAssetBrowser.OnImGuiRender(&showAssetBrowser);
+
     // Menu bar
     if (ImGui::BeginMainMenuBar())
     {

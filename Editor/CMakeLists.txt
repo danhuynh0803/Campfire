@@ -6,6 +6,7 @@ set(EDITOR_HEADERS
     #include/Widgets/ImGuiLog.h
     #include/Widgets/LogWidget.h
     include/Widgets/TransformWidget.h
+    include/Widgets/AssetBrowser.h
     include/EditorLayer.h
 )
 
@@ -14,6 +15,7 @@ set(EDITOR_SRC
     src/Widgets/InspectorWidget.cpp
     #src/Widgets/LogWidget.cpp
     src/Widgets/TransformWidget.cpp
+    src/Widgets/AssetBrowser.cpp
     src/EditorLayer.cpp
     src/EditorApplication.cpp
 )
