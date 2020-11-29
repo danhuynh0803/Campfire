@@ -1,0 +1,41 @@
+{
+  "IDComponent": 4,
+  "MeshComponent": {
+    "filepath": "../../Assets/Models/primitives/cube.fbx"
+  },
+  "RigidbodyComponent": {
+    "angularDrag": 0.05000000074505806,
+    "drag": 0.0,
+    "freezePosition": [
+      false,
+      false,
+      false
+    ],
+    "freezeRotation": [
+      false,
+      false,
+      false
+    ],
+    "mass": 1.0,
+    "type": 0,
+    "useGravity": true
+  },
+  "TagComponent": "Floor",
+  "TransformComponent": {
+    "euler": [
+      0.0,
+      -0.0,
+      0.0
+    ],
+    "position": [
+      0.0,
+      -5.0,
+      0.0
+    ],
+    "scale": [
+      10.0,
+      0.20000000298023224,
+      10.0
+    ]
+  }
+}

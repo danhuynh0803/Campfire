@@ -1,0 +1,30 @@
+{
+  "IDComponent": 1,
+  "LightComponent": {
+    "color": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "type": 0
+  },
+  "TagComponent": "Directional Light",
+  "TransformComponent": {
+    "euler": [
+      120.0,
+      -0.0,
+      0.0
+    ],
+    "position": [
+      0.0,
+      5.0,
+      2.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  }
+}
