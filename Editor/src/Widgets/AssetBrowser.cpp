@@ -1,5 +1,6 @@
 #include "Widgets/AssetBrowser.h"
 #include "Core/ResourceManager.h"
+#include "IconsFontAwesome5.h"
 
 #include <imgui.h>
 
@@ -12,7 +13,7 @@ AssetBrowser::AssetBrowser()
 
 void AssetBrowser::OnImGuiRender(bool* isOpen)
 {
-    static float scale = 1;
+    static float scale = 0.5f;
     ImGui::Begin("Assets", isOpen);
 
     // Scaling size for icons
@@ -47,16 +48,47 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     {
         ImGui::PushID(n);
         std::string assetName = p.path().filename().string();
-        if (ImGui::Button(assetName.c_str(), buttonSize))
+        if ( std::filesystem::is_directory(p.path()) )
         {
-            if (std::filesystem::is_directory(p.path())) {
-                currPath = std::filesystem::relative(p.path());
+            ImGui::Text(ICON_FA_FOLDER);
+        }
+        else
+        {
+            ImGui::Text(ICON_FA_FILE);
+        }
+        ImGui::SameLine();
+
+        if (scale <= 0.5f)
+        {
+            if (ImGui::Button(assetName.c_str()))
+            {
+                if (std::filesystem::is_directory(p.path())) {
+                    currPath = std::filesystem::relative(p.path());
+                }
+                else
+                {
+                    // TODO open selected file
+                }
             }
         }
+        else
+        {
+            if (ImGui::Button(assetName.c_str(), buttonSize))
+            {
+                if (std::filesystem::is_directory(p.path())) {
+                    currPath = std::filesystem::relative(p.path());
+                }
+            }
+        }
+
         float last_button_x2 = ImGui::GetItemRectMax().x;
         float next_button_x2 = last_button_x2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
-        if (n + 1 < buttonCount && next_button_x2 < window_visible_x2)
+        if (n + 1 < buttonCount
+            && next_button_x2 < window_visible_x2
+            && scale > 0.5f
+        ) {
             ImGui::SameLine();
+        }
         ImGui::PopID();
 
         n++;
