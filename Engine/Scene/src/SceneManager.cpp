@@ -225,11 +225,14 @@ json SceneManager::SerializeEntity(Entity entity)
     return eJson;
 }
 
-void SceneManager::DeserializeEntity(json eJson)
+Entity SceneManager::DeserializeEntity(json eJson, Scene* parentScene)
 {
     auto tag = eJson["TagComponent"].get<std::string>();
     auto ID = eJson["IDComponent"].get<uint64_t>();
-    Entity e = mScene->CreateEntity(tag, ID);
+    Entity e = parentScene
+        ? parentScene->CreateEntity(tag)
+        : mScene->CreateEntity(tag)
+    ;
 
     if (eJson.contains("TransformComponent"))
     {
@@ -341,6 +344,8 @@ void SceneManager::DeserializeEntity(json eJson)
     if (eJson.contains("ParticleSystemComponent"))
     {
     }
+
+    return e;
 }
 
 void SceneManager::SerializeScene(const std::string& filepath)

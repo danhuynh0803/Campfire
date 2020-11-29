@@ -1,7 +1,13 @@
 #include <imgui.h>
+#include <fstream>
+#include <Tracy.hpp>
+
+#include "Core/Random.h"
+#include "Core/ResourceManager.h"
+
 #include "Scene/Entity.h"
 #include "Scene/Scene.h"
-#include "Core/Random.h"
+#include "Scene/SceneManager.h"
 
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Renderer2D.h"
@@ -9,14 +15,12 @@
 #include "Particles/ParticleSystem.h"
 #include "Scripting/CameraController.h"
 #include "Scripting/PlayerController.h"
+
 // Should be moved as a subsystem
 #include "Audio/AudioSystem.h"
-#include "Core/ResourceManager.h"
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
 #include "Scripting/LuaScript.h"
-
-#include <Tracy.hpp>
 
 Scene::Scene(bool isNewScene)
 {
@@ -207,8 +211,12 @@ void Scene::OnStart()
         // Maybe split to a prefab map?
         // Want to load into memory but not yet instantiated
 
-        //Entity entity = SceneManager::DeserializeEntity(
-        //ResourceManager::SetEntityWithTag(
+        std::ifstream input(path);
+        json eJson;
+        input >> eJson;
+        Entity entity = SceneManager::DeserializeEntity(eJson, this);
+        LOG_INFO("Deserialized {0}", path);
+        //ResourceManager::SetEntityWithTag()
     }
 
     // Submit all entities with rbs to Physics
@@ -526,38 +534,35 @@ std::string Scene::GetUniqueTag(const std::string& tag)
     return newTag;
 }
 
-Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
-{
-    // FIXME
-    // ID needs to increment as well when adding objects
-    // maybe move to some refCounting class
-
-    auto entity = Entity(registry.create(), this);
-
-    // Default components all entities should have
-    entity.AddComponent<IDComponent>(ID);
-    std::string tag = GetUniqueTag(name);
-    entity.AddComponent<TagComponent>(tag);
-    entity.AddComponent<TransformComponent>();
-    entity.AddComponent<RelationshipComponent>();
-    entity.AddComponent<Colliders>();
-
-    if (isRootEntity)
-    {
-        entityMap[ID] = entity;
-    }
-
-    return entity;
-}
+//Entity Scene::CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity)
+//{
+//    // FIXME
+//    // ID needs to increment as well when adding objects
+//    // maybe move to some refCounting class
+//
+//    auto entity = Entity(registry.create(), this);
+//
+//    // Default components all entities should have
+//    entity.AddComponent<IDComponent>(ID);
+//    std::string tag = GetUniqueTag(name);
+//    entity.AddComponent<TagComponent>(tag);
+//    entity.AddComponent<TransformComponent>();
+//    entity.AddComponent<RelationshipComponent>();
+//    entity.AddComponent<Colliders>();
+//
+//    if (isRootEntity)
+//    {
+//        entityMap[ID] = entity;
+//    }
+//
+//    return entity;
+//}
 
 Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
-    static uint64_t ID = 0;
-
     Entity entity = Entity(registry.create(), this);
-    // Random ID for access in hashmap
-    //auto ID = Random::UINT64T();
     // Default components all entities should have
+    uint64_t ID = static_cast<uint64_t>(entt::entity(entity));
     entity.AddComponent<IDComponent>(ID);
     std::string tag = GetUniqueTag(name);
     entity.AddComponent<TagComponent>(tag);
@@ -568,12 +573,7 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     if (isRootEntity)
     {
         entityMap[ID] = entity;
-        //entityMap[entt::entity(entity)] = entity;
     }
-
-    // TODO Probably replace this with just the entity handles?
-    // Increment ID for the next object
-    ID++;
 
     return entity;
 }

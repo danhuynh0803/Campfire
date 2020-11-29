@@ -23,7 +23,7 @@ public:
     static bool HasSceneLoaded() { return !(activeScenePath.empty()); }
 
     static json SerializeEntity(Entity entity);
-    static void DeserializeEntity(json eJson);
+    static Entity DeserializeEntity(json eJson, Scene* parentScene = nullptr);
 private:
 
     void SerializeScene(const std::string& filepath);

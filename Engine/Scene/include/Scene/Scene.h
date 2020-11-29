@@ -28,12 +28,10 @@ public:
 
     template <typename T, typename... Args>
     auto GetAllEntitiesWith() { return registry.view<T, Args...>(); }
-
-    //auto GetAllEntitiesWithTag(const std::string& tag) { return registry.view<T>(); }
     Entity FindEntityWithTag(const std::string& tag);
     Entity CreateEntity(const std::string& name, bool isRootEntity = true);
     Entity DuplicateEntity(Entity entity);
-    Entity CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity = true);
+    //Entity CreateEntity(const std::string& name, uint64_t ID, bool isRootEntity = true);
     void RemoveEntity(Entity entity);
     void Clear() { registry.clear(); }
 

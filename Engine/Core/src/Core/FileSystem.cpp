@@ -56,8 +56,9 @@ std::vector<std::string> FileSystem::GetAllFiles(const char* root, const char* e
     std::vector<std::string> matches;
     for (auto f : std::filesystem::recursive_directory_iterator(root))
     {
-        if (f.path().extension() == ext)
-            matches.emplace_back(f.path().stem().string());
+        if (f.path().extension() == ext) {
+            matches.emplace_back(f.path().string());
+        }
     }
 
     return matches;
