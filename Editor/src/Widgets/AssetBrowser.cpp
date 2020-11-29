@@ -22,9 +22,11 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
 
     if (ImGui::Button("Parent Dir"))
     {
-        if (currPath != ASSETS)
+        if (currPath.string() != ASSETS
+            && currPath.has_parent_path())
         {
-            currPath = currPath.parent_path();
+            currPath = std::filesystem::relative(currPath.parent_path());
+            LOG_INFO("Moving out to {0}", currPath.string());
         }
     }
 
@@ -50,6 +52,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         {
             if (std::filesystem::is_directory(p.path())) {
                 currPath = std::filesystem::relative(p.path());
+                LOG_INFO("Moving into {0}", currPath.string());
             }
         }
         float last_button_x2 = ImGui::GetItemRectMax().x;
