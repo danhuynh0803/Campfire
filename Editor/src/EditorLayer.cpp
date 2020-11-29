@@ -195,7 +195,7 @@ void EditorLayer::OnUpdate(float dt)
         // Reset the runtimeScene entirely to avoid leftover data from instantiation events
         runtimeScene.reset();
         runtimeScene = CreateSharedPtr<Scene>(false);
-        runtimeScene->DeepCopy(editorScene);
+        runtimeScene->CopyFrom(editorScene);
         activeScene = runtimeScene;
         activeScene->OnStart();
     }

@@ -132,42 +132,44 @@ static void CopyComponentIfExists(entt::entity dst, entt::entity src, entt::regi
     }
 }
 
-void Scene::DeepCopy(const SharedPtr<Scene>& other)
+void Scene::CopyFrom(const SharedPtr<Scene>& srcScene)
 {
     // First clear out current scene contents
     Clear();
 
     // Copy skybox
-    skybox = other->skybox;
+    skybox = srcScene->skybox;
 
     // Copy all entities
     std::map<uint64_t, entt::entity> enttMap;
-    auto idComps = other->registry.view<IDComponent>();
+    auto idComps = srcScene->registry.view<IDComponent>();
     for (auto entity : idComps)
     {
-        uint64_t id = other->registry.get<IDComponent>(entity).ID;
-        Entity e = CreateEntity("", id);
+        uint64_t id = srcScene->registry.get<IDComponent>(entity).ID;
+        Entity e = CreateEntity("");
+        e.GetComponent<IDComponent>().ID = id;
+        //LOG_INFO(e.GetComponent<IDComponent>().ID);
         enttMap[id] = e;
     }
 
     if (!enttMap.empty())
     {
-        CopyComponent<TagComponent>(registry, other->registry, enttMap);
-        CopyComponent<TransformComponent>(registry, other->registry, enttMap);
-        CopyComponent<MeshComponent>(registry, other->registry, enttMap);
-        CopyComponent<SpriteComponent>(registry, other->registry, enttMap);
-        CopyComponent<LightComponent>(registry, other->registry, enttMap);
-        CopyComponent<RigidbodyComponent>(registry, other->registry, enttMap);
-        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
-        CopyComponent<Colliders>(registry, other->registry, enttMap);
-        CopyComponent<TriggerComponent>(registry, other->registry, enttMap);
-        CopyComponent<CameraComponent>(registry, other->registry, enttMap);
-        CopyComponent<ParticleSystemComponent>(registry, other->registry, enttMap);
-        CopyComponent<ScriptComponent>(registry, other->registry, enttMap);
-        CopyComponent<NativeScriptComponent>(registry, other->registry, enttMap);
-        CopyComponent<AudioComponent>(registry, other->registry, enttMap);
-        CopyComponent<TextComponent>(registry, other->registry, enttMap);
-        //CopyComponent<RelationshipComponent>(registry, other->registry, enttMap);
+        CopyComponent<TagComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<TransformComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<MeshComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<SpriteComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<LightComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<RigidbodyComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<TriggerComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<Colliders>(registry, srcScene->registry, enttMap);
+        CopyComponent<TriggerComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<CameraComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<ParticleSystemComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<ScriptComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<NativeScriptComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<AudioComponent>(registry, srcScene->registry, enttMap);
+        CopyComponent<TextComponent>(registry, srcScene->registry, enttMap);
+        //CopyComponent<RelationshipComponent>(registry, srcScene->registry, enttMap);
     }
 }
 
@@ -222,6 +224,9 @@ void Scene::OnStart()
             }
 
             sc.instance->Start();
+
+            sc.instance->Instantiate("light.prefab", glm::vec3(0.0f));
+
         }
     });
 
@@ -235,6 +240,8 @@ void Scene::OnStart()
     //    }
     //    nsc.instance->Start();
     //});
+
+
 }
 
 void Scene::OnStop()
@@ -498,6 +505,7 @@ std::string Scene::GetUniqueTag(const std::string& tag)
 
 Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
 {
+    //static uint64_t ID = 0;
     Entity entity = Entity(registry.create(), this);
     // Default components all entities should have
     uint64_t ID = static_cast<uint64_t>(entt::entity(entity));
@@ -512,6 +520,8 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     {
         entityMap[ID] = entity;
     }
+
+    //ID++;
 
     return entity;
 }

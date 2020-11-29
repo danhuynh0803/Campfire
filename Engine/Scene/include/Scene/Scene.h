@@ -20,7 +20,7 @@ public:
     void Init();
     void OnEvent(Event& e);
 
-    void DeepCopy(const SharedPtr<Scene>& other);
+    void CopyFrom(const SharedPtr<Scene>& srcScene);
     void OnStart();
     void OnStop();
     void OnUpdate(float dt);
