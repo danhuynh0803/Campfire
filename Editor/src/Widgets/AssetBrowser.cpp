@@ -18,8 +18,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     uint32_t size = 40;
 
     ImGui::Begin("Assets", isOpen);
-
-    ImGui::BeginChild("Directory", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), true);
+    ImGui::Columns(2, "assetColumns");
+    ImGui::BeginChild("Directory", ImGui::GetContentRegionAvail(), true);
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Assets"))
@@ -30,96 +30,92 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     }
     ImGui::EndChild();
 
-    //ImGui::BeginChild("Content", ImVec2(0, ImGui::GetFontSize() * 20), true);
-    ImGui::BeginChild("Content", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), true);
-
-    ImGui::Checkbox("List View", &isList);
-
+    ImGui::NextColumn();
     ImGui::SameLine();
 
-    if (ImGui::Button("Parent Dir"))
+    ImGui::BeginChild("Content", ImGui::GetContentRegionAvail(), true);
     {
-        if (currPath.string() != ASSETS
-            && currPath.has_parent_path())
+        ImGui::Checkbox("List View", &isList);
+
+        ImGui::SameLine();
+
+        // Scaling size for icons
+        ImGui::SliderFloat("Scale", &scale, 1.0f, 3.0f);
+
+        ImGui::Separator();
+
+        size *= scale;
+        ImVec2 buttonSize(size, size);
+
+        ImGuiStyle& style = ImGui::GetStyle();
+        float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+
+        int buttonCount = 0;
+        for (auto& p : std::filesystem::directory_iterator(currPath))
         {
-            currPath = std::filesystem::relative(currPath.parent_path());
+            buttonCount++;
         }
-    }
 
-    // Scaling size for icons
-    ImGui::SliderFloat("Scale", &scale, 1.0f, 3.0f);
-    size *= scale;
-    ImVec2 buttonSize(size, size);
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-
-    int buttonCount = 0;
-    for (auto& p : std::filesystem::directory_iterator(currPath))
-    {
-        buttonCount++;
-    }
-
-    int n = 0;
-    for (auto& p : std::filesystem::directory_iterator(currPath))
-    {
-        ImGui::PushID(n);
-
-        std::string assetName = p.path().filename().string();
-
-        if (isList)
+        int n = 0;
+        for (auto& p : std::filesystem::directory_iterator(currPath))
         {
-            std::filesystem::is_directory(p.path())
-                ? ImGui::Text(ICON_FA_FOLDER)
-                : ImGui::Text(ICON_FA_FILE)
-            ;
-            ImGui::SameLine();
+            ImGui::PushID(n);
 
-            if (ImGui::Button(assetName.c_str()))
+            std::string assetName = p.path().filename().string();
+
+            if (isList)
             {
-                if (std::filesystem::is_directory(p.path())) {
-                    currPath = std::filesystem::relative(p.path());
-                }
-                else
+                std::filesystem::is_directory(p.path())
+                    ? ImGui::Text(ICON_FA_FOLDER)
+                    : ImGui::Text(ICON_FA_FILE)
+                ;
+                ImGui::SameLine();
+
+                if (ImGui::Button(assetName.c_str()))
                 {
-                    // TODO open selected file
-                }
-            }
-        }
-        else
-        {
-            if (std::filesystem::is_directory(p.path()))
-            {
-                if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
-                {
-                    currPath = std::filesystem::relative(p.path());
+                    if (std::filesystem::is_directory(p.path())) {
+                        currPath = std::filesystem::relative(p.path());
+                    }
+                    else
+                    {
+                        // TODO open selected file
+                    }
                 }
             }
             else
             {
-                auto texture = ResourceManager::GetTexture2D(p.path().string());
-                ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
-                ImGui::Text(assetName.c_str());
-                //if (ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0)))
+                if (std::filesystem::is_directory(p.path()))
                 {
+                    if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
+                    {
+                        currPath = std::filesystem::relative(p.path());
+                    }
+                }
+                else
+                {
+                    auto texture = ResourceManager::GetTexture2D(p.path().string());
+                    ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
+                    ImGui::Text(assetName.c_str());
+                    //if (ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0)))
+                    {
 
+                    }
                 }
             }
-        }
 
-        float last_button_x2 = ImGui::GetItemRectMax().x;
-        float next_button_x2 = last_button_x2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
-        if (n + 1 < buttonCount
-            && next_button_x2 < window_visible_x2
-            && !isList
-        ) {
-            ImGui::SameLine();
-        }
-        ImGui::PopID();
+            float last_button_x2 = ImGui::GetItemRectMax().x;
+            float next_button_x2 = last_button_x2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
+            if (n + 1 < buttonCount
+                && next_button_x2 < window_visible_x2
+                && !isList
+            ) {
+                ImGui::SameLine();
+            }
+            ImGui::PopID();
 
-        n++;
+            n++;
+        }
     }
-
     ImGui::EndChild();
 
     ImGui::End();
