@@ -183,7 +183,6 @@ void Scene::OnStart()
         std::ifstream input(path.string());
         json eJson;
         input >> eJson;
-        LOG_INFO("Deserialized {0} stored at {1}", path.string(), path.filename().string());
         ResourceManager::mPrefabMap[path.filename().string()] = eJson;
     }
 

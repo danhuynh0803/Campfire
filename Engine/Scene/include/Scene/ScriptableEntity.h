@@ -4,6 +4,7 @@
 #include "Scene/Entity.h"
 #include "Scene/Component.h"
 #include "Scene/SceneManager.h"
+#include "Physics/PhysicsManager.h"
 
 class ScriptableEntity
 {
@@ -31,6 +32,7 @@ public:
     {
         Entity newEntity = entity.scene->DuplicateEntity(other);
         newEntity.GetComponent<TransformComponent>().position = position;
+        PhysicsManager::SubmitEntity(newEntity);
     }
 
     Entity Instantiate(const std::string& prefabName, glm::vec3 position)
@@ -40,6 +42,7 @@ public:
             nlohmann::json eJson = ResourceManager::mPrefabMap.at(prefabName);
             Entity newEntity = SceneManager::DeserializeEntity(eJson, entity.scene);
             newEntity.GetComponent<TransformComponent>().position = position;
+            PhysicsManager::SubmitEntity(newEntity);
             return newEntity;
         }
         CORE_WARN("No prefab named {0} is found within Assets", prefabName);

@@ -1,3 +1,5 @@
+#include  <type_traits>
+
 #include "Scene/ScriptableEntity.h"
 #include "Scripting/LuaScript.h"
 #include "Scripting/Lua/LuaTransform.h"
@@ -10,10 +12,7 @@
 #include "Scripting/Lua/LuaCollider.h"
 #include "Scripting/Lua/LuaEntity.h"
 #include "Core/Log.h"
-#include  <type_traits>
 #include "Physics/Collider.h"
-
-
 
 static int Log(lua_State* L)
 {

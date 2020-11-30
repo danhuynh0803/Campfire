@@ -12,8 +12,7 @@ function OnTriggerEnter(other)
     --other.Transform.SetScale(2, 2, 2)
     --Log(other.Rigidbody.GetMass())
     other.Rigidbody.AddVelocity(0, 20, 0);
-
-    Entity:Instantiate("light.prefab", 3, 5, 1)
+    --Entity:Instantiate("cube.prefab", 0, 10, 0)
 end
 
 function OnTriggerStay(other)
