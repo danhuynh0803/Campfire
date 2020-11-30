@@ -11,13 +11,45 @@ AssetBrowser::AssetBrowser()
     currPath = ASSETS;
 }
 
+void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
+{
+    for (auto& p : std::filesystem::directory_iterator(dirPath))
+    {
+        if (!std::filesystem::is_directory(p.path())) { continue; }
+
+        if (ImGui::TreeNode(p.path().filename().string().c_str()))
+        {
+            // Update content view with selected directory
+            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+            {
+                currPath = std::filesystem::relative(p.path());
+            }
+
+            RecursivelyDisplayDirectories(std::filesystem::relative(p.path()));
+
+            ImGui::TreePop();
+        }
+    }
+}
+
 void AssetBrowser::OnImGuiRender(bool* isOpen)
 {
-    static float scale = 0.5f;
+    static float scale = 1.0f;
+    static bool isList = true;
+    uint32_t size = 40;
+
     ImGui::Begin("Assets", isOpen);
 
-    // Scaling size for icons
-    ImGui::SliderFloat("Icon Scale", &scale, 0.5f, 2.0f);
+    ImGui::BeginChild("Directory", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), true);
+    {
+        RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
+    }
+    ImGui::EndChild();
+
+    //ImGui::BeginChild("Content", ImVec2(0, ImGui::GetFontSize() * 20), true);
+    ImGui::BeginChild("Content", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), true);
+
+    ImGui::Checkbox("List View", &isList);
 
     ImGui::SameLine();
 
@@ -30,7 +62,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         }
     }
 
-    uint32_t size = 40;
+    // Scaling size for icons
+    ImGui::SliderFloat("Scale", &scale, 1.0f, 3.0f);
     size *= scale;
     ImVec2 buttonSize(size, size);
 
@@ -47,19 +80,17 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     for (auto& p : std::filesystem::directory_iterator(currPath))
     {
         ImGui::PushID(n);
-        std::string assetName = p.path().filename().string();
-        if ( std::filesystem::is_directory(p.path()) )
-        {
-            ImGui::Text(ICON_FA_FOLDER);
-        }
-        else
-        {
-            ImGui::Text(ICON_FA_FILE);
-        }
-        ImGui::SameLine();
 
-        if (scale <= 0.5f)
+        std::string assetName = p.path().filename().string();
+
+        if (isList)
         {
+            std::filesystem::is_directory(p.path())
+                ? ImGui::Text(ICON_FA_FOLDER)
+                : ImGui::Text(ICON_FA_FILE)
+            ;
+            ImGui::SameLine();
+
             if (ImGui::Button(assetName.c_str()))
             {
                 if (std::filesystem::is_directory(p.path())) {
@@ -73,10 +104,21 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         }
         else
         {
-            if (ImGui::Button(assetName.c_str(), buttonSize))
+            if (std::filesystem::is_directory(p.path()))
             {
-                if (std::filesystem::is_directory(p.path())) {
+                if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
+                {
                     currPath = std::filesystem::relative(p.path());
+                }
+            }
+            else
+            {
+                auto texture = ResourceManager::GetTexture2D(p.path().string());
+                ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
+                ImGui::Text(assetName.c_str());
+                //if (ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0)))
+                {
+
                 }
             }
         }
@@ -85,7 +127,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         float next_button_x2 = last_button_x2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
         if (n + 1 < buttonCount
             && next_button_x2 < window_visible_x2
-            && scale > 0.5f
+            && !isList
         ) {
             ImGui::SameLine();
         }
@@ -93,8 +135,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
 
         n++;
     }
-
-
+    ImGui::EndChild();
 
     ImGui::End();
 }

@@ -97,6 +97,24 @@ void EditorLayer::OnAttach()
 
     VBO->Unbind();
     VAO->Unbind();
+
+
+    // Load up resources
+    //{ // Load png
+    //    auto files = FileSystem::GetAllFiles(ASSETS.c_str(), ".png");
+    //    for (auto path : files)
+    //    {
+    //        ResourceManager::GetTexture2D(path.string());
+    //    }
+    //}
+
+    //{ // Load jpg
+    //    auto files = FileSystem::GetAllFiles(ASSETS.c_str(), ".jpg");
+    //    for (auto path : files)
+    //    {
+    //        ResourceManager::GetTexture2D(path.string());
+    //    }
+    //}
 }
 
 void EditorLayer::OnDetach()
