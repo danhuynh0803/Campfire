@@ -21,12 +21,14 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     ImGui::Columns(2, "assetColumns");
     ImGui::BeginChild("Directory", ImGui::GetContentRegionAvail(), true);
     {
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Assets"))
-        {
-            RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
-            ImGui::TreePop();
-        }
+        //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
+
+        //if (ImGui::TreeNode("Assets"))
+        //{
+        //    RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
+        //    ImGui::TreePop();
+        //}
     }
     ImGui::EndChild();
 
@@ -125,26 +127,26 @@ void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
 {
     static ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-    for (auto& p : std::filesystem::directory_iterator(dirPath))
+    if (!std::filesystem::is_directory(dirPath))
     {
-        if (!std::filesystem::is_directory(p.path())) { continue; }
+        return;
+    }
 
-        if (ImGui::TreeNodeEx(p.path().filename().string().c_str(), flags))
+    bool nodeOpen = ImGui::TreeNodeEx(dirPath.filename().string().c_str(), flags);
+    // Update content view ImGuiwith selected directory
+    if (ImGui::IsItemClicked()
+            && (ImGui::GetMousePos().x - ImGui::GetItemRectMin().x)
+            > ImGui::GetTreeNodeToLabelSpacing()
+       ){
+        currPath = std::filesystem::relative(dirPath);
+    }
+
+    if (nodeOpen)
+    {
+        for (auto& p : std::filesystem::directory_iterator(dirPath))
         {
-            // Update content view ImGuiwith selected directory
-            if (ImGui::IsItemClicked()
-                && (ImGui::GetMousePos().x - ImGui::GetItemRectMin().x)
-                    > ImGui::GetTreeNodeToLabelSpacing()
-            ){
-                LOG_INFO("Enter {0}", p.path().string());
-                currPath = std::filesystem::relative(p.path());
-            }
-
             RecursivelyDisplayDirectories(std::filesystem::relative(p.path()));
-
-            ImGui::TreePop();
         }
+        ImGui::TreePop();
     }
 }
-
-
