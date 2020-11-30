@@ -13,15 +13,16 @@ AssetBrowser::AssetBrowser()
 
 void AssetBrowser::OnImGuiRender(bool* isOpen)
 {
-    static float scale = 1.0f;
-    static bool isList = true;
+    static float scale = 3.0f;
+    static bool isList = false;
     uint32_t size = 40;
 
+    // Left column -- displays directory list
     ImGui::Begin("Assets", isOpen);
     ImGui::Columns(2, "assetColumns");
     ImGui::BeginChild("Directory", ImGui::GetContentRegionAvail(), true);
     {
-        //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
     }
     ImGui::EndChild();
@@ -29,37 +30,23 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     ImGui::NextColumn();
     ImGui::SameLine();
 
+    // Left column -- displays contents of selected directory
     ImGui::BeginChild("Content", ImGui::GetContentRegionAvail(), true);
     {
         ImGui::Checkbox("List View", &isList);
 
         ImGui::SameLine();
 
-        // Scaling size for icons
+        // Scaling size for buttons
         ImGui::SliderFloat("Scale", &scale, 1.0f, 3.0f);
-
         ImGui::Separator();
+        ImVec2 buttonSize(size * scale, size * scale);
 
-        size *= scale;
-        // Update icon font size
-        // TODO have icons scale dynamically or use a imagebutton as well
-        //{
-        //    ImGuiIO& io = ImGui::GetIO();
-        //    //setup FontAwesome Icon Fonts
-        //    io.Fonts->AddFontDefault();
-        //    ImFontConfig icons_config;
-        //    //must be static for some reason...
-        //    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        //    icons_config.MergeMode = true;
-        //    icons_config.PixelSnapH = true;
-        //    std::string FontAwesomeFontFilePath = FONTS + "/fa-solid-900.ttf";
-        //    io.Fonts->AddFontFromFileTTF(FontAwesomeFontFilePath.c_str(), size, &icons_config, icons_ranges);
-        //}
-
-        ImVec2 buttonSize(size, size);
+        float contentWidth = ImGui::GetContentRegionAvail().x;
+        float contentHeight = ImGui::GetContentRegionAvail().y;
 
         ImGuiStyle& style = ImGui::GetStyle();
-        float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetContentRegionAvail().x;
+        float windowVisibleX2 = ImGui::GetWindowPos().x + contentWidth;
 
         int buttonCount = 0;
         for (auto& p : std::filesystem::directory_iterator(currPath))
@@ -67,6 +54,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
             buttonCount++;
         }
 
+        int numColumns = contentWidth / buttonSize.x;
+        ImGui::Columns(numColumns, nullptr, false);
         int n = 0;
         for (auto& p : std::filesystem::directory_iterator(currPath))
         {
@@ -74,52 +63,49 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
 
             std::string filename = p.path().filename().string();
 
+            std::string icon = std::filesystem::is_directory(p.path())
+                ? ICON_FA_FOLDER
+                : ICON_FA_FILE
+            ;
+
             if (isList)
             {
-                std::filesystem::is_directory(p.path())
-                    ? ImGui::Text(ICON_FA_FOLDER)
-                    : ImGui::Text(ICON_FA_FILE)
-                ;
+                ImGui::Text(icon.c_str());
                 ImGui::SameLine();
-
-                if (ImGui::Button(filename.c_str()))
-                {
-                    if (std::filesystem::is_directory(p.path())) {
-                        currPath = std::filesystem::relative(p.path());
-                    }
-                    else
-                    {
-                        // TODO open selected file
-                    }
-                }
+                ImGui::Text(filename.c_str());
             }
-            else
+            else // display icons
             {
-                if (std::filesystem::is_directory(p.path()))
+                ImGui::BeginGroup();
+                auto texture = ResourceManager::GetTexture2D(p.path().string());
+                ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
                 {
-                    if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
-                    {
-                        currPath = std::filesystem::relative(p.path());
-                    }
-                }
-                else
-                {
-                    auto texture = ResourceManager::GetTexture2D(p.path().string());
-                    ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
-                    {
-
-                    }
                 }
                 ImGui::TextWrapped(filename.c_str());
             }
 
-            float last_button_x2 = ImGui::GetItemRectMax().x;
-            float next_button_x2 = last_button_x2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
-            if (n + 1 < buttonCount
-                && next_button_x2 < window_visible_x2
-                && !isList
-            ) {
-                ImGui::SameLine();
+            if (ImGui::IsMouseDoubleClicked(0)) {
+                if (std::filesystem::is_directory(p.path())) {
+                    currPath = std::filesystem::relative(p.path());
+                }
+            }
+            else if (ImGui::IsMouseClicked(0))
+            {
+                // TODO open asset browser
+            }
+
+            //float lastButtonX2 = ImGui::GetItemRectMax().x;
+            //float nextButtonX2 = lastButtonX2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
+            //if (n + 1 < buttonCount
+            //    && nextButtonX2 < windowVisibleX2;
+            //    && !isList
+            //) {
+            //    //ImGui::SameLine();
+            //}
+            if (!isList)
+            {
+                ImGui::EndGroup();
+                ImGui::NextColumn();
             }
             ImGui::PopID();
 
