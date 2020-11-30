@@ -211,9 +211,6 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnStop();
         activeScene = editorScene;
 
-        // TODO Hacky way of just refreshing the colliders
-        // so that raycasting works with the original positions
-        // of the objects, instead of their runtime positions
         PhysicsManager::ClearLists();
         auto entityMap = activeScene->GetEntityMap();
         for (auto entityPair : entityMap)
@@ -289,74 +286,78 @@ void EditorLayer::OnUpdate(float dt)
             cameraController.OnUpdate(dt);
         activeScene->OnRender(deltaTime, *editorCamera);
 
-        if (showBoundingBoxes)
+        // TODO Change so that debug draw only shows BBs of selected objects
+        if (wHierarchy.GetSelectedEntity())
         {
             PhysicsManager::DebugDraw();
+        }
 
+        if (showBoundingBoxes)
+        {
             // TODO move this elsewhere later
-            //glm::vec3 color(1.0f, 0.0f, 1.0f);
+            glm::vec3 color(1.0f, 1.0f, 1.0f);
 
-            //auto spriteGroup = activeScene->GetAllEntitiesWith<SpriteComponent>();
-            //for (auto e : spriteGroup)
-            //{
-            //    Entity entity { e, activeScene.get() };
-            //    // Need to apply transform to get the correct position of the BB
-            //    SpriteComponent comp = entity.GetComponent<SpriteComponent>();
+            auto spriteGroup = activeScene->GetAllEntitiesWith<SpriteComponent>();
+            for (auto e : spriteGroup)
+            {
+                Entity entity { e, activeScene.get() };
+                // Need to apply transform to get the correct position of the BB
+                SpriteComponent comp = entity.GetComponent<SpriteComponent>();
 
-            //    glm::vec4 min = glm::vec4(comp.boundingBox.mMin, 1.0f);
-            //    glm::vec4 max = glm::vec4(comp.boundingBox.mMax, 1.0f);
+                glm::vec4 min = glm::vec4(comp.boundingBox.mMin, 1.0f);
+                glm::vec4 max = glm::vec4(comp.boundingBox.mMax, 1.0f);
 
-            //    GLfloat vertices[] =
-            //    {
-            //        min.x, max.y, min.z, color.r, color.g, color.b,
-            //        min.x, min.y, min.z, color.r, color.g, color.b,
-            //        max.x, min.y, min.z, color.r, color.g, color.b,
-            //        max.x, max.y, min.z, color.r, color.g, color.b,
+                GLfloat vertices[] =
+                {
+                    min.x, max.y, min.z, color.r, color.g, color.b,
+                    min.x, min.y, min.z, color.r, color.g, color.b,
+                    max.x, min.y, min.z, color.r, color.g, color.b,
+                    max.x, max.y, min.z, color.r, color.g, color.b,
 
-            //        min.x, max.y, max.z, color.r, color.g, color.b,
-            //        min.x, min.y, max.z, color.r, color.g, color.b,
-            //        max.x, min.y, max.z, color.r, color.g, color.b,
-            //        max.x, max.y, max.z, color.r, color.g, color.b
-            //    };
+                    min.x, max.y, max.z, color.r, color.g, color.b,
+                    min.x, min.y, max.z, color.r, color.g, color.b,
+                    max.x, min.y, max.z, color.r, color.g, color.b,
+                    max.x, max.y, max.z, color.r, color.g, color.b
+                };
 
-            //    VBO->SetData(vertices, sizeof(vertices));
+                VBO->SetData(vertices, sizeof(vertices));
 
-            //    Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
-            //}
+                Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
+            }
 
-            //auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
-            //for (auto e : meshGroup)
-            //{
-            //    Entity entity { e, activeScene.get() };
-            //    auto mesh = entity.GetComponent<MeshComponent>().mesh;
-            //    // Skip if no mesh exists
-            //    if (!mesh) { continue; }
+            auto meshGroup = activeScene->GetAllEntitiesWith<MeshComponent>();
+            for (auto e : meshGroup)
+            {
+                Entity entity { e, activeScene.get() };
+                auto mesh = entity.GetComponent<MeshComponent>().mesh;
+                // Skip if no mesh exists
+                if (!mesh) { continue; }
 
-            //    auto& submeshes = mesh->GetSubmeshes();
-            //    for (auto submesh : submeshes)
-            //    {
-            //        // Need to apply transform to get the correct position of the BB
-            //        glm::vec4 min = glm::vec4(submesh.boundingBox.mMin, 1.0f);
-            //        glm::vec4 max = glm::vec4(submesh.boundingBox.mMax, 1.0f);
+                auto& submeshes = mesh->GetSubmeshes();
+                for (auto submesh : submeshes)
+                {
+                    // Need to apply transform to get the correct position of the BB
+                    glm::vec4 min = glm::vec4(submesh.boundingBox.mMin, 1.0f);
+                    glm::vec4 max = glm::vec4(submesh.boundingBox.mMax, 1.0f);
 
-            //        GLfloat vertices[] =
-            //        {
-            //            min.x, max.y, min.z, color.r, color.g, color.b,
-            //            min.x, min.y, min.z, color.r, color.g, color.b,
-            //            max.x, min.y, min.z, color.r, color.g, color.b,
-            //            max.x, max.y, min.z, color.r, color.g, color.b,
+                    GLfloat vertices[] =
+                    {
+                        min.x, max.y, min.z, color.r, color.g, color.b,
+                        min.x, min.y, min.z, color.r, color.g, color.b,
+                        max.x, min.y, min.z, color.r, color.g, color.b,
+                        max.x, max.y, min.z, color.r, color.g, color.b,
 
-            //            min.x, max.y, max.z, color.r, color.g, color.b,
-            //            min.x, min.y, max.z, color.r, color.g, color.b,
-            //            max.x, min.y, max.z, color.r, color.g, color.b,
-            //            max.x, max.y, max.z, color.r, color.g, color.b
-            //        };
+                        min.x, max.y, max.z, color.r, color.g, color.b,
+                        min.x, min.y, max.z, color.r, color.g, color.b,
+                        max.x, min.y, max.z, color.r, color.g, color.b,
+                        max.x, max.y, max.z, color.r, color.g, color.b
+                    };
 
-            //        VBO->SetData(vertices, sizeof(vertices));
+                    VBO->SetData(vertices, sizeof(vertices));
 
-            //        Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
-            //    }
-            //}
+                    Renderer::DrawLines(lineShader, VAO, entity.GetComponent<TransformComponent>());
+                }
+            }
         }
 
         // Draw camera frustum
@@ -538,17 +539,8 @@ void EditorLayer::OnImGuiRender()
 
             if (state == State::STOP)
             {
-                //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
-                {
-                    //SharedPtr<Rigidbody> rb = entity.GetComponent<RigidbodyComponent>().rigidbody;
-                    //auto transformComp = entity.GetComponent<TransformComponent>();
-                    //rb->SetTransform(transformComp);
-
-                    PhysicsManager::RemoveEntity(entity);
-                    PhysicsManager::SubmitEntity(entity);
-                }
-                //PhysicsManager::ClearLists();
-                //PhysicsManager::SubmitEntity(entity);
+                PhysicsManager::ClearLists();
+                PhysicsManager::SubmitEntity(entity);
                 //PhysicsManager::DebugDraw();
             }
         }

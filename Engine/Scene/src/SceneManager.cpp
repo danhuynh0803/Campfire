@@ -192,10 +192,37 @@ json SceneManager::SerializeEntity(Entity entity)
         eJson["RigidbodyComponent"] = cJson;
     }
 
-    // TODO when separating shape from rb
-    // try list of components
-    if (entity.HasComponent<TriggerComponent>())
+    if (entity.HasComponent<Colliders>())
     {
+        auto colliders = entity.GetComponent<Colliders>().list;
+        json cJson;
+        for (auto collider : colliders)
+        {
+            json colJson;
+            colJson["type"] = static_cast<uint32_t>(collider->type);
+            colJson["isTrigger"] = collider->isTrigger;
+            colJson["center"] = { collider->center.x, collider->center.y, collider->center.z };
+            switch (collider->type)
+            {
+                case (Collider::Shape::BOX):
+                {
+                    auto box = std::dynamic_pointer_cast<BoxCollider>(collider);
+                    colJson["size"] = { box->size.x, box->size.y, box->size.z };
+                    break;
+                }
+                case (Collider::Shape::SPHERE):
+                {
+                    auto sphere = std::dynamic_pointer_cast<SphereCollider>(collider);
+                    colJson["radius"] = sphere->radius;
+                }
+                case (Collider::Shape::CAPSULE):
+                {
+                }
+            }
+
+            cJson.emplace_back(colJson);
+        }
+        eJson["Colliders"] = cJson;
     }
 
     if (entity.HasComponent<AudioComponent>())
@@ -311,8 +338,38 @@ Entity SceneManager::DeserializeEntity(json eJson, Scene* parentScene)
             rb->freezeRotation[i] = fr[i];
     }
 
-    if (eJson.contains("TriggerComponent"))
+    if (eJson.contains("Colliders"))
     {
+        auto cJson = eJson["Colliders"];
+        auto& comp = e.GetComponent<Colliders>();
+        for (auto& prop : cJson)
+        {
+            SharedPtr<Collider> collider;
+            auto type = static_cast<Collider::Shape>(prop["type"]);
+            collider = Collider::Create(type);
+            switch (type)
+            {
+                case (Collider::Shape::BOX):
+                {
+                    auto box = std::dynamic_pointer_cast<BoxCollider>(collider);
+                    auto size = prop["size"];
+                    box->size = glm::vec3(size[0], size[1], size[2]);
+                    break;
+                }
+                case (Collider::Shape::SPHERE):
+                {
+                    auto sphere = std::dynamic_pointer_cast<SphereCollider>(collider);
+                    sphere->radius = prop["radius"];
+                    break;
+                }
+            }
+
+            collider->isTrigger = prop["isTrigger"];
+            auto center = prop["center"];
+            collider->center = glm::vec3(center[0], center[1], center[2]);
+
+            comp.list.emplace_back(collider);
+        }
     }
 
     if (eJson.contains("AudioComponent"))

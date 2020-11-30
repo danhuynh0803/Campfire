@@ -105,7 +105,10 @@ void PhysicsManager::SubmitEntity(Entity entity)
     }
     else
     {
-        entity.RemoveComponent<TriggerComponent>();
+        if (entity.HasComponent<TriggerComponent>())
+        {
+            entity.RemoveComponent<TriggerComponent>();
+        }
     }
 }
 
