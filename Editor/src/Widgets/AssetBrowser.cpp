@@ -23,12 +23,6 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     {
         //ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
-
-        //if (ImGui::TreeNode("Assets"))
-        //{
-        //    RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
-        //    ImGui::TreePop();
-        //}
     }
     ImGui::EndChild();
 
@@ -47,10 +41,25 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         ImGui::Separator();
 
         size *= scale;
+        // Update icon font size
+        // TODO have icons scale dynamically or use a imagebutton as well
+        //{
+        //    ImGuiIO& io = ImGui::GetIO();
+        //    //setup FontAwesome Icon Fonts
+        //    io.Fonts->AddFontDefault();
+        //    ImFontConfig icons_config;
+        //    //must be static for some reason...
+        //    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+        //    icons_config.MergeMode = true;
+        //    icons_config.PixelSnapH = true;
+        //    std::string FontAwesomeFontFilePath = FONTS + "/fa-solid-900.ttf";
+        //    io.Fonts->AddFontFromFileTTF(FontAwesomeFontFilePath.c_str(), size, &icons_config, icons_ranges);
+        //}
+
         ImVec2 buttonSize(size, size);
 
         ImGuiStyle& style = ImGui::GetStyle();
-        float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+        float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetContentRegionAvail().x;
 
         int buttonCount = 0;
         for (auto& p : std::filesystem::directory_iterator(currPath))
@@ -63,7 +72,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         {
             ImGui::PushID(n);
 
-            std::string assetName = p.path().filename().string();
+            std::string filename = p.path().filename().string();
 
             if (isList)
             {
@@ -73,7 +82,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 ;
                 ImGui::SameLine();
 
-                if (ImGui::Button(assetName.c_str()))
+                if (ImGui::Button(filename.c_str()))
                 {
                     if (std::filesystem::is_directory(p.path())) {
                         currPath = std::filesystem::relative(p.path());
@@ -97,12 +106,11 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 {
                     auto texture = ResourceManager::GetTexture2D(p.path().string());
                     ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
-                    ImGui::Text(assetName.c_str());
-                    //if (ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0)))
                     {
 
                     }
                 }
+                ImGui::TextWrapped(filename.c_str());
             }
 
             float last_button_x2 = ImGui::GetItemRectMax().x;
@@ -132,6 +140,7 @@ void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
         return;
     }
 
+    ImGui::Text(ICON_FA_FOLDER); ImGui::SameLine();
     bool nodeOpen = ImGui::TreeNodeEx(dirPath.filename().string().c_str(), flags);
     // Update content view ImGuiwith selected directory
     if (ImGui::IsItemClicked()
