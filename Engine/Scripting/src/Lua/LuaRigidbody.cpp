@@ -5,28 +5,22 @@
 int LuaRigidbody::SetVelocity(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex - 2);
-    luaL_checknumber(L, topIndex - 1);
-    luaL_checknumber(L, topIndex);
+    lua_Number x = luaL_checknumber(L, topIndex - 2);
+    lua_Number y = luaL_checknumber(L, topIndex - 1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
-
     rigidbody->SetVelocity(glm::vec3(x, y, z));
+
     return 0;
 }
 
 int LuaRigidbody::AddVelocity(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex - 2);
-    luaL_checknumber(L, topIndex - 1);
-    luaL_checknumber(L, topIndex);
+    lua_Number x = luaL_checknumber(L, topIndex - 2);
+    lua_Number y = luaL_checknumber(L, topIndex - 1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
     rigidbody->AddVelocity(glm::vec3(x, y, z));
 
     return 0;
@@ -52,9 +46,8 @@ int LuaRigidbody::GetVelocity(lua_State* L)
 int LuaRigidbody::SetMass(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex);
+    lua_Number mass = luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number mass = lua_tonumber(L, -1);
     rigidbody->mass = mass;
     return 0;
 }
@@ -68,10 +61,9 @@ int LuaRigidbody::GetMass(lua_State* L)
 
 int LuaRigidbody::SetDrag(lua_State* L)
 {
-    int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex);
+    int topIndex = lua_gettop(L); 
+    lua_Number drag = luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number drag = lua_tonumber(L, -1);
     rigidbody->drag = drag;
     return 0;
 }
@@ -86,9 +78,8 @@ int LuaRigidbody::GetDrag(lua_State* L)
 int LuaRigidbody::SetAngularDrag(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex);
+    lua_Number angularDrag = luaL_checknumber(L, topIndex);
     Rigidbody* rigidbody = (Rigidbody*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number angularDrag = lua_tonumber(L, -1);
     rigidbody->angularDrag = angularDrag;
     return 0;
 }

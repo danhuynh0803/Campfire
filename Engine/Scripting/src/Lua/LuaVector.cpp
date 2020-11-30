@@ -3,6 +3,8 @@
 
 int LuaVector::LuaVec2(lua_State* L)
 {
+	//might need to use userdata for these in the future
+
 	//void* ptr = lua_newuserdata(L, sizeof(glm::vec2));
 	//new(ptr)glm::vec2();
 

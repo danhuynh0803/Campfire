@@ -1,6 +1,5 @@
 function Start()
-    --Transform.SetScale(2, 5, 1)
-    --Rigidbody:AddVelocity(0, 200*dt, 0);
+
 end
 
 function Update()
