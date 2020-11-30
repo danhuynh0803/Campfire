@@ -2,22 +2,18 @@
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaTransform.h"
 #include "Core/ResourceManager.h"
+#include "Tracy.hpp"
 
 int LuaEntity::Instantiate(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checkstring(L, topIndex-3);
-    luaL_checknumber(L, topIndex-2);
-    luaL_checknumber(L, topIndex-1);
-    luaL_checknumber(L, topIndex);
-
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
+    std::string prefabPath = luaL_checkstring(L, topIndex-3);
+    lua_Number x = luaL_checknumber(L, topIndex-2);
+    lua_Number y = luaL_checknumber(L, topIndex-1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
 
     // Deserialize the requested prefab
-    std::string prefabPath = std::string(lua_tostring(L, -4));
     Entity newEntity = script->Instantiate(prefabPath, glm::vec3(x, y, z));
 
     lua_newtable(L);
@@ -54,6 +50,14 @@ int LuaEntity::Instantiate(lua_State* L)
         }
         lua_setfield(L, -2, "Transform");
     }
+    return 1;
+}
+
+int LuaEntity::Destory(lua_State* L)
+{
+    LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
+    Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(2));
+
     return 1;
 }
 

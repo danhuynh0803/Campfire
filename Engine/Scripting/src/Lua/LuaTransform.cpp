@@ -167,13 +167,10 @@
 int LuaTransfrom::SetEntityPosition(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex - 2);
-    luaL_checknumber(L, topIndex - 1);
-    luaL_checknumber(L, topIndex);
+    lua_Number x = luaL_checknumber(L, topIndex - 2);
+    lua_Number y = luaL_checknumber(L, topIndex - 1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
     *position = glm::vec3(x, y, z);
     return 0;
 }
@@ -181,26 +178,21 @@ int LuaTransfrom::SetEntityPosition(lua_State* L)
 int LuaTransfrom::SetEntityRotation(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex - 2);
-    luaL_checknumber(L, topIndex - 1);
-    luaL_checknumber(L, topIndex);
+    lua_Number x = luaL_checknumber(L, topIndex - 2);
+    lua_Number y = luaL_checknumber(L, topIndex - 1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     glm::quat* euler = (glm::quat*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
     *euler = glm::vec3(x, y, z);
     return 0;
 }
 
 int LuaTransfrom::SetEntityScale(lua_State* L)
 {
-    luaL_checknumber(L, 1);
-    luaL_checknumber(L, 2);
-    luaL_checknumber(L, 3);
+    int topIndex = lua_gettop(L);
+    lua_Number x = luaL_checknumber(L, topIndex - 2);
+    lua_Number y = luaL_checknumber(L, topIndex - 1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
     *scale = glm::vec3(x, y, z);
     return 0;
 }
@@ -208,18 +200,11 @@ int LuaTransfrom::SetEntityScale(lua_State* L)
 int LuaTransfrom::Translate(lua_State* L)
 {
     int topIndex = lua_gettop(L);
-    luaL_checknumber(L, topIndex - 2);
-    luaL_checknumber(L, topIndex - 1);
-    luaL_checknumber(L, topIndex);
-
+    lua_Number x = luaL_checknumber(L, topIndex - 2);
+    lua_Number y = luaL_checknumber(L, topIndex - 1);
+    lua_Number z = luaL_checknumber(L, topIndex);
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-
-    lua_Number x = lua_tonumber(L, -3);
-    lua_Number y = lua_tonumber(L, -2);
-    lua_Number z = lua_tonumber(L, -1);
-
     *position += glm::vec3(x, y, z);
-
     return 0;
 }
 
@@ -258,7 +243,6 @@ int LuaTransfrom::GetEntityRotation(lua_State* L)
 int LuaTransfrom::GetEntityScale(lua_State* L)
 {
     glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
-    assert(scale);
     lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, scale->x);
