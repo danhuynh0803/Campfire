@@ -11,27 +11,6 @@ AssetBrowser::AssetBrowser()
     currPath = ASSETS;
 }
 
-void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
-{
-    for (auto& p : std::filesystem::directory_iterator(dirPath))
-    {
-        if (!std::filesystem::is_directory(p.path())) { continue; }
-
-        if (ImGui::TreeNode(p.path().filename().string().c_str()))
-        {
-            // Update content view with selected directory
-            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
-            {
-                currPath = std::filesystem::relative(p.path());
-            }
-
-            RecursivelyDisplayDirectories(std::filesystem::relative(p.path()));
-
-            ImGui::TreePop();
-        }
-    }
-}
-
 void AssetBrowser::OnImGuiRender(bool* isOpen)
 {
     static float scale = 1.0f;
@@ -42,7 +21,12 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
 
     ImGui::BeginChild("Directory", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetContentRegionAvail().y), true);
     {
-        RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Assets"))
+        {
+            RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
+            ImGui::TreePop();
+        }
     }
     ImGui::EndChild();
 
@@ -135,7 +119,36 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
 
         n++;
     }
+
     ImGui::EndChild();
 
     ImGui::End();
 }
+
+void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
+{
+    static ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+    for (auto& p : std::filesystem::directory_iterator(dirPath))
+    {
+        if (!std::filesystem::is_directory(p.path())) { continue; }
+
+        if (ImGui::TreeNodeEx(p.path().filename().string().c_str(), flags))
+        {
+            // Update content view ImGuiwith selected directory
+            if (ImGui::IsItemClicked()
+                && (ImGui::GetMousePos().x - ImGui::GetItemRectMin().x)
+                    > ImGui::GetTreeNodeToLabelSpacing()
+            ){
+                LOG_INFO("Enter {0}", p.path().string());
+                currPath = std::filesystem::relative(p.path());
+            }
+
+            RecursivelyDisplayDirectories(std::filesystem::relative(p.path()));
+
+            ImGui::TreePop();
+        }
+    }
+}
+
+
