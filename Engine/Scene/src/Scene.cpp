@@ -247,6 +247,15 @@ void Scene::OnStop()
 
 void Scene::OnUpdate(float dt)
 {
+    // Remove all entities marked for deletion
+    {
+        registry.view<Destroy>().each([=](auto handle, auto& destroy)
+        {
+            Entity entity(handle, this);
+            RemoveEntity(entity);
+        });
+    }
+
     AudioSystem::OnUpdate(dt);
     PhysicsManager::OnUpdate(dt);
 

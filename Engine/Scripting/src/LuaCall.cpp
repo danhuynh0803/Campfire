@@ -98,7 +98,7 @@ int LuaCall::OnTriggerEnter(lua_State* L)
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(3));
     script->LuaPushEntity(*entity, L);
-    int status = lua_pcall(L, 0, 0, -2);
+    int status = lua_pcall(L, 1, 0, -3);
     switch (status)
     {
         case LUA_OK:

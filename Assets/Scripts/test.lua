@@ -1,9 +1,7 @@
 function Start()
-    Entity.Destroy();
 end
 
 function Update()
-    Log(1)
     --Log(deltatime)
 end
 
@@ -11,6 +9,10 @@ function OnTriggerEnter(other)
     --Entity.Destroy()
     --Log(other.tag)
     Log(other.tag)
+    if (other.tag == "Cube") then
+        Log("Destroyed Parent Entity")
+        Entity.Destroy()
+    end
     --other.Destroy()
     --other.Transform.SetScale(2, 2, 2)
     --Log(other.Rigidbody.GetMass())

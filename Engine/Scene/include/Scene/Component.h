@@ -22,6 +22,13 @@
 
 class Entity;
 
+// Dummy component to mark for entity deletion upon next frame
+struct Destroy
+{
+    bool dummy;
+    operator bool () { return dummy; }
+};
+
 struct IDComponent
 {
     uint64_t ID;

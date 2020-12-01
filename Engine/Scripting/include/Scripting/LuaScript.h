@@ -5,6 +5,11 @@
 class LuaScript : public ScriptableEntity
 {
 public:
+    ~LuaScript()
+    {
+        lua_close(L);
+    }
+
     void Start();
     void Update(float);
     void Destroy();

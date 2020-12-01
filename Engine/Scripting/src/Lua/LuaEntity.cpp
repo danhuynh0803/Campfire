@@ -2,6 +2,7 @@
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaTransform.h"
 #include "Core/ResourceManager.h"
+#include "Scene/Component.h"
 #include "Tracy.hpp"
 
 int LuaEntity::Instantiate(lua_State* L)
@@ -57,8 +58,9 @@ int LuaEntity::EntityDestroy(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
-    script->ScriptableEntity::Destroy(script->GetEntity());
-    LOG_INFO("Destroy");
+    //script->ScriptableEntity::Destroy(script->GetEntity());
+    Entity entity = script->GetEntity();
+    entity.AddComponent<Destroy>();
     lua_pushstring(L, "Destroy Entity");
     lua_error(L);
     return 0;
@@ -71,9 +73,10 @@ int LuaEntity::OtherEntityDestroy(lua_State* L)
     lua_Number seconds = luaL_checknumber(L, topIndex);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(2));
+    entity->AddComponent<Destroy>();
     lua_pushstring(L, "Destroy Entity");
     lua_error(L);
-    script->ScriptableEntity::Destroy(*entity, seconds);
+    //script->ScriptableEntity::Destroy(*entity, seconds);
     return 0;
 }
 
