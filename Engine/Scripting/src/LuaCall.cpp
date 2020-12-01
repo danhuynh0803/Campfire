@@ -3,20 +3,6 @@
 #include <string.h>
 #include "Core/Log.h"
 
-#define LUA_DESTROY_ENTITY "Destroy Entity"
-
-int LuaCall::LuaCallback(lua_State* L)
-{
-    const char* message = lua_tostring(L, 1);
-    if (message && strcmp(message, LUA_DESTROY_ENTITY) != 0)
-    {
-        //replace and push an error message that includes stack trace
-        luaL_traceback(L, L, message, 1);
-        return 1;
-    }
-    return 0;
-}
-
 int ContinueFunction(lua_State* L, int status, lua_KContext ctx)
 {
     switch (status)

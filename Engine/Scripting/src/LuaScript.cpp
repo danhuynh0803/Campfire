@@ -11,9 +11,23 @@
 #include "Scripting/Lua/LuaVector.h"
 #include "Scripting/Lua/LuaCollider.h"
 #include "Scripting/Lua/LuaEntity.h"
-#include "Scripting/LuaCall.h"
 #include "Core/Log.h"
 #include "Physics/Collider.h"
+
+
+#define LUA_DESTROY_ENTITY "Destroy Entity"
+
+int LuaScriptCallBack::LuaCallback(lua_State* L)
+{
+    const char* message = lua_tostring(L, 1);
+    if (message && strcmp(message, LUA_DESTROY_ENTITY) != 0)
+    {
+        //replace and push an error message that includes stack trace
+        luaL_traceback(L, L, message, 1);
+        return 1;
+    }
+    return 0;
+}
 
 static int Log(lua_State* L)
 {
