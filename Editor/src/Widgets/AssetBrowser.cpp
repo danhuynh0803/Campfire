@@ -74,9 +74,13 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
             buttonCount++;
         }
 
-        int numColumns = ImGui::GetContentRegionAvail().x / buttonSize.x;
-        numColumns = numColumns > 0 ? numColumns : 1;
-        ImGui::Columns(numColumns, nullptr, false);
+        if (!isList)
+        {
+            int numColumns = ImGui::GetContentRegionAvail().x / buttonSize.x;
+            numColumns = numColumns > 0 ? numColumns : 1;
+            ImGui::Columns(numColumns, nullptr, false);
+        }
+
         int n = 0;
         for (auto& p : std::filesystem::directory_iterator(currPath))
         {
@@ -97,7 +101,17 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 ;
                 ImGui::Text(icon.c_str());
                 ImGui::SameLine();
-                ImGui::Button(filename.c_str());
+                if (ImGui::Button(filename.c_str()))
+                {
+                    if (std::filesystem::is_directory(p.path()))
+                    {
+                        currPath = std::filesystem::relative(p.path());
+                    }
+                    else
+                    {
+                        // TODO display in assetViewer
+                    }
+                }
             }
             else // display icons
             {
