@@ -24,6 +24,12 @@ public:
         return entity.HasComponent<T>();
     }
 
+    template <typename T>
+    bool IsValid()
+    {
+        return entity.IsValid<T>();
+    }
+
     Entity Instantiate(Entity)
     {
     }
@@ -57,6 +63,8 @@ public:
     {
         entity.scene->RemoveEntity(other->entity);
     }
+
+    Entity GetEntity() { return entity; }
 
 protected:
     virtual void Start() {}

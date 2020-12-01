@@ -14,6 +14,21 @@
 #include "Core/Log.h"
 #include "Physics/Collider.h"
 
+
+#define LUA_DESTROY_ENTITY "Destroy Entity"
+
+int LuaScriptCallBack::LuaCallback(lua_State* L)
+{
+    const char* message = lua_tostring(L, 1);
+    if (message && strcmp(message, LUA_DESTROY_ENTITY) != 0)
+    {
+        //replace and push an error message that includes stack trace
+        luaL_traceback(L, L, message, 1);
+        return 1;
+    }
+    return 0;
+}
+
 static int Log(lua_State* L)
 {
     luaL_checkstring(L, -1);
@@ -89,6 +104,11 @@ void LuaScript::Start()
         lua_pushlightuserdata(L, this);
         lua_pushcclosure(L, LuaEntity::Instantiate, 1);
         lua_setfield(L, -2, "Instantiate");
+
+        lua_pushlightuserdata(L, this);
+        lua_pushlightuserdata(L, &entity);
+        lua_pushcclosure(L, LuaEntity::EntityDestroy, 2);
+        lua_setfield(L, -2, "Destroy");
     }
     lua_setglobal(L, "Entity"); //name the table entity
 
@@ -117,6 +137,7 @@ void LuaScript::Start()
 
 void LuaScript::Update(float dt)
 {
+    if (!L) return;
     lua_pushnumber(L, dt);
     lua_setglobal(L, "deltatime");
     luaL_dofile(L, filepath.c_str());
@@ -127,12 +148,6 @@ void LuaScript::Update(float dt)
         LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
-#ifdef  _DEBUG 
-    luaL_checktype(L, -1, LUA_TFUNCTION);
-    lua_pop(L, 1); //pop the LuaCallback function
-#else
-    lua_pop(L, 1);
-#endif //  _DEBUG 
 }
 
 void LuaScript::Destroy()
@@ -142,6 +157,8 @@ void LuaScript::Destroy()
 
 void LuaScript::OnTriggerEnter(Entity other)
 {
+    if (!other.IsValid()) return;
+    if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerEnter");
@@ -156,6 +173,8 @@ void LuaScript::OnTriggerEnter(Entity other)
 
 void LuaScript::OnTriggerStay(Entity other)
 {
+    if (!other.IsValid()) return;
+    if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerStay");
@@ -170,6 +189,8 @@ void LuaScript::OnTriggerStay(Entity other)
 
 void LuaScript::OnTriggerExit(Entity other)
 {
+    if (!other.IsValid()) return;
+    if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerExit");
@@ -197,7 +218,6 @@ void LuaScript::LuaPushCFunctionWithRigidbody(Entity entity, const lua_CFunction
     lua_setfield(L, -2, name);
 }
 
-
 void LuaScript::LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
@@ -224,6 +244,11 @@ void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const ch
 void LuaScript::LuaPushEntity(Entity entity)
 {
     lua_newtable(L);
+
+    lua_pushlightuserdata(L, this);
+    lua_pushlightuserdata(L, &entity);
+    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 2);
+    lua_setfield(L, -2, "Destroy");
 
     if (entity.HasComponent<TagComponent>())
     {
@@ -411,15 +436,4 @@ void LuaScript::LuaPushComponetTable()
     {
         CORE_WARN("Missing {0} component", typeid(T).name());
     }
-}
-
-int LuaScriptCallBack::LuaCallback(lua_State* L)
-{
-    const char* message = lua_tostring(L, 1);
-    if (message)
-    {
-        //replace and push an error message that includes stack trace
-        luaL_traceback(L, L, message, 1); 
-    }
-    return 1;
 }

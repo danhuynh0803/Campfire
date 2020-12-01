@@ -4,6 +4,7 @@
 int LuaCollider::Box::GetCenter(lua_State* L)
 {
     glm::vec3* center = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, center->x);
     lua_settable(L, -3);
@@ -20,6 +21,7 @@ int LuaCollider::Box::GetCenter(lua_State* L)
 int LuaCollider::Sphere::GetCenter(lua_State* L)
 {
     glm::vec3* center = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, center->x);
     lua_settable(L, -3);
@@ -36,6 +38,7 @@ int LuaCollider::Sphere::GetCenter(lua_State* L)
 int LuaCollider::Capsule::GetCenter(lua_State* L)
 {
     glm::vec3* center = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, center->x);
     lua_settable(L, -3);

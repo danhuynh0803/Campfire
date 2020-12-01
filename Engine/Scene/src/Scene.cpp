@@ -82,16 +82,19 @@ void Scene::Init()
 
     {
         auto floor = CreateEntity("Floor");
-        floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
-        floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
-        floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
+        //floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+        floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -10.0f, 0.0f);
+        floor.GetComponent<TransformComponent>().scale = glm::vec3(20.0f, 0.2f, 20.0f);
         floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
         floor.AddComponent<RigidbodyComponent>();
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
-        auto& material1 = floor.GetComponent<MeshComponent>().material;
         auto& colliders = floor.GetComponent<Colliders>().list;
-        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
+        auto collider = Collider::Create(Collider::Shape::BOX);
+        collider->isTrigger = true;
+        colliders.emplace_back(collider);
+        floor.AddComponent<ScriptComponent>().template Bind<LuaScript>();
+        floor.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/killborder.lua";
     }
 
     // TODO replace with HDR skybox
@@ -143,13 +146,13 @@ void Scene::CopyFrom(const SharedPtr<Scene>& srcScene)
     // Copy all entities
     std::map<uint64_t, entt::entity> enttMap;
     auto idComps = srcScene->registry.view<IDComponent>();
-    for (auto entity : idComps)
+    for(auto &it = --idComps.end();it>=idComps.begin(); --it)
     {
-        uint64_t id = srcScene->registry.get<IDComponent>(entity).ID;
+        uint64_t id = srcScene->registry.get<IDComponent>(*it).ID;
         Entity e = CreateEntity("");
         e.GetComponent<IDComponent>().ID = id;
         //LOG_INFO(e.GetComponent<IDComponent>().ID);
-        enttMap[id] = e;
+        enttMap[id] = *it;
     }
 
     if (!enttMap.empty())
@@ -223,9 +226,6 @@ void Scene::OnStart()
             }
 
             sc.instance->Start();
-
-            sc.instance->Instantiate("light.prefab", glm::vec3(0.0f));
-
         }
     });
 
@@ -250,6 +250,15 @@ void Scene::OnStop()
 
 void Scene::OnUpdate(float dt)
 {
+    // Remove all entities marked for deletion
+    {
+        registry.view<Destroy>().each([=](auto handle, auto& destroy)
+        {
+            Entity entity(handle, this);
+            RemoveEntity(entity);
+        });
+    }
+
     AudioSystem::OnUpdate(dt);
     PhysicsManager::OnUpdate(dt);
 
@@ -575,6 +584,8 @@ void Scene::RemoveEntity(Entity entity)
     {
         entity.GetComponent<ScriptComponent>().DestroyScript(&entity.GetComponent<ScriptComponent>());
     }
+    PhysicsManager::RemoveEntity(entity);
+
 
     auto it = entityMap.find(entity.GetComponent<IDComponent>());
     if (it != entityMap.end())
