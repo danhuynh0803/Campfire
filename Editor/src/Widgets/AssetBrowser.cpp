@@ -4,6 +4,20 @@
 
 #include <imgui.h>
 
+static std::string icon;
+
+static std::map<std::string, std::string> extToIconMap
+{
+    {".lua", ICON_FA_FILE},
+    {".cf", ICON_FA_FILE},
+    {".prefab", ICON_FA_FILE},
+};
+
+static std::string MapExtToIcon(std::string ext)
+{
+
+}
+
 AssetBrowser::AssetBrowser()
 {
     // TODO save the last visited path into some engine meta file
@@ -19,14 +33,17 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
 
     // Left column -- displays directory list
     ImGui::Begin("Assets", isOpen);
+
+    float contentWidth = ImGui::GetContentRegionAvail().x;
+    float contentHeight = ImGui::GetContentRegionAvail().y;
+
     ImGui::Columns(2, "assetColumns");
+    ImGui::SetColumnWidth(0, contentWidth * 0.3f);
     ImGui::BeginChild("Directory", ImGui::GetContentRegionAvail(), true);
     {
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         RecursivelyDisplayDirectories(std::filesystem::path(ASSETS));
     }
     ImGui::EndChild();
-
     ImGui::NextColumn();
     ImGui::SameLine();
 
@@ -42,9 +59,6 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         ImGui::Separator();
         ImVec2 buttonSize(size * scale, size * scale);
 
-        float contentWidth = ImGui::GetContentRegionAvail().x;
-        float contentHeight = ImGui::GetContentRegionAvail().y;
-
         ImGuiStyle& style = ImGui::GetStyle();
         float windowVisibleX2 = ImGui::GetWindowPos().x + contentWidth;
 
@@ -54,7 +68,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
             buttonCount++;
         }
 
-        int numColumns = contentWidth / buttonSize.x;
+        int numColumns = ImGui::GetContentRegionAvail().x / buttonSize.x;
+        numColumns = numColumns > 0 ? numColumns : 1;
         ImGui::Columns(numColumns, nullptr, false);
         int n = 0;
         for (auto& p : std::filesystem::directory_iterator(currPath))
@@ -68,8 +83,16 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 : ICON_FA_FILE
             ;
 
-            if (isList)
+            size_t dot = filename.find_last_of(".");
+            std::string ext;
+            if (dot != std::string::npos)
             {
+                ext = filename.substr(dot, filename.size() - dot);
+            }
+
+            if (isList) // tabulated
+            {
+                //ImGui::Text((icon + "\t" + filename).c_str());
                 ImGui::Text(icon.c_str());
                 ImGui::SameLine();
                 ImGui::Text(filename.c_str());
@@ -77,9 +100,16 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
             else // display icons
             {
                 ImGui::BeginGroup();
-                auto texture = ResourceManager::GetTexture2D(p.path().string());
-                ImGui::Image((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
+
+                if (ext == ".jpg"
+                    || ext == ".png"
+                ) {
+                    auto texture = ResourceManager::GetTexture2D(p.path().string());
+                    ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
+                }
+                else
                 {
+                    ImGui::Button(icon.c_str(), buttonSize);
                 }
                 ImGui::TextWrapped(filename.c_str());
             }
@@ -127,12 +157,16 @@ void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
     }
 
     ImGui::Text(ICON_FA_FOLDER); ImGui::SameLine();
+    // Not sure why this isnt working outside the recursive function
+    if (dirPath.string() == ASSETS) {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    }
     bool nodeOpen = ImGui::TreeNodeEx(dirPath.filename().string().c_str(), flags);
     // Update content view ImGuiwith selected directory
     if (ImGui::IsItemClicked()
-            && (ImGui::GetMousePos().x - ImGui::GetItemRectMin().x)
-            > ImGui::GetTreeNodeToLabelSpacing()
-       ){
+        && (ImGui::GetMousePos().x - ImGui::GetItemRectMin().x)
+        > ImGui::GetTreeNodeToLabelSpacing()
+    ){
         currPath = std::filesystem::relative(dirPath);
     }
 
