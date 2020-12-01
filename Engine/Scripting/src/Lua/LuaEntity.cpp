@@ -57,6 +57,8 @@ int LuaEntity::EntityDestroy(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
+    script->ScriptableEntity::Destroy(script->GetEntity());
+    LOG_INFO("Destroy");
     lua_pushstring(L, "Destroy Entity");
     lua_error(L);
     return 0;
@@ -64,6 +66,7 @@ int LuaEntity::EntityDestroy(lua_State* L)
 
 int LuaEntity::OtherEntityDestroy(lua_State* L)
 {
+    LOG_INFO("Destroy OtherEntity");
     int topIndex = lua_gettop(L);
     lua_Number seconds = luaL_checknumber(L, topIndex);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));

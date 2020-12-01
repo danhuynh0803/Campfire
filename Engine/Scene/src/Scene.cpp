@@ -223,9 +223,6 @@ void Scene::OnStart()
             }
 
             sc.instance->Start();
-
-            sc.instance->Instantiate("light.prefab", glm::vec3(0.0f));
-
         }
     });
 

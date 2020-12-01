@@ -1,5 +1,5 @@
 function Start()
-
+    Entity.Destroy();
 end
 
 function Update()
@@ -8,9 +8,10 @@ function Update()
 end
 
 function OnTriggerEnter(other)
-    Entity.Destroy()
+    --Entity.Destroy()
     --Log(other.tag)
-    --Log(other.tag)
+    Log(other.tag)
+    --other.Destroy()
     --other.Transform.SetScale(2, 2, 2)
     --Log(other.Rigidbody.GetMass())
     --other.Rigidbody.AddVelocity(0, 20, 0);

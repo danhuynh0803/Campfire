@@ -58,6 +58,8 @@ public:
         entity.scene->RemoveEntity(other->entity);
     }
 
+    Entity GetEntity() { return entity; }
+
 protected:
     virtual void Start() {}
     virtual void Destroy() {}

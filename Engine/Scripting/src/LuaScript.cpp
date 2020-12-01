@@ -213,7 +213,7 @@ void LuaScript::LuaPushCFunctionWithAudioSource(lua_State* L,const lua_CFunction
 void LuaScript::LuaPushEntity(Entity entity, lua_State* L)
 {
     lua_newtable(L);
-    
+
     lua_pushlightuserdata(L, this);
     lua_pushlightuserdata(L, &entity);
     lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 2);
