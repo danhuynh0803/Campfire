@@ -70,10 +70,12 @@ int LuaEntity::OtherEntityDestroy(lua_State* L)
 {
     LOG_INFO("Destroy OtherEntity");
     int topIndex = lua_gettop(L);
-    lua_Number seconds = luaL_checknumber(L, topIndex);
+    //lua_Number seconds = luaL_checknumber(L, topIndex);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
-    Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(2));
-    entity->AddComponent<Destroy>();
+    Entity entity = script->GetEntity();
+    entity.AddComponent<Destroy>();
+    //Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(2));
+    //entity->AddComponent<Destroy>();
     lua_pushstring(L, "Destroy Entity");
     lua_error(L);
     //script->ScriptableEntity::Destroy(*entity, seconds);

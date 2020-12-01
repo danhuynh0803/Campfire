@@ -8,16 +8,11 @@ end
 function OnTriggerEnter(other)
     --Entity.Destroy()
     --Log(other.tag)
-    Log(other.tag)
-    if (other.tag == "Cube") then
-        Log("Destroyed Parent Entity")
-        Entity.Destroy()
-    end
     --other.Destroy()
     --other.Transform.SetScale(2, 2, 2)
     --Log(other.Rigidbody.GetMass())
-    --other.Rigidbody.AddVelocity(0, 20, 0);
-    --Entity:Instantiate("cube.prefab", 0, 10, 0)
+    other.Rigidbody.AddVelocity(0, 20, 0);
+    Entity:Instantiate("cube.prefab", 0, 10, 0)
 end
 
 function OnTriggerStay(other)

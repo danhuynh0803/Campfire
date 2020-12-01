@@ -82,16 +82,19 @@ void Scene::Init()
 
     {
         auto floor = CreateEntity("Floor");
-        floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
-        floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -5.0f, 0.0f);
-        floor.GetComponent<TransformComponent>().scale = glm::vec3(10.0f, 0.2f, 10.0f);
+        //floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+        floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -10.0f, 0.0f);
+        floor.GetComponent<TransformComponent>().scale = glm::vec3(20.0f, 0.2f, 20.0f);
         floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
         floor.AddComponent<RigidbodyComponent>();
         floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
         //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
-        auto& material1 = floor.GetComponent<MeshComponent>().material;
         auto& colliders = floor.GetComponent<Colliders>().list;
-        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
+        auto collider = Collider::Create(Collider::Shape::BOX);
+        collider->isTrigger = true;
+        colliders.emplace_back(collider);
+        floor.AddComponent<ScriptComponent>().template Bind<LuaScript>();
+        floor.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/killborder.lua";
     }
 
     // TODO replace with HDR skybox
