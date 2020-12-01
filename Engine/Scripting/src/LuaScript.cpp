@@ -11,6 +11,7 @@
 #include "Scripting/Lua/LuaVector.h"
 #include "Scripting/Lua/LuaCollider.h"
 #include "Scripting/Lua/LuaEntity.h"
+#include "Scripting/LuaCall.h"
 #include "Core/Log.h"
 #include "Physics/Collider.h"
 
@@ -89,12 +90,17 @@ void LuaScript::Start()
         lua_pushlightuserdata(L, this);
         lua_pushcclosure(L, LuaEntity::Instantiate, 1);
         lua_setfield(L, -2, "Instantiate");
+
+        lua_pushlightuserdata(L, this);
+        lua_pushlightuserdata(L, &entity);
+        lua_pushcclosure(L, LuaEntity::EntityDestroy, 2);
+        lua_setfield(L, -2, "Destroy");
     }
     lua_setglobal(L, "Entity"); //name the table entity
 
     lua_newtable(L);
     {
-        LuaPushCFunctionWithTag(LuaTag::GetTag,"GetTag");
+        LuaPushCFunctionWithTag(L,LuaTag::GetTag,"GetTag");
     }
     lua_setglobal(L, "Tag");//name the table Tag
 
@@ -104,35 +110,25 @@ void LuaScript::Start()
     }
     lua_setglobal(L, "Input");//name the table Input
 
-    luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "Start");
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
-    }
-    lua_pop(L, 1);
+    StartCoroutine = lua_newthread(L);
+    lua_pushstring(StartCoroutine, filepath.c_str());
+    lua_pushlightuserdata(StartCoroutine, this);
+    lua_pushcclosure(StartCoroutine, LuaCall::Start, 2);
+    
+    int nresults = 0;
+    lua_resume(StartCoroutine, 0, 0, &nresults);
 }
 
 void LuaScript::Update(float dt)
 {
-    lua_pushnumber(L, dt);
-    lua_setglobal(L, "deltatime");
-    luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "Update");
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
-    }
-#ifdef  _DEBUG 
-    luaL_checktype(L, -1, LUA_TFUNCTION);
-    lua_pop(L, 1); //pop the LuaCallback function
-#else
-    lua_pop(L, 1);
-#endif //  _DEBUG 
+    if (!L) return;
+    //lua_pushnumber(L, dt);
+    //lua_setglobal(L, "deltatime");
+    //UpdateCoroutine = lua_newthread(L);
+    //lua_pushstring(UpdateCoroutine, filepath.c_str());
+    //lua_pushcclosure(UpdateCoroutine, LuaCall::Update, 1);
+    //int nresults = 0;
+    //lua_resume(UpdateCoroutine, 0, 0, &nresults);
 }
 
 void LuaScript::Destroy()
@@ -142,54 +138,48 @@ void LuaScript::Destroy()
 
 void LuaScript::OnTriggerEnter(Entity other)
 {
-    luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "OnTriggerEnter");
-    LuaPushEntity(other);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
-    }
-    lua_pop(L, 1);
+    if (!L) return;
+    lua_State* OnTriggerEnterCoroutine = lua_newthread(L);
+    lua_pushstring(OnTriggerEnterCoroutine, filepath.c_str());
+    lua_pushlightuserdata(OnTriggerEnterCoroutine, this);
+    lua_pushlightuserdata(OnTriggerEnterCoroutine, &other);
+    lua_pushcclosure(OnTriggerEnterCoroutine, LuaCall::OnTriggerEnter,3);
+    int nresults = 0;
+    lua_resume(OnTriggerEnterCoroutine, 0, 0, &nresults);
 }
 
 void LuaScript::OnTriggerStay(Entity other)
 {
-    luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "OnTriggerStay");
-    LuaPushEntity(other);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run OnTriggerStay() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
-    }
-    lua_pop(L, 1);
+    //if (!L) return;
+    //lua_State* OnTriggerStayThread = lua_newthread(L);
+    //lua_pushstring(OnTriggerStayThread, filepath.c_str());
+    //lua_pushlightuserdata(OnTriggerStayThread, this);
+    //lua_pushlightuserdata(OnTriggerStayThread, &other);
+    //lua_pushcclosure(OnTriggerStayThread, LuaCall::OnTriggerStay, 3);
+    //int nresults = 0;
+    //lua_resume(OnTriggerStayThread, 0, 0, &nresults);
 }
 
 void LuaScript::OnTriggerExit(Entity other)
 {
-    luaL_dofile(L, filepath.c_str());
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "OnTriggerExit");
-    LuaPushEntity(other);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run OnTriggerExit() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
-    }
-    lua_pop(L, 1);
+    //if (!L) return;
+    //lua_State* OnTriggerExitThread = lua_newthread(L);
+    //lua_pushstring(OnTriggerExitThread, filepath.c_str());
+    //lua_pushlightuserdata(OnTriggerExitThread, this);
+    //lua_pushlightuserdata(OnTriggerExitThread, &other);
+    //lua_pushcclosure(OnTriggerExitThread, LuaCall::OnTriggerExit, 3);
+    //int nresults = 0;
+    //lua_resume(OnTriggerExitThread, 0, 0, &nresults);
 }
 
-void LuaScript::LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithEntity(lua_State* L, const lua_CFunction& f, const char* name)
 {
     lua_pushlightuserdata(L, &entity);
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::LuaPushCFunctionWithRigidbody(Entity entity, const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithRigidbody(lua_State* L, Entity entity, const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
     lua_pushlightuserdata(L, rigidbody.get());
@@ -197,8 +187,7 @@ void LuaScript::LuaPushCFunctionWithRigidbody(Entity entity, const lua_CFunction
     lua_setfield(L, -2, name);
 }
 
-
-void LuaScript::LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithRigidbody(lua_State* L, const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
     lua_pushlightuserdata(L, rigidbody.get());
@@ -206,14 +195,14 @@ void LuaScript::LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::LuaPushCFunctionWithTag(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithTag(lua_State* L,const lua_CFunction& f, const char* name)
 {
     const char* tag = GetComponent<TagComponent>().tag.c_str(); lua_pushstring(L, tag);
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const char* name)
+void LuaScript::LuaPushCFunctionWithAudioSource(lua_State* L,const lua_CFunction& f, const char* name)
 {
     SharedPtr<AudioSource> audioSource = GetComponent<AudioComponent>().audioSource;
     lua_pushlightuserdata(L, audioSource.get());
@@ -221,9 +210,14 @@ void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const ch
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::LuaPushEntity(Entity entity)
+void LuaScript::LuaPushEntity(Entity entity, lua_State* L)
 {
     lua_newtable(L);
+    
+    lua_pushlightuserdata(L, this);
+    lua_pushlightuserdata(L, &entity);
+    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 2);
+    lua_setfield(L, -2, "Destroy");
 
     if (entity.HasComponent<TagComponent>())
     {
@@ -270,18 +264,18 @@ void LuaScript::LuaPushEntity(Entity entity)
     {
         lua_newtable(L);
         {
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::AddVelocity, "AddVelocity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetVelocity, "GetVelocity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetVelocity, "SetVelocity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetMass, "GetMass");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetMass, "SetMass");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetDrag, "GetDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetDrag, "SetDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::UseGravity, "UseGravity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::FreezePosition, "FreezePosition");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::FreezeRotation, "FreezeRotation");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::AddVelocity, "AddVelocity");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::GetVelocity, "GetVelocity");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::SetVelocity, "SetVelocity");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::GetMass, "GetMass");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::SetMass, "SetMass");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::GetDrag, "GetDrag");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::SetDrag, "SetDrag");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::UseGravity, "UseGravity");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::FreezePosition, "FreezePosition");
+            LuaPushCFunctionWithRigidbody(L, entity, LuaRigidbody::FreezeRotation, "FreezeRotation");
         }
         lua_setfield(L, -2, "Rigidbody");
     }
@@ -356,26 +350,26 @@ void LuaScript::LuaPushComponetTable()
         else if (std::is_same<T, RigidbodyComponent>::value)
         {
             lua_newtable(L);
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::AddVelocity, "AddVelocity");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetVelocity, "GetVelocity");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetVelocity, "SetVelocity");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetMass, "GetMass");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetMass, "SetMass");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetDrag, "GetDrag");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetDrag, "SetDrag");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::UseGravity, "UseGravity");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::FreezePosition, "FreezePosition");
-            LuaPushCFunctionWithRigidbody(LuaRigidbody::FreezeRotation, "FreezeRotation");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::AddVelocity, "AddVelocity");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::GetVelocity, "GetVelocity");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::SetVelocity, "SetVelocity");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::GetMass, "GetMass");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::SetMass, "SetMass");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::GetDrag, "GetDrag");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::SetDrag, "SetDrag");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::UseGravity, "UseGravity");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::FreezePosition, "FreezePosition");
+            LuaPushCFunctionWithRigidbody(L, LuaRigidbody::FreezeRotation, "FreezeRotation");
             lua_setglobal(L, "Rigidbody");
         }
         else if (std::is_same<T, AudioComponent>::value)
         {
             lua_newtable(L);
-            LuaPushCFunctionWithAudioSource(LuaAudioSource::Play, "Play");
-            LuaPushCFunctionWithAudioSource(LuaAudioSource::Pause, "Pause");
-            LuaPushCFunctionWithAudioSource(LuaAudioSource::Stop, "Stop");
+            LuaPushCFunctionWithAudioSource(L, LuaAudioSource::Play, "Play");
+            LuaPushCFunctionWithAudioSource(L, LuaAudioSource::Pause, "Pause");
+            LuaPushCFunctionWithAudioSource(L, LuaAudioSource::Stop, "Stop");
             lua_setglobal(L, "AudioSource");
         }
         else if (std::is_same<T, BoxCollider>::value)
@@ -411,15 +405,4 @@ void LuaScript::LuaPushComponetTable()
     {
         CORE_WARN("Missing {0} component", typeid(T).name());
     }
-}
-
-int LuaScriptCallBack::LuaCallback(lua_State* L)
-{
-    const char* message = lua_tostring(L, 1);
-    if (message)
-    {
-        //replace and push an error message that includes stack trace
-        luaL_traceback(L, L, message, 1); 
-    }
-    return 1;
 }

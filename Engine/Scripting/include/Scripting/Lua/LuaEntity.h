@@ -7,6 +7,7 @@ namespace LuaEntity
 
     };
     int Instantiate(lua_State*);
-    int Destory(lua_State*);
+    int EntityDestroy(lua_State*);
+    int OtherEntityDestroy(lua_State*);
     extern const luaL_Reg entityLib[];
 }

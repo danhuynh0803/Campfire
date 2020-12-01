@@ -53,12 +53,25 @@ int LuaEntity::Instantiate(lua_State* L)
     return 1;
 }
 
-int LuaEntity::Destory(lua_State* L)
+int LuaEntity::EntityDestroy(lua_State* L)
 {
+    int topIndex = lua_gettop(L);
+    LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
+    lua_pushstring(L, "Destroy Entity");
+    lua_error(L);
+    return 0;
+}
+
+int LuaEntity::OtherEntityDestroy(lua_State* L)
+{
+    int topIndex = lua_gettop(L);
+    lua_Number seconds = luaL_checknumber(L, topIndex);
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(2));
-
-    return 1;
+    lua_pushstring(L, "Destroy Entity");
+    lua_error(L);
+    script->ScriptableEntity::Destroy(*entity, seconds);
+    return 0;
 }
 
 const luaL_Reg LuaEntity::entityLib[] =
