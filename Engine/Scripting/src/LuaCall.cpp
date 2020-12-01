@@ -33,7 +33,7 @@ int LuaCall::Start(lua_State* L)
     lua_pushcfunction(L, LuaCallback);
     lua_getglobal(L, "Start");
     //int status = lua_pcallk(L, 0, 0, -2, 0, ContinueFunction);
-    int status = lua_pcall(L, 0, 0, -2, 0);
+    int status = lua_pcall(L, 0, 0, -2);
     switch (status)
     {
         case LUA_OK:
@@ -64,7 +64,7 @@ int LuaCall::Update(lua_State* L)
     luaL_dofile(L, filePath);
     lua_pushcfunction(L, LuaCallback);
     lua_getglobal(L, "Update");
-    int status = lua_pcall(L, 0, 0, -2, 0);
+    int status = lua_pcall(L, 0, 0, -2);
     switch (status)
     {
         case LUA_OK:
@@ -98,7 +98,7 @@ int LuaCall::OnTriggerEnter(lua_State* L)
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(3));
     script->LuaPushEntity(*entity, L);
-    int status = lua_pcall(L, 0, 0, -2, 0);
+    int status = lua_pcall(L, 0, 0, -2);
     switch (status)
     {
         case LUA_OK:

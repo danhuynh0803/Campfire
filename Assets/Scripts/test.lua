@@ -1,9 +1,9 @@
 function Start()
-    
+
 end
 
 function Update()
-    Log(1)    
+    Log(1)
     --Log(deltatime)
 end
 
