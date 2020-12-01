@@ -157,6 +157,7 @@ void LuaScript::Destroy()
 
 void LuaScript::OnTriggerEnter(Entity other)
 {
+    if (!other.IsValid()) return;
     if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
@@ -172,6 +173,7 @@ void LuaScript::OnTriggerEnter(Entity other)
 
 void LuaScript::OnTriggerStay(Entity other)
 {
+    if (!other.IsValid()) return;
     if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
@@ -187,6 +189,7 @@ void LuaScript::OnTriggerStay(Entity other)
 
 void LuaScript::OnTriggerExit(Entity other)
 {
+    if (!other.IsValid()) return;
     if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);

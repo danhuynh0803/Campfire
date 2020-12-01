@@ -23,7 +23,6 @@ public:
     void OnTriggerStay(Entity);
     void OnTriggerExit(Entity);
 
-    void LuaPushEntity(Entity, lua_State*);
 private:
     lua_State* L;
     void LuaPushEntity(Entity);

@@ -45,6 +45,11 @@ public:
         return scene->registry.template has<T>(entityHandle);
     }
 
+    bool IsValid()
+    {
+        return scene->registry.valid(entityHandle);
+    }
+
     template <typename T>
     void RemoveComponent()
     {

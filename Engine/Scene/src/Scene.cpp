@@ -146,13 +146,13 @@ void Scene::CopyFrom(const SharedPtr<Scene>& srcScene)
     // Copy all entities
     std::map<uint64_t, entt::entity> enttMap;
     auto idComps = srcScene->registry.view<IDComponent>();
-    for (auto entity : idComps)
+    for(auto &it = --idComps.end();it>=idComps.begin(); --it)
     {
-        uint64_t id = srcScene->registry.get<IDComponent>(entity).ID;
+        uint64_t id = srcScene->registry.get<IDComponent>(*it).ID;
         Entity e = CreateEntity("");
         e.GetComponent<IDComponent>().ID = id;
         //LOG_INFO(e.GetComponent<IDComponent>().ID);
-        enttMap[id] = e;
+        enttMap[id] = *it;
     }
 
     if (!enttMap.empty())
@@ -584,6 +584,8 @@ void Scene::RemoveEntity(Entity entity)
     {
         entity.GetComponent<ScriptComponent>().DestroyScript(&entity.GetComponent<ScriptComponent>());
     }
+    PhysicsManager::RemoveEntity(entity);
+
 
     auto it = entityMap.find(entity.GetComponent<IDComponent>());
     if (it != entityMap.end())

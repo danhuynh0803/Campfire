@@ -83,7 +83,7 @@ int LuaCall::OnTriggerEnter(lua_State* L)
     lua_getglobal(L, "OnTriggerEnter");
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(3));
-    script->LuaPushEntity(*entity, L);
+    //script->LuaPushEntity(*entity, L);
     int status = lua_pcall(L, 1, 0, -3);
     switch (status)
     {
@@ -110,7 +110,7 @@ int LuaCall::OnTriggerStay(lua_State* L)
     lua_getglobal(L, "OnTriggerStay");
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(3));
-    script->LuaPushEntity(*entity, L);
+    //script->LuaPushEntity(*entity, L);
     int status = lua_pcallk(L, 1, 0, -3, 0, ContinueFunction);
     switch (status)
     {
@@ -138,7 +138,7 @@ int LuaCall::OnTriggerExit(lua_State* L)
     if (!lua_istable(L, -1)) return 0;
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(3));
-    script->LuaPushEntity(*entity, L);
+    //script->LuaPushEntity(*entity, L);
     int status = lua_pcallk(L, 1, 0, -3, 0, ContinueFunction);
     switch (status)
     {
