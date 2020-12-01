@@ -1,5 +1,5 @@
 function Start()
-    Entity.Destroy()
+    
 end
 
 function Update()
@@ -8,6 +8,7 @@ function Update()
 end
 
 function OnTriggerEnter(other)
+    Entity.Destroy()
     --Log(other.tag)
     --Log(other.tag)
     --other.Transform.SetScale(2, 2, 2)

@@ -32,6 +32,7 @@ int LuaCall::Start(lua_State* L)
     int i = luaL_dofile(L, filePath);
     lua_pushcfunction(L, LuaCallback);
     lua_getglobal(L, "Start");
+    //int status = lua_pcallk(L, 0, 0, -2, 0, ContinueFunction);
     int status = lua_pcall(L, 0, 0, -2, 0);
     switch (status)
     {
@@ -63,7 +64,7 @@ int LuaCall::Update(lua_State* L)
     luaL_dofile(L, filePath);
     lua_pushcfunction(L, LuaCallback);
     lua_getglobal(L, "Update");
-    int status = lua_pcallk(L, 0, 0, -2, 0, ContinueFunction);
+    int status = lua_pcall(L, 0, 0, -2, 0);
     switch (status)
     {
         case LUA_OK:
@@ -73,6 +74,13 @@ int LuaCall::Update(lua_State* L)
             lua_pop(L, 1);
             break;
         case LUA_YIELD:
+            break;
+        case LUA_ERRRUN:
+            if (lua_tostring(L, -1) == "Destroy Entity")
+            {
+                LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
+                script->Destroy();
+            }
             break;
         default:
             break;
@@ -90,7 +98,7 @@ int LuaCall::OnTriggerEnter(lua_State* L)
     LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(2));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(3));
     script->LuaPushEntity(*entity, L);
-    int status = lua_pcallk(L, 1, 0, -3, 0, ContinueFunction);
+    int status = lua_pcall(L, 0, 0, -2, 0);
     switch (status)
     {
         case LUA_OK:
