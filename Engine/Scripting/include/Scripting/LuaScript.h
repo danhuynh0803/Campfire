@@ -2,8 +2,13 @@
 #include <lua.hpp>
 #include "Scene/ScriptableEntity.h"
 
+namespace LuaScriptCallBack {
+    int LuaCallback(lua_State*);
+}
+
 class LuaScript : public ScriptableEntity
 {
+
 public:
     ~LuaScript()
     {
@@ -21,14 +26,12 @@ public:
     void LuaPushEntity(Entity, lua_State*);
 private:
     lua_State* L;
-    lua_State* StartCoroutine;
-    lua_State* UpdateCoroutine;
-
-    void LuaPushCFunctionWithEntity(lua_State*, const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithRigidbody(lua_State*, Entity, const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithRigidbody(lua_State*, const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithTag(lua_State*, const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithAudioSource(lua_State*, const lua_CFunction&, const char*);
+    void LuaPushEntity(Entity);
+    void LuaPushCFunctionWithEntity(const lua_CFunction&, const char*);
+    void LuaPushCFunctionWithRigidbody(Entity, const lua_CFunction&, const char*);
+    void LuaPushCFunctionWithRigidbody(const lua_CFunction&, const char*);
+    void LuaPushCFunctionWithTag(const lua_CFunction&, const char*);
+    void LuaPushCFunctionWithAudioSource(const lua_CFunction&, const char*);
     template<typename T>
     void LuaPushComponetTable();
 };
