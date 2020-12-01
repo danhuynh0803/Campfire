@@ -3,6 +3,7 @@
 #include "IconsFontAwesome5.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 static std::string icon;
 
@@ -15,7 +16,12 @@ static std::map<std::string, std::string> extToIconMap
 
 static std::string MapExtToIcon(std::string ext)
 {
+    if (extToIconMap.find(ext) != extToIconMap.end())
+    {
+        return extToIconMap.at(ext);
+    }
 
+    return ICON_FA_FILE;
 }
 
 AssetBrowser::AssetBrowser()
@@ -75,63 +81,61 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
         for (auto& p : std::filesystem::directory_iterator(currPath))
         {
             ImGui::PushID(n);
-
             std::string filename = p.path().filename().string();
 
-            std::string icon = std::filesystem::is_directory(p.path())
-                ? ICON_FA_FOLDER
-                : ICON_FA_FILE
-            ;
-
-            size_t dot = filename.find_last_of(".");
-            std::string ext;
-            if (dot != std::string::npos)
-            {
-                ext = filename.substr(dot, filename.size() - dot);
-            }
+            //if (ImGui::Selectable(filename.c_str(), n == mSelectedItem))
+            //{
+            //    mSelectedItem = n;
+            //}
+            //ImGui::SameLine();
 
             if (isList) // tabulated
             {
-                //ImGui::Text((icon + "\t" + filename).c_str());
+                std::string icon = std::filesystem::is_directory(p.path())
+                    ? ICON_FA_FOLDER
+                    : ICON_FA_FILE
+                ;
                 ImGui::Text(icon.c_str());
                 ImGui::SameLine();
-                ImGui::Text(filename.c_str());
+                ImGui::Button(filename.c_str());
             }
             else // display icons
             {
+                size_t dot = filename.find_last_of(".");
+                std::string ext;
+                if (dot != std::string::npos)
+                {
+                    ext = filename.substr(dot, filename.size() - dot);
+                }
+
                 ImGui::BeginGroup();
 
-                if (ext == ".jpg"
-                    || ext == ".png"
+                // Texture files
+                if (
+                    ext == ".jpg"
+                 || ext == ".png"
                 ) {
                     auto texture = ResourceManager::GetTexture2D(p.path().string());
                     ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
                 }
+                // Directories
+                else if (std::filesystem::is_directory(p.path()))
+                {
+                    if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
+                    {
+                        LOG_INFO(p.path().string());
+                        currPath = std::filesystem::relative(p.path());
+                    }
+                }
                 else
                 {
-                    ImGui::Button(icon.c_str(), buttonSize);
+                    ImGui::Button(MapExtToIcon(ext).c_str(), buttonSize);
+                    {
+                    }
                 }
                 ImGui::TextWrapped(filename.c_str());
             }
 
-            if (ImGui::IsMouseDoubleClicked(0)) {
-                if (std::filesystem::is_directory(p.path())) {
-                    currPath = std::filesystem::relative(p.path());
-                }
-            }
-            else if (ImGui::IsMouseClicked(0))
-            {
-                // TODO open asset browser
-            }
-
-            //float lastButtonX2 = ImGui::GetItemRectMax().x;
-            //float nextButtonX2 = lastButtonX2 + style.ItemSpacing.x + buttonSize.x; // Expected position if next button was on same line
-            //if (n + 1 < buttonCount
-            //    && nextButtonX2 < windowVisibleX2;
-            //    && !isList
-            //) {
-            //    //ImGui::SameLine();
-            //}
             if (!isList)
             {
                 ImGui::EndGroup();
@@ -151,6 +155,11 @@ void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
 {
     static ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 
+    //static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
+    //const bool is_selected = (selection_mask & (1 << i)) != 0;
+    //if (is_selected)
+    //    flags |= ImGuiTreeNodeFlags_Selected;
+
     if (!std::filesystem::is_directory(dirPath))
     {
         return;
@@ -163,6 +172,8 @@ void AssetBrowser::RecursivelyDisplayDirectories(std::filesystem::path dirPath)
     }
     bool nodeOpen = ImGui::TreeNodeEx(dirPath.filename().string().c_str(), flags);
     // Update content view ImGuiwith selected directory
+    //ImGui::Selectable()
+
     if (ImGui::IsItemClicked()
         && (ImGui::GetMousePos().x - ImGui::GetItemRectMin().x)
         > ImGui::GetTreeNodeToLabelSpacing()
