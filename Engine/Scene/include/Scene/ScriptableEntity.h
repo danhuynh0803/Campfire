@@ -24,10 +24,9 @@ public:
         return entity.HasComponent<T>();
     }
 
-    template <typename T>
     bool IsValid()
     {
-        return entity.IsValid<T>();
+        return entity.IsValid();
     }
 
     Entity Instantiate(Entity)

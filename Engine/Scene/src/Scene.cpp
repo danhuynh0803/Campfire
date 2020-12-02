@@ -146,13 +146,13 @@ void Scene::CopyFrom(const SharedPtr<Scene>& srcScene)
     // Copy all entities
     std::map<uint64_t, entt::entity> enttMap;
     auto idComps = srcScene->registry.view<IDComponent>();
-    for(auto &it = --idComps.end();it>=idComps.begin(); --it)
+    for(auto rit = idComps.rbegin(); rit != idComps.rend(); ++rit)
     {
-        uint64_t id = srcScene->registry.get<IDComponent>(*it).ID;
+        uint64_t id = srcScene->registry.get<IDComponent>(*rit).ID;
         Entity e = CreateEntity("");
         e.GetComponent<IDComponent>().ID = id;
         //LOG_INFO(e.GetComponent<IDComponent>().ID);
-        enttMap[id] = *it;
+        enttMap[id] = *rit;
     }
 
     if (!enttMap.empty())
