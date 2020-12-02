@@ -291,6 +291,7 @@ void Scene::OnUpdate(float dt)
         ZoneScopedN("LuaUpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
+            if (sc.filepath.empty()) return;//for std::function
             if(sc.runUpdate) sc.instance->Update(dt);
 
             Entity thisEntity = sc.instance->entity;
@@ -583,7 +584,11 @@ void Scene::RemoveEntity(Entity entity)
     {
         entity.GetComponent<ScriptComponent>().DestroyScript(&entity.GetComponent<ScriptComponent>());
     }
-    PhysicsManager::RemoveEntity(entity);
+    if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+    {
+        PhysicsManager::RemoveEntity(entity);
+    }
+
 
 
     auto it = entityMap.find(entity.GetComponent<IDComponent>());

@@ -66,34 +66,40 @@ void LuaScript::Start()
         lua_setfield(L, -2, "New");
     }
     lua_setglobal(L, "Vec4");
+    
+    {
+        char* vec2MetaTableName = "LuaVec2MetaTable";
+        luaL_newmetatable(L, vec2MetaTableName);
+        lua_pushstring(L, "__add");
+        lua_pushcfunction(L, LuaVector::LuaVec2Add);
+        lua_settable(L, -3);
+        lua_pushstring(L, "__sub");
+        lua_pushcfunction(L, LuaVector::LuaVec2Sub);
+        lua_settable(L, -3);
+    }
 
-    char* vec2MetaTableName = "LuaVec2MetaTable";
-    luaL_newmetatable(L, vec2MetaTableName);
-    lua_pushstring(L, "__add");
-    lua_pushcfunction(L, LuaVector::LuaVec2Add);
-    lua_settable(L, -3);
-    lua_pushstring(L, "__sub");
-    lua_pushcfunction(L, LuaVector::LuaVec2Sub);
-    lua_settable(L, -3);
-
-    char* vec3MetaTableName = "LuaVec3MetaTable";
-    luaL_newmetatable(L, vec3MetaTableName);
-    lua_pushstring(L, "__add");
-    lua_pushcfunction(L, LuaVector::LuaVec3Add);
-    lua_settable(L, -3);
-    lua_pushstring(L, "__sub");
-    lua_pushcfunction(L, LuaVector::LuaVec3Sub);
-    lua_settable(L, -3);
-
-    char* vec4MetaTableName = "LuaVec4MetaTable";
-    luaL_newmetatable(L, vec4MetaTableName);
-    lua_pushstring(L, "__add");
-    lua_pushcfunction(L, LuaVector::LuaVec4Add);
-    lua_settable(L, -3);
-    lua_pushstring(L, "__sub");
-    lua_pushcfunction(L, LuaVector::LuaVec4Sub);
-    lua_settable(L, -3); //sets the (meta)table and pop above
-
+    {
+        char* vec3MetaTableName = "LuaVec3MetaTable";
+        luaL_newmetatable(L, vec3MetaTableName);
+        lua_pushstring(L, "__add");
+        lua_pushcfunction(L, LuaVector::LuaVec3Add);
+        lua_settable(L, -3);
+        lua_pushstring(L, "__sub");
+        lua_pushcfunction(L, LuaVector::LuaVec3Sub);
+        lua_settable(L, -3);
+    }
+    
+    {
+        char* vec4MetaTableName = "LuaVec4MetaTable";
+        luaL_newmetatable(L, vec4MetaTableName);
+        lua_pushstring(L, "__add");
+        lua_pushcfunction(L, LuaVector::LuaVec4Add);
+        lua_settable(L, -3);
+        lua_pushstring(L, "__sub");
+        lua_pushcfunction(L, LuaVector::LuaVec4Sub);
+        lua_settable(L, -3); //sets the (meta)table and pop above
+    }
+    
     LuaPushComponetTable<TransformComponent>();
     LuaPushComponetTable<RigidbodyComponent>();
     LuaPushComponetTable<AudioSource>();
@@ -126,16 +132,13 @@ void LuaScript::Start()
 
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "Start");
-    if (!lua_isfunction(L, -1))
+    if (lua_getglobal(L, "Start"))
     {
-        lua_pop(L, 1);
-        return;
-    }
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
+        if (lua_pcall(L, 0, 0, -2) != LUA_OK)
+        {
+            LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
     }
     lua_pop(L, 1);
 }
@@ -146,16 +149,13 @@ void LuaScript::Update(float dt)
     lua_setglobal(L, "deltatime");
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "Update");
-    if (!lua_isfunction(L, -1))
+    if (lua_getglobal(L, "Update"))
     {
-        lua_pop(L, 1);
-        return;
-    }
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
+        if (lua_pcall(L, 0, 0, -2) != LUA_OK)
+        {
+            LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
     }
     lua_pop(L, 1);
 }
@@ -170,17 +170,14 @@ void LuaScript::OnTriggerEnter(Entity other)
     if (!other.IsValid()) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "OnTriggerEnter");
-    if (!lua_isfunction(L, -1))
+    if (lua_getglobal(L, "OnTriggerEnter"))
     {
-        lua_pop(L, 1);
-        return;
-    }
-    LuaPushEntity(other);
-
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+        LuaPushEntity(other);
+        if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+        {
+            LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
@@ -191,16 +188,14 @@ void LuaScript::OnTriggerStay(Entity other)
     if (!other.IsValid()) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "OnTriggerStay");
-    if (!lua_isfunction(L, -1))
+    if(lua_getglobal(L, "OnTriggerStay"))
     {
-        lua_pop(L, 1);
-        return;
-    }
-    LuaPushEntity(other);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run OnTriggerStay() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+        LuaPushEntity(other);
+        if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+        {
+            LOG_ERROR("Cannot run OnTriggerStay() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
@@ -211,17 +206,14 @@ void LuaScript::OnTriggerExit(Entity other)
     if (!other.IsValid()) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
-    lua_getglobal(L, "OnTriggerExit");
-    if (!lua_isfunction(L, -1))
+    if (lua_getglobal(L, "OnTriggerExit"))
     {
-        lua_pop(L, 1);
-        return;
-    }
-    LuaPushEntity(other);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
-    {
-        LOG_ERROR("Cannot run OnTriggerExit() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
-        lua_pop(L, 1);
+        LuaPushEntity(other);
+        if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+        {
+            LOG_ERROR("Cannot run OnTriggerExit() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
     }
     lua_pop(L, 1);
 }
