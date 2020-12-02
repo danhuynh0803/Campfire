@@ -84,14 +84,24 @@ void SceneManager::SaveScene(const SharedPtr<Scene>& scene, const std::string& s
     sceneJson["Environment"]["skybox"] = scene->skybox->GetFacePaths();
 
     // Entity list
-    scene->registry.each([&](auto entityID)
+    auto idComps = scene->registry.view<IDComponent>();
+    for(auto rit = idComps.rbegin(); rit != idComps.rend(); ++rit)
     {
-        Entity entity = { entityID, scene.get() };
+        Entity entity = { *rit, scene.get() };
         if (!entity)
             return;
 
         sceneJson["Entities"].push_back(SerializeEntity(entity));
-    });
+    }
+
+    //scene->registry.each([&](auto entityID)
+    //{
+    //    Entity entity = { entityID, scene.get() };
+    //    if (!entity)
+    //        return;
+
+    //    sceneJson["Entities"].push_back(SerializeEntity(entity));
+    //});
 
     std::ofstream out(savePath);
     out << std::setw(2) << sceneJson << std::endl;
@@ -239,6 +249,19 @@ json SceneManager::SerializeEntity(Entity entity)
         cJson["stereoPan"]   = comp->stereoPan;
 
         eJson["AudioComponent"] = cJson;
+    }
+
+    if (entity.HasComponent<ScriptComponent>())
+    {
+        auto comp = entity.GetComponent<ScriptComponent>();
+        json cJson;
+        cJson["filepath"] = comp.filepath;
+        cJson["runUpdate"] = comp.runUpdate;
+        cJson["runOnTriggerEnter"] = comp.runOnTriggerEnter;
+        cJson["runOnTriggerStay"]  = comp.runOnTriggerStay;
+        cJson["runOnTriggerExit"]  = comp.runOnTriggerExit;
+
+        eJson["ScriptComponent"] = cJson;
     }
 
     if (entity.HasComponent<TextComponent>())
@@ -392,6 +415,10 @@ Entity SceneManager::DeserializeEntity(json eJson, Scene* parentScene)
         json cJson = eJson["ScriptComponent"];
         auto& comp = e.AddComponent<ScriptComponent>();
         comp.filepath = cJson["filepath"];
+        comp.runUpdate = cJson["runUpdate"];
+        comp.runOnTriggerEnter = cJson["runOnTriggerEnter"];
+        comp.runOnTriggerStay = cJson["runOnTriggerStay"];
+        comp.runOnTriggerExit = cJson["runOnTriggerExit"];
     }
 
     if (eJson.contains("TextComponent"))
