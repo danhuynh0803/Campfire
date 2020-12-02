@@ -224,7 +224,6 @@ void Scene::OnStart()
                 sc.instance->entity = Entity(entity, this);
                 sc.instance->filepath = sc.filepath;
             }
-
             sc.instance->Start();
         }
     });
@@ -292,7 +291,7 @@ void Scene::OnUpdate(float dt)
         ZoneScopedN("LuaUpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
-            sc.instance->Update(dt);
+            if(sc.runUpdate) sc.instance->Update(dt);
 
             Entity thisEntity = sc.instance->entity;
             if (thisEntity.HasComponent<TriggerComponent>())
@@ -303,7 +302,7 @@ void Scene::OnUpdate(float dt)
                     Entity other(enterEntity, this);
                     // Don't have the trigger apply on ourselves
                     // since the trigger and rb will always be colliding
-                    if (enterEntity != sc.instance->entity)
+                    if (enterEntity != sc.instance->entity && sc.runOnTriggerEnter)
                     {
                         sc.instance->OnTriggerEnter(other);
                     }
@@ -312,7 +311,7 @@ void Scene::OnUpdate(float dt)
                 for (auto stayEntity : overlappingEntities)
                 {
                     Entity other(stayEntity, this);
-                    if (stayEntity != sc.instance->entity)
+                    if (stayEntity != sc.instance->entity && sc.runOnTriggerStay)
                     {
                         sc.instance->OnTriggerStay(other);
                     }
@@ -321,7 +320,7 @@ void Scene::OnUpdate(float dt)
                 for (auto exitEntity : trigger->overlapExitList)
                 {
                     Entity other(exitEntity, this);
-                    if (exitEntity != sc.instance->entity)
+                    if (exitEntity != sc.instance->entity && sc.runOnTriggerExit)
                     {
                         sc.instance->OnTriggerExit(other);
                     }

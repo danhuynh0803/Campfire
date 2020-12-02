@@ -514,8 +514,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
-
             auto& sc = entity.GetComponent<ScriptComponent>();
+            ImGui::Checkbox("Run Update", &(sc.runUpdate));
+            ImGui::Checkbox("Run OnTriggerEnter", &(sc.runOnTriggerEnter));
+            ImGui::Checkbox("Run OnTriggerStay", &(sc.runOnTriggerStay));
+            ImGui::Checkbox("Run OnTriggerExit", &(sc.runOnTriggerExit));
             std::string filename = sc.filepath.empty() ? "Blank" : sc.filepath;
             if (ImGui::Button(filename.c_str()))
             {

@@ -357,6 +357,10 @@ struct ScriptComponent
     }
 
     std::string filepath;
+    bool runUpdate;
+    bool runOnTriggerEnter;
+    bool runOnTriggerStay;
+    bool runOnTriggerExit;
 };
 
 struct ParticleSystemComponent

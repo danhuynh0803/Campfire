@@ -152,7 +152,7 @@ void LuaScript::Update(float dt)
         lua_pop(L, 1);
         return;
     }
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
+    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
         LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
