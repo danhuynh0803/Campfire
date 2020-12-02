@@ -61,7 +61,25 @@ SharedPtr<Scene> SceneManager::LoadScene(const std::string& loadPath)
 
 void SceneManager::SaveCurrentScene(const SharedPtr<Scene>& scene)
 {
-    SaveScene(scene, activeScenePath.c_str());
+    // If current scene is untitled, prompt user
+    // to give the scene a name
+    if (!HasSceneLoaded())
+    {
+        std::string savePath = FileSystem::SaveFile("Campfire Files(*.cf)");
+        if (!savePath.empty())
+        {
+            activeScenePath.assign(savePath);
+            activeSceneName = activeScenePath.substr(
+                activeScenePath.find_last_of('/')+1
+            );
+
+            SaveScene(scene, activeScenePath);
+        }
+    }
+    else
+    {
+        SaveScene(scene, activeScenePath);
+    }
 }
 
 void SceneManager::SaveScene(const SharedPtr<Scene>& scene, const std::string& savePath)
