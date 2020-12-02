@@ -127,6 +127,11 @@ void LuaScript::Start()
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "Start");
+    if (!lua_isfunction(L, -1))
+    {
+        lua_pop(L, 1);
+        return;
+    }
     if (lua_pcall(L, 0, 0, -2) != LUA_OK)
     {
         LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
@@ -137,17 +142,22 @@ void LuaScript::Start()
 
 void LuaScript::Update(float dt)
 {
-    if (!L) return;
     lua_pushnumber(L, dt);
     lua_setglobal(L, "deltatime");
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "Update");
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK)
+    if (!lua_isfunction(L, -1))
+    {
+        lua_pop(L, 1);
+        return;
+    }
+    if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
         LOG_ERROR("Cannot run Update() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
         lua_pop(L, 1);
     }
+    lua_pop(L, 1);
 }
 
 void LuaScript::Destroy()
@@ -158,11 +168,16 @@ void LuaScript::Destroy()
 void LuaScript::OnTriggerEnter(Entity other)
 {
     if (!other.IsValid()) return;
-    if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerEnter");
+    if (!lua_isfunction(L, -1))
+    {
+        lua_pop(L, 1);
+        return;
+    }
     LuaPushEntity(other);
+
     if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
         LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
@@ -174,10 +189,14 @@ void LuaScript::OnTriggerEnter(Entity other)
 void LuaScript::OnTriggerStay(Entity other)
 {
     if (!other.IsValid()) return;
-    if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerStay");
+    if (!lua_isfunction(L, -1))
+    {
+        lua_pop(L, 1);
+        return;
+    }
     LuaPushEntity(other);
     if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
@@ -190,10 +209,14 @@ void LuaScript::OnTriggerStay(Entity other)
 void LuaScript::OnTriggerExit(Entity other)
 {
     if (!other.IsValid()) return;
-    if (!L) return;
     luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     lua_getglobal(L, "OnTriggerExit");
+    if (!lua_isfunction(L, -1))
+    {
+        lua_pop(L, 1);
+        return;
+    }
     LuaPushEntity(other);
     if (lua_pcall(L, 1, 0, -3) != LUA_OK)
     {
