@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.15)
 
 # Set all libs to be static
 option(BUILD_SHARED_LIBS OFF)
