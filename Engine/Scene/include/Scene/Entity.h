@@ -59,7 +59,10 @@ public:
             CORE_WARN("{0} not found for removal", typeid(T).name());
     }
 
-    operator bool() const { return entityHandle != entt::null; }
+    operator bool() const
+    {
+        return (entityHandle != entt::null) && scene->registry.valid(entityHandle);
+    }
     operator entt::entity() const { return entityHandle; }
 
 private:

@@ -379,14 +379,12 @@ void EditorLayer::OnUpdate(float dt)
         }
 
         // Draw camera frustum
-        /*
         auto& entity = wHierarchy.GetSelectedEntity();
         if (entity && entity.HasComponent<CameraComponent>() && entity.HasComponent<TransformComponent>())
         {
             auto camera = entity.GetComponent<CameraComponent>().camera;
             camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
-        */
 
         // TODO don't remove yet, still need to figure out
         // slight mismatch from raycast not matching mouse pos
