@@ -1,4 +1,4 @@
-function OnTriggerEnter(other)
-    Log(other.tag)
+function OnTriggerExit(other)
+    Log("killborder " .. other.tag)
     other.Destroy()
 end
