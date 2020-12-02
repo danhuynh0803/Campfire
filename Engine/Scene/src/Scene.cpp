@@ -302,8 +302,8 @@ void Scene::OnUpdate(float dt)
                 {
                     Entity other(enterEntity, this);
                     // Don't have the trigger apply on ourselves
-                    // since the trigger and rb will always be colliding                    
-                    if (other.IsValid() && enterEntity != sc.instance->entity && sc.runOnTriggerEnter)
+                    // since the trigger and rb will always be colliding
+                    if (other && enterEntity != sc.instance->entity && sc.runOnTriggerEnter)
                     {
                         LOG_INFO("{0}, {1}", other.GetComponent<TagComponent>().tag, static_cast<uint64_t>(enterEntity));
                         sc.instance->OnTriggerEnter(other);
@@ -313,7 +313,7 @@ void Scene::OnUpdate(float dt)
                 for (auto stayEntity : overlappingEntities)
                 {
                     Entity other(stayEntity, this);
-                    if (other.IsValid() && stayEntity != sc.instance->entity && sc.runOnTriggerStay)
+                    if (other && stayEntity != sc.instance->entity && sc.runOnTriggerStay)
                     {
                         sc.instance->OnTriggerStay(other);
                     }
@@ -322,7 +322,7 @@ void Scene::OnUpdate(float dt)
                 for (auto exitEntity : trigger->overlapExitList)
                 {
                     Entity other(exitEntity, this);
-                    if (other.IsValid() && exitEntity != sc.instance->entity && sc.runOnTriggerExit)
+                    if (other && exitEntity != sc.instance->entity && sc.runOnTriggerExit)
                     {
                         sc.instance->OnTriggerExit(other);
                     }

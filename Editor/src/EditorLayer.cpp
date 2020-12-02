@@ -936,6 +936,35 @@ void EditorLayer::ShowEditorCameraSettings(bool* isOpen)
     bool prevState = editorCamera->isPerspective;
     ImGui::Checkbox("Is Perspective", &editorCamera->isPerspective);
 
+    ImGui::Separator();
+
+    {
+        ImGui::Text("View Matrix");
+        glm::mat4 view = editorCamera->GetViewMatrix();
+        for (int i = 0; i < 4; ++i)
+        {
+            ImGui::PushID(i);
+            ImGui::DragFloat4("", (float*)&view[i]);
+            ImGui::PopID();
+        }
+    }
+
+    ImGui::Separator();
+
+    {
+        ImGui::Text("Projection Matrix");
+        glm::mat4 proj = editorCamera->GetProjMatrix();
+        for (int i = 0; i < 4; ++i)
+        {
+            ImGui::PushID(i);
+            ImGui::DragFloat4("", (float*)&proj[i]);
+            ImGui::PopID();
+        }
+    }
+
+    ImGui::Separator();
+
+
     if (editorCamera->isPerspective)
         ImGui::DragFloat("Vertical FOV", &editorCamera->vFov);
     else
