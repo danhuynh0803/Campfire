@@ -15,6 +15,8 @@ public:
         lua_close(L);
     }
 
+    void LoadStandardLibries();
+
     void Start();
     void Update(float);
     void Destroy();
