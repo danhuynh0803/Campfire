@@ -32,6 +32,36 @@ void Trigger::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm:
     ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 }
 
+void Trigger::RemoveEntityHandle(entt::entity handle)
+{
+    prevList.erase(
+        std::remove_if(
+            prevList.begin(), prevList.end(),
+            [handleToDelete = handle](entt::entity currHandle)
+            {
+                return currHandle == handleToDelete;
+            }),
+            prevList.end());
+
+    overlapEnterList.erase(
+        std::remove_if(
+            overlapEnterList.begin(), overlapEnterList.end(),
+            [handleToDelete = handle](entt::entity currHandle)
+            {
+                return currHandle == handleToDelete;
+            }),
+            overlapEnterList.end());
+
+    overlapExitList.erase(
+        std::remove_if(
+            overlapExitList.begin(), overlapExitList.end(),
+            [handleToDelete = handle](entt::entity currHandle)
+            {
+                return currHandle == handleToDelete;
+            }),
+            overlapExitList.end());
+}
+
 
 void Trigger::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale)
 {

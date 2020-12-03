@@ -15,6 +15,7 @@ public:
     btGhostObject* GetBulletGhostObject() { return ghostObject; }
     SharedPtr<Collider> collider = Collider::Create(Collider::Shape::BOX);
 
+    void RemoveEntityHandle(entt::entity);
     std::vector<entt::entity> prevList;
     std::vector<entt::entity> overlapEnterList;
     std::vector<entt::entity> overlapExitList;
