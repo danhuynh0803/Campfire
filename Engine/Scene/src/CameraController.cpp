@@ -98,7 +98,14 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e)
     lastX = e.GetX();
     lastY = e.GetY();
 
-    if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+    if (Input::GetMouseButton(MOUSE_BUTTON_MIDDLE))
+    {
+        xOffset *= 0.01f;
+        yOffset *= 0.01f;
+
+        position += -(right * xOffset) + up * yOffset;
+    }
+    else if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
         xOffset *= mouseSensitivity;
         yOffset *= mouseSensitivity;
@@ -118,6 +125,7 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e)
         UpdateCameraVectors();
         activeCamera->RecalculateViewMatrix(position, front, up);
     }
+
     return false;
 }
 
