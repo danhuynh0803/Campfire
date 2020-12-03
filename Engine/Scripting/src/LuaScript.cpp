@@ -147,7 +147,6 @@ void LuaScript::Update(float dt)
 {
     lua_pushnumber(L, dt);
     lua_setglobal(L, "deltatime");
-    luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     if (lua_getglobal(L, "Update"))
     {
@@ -167,9 +166,7 @@ void LuaScript::Destroy()
 
 void LuaScript::OnTriggerEnter(Entity other)
 {
-    if (!other) { return; }
     if (!other.IsValid()) return;
-    luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     if (lua_getglobal(L, "OnTriggerEnter"))
     {
@@ -187,7 +184,6 @@ void LuaScript::OnTriggerEnter(Entity other)
 void LuaScript::OnTriggerStay(Entity other)
 {
     if (!other.IsValid()) return;
-    luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     if(lua_getglobal(L, "OnTriggerStay"))
     {
@@ -205,7 +201,6 @@ void LuaScript::OnTriggerStay(Entity other)
 void LuaScript::OnTriggerExit(Entity other)
 {
     if (!other.IsValid()) return;
-    luaL_dofile(L, filepath.c_str());
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     if (lua_getglobal(L, "OnTriggerExit"))
     {
