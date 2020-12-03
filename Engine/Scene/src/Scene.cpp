@@ -586,11 +586,10 @@ void Scene::RemoveEntity(Entity entity)
     {
         entity.GetComponent<ScriptComponent>().DestroyScript(&entity.GetComponent<ScriptComponent>());
     }
-
-    if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
-    {
-        PhysicsManager::RemoveEntity(entity);
-    }
+    //if (entity.HasComponent<RigidbodyComponent>() || entity.HasComponent<TriggerComponent>())
+    //{
+    //    PhysicsManager::RemoveEntity(entity);
+    //}
 
 
     auto it = entityMap.find(entity.GetComponent<IDComponent>());
