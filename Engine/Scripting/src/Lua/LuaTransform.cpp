@@ -171,6 +171,11 @@ int LuaTransfrom::SetEntityPosition(lua_State* L)
     lua_Number y = luaL_checknumber(L, topIndex - 1);
     lua_Number z = luaL_checknumber(L, topIndex);
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!position)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Position info. Possibly was destroyed?");
+        lua_error(L);
+    }
     *position = glm::vec3(x, y, z);
     return 0;
 }
@@ -182,6 +187,11 @@ int LuaTransfrom::SetEntityRotation(lua_State* L)
     lua_Number y = luaL_checknumber(L, topIndex - 1);
     lua_Number z = luaL_checknumber(L, topIndex);
     glm::quat* euler = (glm::quat*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!euler)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Rotation info. Possibly was destroyed?");
+        lua_error(L);
+    }
     *euler = glm::vec3(x, y, z);
     return 0;
 }
@@ -193,6 +203,11 @@ int LuaTransfrom::SetEntityScale(lua_State* L)
     lua_Number y = luaL_checknumber(L, topIndex - 1);
     lua_Number z = luaL_checknumber(L, topIndex);
     glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!scale)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Scale info. Possibly was destroyed?");
+        lua_error(L);
+    }
     *scale = glm::vec3(x, y, z);
     return 0;
 }
@@ -204,6 +219,11 @@ int LuaTransfrom::Translate(lua_State* L)
     lua_Number y = luaL_checknumber(L, topIndex - 1);
     lua_Number z = luaL_checknumber(L, topIndex);
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!position)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Position info. Possibly was destroyed?");
+        lua_error(L);
+    }
     *position += glm::vec3(x, y, z);
     return 0;
 }
@@ -211,6 +231,11 @@ int LuaTransfrom::Translate(lua_State* L)
 int LuaTransfrom::GetEntityPosition(lua_State* L)
 {
     glm::vec3* position = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!position)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Position info. Possibly was destroyed?");
+        lua_error(L);
+    }
     lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, position->x);
@@ -227,6 +252,11 @@ int LuaTransfrom::GetEntityPosition(lua_State* L)
 int LuaTransfrom::GetEntityRotation(lua_State* L)
 {
     glm::vec3* euler = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!euler)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Rotation info. Possibly was destroyed?");
+        lua_error(L);
+    }
     lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, euler->x);
@@ -243,6 +273,11 @@ int LuaTransfrom::GetEntityRotation(lua_State* L)
 int LuaTransfrom::GetEntityScale(lua_State* L)
 {
     glm::vec3* scale = (glm::vec3*)lua_touserdata(L, lua_upvalueindex(1));
+    if (!scale)
+    {
+        lua_pushstring(L, "Missing Transfrom Component/Scale info. Possibly was destroyed?");
+        lua_error(L);
+    }
     lua_newtable(L);
     lua_pushstring(L, "x");
     lua_pushnumber(L, scale->x);
