@@ -69,7 +69,7 @@ void PhysicsManager::SubmitEntity(Entity entity)
 
         // Match entt handle with rigidbody for referencing overlapping objects with triggers
         // TODO downcast to collision object
-        uint64_t handle = entity.GetComponent<IDComponent>();
+        uint64_t handle = static_cast<uint64_t>(entt::entity(entity));
         rigidbody->GetBulletRigidbody()->setUserPointer((void*)handle);
         entityMap.emplace(rigidbody->GetBulletRigidbody(), entity);
 
@@ -127,6 +127,9 @@ void PhysicsManager::RemoveEntity(Entity entity)
             dynamicsWorld->removeRigidBody(btRB);
             delete btRB;
         }
+
+        auto it = entityMap.find(btRB);
+        entityMap.erase(it);
     }
 
     if (entity.HasComponent<TriggerComponent>())

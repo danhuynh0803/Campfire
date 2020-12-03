@@ -16,6 +16,10 @@ int LuaEntity::Instantiate(lua_State* L)
 
     // Deserialize the requested prefab
     Entity newEntity = script->Instantiate(prefabPath, glm::vec3(x, y, z));
+    if (!newEntity)
+    {
+        LOG_INFO("LuaEntity::Instantiate invalid Entity");
+    }
     if (newEntity)
     {
         lua_newtable(L);

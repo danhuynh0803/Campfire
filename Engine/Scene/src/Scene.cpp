@@ -604,6 +604,6 @@ void Scene::RemoveEntity(Entity entity)
     if (it != entityMap.end())
     {
         entityMap.erase(it);
-        registry.destroy(entity);
     }
+    registry.destroy(entity);
 }
