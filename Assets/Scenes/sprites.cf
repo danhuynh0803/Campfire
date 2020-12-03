@@ -24,6 +24,7 @@
         "x": 0.0,
         "y": 0.0
       },
+      "Colliders": null,
       "IDComponent": 0,
       "TagComponent": "Camera",
       "TransformComponent": {
@@ -45,7 +46,8 @@
       }
     },
     {
-      "IDComponent": 5,
+      "Colliders": null,
+      "IDComponent": 1,
       "SpriteComponent": {
         "color": [
           1.0,
@@ -79,7 +81,35 @@
       }
     },
     {
-      "IDComponent": 6,
+      "Colliders": [
+        {
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "isTrigger": false,
+          "type": 3
+        }
+      ],
+      "IDComponent": 2,
+      "RigidbodyComponent": {
+        "angularDrag": 0.05000000074505806,
+        "drag": 0.0,
+        "freezePosition": [
+          false,
+          false,
+          true
+        ],
+        "freezeRotation": [
+          true,
+          true,
+          false
+        ],
+        "mass": 1.0,
+        "type": 2,
+        "useGravity": true
+      },
       "SpriteComponent": {
         "color": [
           1.0,
@@ -103,10 +133,62 @@
         "position": [
           -6.988630294799805,
           1.2637029886245728,
-          -25.011743545532227
+          -10.0
         ],
         "scale": [
           1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "Colliders": [
+        {
+          "center": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "isTrigger": false,
+          "type": 3
+        }
+      ],
+      "IDComponent": 3,
+      "MeshComponent": {
+        "filepath": "../../Assets/Models/primitives/cube.fbx"
+      },
+      "RigidbodyComponent": {
+        "angularDrag": 0.05000000074505806,
+        "drag": 0.0,
+        "freezePosition": [
+          false,
+          false,
+          false
+        ],
+        "freezeRotation": [
+          false,
+          false,
+          false
+        ],
+        "mass": 1.0,
+        "type": 0,
+        "useGravity": true
+      },
+      "TagComponent": "Cube",
+      "TransformComponent": {
+        "euler": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "position": [
+          0.0,
+          -5.829999923706055,
+          -10.0
+        ],
+        "scale": [
+          12.609999656677246,
           1.0,
           1.0
         ]

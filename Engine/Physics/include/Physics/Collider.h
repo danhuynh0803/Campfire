@@ -12,6 +12,8 @@ struct Collider
         SPHERE,
         CAPSULE,
 
+        BOX_2D,
+
         // TODO
         //Cylinder,
         //Cone,
@@ -101,4 +103,17 @@ struct CapsuleCollider : public Collider
 
     float radius = 1.0f;
     float height = 1.0f;
+};
+
+struct BoxCollider2D : public Collider
+{
+    BoxCollider2D();
+    virtual void UpdateShape(glm::vec3 scale);
+    virtual void ShowData();
+    virtual void Reset()
+    {
+        size = glm::vec3(1.0f);
+    }
+
+    glm::vec3 size = glm::vec3(1.0f);
 };

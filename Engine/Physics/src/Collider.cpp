@@ -1,5 +1,6 @@
-#include "Physics/Collider.h"
 #include <imgui.h>
+#include "Physics/Collider.h"
+#include <BulletCollision/CollisionShapes/btBox2dShape.h>
 
 //===================================================================
 SharedPtr<Collider> Collider::Create(Collider::Shape shape)
@@ -7,6 +8,7 @@ SharedPtr<Collider> Collider::Create(Collider::Shape shape)
     SharedPtr<Collider> collider = nullptr;
     switch (shape)
     {
+        // 3D shapes
         case Collider::Shape::BOX:
             collider = CreateSharedPtr<BoxCollider>();
             break;
@@ -15,6 +17,11 @@ SharedPtr<Collider> Collider::Create(Collider::Shape shape)
             break;
         case Collider::Shape::CAPSULE:
             collider = CreateSharedPtr<CapsuleCollider>();
+            break;
+        // ======================================================
+        // 2D shapes
+        case Collider::Shape::BOX_2D:
+            collider = CreateSharedPtr<BoxCollider2D>();
             break;
     }
 
@@ -76,3 +83,21 @@ void CapsuleCollider::ShowData()
     //ImGui::DragFloat("Radius", &radius, 0.1f);
     //ImGui::DragFloat("Height", &height, 0.1f);
 }
+
+BoxCollider2D::BoxCollider2D()
+{
+    type = Collider::Shape::BOX_2D;
+    shape = new btBox2dShape(btVector3(size.x, size.y, size.z));
+
+}
+void BoxCollider2D::UpdateShape(glm::vec3 scale)
+{
+    shape = new btBox2dShape(btVector3(size.x * scale.x, size.y * scale.y, size.z * scale.z));
+}
+
+void BoxCollider2D::ShowData()
+{
+    ImGui::DragFloat3("Size", (float*)&size, 0.1f);
+}
+
+

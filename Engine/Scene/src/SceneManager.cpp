@@ -33,7 +33,7 @@ SharedPtr<Scene> SceneManager::LoadScene(const std::string& loadPath)
         activeScenePath.find_last_of('/')+1
     );
 
-    CORE_TRACE("Loading SCENE file: {0}", loadPath);
+    LOG_INFO("Loading SCENE file: {0}", loadPath);
 
     // TODO launch on separate thread
 
@@ -125,7 +125,7 @@ void SceneManager::SaveScene(const SharedPtr<Scene>& scene, const std::string& s
     out << std::setw(2) << sceneJson << std::endl;
     out.close();
 
-    CORE_INFO("Scene {0} has been saved at {1}", activeSceneName, savePath);
+    LOG_INFO("Scene {0} has been saved at {1}", activeSceneName, savePath);
 }
 
 json SceneManager::SerializeEntity(Entity entity)
