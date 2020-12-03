@@ -176,7 +176,6 @@ void LuaScript::OnTriggerEnter(Entity other)
             LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
             lua_pop(L, 1);
         }
-        lua_pop(L, 1);
     }
     lua_pop(L, 1);
 }
@@ -193,7 +192,6 @@ void LuaScript::OnTriggerStay(Entity other)
             LOG_ERROR("Cannot run OnTriggerStay() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
             lua_pop(L, 1);
         }
-        lua_pop(L, 1);
     }
     lua_pop(L, 1);
 }
@@ -255,7 +253,6 @@ void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const ch
 void LuaScript::LuaPushEntity(Entity entity)
 {
     lua_newtable(L);
-
     lua_pushlightuserdata(L, this);
     lua_pushlightuserdata(L, &entity);
     lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 2);
