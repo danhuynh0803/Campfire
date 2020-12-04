@@ -62,7 +62,7 @@ std::wstring STRToWSTR(const std::string& string)
 //}
 
 
-std::string WindowsFileSystem::OpenFile(const char* filter)
+std::string WindowsFileSystem::OpenFileName(const char* filter)
 {
     // TODO convert filter to filter and filetype
 
@@ -90,7 +90,7 @@ std::string WindowsFileSystem::OpenFile(const char* filter)
 }
 
 #include <iostream>;
-std::string WindowsFileSystem::SaveFile(const char* filter)
+std::string WindowsFileSystem::SaveFileName(const char* filter)
 {
     // TODO refactor so it can handle multiple extensions
     // Replace with regex search
@@ -208,8 +208,26 @@ bool WindowsFileSystem::DeleteFiles(const char* fileName)
     }
     return true;
 }
+bool WindowsFileSystem::OpenFileWithDefaultProgram(const char* filePath)
+{
+    const int res = (int)ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWMAXIMIZED);
+    if (res <= 32)
+    {
+        switch (res)
+        {
+        case ERROR_PATH_NOT_FOUND:
+            LOG_ERROR("Path not found");
+            break;
+        default:
+            LOG_ERROR("Something went wrong :(");
+            break;
+        }
+        return 0;
+    }
+    return 1;
+}
 
-void WindowsFileSystem::OpenInExplorer(const char* fileDirectory)
+bool WindowsFileSystem::OpenInWindowsExplorer(const char* fileDirectory)
 {
     const int res = (int)ShellExecuteA(NULL, "explore", fileDirectory, NULL, NULL, SW_SHOWNORMAL);
     if (res <= 32)
@@ -223,7 +241,9 @@ void WindowsFileSystem::OpenInExplorer(const char* fileDirectory)
                 LOG_ERROR("Something went wrong :(");
                 break;
         }
+        return 0;
     }
+    return 1;
 }
 
 void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)

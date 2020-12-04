@@ -16,7 +16,7 @@ std::string FileSystem::OpenFile(const char* filter)
 {
     std::string path;
     #ifdef PLATFORM_WINDOWS
-        path = WindowsFileSystem::OpenFile(filter);
+        path = WindowsFileSystem::OpenFileName(filter);
     #else
         path = LinuxFileSystem::OpenFile(filter);
     #endif
@@ -38,10 +38,28 @@ std::string FileSystem::OpenFile(const char* filter)
     return path;
 }
 
+bool FileSystem::OpenFileWithDefaultProgram(const char* filePath)
+{
+    #ifdef PLATFORM_WINDOWS
+        return WindowsFileSystem::OpenFileWithDefaultProgram(filePath);
+    #else
+        return LinuxFileSystem::OpenFileWithXDesktops(filePath);
+    #endif
+}
+
+bool FileSystem::OpenInDirectory(const char* filePath)
+{
+#ifdef PLATFORM_WINDOWS
+    return WindowsFileSystem::OpenInWindowsExplorer(filePath);
+#else
+    return LinuxFileSystem::OpenFileWithXDesktops(filePath);
+#endif
+}
+
 std::string FileSystem::SaveFile(const char* filter)
 {
     #ifdef PLATFORM_WINDOWS
-        return WindowsFileSystem::SaveFile(filter);
+        return WindowsFileSystem::SaveFileName(filter);
     #else
         return LinuxFileSystem::SaveFile(filter);
     #endif

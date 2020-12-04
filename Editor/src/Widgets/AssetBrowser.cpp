@@ -1,7 +1,7 @@
 #include "Widgets/AssetBrowser.h"
 #include "Core/ResourceManager.h"
 #include "IconsFontAwesome5.h"
-
+#include "Core/FileSystem.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -130,7 +130,17 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                  || ext == ".png"
                 ) {
                     auto texture = ResourceManager::GetTexture2D(p.path().string());
-                    ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0,1), ImVec2(1,0));
+                    ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0, 1), ImVec2(1, 0));
+                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                    {
+                        if (ImGui::Button("Browse"))
+                        {
+                            FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
                 }
                 // Directories
                 else if (std::filesystem::is_directory(p.path()))
@@ -140,12 +150,30 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                         LOG_INFO(p.path().string());
                         currPath = std::filesystem::relative(p.path());
                     }
+                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                    {
+                        if (ImGui::Button("Open Directory"))
+                        {
+                            FileSystem::OpenInDirectory(p.path().string().c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
                 }
                 else
                 {
                     ImGui::Button(MapExtToIcon(ext).c_str(), buttonSize);
+                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
                     {
+                        if (ImGui::Button("Browse"))
+                        {
+                            FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
                     }
+                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
                 }
                 ImGui::TextWrapped(filename.c_str());
             }

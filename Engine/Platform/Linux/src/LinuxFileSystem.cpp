@@ -122,3 +122,17 @@ bool LinuxFileSystem::DeleteFiles(const char* source)
     }
     return 1;
 }
+
+void LinuxFileSystem::OpenFileWithXDesktops(const char* filePath)
+{
+    int pid = fork();
+    if (pid < 0)
+    {
+        return 0;
+    }
+    if (pid == 0) {
+        execl("/usr/bin/xdg-open", "xdg-open", filePath, (char*)0);
+        exit(1);
+    }
+    return 1;
+}
