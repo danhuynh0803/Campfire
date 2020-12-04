@@ -12,6 +12,8 @@
 
 #define MAX_PATH_LENGTH 260
 
+//TODO: Use wchart method for unicode characters
+
 wchar_t* CharToWChar(const char* text)
 {
     size_t size = strlen(text) + 1;
@@ -50,6 +52,7 @@ std::wstring STRToWSTR(const std::string& string)
     return wstrTo;
 }
 
+//For COM
 //Campfire::CoGenerator<std::string> FindFileInfo(HANDLE hFind, WIN32_FIND_DATA pNextInfo)
 //{
 //    while (FindNextFileA(hFind, &pNextInfo))
@@ -134,7 +137,7 @@ std::string WindowsFileSystem::SaveFileName(const char* filter)
 
 void WindowsFileSystem::FindFiles(const char* fileName)
 {
-    //"{path}\\*.h" for all header file in C root directory
+    //"{path}\\*.h" for all header file in target disk parition root directory
     //run this in a thread
     HANDLE hFind;
     LPCTSTR lpFileName = fileName;
@@ -159,7 +162,7 @@ bool WindowsFileSystem::CopyAFile(const char* source, const char* target, bool c
         switch (GetLastError())
         {
             case ERROR_ACCESS_DENIED:
-                LOG_ERROR("The destination file already exists");
+                LOG_ERROR("The destination file already exists. Fail to copy {0}", source);
                 break;
             default:
                 LOG_ERROR("Something went wrong :(");
@@ -177,7 +180,7 @@ bool WindowsFileSystem::MoveFiles(const char* source, const char* target)
         switch (GetLastError())
         {
             case ERROR_ACCESS_DENIED:
-                LOG_ERROR("Access denied");
+                LOG_ERROR("Access denied. Fail to move {0}", source);
                 break;
             default:
                 LOG_ERROR("Something went wrong :(");
@@ -198,7 +201,7 @@ bool WindowsFileSystem::DeleteFiles(const char* fileName)
                 LOG_ERROR("{0} not found", fileName);
                 break;
             case ERROR_ACCESS_DENIED:
-                LOG_ERROR("{0} access denied", fileName);
+                LOG_ERROR("Access denied. Fail to delete {0}", fileName);
                 break;
             default:
                 LOG_ERROR("Something went wrong :(");
@@ -216,7 +219,7 @@ bool WindowsFileSystem::OpenFileWithDefaultProgram(const char* filePath)
         switch (res)
         {
         case ERROR_PATH_NOT_FOUND:
-            LOG_ERROR("Path not found");
+            LOG_ERROR("Path not found. Fail to open {0}", filePath);
             break;
         default:
             LOG_ERROR("Something went wrong :(");
@@ -235,7 +238,7 @@ bool WindowsFileSystem::OpenInWindowsExplorer(const char* fileDirectory)
         switch (res)
         {
             case ERROR_PATH_NOT_FOUND:
-                LOG_ERROR("Path not found");
+                LOG_ERROR("Path not found. Fail to open directory {0}", fileDirectory);
                 break;
             default:
                 LOG_ERROR("Something went wrong :(");
