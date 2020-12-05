@@ -9,6 +9,12 @@
 #include "Physics/Trigger.h"
 #include "Scene/Entity.h"
 
+#include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.h"
+#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
+
+
 static btVector3 GlmToBtVec(glm::vec3 v)
 {
     return btVector3(v.x, v.y, v.z);
@@ -52,7 +58,12 @@ private:
     //static btDiscreteDynamicsWorld* raycastWorld;
     static btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    //static std::map<btRigidBody*, Entity*> entityMap;
+    // 2d physics related
+    static btConvex2dConvex2dAlgorithm::CreateFunc* m_convexAlgo2d;
+    static btBox2dBox2dCollisionAlgorithm::CreateFunc* m_box2dbox2dAlgo;
+    static btVoronoiSimplexSolver* m_simplexSolver;
+    static btMinkowskiPenetrationDepthSolver* m_pdSolver;
+
     static std::map<btRigidBody*, entt::entity> entityMap;
 };
 

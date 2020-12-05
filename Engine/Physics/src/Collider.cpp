@@ -87,12 +87,12 @@ void CapsuleCollider::ShowData()
 BoxCollider2D::BoxCollider2D()
 {
     type = Collider::Shape::BOX_2D;
-    shape = new btBox2dShape(btVector3(size.x, size.y, size.z));
+    shape = new btBox2dShape(btVector3(size.x, size.y, 0.0));
 
 }
 void BoxCollider2D::UpdateShape(glm::vec3 scale)
 {
-    shape = new btBox2dShape(btVector3(size.x * scale.x, size.y * scale.y, size.z * scale.z));
+    shape = new btBox2dShape(btVector3(size.x * scale.x, size.y * scale.y, 0.0));
 }
 
 void BoxCollider2D::ShowData()

@@ -12,6 +12,11 @@ btDiscreteDynamicsWorld* PhysicsManager::dynamicsWorld;
 btAlignedObjectArray<btCollisionShape*> PhysicsManager::collisionShapes;
 std::map<btRigidBody*, entt::entity> PhysicsManager::entityMap;
 
+btConvex2dConvex2dAlgorithm::CreateFunc* PhysicsManager::m_convexAlgo2d;
+btBox2dBox2dCollisionAlgorithm::CreateFunc* PhysicsManager::m_box2dbox2dAlgo;
+btVoronoiSimplexSolver* PhysicsManager::m_simplexSolver;
+btMinkowskiPenetrationDepthSolver* PhysicsManager::m_pdSolver;
+
 glm::vec3 PhysicsManager::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 
 static BulletDebugDrawer* debugDrawer;
@@ -20,6 +25,19 @@ void PhysicsManager::Init()
 {
     collisionConfiguration = new btDefaultCollisionConfiguration();
     dispatcher = new btCollisionDispatcher(collisionConfiguration);
+
+    m_simplexSolver = new btVoronoiSimplexSolver();
+    m_pdSolver = new btMinkowskiPenetrationDepthSolver();
+
+    // Enable 2d and 3d collisions
+    m_convexAlgo2d = new btConvex2dConvex2dAlgorithm::CreateFunc(m_simplexSolver, m_pdSolver);
+    m_box2dbox2dAlgo = new btBox2dBox2dCollisionAlgorithm::CreateFunc();
+
+    dispatcher->registerCollisionCreateFunc(CONVEX_2D_SHAPE_PROXYTYPE, CONVEX_2D_SHAPE_PROXYTYPE, m_convexAlgo2d);
+    dispatcher->registerCollisionCreateFunc(BOX_2D_SHAPE_PROXYTYPE, CONVEX_2D_SHAPE_PROXYTYPE, m_convexAlgo2d);
+    dispatcher->registerCollisionCreateFunc(CONVEX_2D_SHAPE_PROXYTYPE, BOX_2D_SHAPE_PROXYTYPE, m_convexAlgo2d);
+    dispatcher->registerCollisionCreateFunc(BOX_2D_SHAPE_PROXYTYPE, BOX_2D_SHAPE_PROXYTYPE, m_box2dbox2dAlgo);
+
     overlappingPairCache = new btDbvtBroadphase();
     solver = new btSequentialImpulseConstraintSolver();
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
@@ -307,13 +325,29 @@ void PhysicsManager::ClearLists()
 void PhysicsManager::Shutdown()
 {
     ClearLists();
+    collisionShapes.clear();
+
     delete dynamicsWorld;
     delete solver;
     delete overlappingPairCache;
     delete dispatcher;
     delete collisionConfiguration;
 
-    collisionShapes.clear();
+    delete m_box2dbox2dAlgo;
+    delete m_convexAlgo2d;
+    delete m_pdSolver;
+    delete m_simplexSolver;
+
+    dynamicsWorld = 0;
+    solver = 0;
+    overlappingPairCache = 0;
+    dispatcher = 0;
+    collisionConfiguration = 0;
+
+    m_box2dbox2dAlgo = 0;
+    m_convexAlgo2d = 0;
+    m_pdSolver = 0;
+    m_simplexSolver = 0;
 }
 
 

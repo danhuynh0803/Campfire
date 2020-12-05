@@ -123,7 +123,7 @@ bool LinuxFileSystem::DeleteFiles(const char* source)
     return 1;
 }
 
-void LinuxFileSystem::OpenFileWithXDesktops(const char* filePath)
+bool LinuxFileSystem::OpenFileWithXDesktops(const char* filePath)
 {
     int pid = fork();
     if (pid < 0)

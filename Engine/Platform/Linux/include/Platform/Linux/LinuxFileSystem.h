@@ -10,4 +10,5 @@ public:
     static bool OpenFileWithDefaultProgram(const char*);
     static bool MoveFiles(const char*, const char*);
     static bool DeleteFiles(const char*);
+    static bool OpenFileWithXDesktops(const char* filePath);
 };
