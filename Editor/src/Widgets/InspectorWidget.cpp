@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <fstream>
 #include <iomanip>
+#include <lua.hpp>
 
 #include "Widgets/InspectorWidget.h"
 #include "Core/FileSystem.h"
@@ -463,10 +464,7 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
             auto& sc = entity.GetComponent<ScriptComponent>();
-            ImGui::Checkbox("Run Update", &(sc.runUpdate));
-            ImGui::Checkbox("Run OnTriggerEnter", &(sc.runOnTriggerEnter));
-            ImGui::Checkbox("Run OnTriggerStay", &(sc.runOnTriggerStay));
-            ImGui::Checkbox("Run OnTriggerExit", &(sc.runOnTriggerExit));
+
             std::string filename = sc.filepath.empty() ? "Blank" : sc.filepath;
             if (ImGui::Button(filename.c_str()))
             {
@@ -477,6 +475,36 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 }
             }
 
+            lua_State* L = luaL_newstate();
+            if (luaL_dofile(L, sc.filepath.c_str()) == LUA_OK)//check syntax error
+            {
+                if (lua_getglobal(L, "Start"))
+                {
+                    //ImGui::Checkbox("Run Start", &(sc.runUpdate));
+                }
+
+                if (lua_getglobal(L, "Update"))
+                {
+                    ImGui::Checkbox("Run Update", &(sc.runUpdate));
+                }
+
+                if (lua_getglobal(L, "OnTriggerEnter"))
+                {
+                    ImGui::Checkbox("Run OnTriggerEnter", &(sc.runOnTriggerEnter));
+                }
+
+                if (lua_getglobal(L, "OnTriggerStay"))
+                {
+                    ImGui::Checkbox("Run OnTriggerStay", &(sc.runOnTriggerStay));
+                }
+
+                if (lua_getglobal(L, "OnTriggerExit"))
+                {
+                    ImGui::Checkbox("Run OnTriggerExit", &(sc.runOnTriggerExit));
+                }
+            }
+
+            lua_close(L);
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {
                 ShowComponentOptionsMenu<ScriptComponent>(entity);
