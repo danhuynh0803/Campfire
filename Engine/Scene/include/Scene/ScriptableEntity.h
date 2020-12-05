@@ -74,6 +74,7 @@ protected:
     virtual void OnTriggerExit(Entity other) {}
     Entity entity;
     std::string filepath;
+    bool hasSynataxError;
 
 private:
     friend class Scene;

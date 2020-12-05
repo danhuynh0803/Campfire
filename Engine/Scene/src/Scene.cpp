@@ -292,7 +292,7 @@ void Scene::OnUpdate(float dt)
         ZoneScopedN("LuaUpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
-            if (sc.filepath.empty()) return;//for std::function
+            if (sc.filepath.empty() || sc.instance->hasSynataxError) return;//for std::function
             if(sc.runUpdate) sc.instance->Update(dt);
 
             Entity thisEntity = sc.instance->entity;

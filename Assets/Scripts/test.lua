@@ -29,13 +29,18 @@ MyTable3 = {
 	"ad", "dsad","dasd"
 }
 
+function Start()
+ 	--Rigidbody.AddVelocity(0, 20, 0)
+	for n in pairs(_G) do print(n) end
+end
 
 function Update()
-	Timer = Timer - deltatime
-	if (Timer <= 0) then
-		Timer = 0.03
-		Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
-	end
+	Rigidbody.AddVelocity(0, 0.01, 0)
+	-- Timer = Timer - deltatime
+	-- if (Timer <= 0) then
+		-- Timer = 0.03
+		-- Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
+	-- end
 	
 end
 

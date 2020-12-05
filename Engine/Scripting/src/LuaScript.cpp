@@ -67,9 +67,10 @@ void LuaScript::Start()
 
     if (luaL_dofile(L, filepath.c_str()) != LUA_OK)//check syntax error
     {
-        LOG_ERROR("{0}", lua_tostring(L, -1));
+        LOG_ERROR("Lua Synatx error within {0}", lua_tostring(L, -1));
         lua_pop(L, 1);
         lua_close(L);
+        hasSynataxError = true;
         return;
     }
 
