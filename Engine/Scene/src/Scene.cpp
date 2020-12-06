@@ -55,11 +55,12 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        player.AddComponent<RigidbodyComponent>();
+        player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
+        player.GetComponent<RigidbodyComponent>().rigidbody->useGravity = false;
         player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
         player.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        //player.AddComponent<RigidbodyComponent>();
-        //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         auto& colliders = player.GetComponent<Colliders>().list;
         colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
         colliders.at(0)->isTrigger = true;
@@ -224,6 +225,10 @@ void Scene::OnStart()
                 sc.instance = sc.InstantiateScript();
                 sc.instance->entity = Entity(entity, this);
                 sc.instance->filepath = sc.filepath;
+                sc.instance->runUpdate = sc.runUpdate;
+                sc.instance->runOnTriggerEnter = sc.runOnTriggerEnter;
+                sc.instance->runOnTriggerStay = sc.runOnTriggerStay;
+                sc.instance->runOnTriggerExit = sc.runOnTriggerExit;
             }
             sc.instance->Start();
         }
@@ -294,17 +299,17 @@ void Scene::OnUpdate(float dt)
         {
             if (sc.filepath.empty() || sc.instance->hasSynataxError) return;//for std::function
 
-            bool runUpdate, runOnTriggerEnter, runOnTriggerStay, runOnTriggerExit;
-            lua_State* L = luaL_newstate();
-            if (luaL_dofile(L, sc.filepath.c_str()) == LUA_OK)//check syntax error
-            {
-                runUpdate = (lua_getglobal(L, "Update")) ? sc.runUpdate : false;
-                runOnTriggerEnter = (lua_getglobal(L, "OnTriggerEnter")) ? sc.runOnTriggerEnter : false;
-                runOnTriggerStay = (lua_getglobal(L, "OnTriggerStay")) ? sc.runOnTriggerStay : false;
-                runOnTriggerExit = (lua_getglobal(L, "OnTriggerStay")) ? sc.runOnTriggerExit : false;
-            }
+            //bool runUpdate, runOnTriggerEnter, runOnTriggerStay, runOnTriggerExit;
+            //lua_State* L = luaL_newstate();
+            //if (luaL_dofile(L, sc.filepath.c_str()) == LUA_OK)//check syntax error
+            //{
+            //    runUpdate = (lua_getglobal(L, "Update")) ? sc.runUpdate : false;
+            //    runOnTriggerEnter = (lua_getglobal(L, "OnTriggerEnter")) ? sc.runOnTriggerEnter : false;
+            //    runOnTriggerStay = (lua_getglobal(L, "OnTriggerStay")) ? sc.runOnTriggerStay : false;
+            //    runOnTriggerExit = (lua_getglobal(L, "OnTriggerStay")) ? sc.runOnTriggerExit : false;
+            //}
 
-            if (runUpdate) sc.instance->Update(dt);
+            if (sc.runUpdate) sc.instance->Update(dt);
 
             Entity thisEntity = sc.instance->entity;
             if (thisEntity.HasComponent<TriggerComponent>())
@@ -315,7 +320,7 @@ void Scene::OnUpdate(float dt)
                     Entity other(enterEntity, this);
                     // Don't have the trigger apply on ourselves
                     // since the trigger and rb will always be colliding
-                    if (other && enterEntity != sc.instance->entity && runOnTriggerEnter)
+                    if (other && enterEntity != sc.instance->entity && sc.runOnTriggerEnter)
                     {
                         LOG_INFO("{0}, {1}", other.GetComponent<TagComponent>().tag, static_cast<uint64_t>(enterEntity));
                         sc.instance->OnTriggerEnter(other);
@@ -325,7 +330,7 @@ void Scene::OnUpdate(float dt)
                 for (auto stayEntity : overlappingEntities)
                 {
                     Entity other(stayEntity, this);
-                    if (other && stayEntity != sc.instance->entity && runOnTriggerStay)
+                    if (other && stayEntity != sc.instance->entity && sc.runOnTriggerStay)
                     {
                         sc.instance->OnTriggerStay(other);
                     }
@@ -334,7 +339,7 @@ void Scene::OnUpdate(float dt)
                 for (auto exitEntity : trigger->overlapExitList)
                 {
                     Entity other(exitEntity, this);
-                    if (other && exitEntity != sc.instance->entity && runOnTriggerExit)
+                    if (other && exitEntity != sc.instance->entity && sc.runOnTriggerExit)
                     {
                         sc.instance->OnTriggerExit(other);
                     }

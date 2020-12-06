@@ -16,7 +16,6 @@ public:
     }
 
     void LoadStandardLibries();
-
     void Start();
     void Update(float);
     void Destroy();
