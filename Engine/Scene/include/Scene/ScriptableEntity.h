@@ -75,7 +75,10 @@ protected:
     Entity entity;
     std::string filepath;
     bool hasSynataxError;
-
+    bool runUpdate;
+    bool runOnTriggerEnter;
+    bool runOnTriggerStay;
+    bool runOnTriggerExit;
 private:
     friend class Scene;
 };
