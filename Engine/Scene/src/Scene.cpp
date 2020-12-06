@@ -55,11 +55,12 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+        player.AddComponent<RigidbodyComponent>();
+        player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
+        player.GetComponent<RigidbodyComponent>().rigidbody->useGravity = false;
         player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
         player.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        //player.AddComponent<RigidbodyComponent>();
-        //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::KINEMATIC;
         auto& colliders = player.GetComponent<Colliders>().list;
         colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
         colliders.at(0)->isTrigger = true;

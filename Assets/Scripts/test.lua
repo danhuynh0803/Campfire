@@ -30,19 +30,18 @@
 
 function Start()
  	--Rigidbody.AddVelocity(0, 20, 0)
-	for n in pairs(_G) do print(n) end
+	Rigidbody.AddVelocity(0, 10, 0)
 end
 
-function Update()
-	Log(1)
--- Rigidbody.AddVelocity(0, 0.01, 0)
-	-- Timer = Timer - deltatime
-	-- if (Timer <= 0) then
-		-- Timer = 0.03
-		-- Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
-	-- end
+-- function Update()
+	-- Rigidbody.AddVelocity(0, 0.01, 0)
+	-- -- Timer = Timer - deltatime
+	-- -- if (Timer <= 0) then
+		-- -- Timer = 0.03
+		-- -- Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
+	-- -- end
 	
-end
+-- end
 
 -- function OnTriggerEnter(other)
 
