@@ -198,11 +198,11 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                             FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
                             ImGui::CloseCurrentPopup();
                         }
-                        if (ImGui::Button("Edit"))
-                        {
-                            FileSystem::EditFileWithDefaultProgram(p.path().string().c_str());
-                            ImGui::CloseCurrentPopup();
-                        }
+                        //if (ImGui::Button("Edit"))
+                        //{
+                        //    FileSystem::EditFileWithDefaultProgram(p.path().string().c_str());
+                        //    ImGui::CloseCurrentPopup();
+                        //}
                         ImGui::EndPopup();
                     }
                     ImGui::OpenPopupOnItemClick("Right Click Menu", 1);

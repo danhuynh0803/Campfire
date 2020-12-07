@@ -224,7 +224,7 @@ bool WindowsFileSystem::OpenFileWithDefaultProgram(const char* filePath)
                 LOG_ERROR("Access is denied.");
                 break;
             case ERROR_GEN_FAILURE:
-                LOG_ERROR("Erro code 32. Not sure what this mean yet :(");
+                LOG_ERROR("Something went wrong. Try manually set the default program first.");
                 break;
             default:
                 LOG_ERROR("Something went wrong :(");
