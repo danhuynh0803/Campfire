@@ -31,6 +31,26 @@ AssetBrowser::AssetBrowser()
     currPath = ASSETS;
 }
 
+void AssetBrowser::RecurseCurrentDir(const std::filesystem::path& path)
+{
+    // Stop when we traverse beyond the Assets dir
+    if (path == std::filesystem::path(ASSETS).parent_path())
+    {
+        return;
+    }
+
+    RecurseCurrentDir(path.parent_path());
+
+    if (std::filesystem::is_directory(path))
+    {
+        if (ImGui::Button(path.filename().string().c_str()))
+        {
+            currPath = path;
+        }
+        ImGui::SameLine(); ImGui::Text(">"); ImGui::SameLine();
+    }
+}
+
 void AssetBrowser::OnImGuiRender(bool* isOpen)
 {
     static float scale = 3.0f;
@@ -56,10 +76,15 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     // Left column -- displays contents of selected directory
     ImGui::BeginChild("Content", ImGui::GetContentRegionAvail(), true);
     {
+        // Display list of dirs from Assets to the currently selected path
+        // Recurse since its cleaner to print in reverse order using parent_path
+        // instead of getting subdirs by parsing the string path
+        RecurseCurrentDir(currPath);
+
+        ImGui::Separator();
+
         ImGui::Checkbox("List View", &isList);
-
         ImGui::SameLine();
-
         // Scaling size for buttons
         ImGui::SliderFloat("Scale", &scale, 1.0f, 3.0f);
         ImGui::Separator();

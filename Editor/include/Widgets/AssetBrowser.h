@@ -6,6 +6,7 @@ class AssetBrowser
 {
 public:
     AssetBrowser();
+    void RecurseCurrentDir(const std::filesystem::path& path);
     void OnImGuiRender(bool* isOpen);
 
 private:
