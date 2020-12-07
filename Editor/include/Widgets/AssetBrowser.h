@@ -6,10 +6,10 @@ class AssetBrowser
 {
 public:
     AssetBrowser();
-    void RecurseCurrentDir(const std::filesystem::path& path);
     void OnImGuiRender(bool* isOpen);
 
 private:
+    void RecurseCurrentDir(const std::filesystem::path& path);
     void RecursivelyDisplayDirectories(std::filesystem::path dirPath);
     std::filesystem::path currPath;
     int mSelectedItem = 0;

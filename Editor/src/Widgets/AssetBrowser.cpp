@@ -63,6 +63,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     float contentWidth = ImGui::GetContentRegionAvail().x;
     float contentHeight = ImGui::GetContentRegionAvail().y;
 
+    // Left column -- displays tree of dirs
     ImGui::Columns(2, "assetColumns");
     ImGui::SetColumnWidth(0, contentWidth * 0.3f);
     ImGui::BeginChild("Directory", ImGui::GetContentRegionAvail(), true);
@@ -73,7 +74,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
     ImGui::NextColumn();
     ImGui::SameLine();
 
-    // Left column -- displays contents of selected directory
+    // Right column -- displays contents of selected directory
     ImGui::BeginChild("Content", ImGui::GetContentRegionAvail(), true);
     {
         // Display list of dirs from Assets to the currently selected path
@@ -172,9 +173,14 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 {
                     if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
                     {
-                        LOG_INFO(p.path().string());
+                        // Display in inspector
+                    }
+
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                    {
                         currPath = std::filesystem::relative(p.path());
                     }
+
                     if (ImGui::BeginPopupContextItem("Right Click Menu"))
                     {
                         if (ImGui::Button("Open Directory"))
