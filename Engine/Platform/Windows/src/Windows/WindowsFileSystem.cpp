@@ -64,7 +64,6 @@ std::wstring STRToWSTR(const std::string& string)
 //    }
 //}
 
-
 std::string WindowsFileSystem::OpenFileName(const char* filter)
 {
     // TODO convert filter to filter and filetype
@@ -213,17 +212,48 @@ bool WindowsFileSystem::DeleteFiles(const char* fileName)
 }
 bool WindowsFileSystem::OpenFileWithDefaultProgram(const char* filePath)
 {
-    const int res = (int)ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWMAXIMIZED);
+    const int res = (int)ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWDEFAULT);
     if (res <= 32)
     {
         switch (res)
         {
-        case ERROR_PATH_NOT_FOUND:
-            LOG_ERROR("Path not found. Fail to open {0}", filePath);
-            break;
-        default:
-            LOG_ERROR("Something went wrong :(");
-            break;
+            case ERROR_PATH_NOT_FOUND:
+                LOG_ERROR("Path not found. Fail to open {0}", filePath);
+                break;
+            case ERROR_ACCESS_DENIED:
+                LOG_ERROR("Access is denied.");
+                break;
+            case ERROR_GEN_FAILURE:
+                LOG_ERROR("Erro code 32. Not sure what this mean yet :(");
+                break;
+            default:
+                LOG_ERROR("Something went wrong :(");
+                break;
+        }
+        return 0;
+    }
+    return 1;
+}
+
+bool WindowsFileSystem::EditFileWithDefaultProgram(const char* filePath)
+{
+    const int res = (int)ShellExecuteA(NULL, "edit", filePath, NULL, NULL, SW_SHOWNORMAL);
+    if (res <= 32)
+    {
+        switch (res)
+        {
+            case ERROR_PATH_NOT_FOUND:
+                LOG_ERROR("Path not found. Fail to open {0}", filePath);
+                break;
+            case ERROR_ACCESS_DENIED:
+                LOG_ERROR("Access is denied.");
+                break;
+            case ERROR_GEN_FAILURE:
+                LOG_ERROR("Error code 32. Not sure what this mean yet :(");
+                break;
+            default:
+                LOG_ERROR("Something went wrong :(");
+                break;
         }
         return 0;
     }
@@ -310,6 +340,8 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
                 case FILE_ACTION_RENAMED_OLD_NAME:
                     break;
             }
+            //unicode gg
+            CORE_INFO("{0}", WSTRToSTR(fileName).c_str());
         }
     }
     CloseHandle(hDirectory);

@@ -159,7 +159,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                     ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0, 1), ImVec2(1, 0));
                     if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
                     {
-                        CORE_INFO("Test")
+                        // Display in inspector
                     }
                     //IsMouseDoubleClicked and IsMouseClicked were both set to true
                     //so IsMouseDoubleClicked and !IsMouseClicked wont work
@@ -173,6 +173,34 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                         if (ImGui::Button("Browse"))
                         {
                             FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
+                }
+                //scripts
+                else if (ext == ".txt" || ext == ".lua" || ext == ".cpp")
+                {
+                    ImGui::Button(MapExtToIcon(ext).c_str(), buttonSize);
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+                    {
+                        // Display in inspector
+                    }
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                    {
+                        FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                    }
+                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                    {
+                        if (ImGui::Button("Open"))
+                        {
+                            FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
+                        if (ImGui::Button("Edit"))
+                        {
+                            FileSystem::EditFileWithDefaultProgram(p.path().string().c_str());
                             ImGui::CloseCurrentPopup();
                         }
                         ImGui::EndPopup();
@@ -194,13 +222,23 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                     }
 
                     if (ImGui::BeginPopupContextItem("Right Click Menu"))
-                    {
-                        if (ImGui::Button("Open Directory"))
-                        {
-                            FileSystem::OpenInDirectory(p.path().string().c_str());
-                            ImGui::CloseCurrentPopup();
-                        }
-                        ImGui::EndPopup();
+                    {   
+                        #ifdef WIN32
+                            if (ImGui::Button("Open In Explorer"))
+                            {
+                                FileSystem::OpenInDirectory(p.path().string().c_str());
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndPopup();
+                        #else
+                            if (ImGui::Button("Open Directory"))
+                            {
+
+                                FileSystem::OpenInDirectory(p.path().string().c_str());
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndPopup();
+                        #endif // WIN32
                     }
                     ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
                 }

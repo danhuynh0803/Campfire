@@ -5,7 +5,7 @@
 
 #include <string>
 
-class WindowsFileSystem
+static class WindowsFileSystem
 {
 public:
     static std::string OpenFileName(const char*);
@@ -16,6 +16,7 @@ public:
     static bool DeleteFiles(const char*);
     static bool OpenInWindowsExplorer(const char*);
     static bool OpenFileWithDefaultProgram(const char*);
+    static bool EditFileWithDefaultProgram(const char*);
     static void WindowsFileSystem::RunFileDirectoryWatcher(const char*);
 };
 

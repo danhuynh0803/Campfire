@@ -47,6 +47,15 @@ bool FileSystem::OpenFileWithDefaultProgram(const char* filePath)
     #endif
 }
 
+bool FileSystem::EditFileWithDefaultProgram(const char* filePath)
+{
+#ifdef PLATFORM_WINDOWS
+    return WindowsFileSystem::EditFileWithDefaultProgram(filePath);
+#else
+    return 0;
+#endif
+}
+
 bool FileSystem::OpenInDirectory(const char* filePath)
 {
 #ifdef PLATFORM_WINDOWS
