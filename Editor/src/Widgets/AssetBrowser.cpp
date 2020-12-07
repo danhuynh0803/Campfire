@@ -157,6 +157,17 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 ) {
                     auto texture = ResourceManager::GetTexture2D(p.path().string());
                     ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0, 1), ImVec2(1, 0));
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+                    {
+                        CORE_INFO("Test")
+                    }
+                    //IsMouseDoubleClicked and IsMouseClicked were both set to true
+                    //so IsMouseDoubleClicked and !IsMouseClicked wont work
+                    //The above will be invoked once before this is invoked
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                    {
+                        FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                    }
                     if (ImGui::BeginPopupContextItem("Right Click Menu"))
                     {
                         if (ImGui::Button("Browse"))
@@ -175,7 +186,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                     {
                         // Display in inspector
                     }
-
+                    //if the if statement is wrapped around the Button
+                    //then this is actually click + double click
                     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
                     {
                         currPath = std::filesystem::relative(p.path());
@@ -195,6 +207,14 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 else
                 {
                     ImGui::Button(MapExtToIcon(ext).c_str(), buttonSize);
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+                    {
+                        // Display in inspector
+                    }
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                    {
+                        FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                    }
                     if (ImGui::BeginPopupContextItem("Right Click Menu"))
                     {
                         if (ImGui::Button("Browse"))
