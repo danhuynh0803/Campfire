@@ -7,23 +7,26 @@
 #include "EditorLayer.h"
 #include "Scene/SceneManager.h"
 
-static std::string icon;
-
-static std::map<std::string, std::string> extToIconMap
+static SharedPtr<Texture2D> MapFileToImage(std::string filename)
 {
-    {".lua", ICON_FA_FILE},
-    {".cf", ICON_FA_FILE},
-    {".prefab", ICON_FA_FILE},
-};
-
-static std::string MapExtToIcon(std::string ext)
-{
-    if (extToIconMap.find(ext) != extToIconMap.end())
+    size_t dot = filename.find_last_of(".");
+    std::string ext;
+    if (dot != std::string::npos)
     {
-        return extToIconMap.at(ext);
+        ext = filename.substr(dot, filename.size() - dot);
     }
 
-    return ICON_FA_FILE;
+    if (ext == ".jpg"
+     || ext == ".png"
+    )
+        return ResourceManager::GetTexture2D(filename);
+    else if (ext == ".cf")
+        return ResourceManager::GetTexture2D(ASSETS + "/EngineAssets/Icons/campfire.png");
+    else if (ext == ".lua")
+        return ResourceManager::GetTexture2D(ASSETS + "/EngineAssets/Icons/lua.png");
+    else // Generic file image
+        return ResourceManager::GetTexture2D(ASSETS + "/EngineAssets/Icons/file.png");
+
 }
 
 AssetBrowser::AssetBrowser(EditorLayer* editor)
@@ -45,10 +48,16 @@ void AssetBrowser::OpenFile(const std::filesystem::path& path)
     }
 
     ext = filepath.substr(dot, filepath.size() - dot);
+
     // Scene files
     if (ext == ".cf")
     {
         mEditor->editorScene = mEditor->activeScene = SceneManager::LoadScene(filepath);
+    }
+    // All other files, use the default program set up for that extension
+    else
+    {
+        FileSystem::OpenFileWithDefaultProgram(path.string().c_str());
     }
 }
 
@@ -162,97 +171,43 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
             }
             else // display icons
             {
-                size_t dot = filename.find_last_of(".");
-                std::string ext;
-                if (dot != std::string::npos)
-                {
-                    ext = filename.substr(dot, filename.size() - dot);
-                }
-
                 ImGui::BeginGroup();
 
-                // Texture files
-                if (
-                    ext == ".jpg"
-                 || ext == ".png"
-                 )
-                {
-                    auto texture = ResourceManager::GetTexture2D(p.path().string());
-                    ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0, 1), ImVec2(1, 0));
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
-                    {
-                        // Display in inspector
-                    }
-                    //IsMouseDoubleClicked and IsMouseClicked were both set to true
-                    //so IsMouseDoubleClicked and !IsMouseClicked wont work
-                    //The above will be invoked once before this is invoked
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                    {
-                        FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
-                    }
-                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
-                    {
-                        if (ImGui::Button("Browse"))
-                        {
-                            FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
-                            ImGui::CloseCurrentPopup();
-                        }
-                        ImGui::EndPopup();
-                    }
-                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
-                }
-                //scripts
-                else if (ext == ".txt" || ext == ".lua" || ext == ".cpp")
-                {
-                    ImGui::Button(MapExtToIcon(ext).c_str(), buttonSize);
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
-                    {
-                        // Display in inspector
-                    }
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                    {
-                        FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
-                    }
-                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
-                    {
-                        if (ImGui::Button("Open"))
-                        {
-                            FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
-                            ImGui::CloseCurrentPopup();
-                        }
-                        //if (ImGui::Button("Edit"))
-                        //{
-                        //    FileSystem::EditFileWithDefaultProgram(p.path().string().c_str());
-                        //    ImGui::CloseCurrentPopup();
-                        //}
-                        ImGui::EndPopup();
-                    }
-                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
-                }
-                // Directories
-                else if (std::filesystem::is_directory(p.path()))
-                {
-                    if (ImGui::Button(ICON_FA_FOLDER, buttonSize))
-                    {
-                        // Display in inspector
-                    }
-                    //if the if statement is wrapped around the Button
-                    //then this is actually click + double click
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                    {
-                        currPath = std::filesystem::relative(p.path());
-                    }
+                SharedPtr<Texture2D> icon;
 
-                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                bool isDir = std::filesystem::is_directory(p.path());
+                icon = isDir
+                    ? ResourceManager::GetTexture2D(ASSETS + "/EngineAssets/Icons/folder.png")
+                    : MapFileToImage(p.path().string())
+                ;
+
+                if (ImGui::ImageButton((ImTextureID)icon->GetRenderID(), buttonSize, ImVec2(0, 1), ImVec2(1, 0)))
+                {
+                    // Display in inspector
+                }
+
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                {
+                    isDir
+                        ? currPath = std::filesystem::relative(p.path())
+                        : OpenFile(p.path())
+                    ;
+                }
+
+                if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                {
+                    if (isDir)
                     {
-                        #ifdef WIN32
+                        if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                        {
+                            #ifdef WIN32
                             if (ImGui::Button("Open In Explorer"))
                             {
                                 FileSystem::OpenInDirectory(p.path().string().c_str());
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndPopup();
-                        #else
+                            #else
                             if (ImGui::Button("Open Directory"))
                             {
 
@@ -260,23 +215,11 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndPopup();
-                        #endif // WIN32
+                            #endif // WIN32
+                        }
+                        ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
                     }
-                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
-                }
-                else
-                {
-                    ImGui::Button(MapExtToIcon(ext).c_str(), buttonSize);
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
-                    {
-                        // Display in inspector
-                    }
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                    {
-                        //FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
-                        OpenFile(p.path());
-                    }
-                    if (ImGui::BeginPopupContextItem("Right Click Menu"))
+                    else
                     {
                         if (ImGui::Button("Browse"))
                         {
@@ -285,8 +228,9 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                         }
                         ImGui::EndPopup();
                     }
-                    ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
                 }
+                ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
+
                 ImGui::TextWrapped(filename.c_str());
             }
 
