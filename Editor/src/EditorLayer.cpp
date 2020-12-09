@@ -35,8 +35,9 @@ static void ScreenToWorldRay(
 // Curr display for the game viewport
 static uint32_t currDisplay = 0;
 
-EditorLayer::EditorLayer()
-    : Layer("Editor")
+EditorLayer::EditorLayer():
+    Layer("Editor"),
+    wAssetBrowser(this)
 {
     LogWidget::Init();
     editorScene = CreateSharedPtr<Scene>();

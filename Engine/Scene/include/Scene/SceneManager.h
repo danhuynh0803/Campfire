@@ -24,19 +24,18 @@ public:
 
     static json SerializeEntity(Entity entity);
     static Entity DeserializeEntity(json eJson, Scene* parentScene = nullptr);
-private:
 
+private:
     void SerializeScene(const std::string& filepath);
     void SerializeSceneRuntime(const std::string& filepath);
     bool DeserializeScene(const std::string& filepath);
     bool DeserializeSceneRuntime(const std::string& filepath);
-
-private:
     Entity LoadEntity();
     void SaveEntity(const Entity& entity);
+
+private:
     static std::string activeScenePath;
     static std::string activeSceneName;
     static SharedPtr<Scene> mScene;
-
     static std::map<std::string, SharedPtr<Scene>> mCachedSceneMap;
 };

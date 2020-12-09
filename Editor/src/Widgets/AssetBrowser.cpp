@@ -4,6 +4,8 @@
 #include "Core/FileSystem.h"
 #include <imgui.h>
 #include <imgui_internal.h>
+#include "EditorLayer.h"
+#include "Scene/SceneManager.h"
 
 static std::string icon;
 
@@ -24,11 +26,30 @@ static std::string MapExtToIcon(std::string ext)
     return ICON_FA_FILE;
 }
 
-AssetBrowser::AssetBrowser()
+AssetBrowser::AssetBrowser(EditorLayer* editor)
+    : mEditor(editor)
 {
     // TODO save the last visited path into some engine meta file
     // so that browser opens back where it left off
     currPath = ASSETS;
+}
+
+void AssetBrowser::OpenFile(const std::filesystem::path& path)
+{
+    std::string filepath = path.string();
+    size_t dot = filepath.find_last_of(".");
+    std::string ext;
+    if (dot == std::string::npos)
+    {
+        return;
+    }
+
+    ext = filepath.substr(dot, filepath.size() - dot);
+    // Scene files
+    if (ext == ".cf")
+    {
+        mEditor->editorScene = mEditor->activeScene = SceneManager::LoadScene(filepath);
+    }
 }
 
 void AssetBrowser::RecurseCurrentDir(const std::filesystem::path& path)
@@ -154,7 +175,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 if (
                     ext == ".jpg"
                  || ext == ".png"
-                ) {
+                 )
+                {
                     auto texture = ResourceManager::GetTexture2D(p.path().string());
                     ImGui::ImageButton((ImTextureID)texture->GetRenderID(), buttonSize, ImVec2(0, 1), ImVec2(1, 0));
                     if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
@@ -222,7 +244,7 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                     }
 
                     if (ImGui::BeginPopupContextItem("Right Click Menu"))
-                    {   
+                    {
                         #ifdef WIN32
                             if (ImGui::Button("Open In Explorer"))
                             {
@@ -251,7 +273,8 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                     }
                     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
                     {
-                        FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                        //FileSystem::OpenFileWithDefaultProgram(p.path().string().c_str());
+                        OpenFile(p.path());
                     }
                     if (ImGui::BeginPopupContextItem("Right Click Menu"))
                     {

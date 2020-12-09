@@ -34,19 +34,16 @@ public:
 
 private:
     void ProcessUserInput();
-    void OnRenderEditor();
-    void OnRenderRuntime();
-    bool shouldOpenExitPrompt = false;
     bool OpenConfirmPrompt(const char* msg);
     void OpenClosePrompt();
+    void ClearScene();
     std::pair<float, float> GetMouseViewportSpace();
 
 private:
     int editorSelectedIndex = -1;
     bool startScene = false;
     bool stopScene = true;
-    void ClearScene();
-
+    bool shouldOpenExitPrompt = false;
     SharedPtr<Scene> editorScene;
     SharedPtr<Scene> runtimeScene;
     SharedPtr<Scene> activeScene;
@@ -64,17 +61,11 @@ private:
     TransformWidget wTransform;
     AssetBrowser wAssetBrowser;
 
-    // TODO convert to widget
     void ShowAudioSettings(bool* isOpen);
-    // TODO make console widget
     void ShowConsole(bool* isOpen);
     void ShowEditorCameraSettings(bool* isOpen);
 
-    void ShowNewEntityMenu();
-
-    // Audio
     bool showAudioSettings = false;
-    // General
     bool showAssetBrowser = true;
     bool showBoundingBoxes = false;
     bool showLog = true;
@@ -84,12 +75,11 @@ private:
     bool showTransformSettings = false;
     bool showEditorCameraSettings = false;
     bool allowViewportCameraEvents = false;
-    glm::vec2 minViewportBound;
-    glm::vec2 maxViewportBound;
-
-    // Rendering
     bool showLightSettings = false;
     bool showLightExplorer = false;
+
+    glm::vec2 minViewportBound;
+    glm::vec2 maxViewportBound;
 
     // Editor state
     enum class State
@@ -99,4 +89,6 @@ private:
         PAUSE
     };
     State state = State::STOP;
+
+    friend AssetBrowser;
 };
