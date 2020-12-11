@@ -6,7 +6,7 @@
 Campfire is an in-progress game engine intended for use in small gamejam projects.
 
 ## Sample Images
-![SampleScene](https://i.imgur.com/35kHbm5.jpg)
+![SampleScene](https://i.imgur.com/XzcOUaC.jpg)
 
 ## Build Instructions
 ```bash
@@ -35,7 +35,8 @@ Windowing and Input     | [glfw](https://github.com/glfw/glfw)
 OpenGL Mathematics      | [glm](https://github.com/g-truc/glm)
 Texture Loading         | [stb](https://github.com/nothings/stb)
 Logging                 | [spdlog](https://github.com/gabime/spdlog)
-Scene Loading/Saving    | [rapidjson](https://github.com/Tencent/rapidjson)
+Scene Loading/Saving    | [json](https://github.com/nlohmann/json)
 GUI                     | [imgui](https://github.com/ocornut/imgui)
 Audio                   | [FMOD](https://www.fmod.com/studio)
 Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
+Entity Component System | [entt](https://github.com/skypjack/entt)
