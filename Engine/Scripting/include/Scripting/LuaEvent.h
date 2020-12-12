@@ -27,19 +27,21 @@ public:
     virtual int GetCategoryFlags() const = 0;
     virtual std::string ToString() const { return GetName(); }
 
-    bool IsInCategory(LuaEventCategory category)
-    {
-        return GetCategoryFlags() & category;
-    }
+    //bool IsInCategory(LuaEventCategory category)
+    //{
+    //    return GetCategoryFlags() & category;
+    //}
 };
 
 class Event2 : public LuaEvent
 {
-    Event2() = default;
+public:
     static LuaEventType GetStaticType() { return LuaEventType::None; }
     LuaEventType GetEventType() const override { return GetStaticType(); }
     const char* GetName() const override { return "None"; }
     int GetCategoryFlags() const override { return LuaEventCategory::EventCategoryApplication; }
+private:
+    std::string x;
 };
 
 using LuaEventCallbackFn = std::function<void(LuaEvent&)>;
@@ -55,6 +57,7 @@ class X
 {    
     void SetEventCallback(const LuaEventCallbackFn& callback) { data.EventCallback = callback; }
     LuaData data;
+    //x->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 };
 
 class LuaEventDispatcher
@@ -70,7 +73,7 @@ public:
     {
         if (event.GetEventType() == T::GetStaticType())
         {
-            event.handled = func(static_cast<T&>(event));
+            //event.handled = func(static_cast<T&>(event));
             return true;
         }
         return false;
@@ -79,3 +82,15 @@ public:
 private:
     LuaEvent& event;
 };
+
+void OnEventEvent(Event2& e)
+{
+
+}
+
+void OnEvent(LuaEvent& e)
+{
+    LuaEventDispatcher dispatcher(e);
+    dispatcher.Dispatch<Event2>(std::bind(&OnEventEvent, nullptr, std::placeholders::_1));
+}
+
