@@ -22,6 +22,8 @@
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
 SharedPtr<Framebuffer> editorCamFBO;
+SharedPtr<Framebuffer> postprocessFBO;
+std::vector<SharedPtr<Framebuffer>> pingpongFBOs;
 
 static void ScreenToWorldRay(
     float mouseX, float mouseY,
@@ -69,15 +71,23 @@ void EditorLayer::OnAttach()
     );
 
     // TODO set up via render pass and pipeline
-    FramebufferSpec gameSpec = {
-        1600, 900, GL_RGBA
+    FramebufferSpec sceneSpec = {
+        1920, 1080,
+        GL_RGBA16F,
+        2 // # of color attachments
     };
-    gameCamFBO = Framebuffer::Create(gameSpec);
+    gameCamFBO = Framebuffer::Create(sceneSpec);
+    editorCamFBO = Framebuffer::Create(sceneSpec);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        pingpongFBOs.emplace_back(Framebuffer::Create(sceneSpec));
+    }
 
     FramebufferSpec viewportSpec = {
         1920, 1080, GL_RGBA
     };
-    editorCamFBO = Framebuffer::Create(viewportSpec);
+    postprocessFBO = Framebuffer::Create(viewportSpec);
 
     // TODO move to renderer
     VAO = VertexArray::Create();
@@ -105,7 +115,6 @@ void EditorLayer::OnAttach()
 
     VBO->Unbind();
     VAO->Unbind();
-
 
     // Load up resources
     //{ // Load png
@@ -300,6 +309,9 @@ void EditorLayer::OnUpdate(float dt)
     if (mainGameCamera)
     {
         gameCamFBO->Bind();
+            unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+            glDrawBuffers(2, attachments);
+
             SceneRenderer::BeginScene(activeScene, *mainGameCamera);
             activeScene->OnRender(deltaTime, *mainGameCamera);
             SceneRenderer::EndScene();
@@ -307,6 +319,9 @@ void EditorLayer::OnUpdate(float dt)
     }
 
     editorCamFBO->Bind();
+        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, attachments);
+
         SceneRenderer::BeginScene(activeScene, *editorCamera);
         if (allowViewportCameraEvents)
             cameraController.OnUpdate(dt);
@@ -597,6 +612,13 @@ void EditorLayer::OnImGuiRender()
     }
     ImGui::End();
 
+    ImGui::Begin("Blur");
+    {
+        auto viewportSize = ImGui::GetContentRegionAvail();
+        ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(1), viewportSize, { 0, 1 }, { 1, 0 });
+    }
+    ImGui::End();
+
     // Game Camera viewport
     ImGui::Begin("Game");
     {
@@ -608,7 +630,7 @@ void EditorLayer::OnImGuiRender()
         ImGui::SameLine();
 
         ImGui::PushID(1);
-        static int currResolutionIndex = 0;
+        static int currResolutionIndex = 1; // TODO Save in a editor config file
         const char* resolutions[] = { "Free aspect", "16x9" };
         ImGui::Combo("", (int*)&currResolutionIndex, resolutions, IM_ARRAYSIZE(resolutions));
         ImGui::PopID();
@@ -931,10 +953,12 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
     //LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
     editorCamera->SetProjection(e.GetWidth(), e.GetHeight());
+
     FramebufferSpec resizeSpec = {
         e.GetWidth(),
         e.GetHeight(),
-        GL_RGBA
+        GL_RGBA16F,
+        2
     };
 
     gameCamFBO->Resize(resizeSpec, true);

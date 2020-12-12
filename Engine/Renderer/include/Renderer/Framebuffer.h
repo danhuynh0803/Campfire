@@ -10,6 +10,7 @@ struct FramebufferSpec
     uint32_t width;
     uint32_t height;
     GLint internalFormat;
+    uint32_t attachments = 1; // number of color attachments
     uint32_t samples = 0;
 };
 
@@ -20,7 +21,7 @@ struct Framebuffer
     virtual void Unbind() const = 0;
 
     virtual uint32_t GetRenderID() const = 0;
-    virtual uint32_t GetColorAttachmentID() const = 0;
+    virtual uint32_t GetColorAttachmentID(int index = 0) const = 0;
     virtual uint32_t GetDepthAttachmentID() const = 0;
     virtual void Resize(const FramebufferSpec& spec, bool forceRecreate = false) = 0;
 

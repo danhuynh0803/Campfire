@@ -55,7 +55,8 @@ layout (location = 2) in vec3 inNormal;
 layout (location = 3) in vec3 inCamPos;
 
 // =========================================
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 brightColor;
 
 float NormalDistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -174,6 +175,12 @@ void main()
 
     vec3 ambient = vec3(0.03f) * albedo* ao;
     vec3 color = ambient + Lo;
+
+    float brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
+    if (brightness > 1.0f)
+        brightColor = vec4(color, 1.0f);
+    else
+        brightColor = vec4(vec3(0.0f), 1.0f);
 
     color = color / (color + vec3(1.0f));
     // apply gamma correction

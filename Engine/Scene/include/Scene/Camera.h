@@ -38,7 +38,7 @@ public:
     float farPlane = 100.0f;
     float depth = 0.0f;
     // viewport rect
-    float x = 0, y = 0, width = 1600.0f, height = 900.0f;
+    float x = 0, y = 0, width = 1920.0f, height = 1080.0f;
     // Vertical size for ortho viewport
     float size = 5;
 
