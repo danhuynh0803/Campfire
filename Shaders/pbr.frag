@@ -16,9 +16,9 @@ struct Light
     z: quadratic factor
     w: light type */
     vec4 attenFactors;
-
     // Used for directional and spot lights
     vec4 lightDir;
+    float intensity;
 };
 
 // =========================================
@@ -127,6 +127,7 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0f);
+
     for (int i = 0; i < numLights; ++i)
     {
         vec3 L = normalize(lights[i].pos.rgb - inPos);
@@ -144,7 +145,8 @@ void main()
             float distance = length(lights[i].pos.xyz - inPos);
             attenuation = 1.0f / (attenFactor[0] + attenFactor[1]*distance + attenFactor[2]*(distance*distance));
         }
-        vec3 radiance = lights[i].color.rgb * attenuation;
+
+        vec3 radiance = lights[i].color.rgb * lights[i].intensity * attenuation;
 
         // Cook-Torrance BRDF
         float D = NormalDistributionGGX(N, H, roughness);

@@ -201,6 +201,7 @@ json SceneManager::SerializeEntity(Entity entity)
         json cJson;
         cJson["type"] = static_cast<uint32_t>(comp.type);
         cJson["color"] = { comp.color.r, comp.color.g, comp.color.b, comp.color.a };
+        cJson["intensity"] = comp.intensity;
 
         eJson["LightComponent"] = cJson;
     }
@@ -359,6 +360,7 @@ Entity SceneManager::DeserializeEntity(json eJson, Scene* parentScene)
         comp.type = static_cast<LightComponent::LightType>(cJson["type"]);
         auto color = cJson["color"];
         comp.color = glm::vec4(color[0], color[1], color[2], color[3]);
+        comp.intensity = cJson["intensity"];
     }
 
     if (eJson.contains("RigidbodyComponent"))

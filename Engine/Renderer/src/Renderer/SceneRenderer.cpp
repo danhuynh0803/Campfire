@@ -35,12 +35,15 @@ void SceneRenderer::Init()
         { ShaderDataType::FLOAT4, "pos" },
         { ShaderDataType::FLOAT4, "color" },
         { ShaderDataType::FLOAT4, "attenFactors" },
-        { ShaderDataType::FLOAT4, "lightDir" }
+        { ShaderDataType::FLOAT4, "lightDir" },
+        // note: need to align floats by 16 bytes
+        { ShaderDataType::FLOAT4, "intensity" },
     };
     uboLights->SetLayout(uboLayout, 1, 26);
     /*
        25 is currently the max number of lights specified within the shader,
-       but we pass 26 since it's a bit messy otherwise to set in the bufferlayout.
+       but we pass 26 to allocate additonal space for numLights data.
+
        Data is stored as the following in the shader:
 
        Lights[25];
@@ -158,7 +161,7 @@ void SceneRenderer::SubmitLights(const SharedPtr<Scene>& scene)
 
     auto group = scene->registry.group<LightComponent>(entt::get<TransformComponent>);
     uint32_t numLights = 0;
-    uint32_t size = ( 4 * sizeof(glm::vec4) );
+    uint32_t size = ( 5 * sizeof(glm::vec4));
     for (auto entity : group)
     {
         auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
@@ -191,6 +194,10 @@ void SceneRenderer::SubmitLights(const SharedPtr<Scene>& scene)
         // Based off of +Z direction
         glm::vec4 zDir = transform * glm::vec4(0, 0, 1, 0);
         uboLights->SetData((void*)glm::value_ptr(zDir), size*numLights + offset, sizeof(glm::vec4));
+
+        // intensity
+        offset += sizeof(glm::vec4);
+        uboLights->SetData(&lightComponent.intensity, size*numLights + offset, sizeof(float));
 
         numLights++;
     }

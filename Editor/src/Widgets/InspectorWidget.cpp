@@ -363,11 +363,14 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            auto& color = entity.GetComponent<LightComponent>().color;
+            auto& comp = entity.GetComponent<LightComponent>();
 
-            ImGui::ColorEdit4("Light Color", (float*)&color);
+            ImGui::ColorEdit4("Light Color", (float*)&comp.color);
+
             // TODO reorganize this with range, type, etc
             //ImGui::DragFloat("Range", &light.linear, 0.01f);
+
+            ImGui::DragFloat("Intensity", &comp.intensity, 0.1f, 0.0f, 100.0f);
 
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {

@@ -219,6 +219,8 @@ struct LightComponent
     // Attenuation factors
 
     // TODO replace with range and more user friendly light options
+    float intensity = 1.0f;
+
     float constant = 1.0f; // Should stay at 1.0f
     float linear = 0.09f;
     float quadratic = 0.032f;
@@ -226,6 +228,7 @@ struct LightComponent
     void Reset()
     {
         color = glm::vec4(1.0f);
+        intensity = 1.0f;
         constant = 1.0f; // Should stay at 1.0f
         linear = 0.09f;
         quadratic = 0.032f;
