@@ -2,14 +2,14 @@
 #include "Renderer/Framebuffer.h"
 #include "OpenGL/OpenGLFramebuffer.h"
 
-SharedPtr<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height, uint32_t samples)
+SharedPtr<Framebuffer> Framebuffer::Create(const FramebufferSpec& spec)
 {
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::API::None:
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return CreateSharedPtr<OpenGLFramebuffer>(width, height, samples);
+            return CreateSharedPtr<OpenGLFramebuffer>(spec);
     }
 
     return nullptr;

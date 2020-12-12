@@ -69,8 +69,15 @@ void EditorLayer::OnAttach()
     );
 
     // TODO set up via render pass and pipeline
-    gameCamFBO = Framebuffer::Create(1600, 900);
-    editorCamFBO = Framebuffer::Create(1920, 1080);
+    FramebufferSpec gameSpec = {
+        1600, 900, GL_RGBA
+    };
+    gameCamFBO = Framebuffer::Create(gameSpec);
+
+    FramebufferSpec viewportSpec = {
+        1920, 1080, GL_RGBA
+    };
+    editorCamFBO = Framebuffer::Create(viewportSpec);
 
     // TODO move to renderer
     VAO = VertexArray::Create();
@@ -924,8 +931,14 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
     //LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
     editorCamera->SetProjection(e.GetWidth(), e.GetHeight());
-    gameCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
-    editorCamFBO->Resize(e.GetWidth(), e.GetHeight(), 0, true);
+    FramebufferSpec resizeSpec = {
+        e.GetWidth(),
+        e.GetHeight(),
+        GL_RGBA
+    };
+
+    gameCamFBO->Resize(resizeSpec, true);
+    editorCamFBO->Resize(resizeSpec, true);
     return false;
 }
 

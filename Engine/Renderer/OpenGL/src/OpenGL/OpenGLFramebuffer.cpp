@@ -3,21 +3,22 @@
 
 #include "OpenGL/OpenGLFramebuffer.h"
 
-OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t samples)
+//OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t samples)
+OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpec& spec)
 {
-    Resize(width, height, samples, true);
+    Resize(spec, true);
 }
 
 OpenGLFramebuffer::~OpenGLFramebuffer()
 {
-    glDeleteTextures(1, &colorAttachmentID);
-    glDeleteTextures(1, &depthAttachmentID);
-    glDeleteFramebuffers(1, &renderID);
+    glDeleteTextures(1, &mColorAttachmentID);
+    glDeleteTextures(1, &mDepthAttachmentID);
+    glDeleteFramebuffers(1, &mRenderID);
 }
 
 void OpenGLFramebuffer::Bind() const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, renderID);
+    glBindFramebuffer(GL_FRAMEBUFFER, mRenderID);
 }
 
 void OpenGLFramebuffer::Unbind() const
@@ -25,54 +26,55 @@ void OpenGLFramebuffer::Unbind() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLFramebuffer::Resize(uint32_t w, uint32_t h, uint32_t samples, bool forceRecreate)
+void OpenGLFramebuffer::Resize(const FramebufferSpec& spec, bool forceRecreate)
 {
     // Dont resize if width and height haven't changed
-    if (!forceRecreate && (width == w && height == h))
+    if (!forceRecreate && (spec.width == mWidth && spec.height == mHeight))
     {
         return;
     }
 
-    width = w;
-    height = h;
+    mWidth = spec.width;
+    mHeight = spec.height;
 
     // Clear out old framebuffer data
-    if (renderID)
+    if (mRenderID)
     {
-        glDeleteTextures(1, &colorAttachmentID);
-        glDeleteTextures(1, &depthAttachmentID);
-        glDeleteFramebuffers(1, &renderID);
+        glDeleteTextures(1, &mColorAttachmentID);
+        glDeleteTextures(1, &mDepthAttachmentID);
+        glDeleteFramebuffers(1, &mRenderID);
     }
 
     // Generate new framebuffer
-    glGenTextures(1, &colorAttachmentID);
-    glCreateFramebuffers(1, &renderID);
-    glBindFramebuffer(GL_FRAMEBUFFER, renderID);
+    glGenTextures(1, &mColorAttachmentID);
+    glCreateFramebuffers(1, &mRenderID);
+    glBindFramebuffer(GL_FRAMEBUFFER, mRenderID);
 
     // Multisample texture for FBO
-    if (samples > 0)
+    if (spec.samples > 0)
     {
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID);
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, false);
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mColorAttachmentID);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, spec.samples, spec.internalFormat, mWidth, mHeight, false);
     }
     else
     {
-        glBindTexture(GL_TEXTURE_2D, colorAttachmentID);
+        glBindTexture(GL_TEXTURE_2D, mColorAttachmentID);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        // TODO replace GLenum to match designated internal format from spec
+        glTexImage2D(GL_TEXTURE_2D, 0, spec.internalFormat, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
-    if (samples > 0)
+    if (spec.samples > 0)
     {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorAttachmentID, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mColorAttachmentID, 0);
     }
     else
     {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachmentID, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorAttachmentID, 0);
     }
 
     // TODO add option for specifying type of frame buffer
@@ -80,7 +82,7 @@ void OpenGLFramebuffer::Resize(uint32_t w, uint32_t h, uint32_t samples, bool fo
     GLuint rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mWidth, mHeight);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     // Attach rbo
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
