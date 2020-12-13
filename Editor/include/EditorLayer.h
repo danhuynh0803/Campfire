@@ -14,11 +14,13 @@ class EditorLayer : public Layer
 {
     // For drawing submesh bounding boxes
     // move to renderer
+    // FIXME misc stuff for quick testing
     SharedPtr<VertexArray> VAO;
     SharedPtr<VertexBuffer> VBO;
     SharedPtr<Shader> lineShader;
     SharedPtr<Shader> blurShader;
     SharedPtr<Shader> postprocessShader;
+    float exposure = 1.0f;
 
 public:
     EditorLayer();

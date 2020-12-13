@@ -508,6 +508,7 @@ void EditorLayer::OnUpdate(float dt)
         postprocessShader->Bind();
         postprocessShader->SetInt("sceneTex", 0);
         postprocessShader->SetInt("bloomBlurTex", 1);
+        postprocessShader->SetFloat("exposure", exposure);
         glBindTextureUnit(1, pingpongFBOs[0]->GetColorAttachmentID());
         Renderer2D::DrawPostProcessQuad(postprocessShader, editorCamFBO->GetColorAttachmentID());
     }
@@ -667,6 +668,7 @@ void EditorLayer::OnImGuiRender()
 
     ImGui::Begin("PostProcess");
     {
+        ImGui::SliderFloat("Exposure", &exposure, 0.0f, 5.0f);
         auto viewportSize = ImGui::GetContentRegionAvail();
         //ImGui::Image((ImTextureID)pingpongFBOs[0]->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
         ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
@@ -1019,7 +1021,11 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
     editorCamFBO->Resize(resizeSpec, true);
     pingpongFBOs[0]->Resize(resizeSpec, true);
     pingpongFBOs[1]->Resize(resizeSpec, true);
-    postprocessFBO->Resize(resizeSpec, true);
+
+    FramebufferSpec postSpec = {
+        e.GetWidth(), e.GetHeight(), GL_RGBA
+    };
+    postprocessFBO->Resize(postSpec, true);
 
     return false;
 }

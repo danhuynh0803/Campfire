@@ -4,9 +4,10 @@ layout(location = 0) in vec2 inUV;
 
 out vec4 fragColor;
 
-uniform sampler2D sceneTex;
 //uniform sampler2DMS tex2DMS;
+uniform sampler2D sceneTex;
 uniform sampler2D bloomBlurTex;
+uniform float exposure;
 
 void main()
 {
@@ -25,5 +26,7 @@ void main()
       + texture(bloomBlurTex, inUV).rgb
     ;
 
-    fragColor = vec4(color, 1.0f);
+    vec3 result = vec3(1.0f) - exp(-color * exposure);
+    result = pow(result, vec3(1.0f / 2.2f));
+    fragColor = vec4(result, 1.0f);
 }

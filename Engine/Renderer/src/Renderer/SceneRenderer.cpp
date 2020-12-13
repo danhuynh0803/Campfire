@@ -78,12 +78,13 @@ void SceneRenderer::BeginScene(const SharedPtr<Scene>& scene, const Camera& came
     SubmitLights(scene);
 
     // TODO either clear color or draw skybox depending on camera's clear flags
-    RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+    //RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+    RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     RenderCommand::Clear();
     Renderer2D::BeginScene(camera);
 
     // Draw skybox first
-    scene->skybox->DrawSkybox();
+    //scene->skybox->DrawSkybox();
 }
 
 void SceneRenderer::EndScene()
@@ -93,6 +94,8 @@ void SceneRenderer::EndScene()
 
     // TODO
     // Draw UI objects last
+
+    // BeginPostProcess?
 }
 
 void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<MaterialInstance> overrideMaterial)
@@ -212,5 +215,3 @@ void SceneRenderer::SubmitLights(const SharedPtr<Scene>& scene)
 
     uboLights->Unbind();
 }
-
-
