@@ -37,6 +37,7 @@ std::unordered_map<std::string, SharedPtr<Shader>> ShaderManager::shaderMap;
 
 void ShaderManager::Init()
 {
+    ShaderManager::Create("blur"  , SHADERS + "/post_process.vert", SHADERS + "/blur.frag");
     ShaderManager::Create("line"  , SHADERS + "/line.vert", SHADERS + "/line.frag");
     ShaderManager::Create("pbr"   , SHADERS + "/pbr.vert" , SHADERS + "/pbr.frag");
     ShaderManager::Create("quad"  , SHADERS + "/sprite_default.vert", SHADERS + "/sprite_default.frag");

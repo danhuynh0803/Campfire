@@ -17,6 +17,7 @@ class EditorLayer : public Layer
     SharedPtr<VertexArray> VAO;
     SharedPtr<VertexBuffer> VBO;
     SharedPtr<Shader> lineShader;
+    SharedPtr<Shader> blurShader;
 
 public:
     EditorLayer();

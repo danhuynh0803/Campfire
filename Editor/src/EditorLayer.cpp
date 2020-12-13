@@ -11,6 +11,7 @@
 #include "Renderer/Framebuffer.h"
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Text.h"
+#include "Renderer/Renderer2D.h"
 #include "ImGui/ImGuiLayer.h"
 #include "Core/LogWidget.h"
 #include "Util/Ray.h"
@@ -79,9 +80,13 @@ void EditorLayer::OnAttach()
     gameCamFBO = Framebuffer::Create(sceneSpec);
     editorCamFBO = Framebuffer::Create(sceneSpec);
 
+    FramebufferSpec blurSpec = {
+        1920, 1080,
+        GL_RGBA16F,
+    };
     for (int i = 0; i < 2; ++i)
     {
-        pingpongFBOs.emplace_back(Framebuffer::Create(sceneSpec));
+        pingpongFBOs.emplace_back(Framebuffer::Create(blurSpec));
     }
 
     FramebufferSpec viewportSpec = {
@@ -132,6 +137,9 @@ void EditorLayer::OnAttach()
     //        ResourceManager::GetTexture2D(path.string());
     //    }
     //}
+
+    // Bloom
+    blurShader = ShaderManager::Get("blur");
 }
 
 void EditorLayer::OnDetach()
@@ -319,6 +327,7 @@ void EditorLayer::OnUpdate(float dt)
     }
 
     editorCamFBO->Bind();
+    {
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
 
@@ -458,7 +467,34 @@ void EditorLayer::OnUpdate(float dt)
         //}
 
         SceneRenderer::EndScene();
+    }
     editorCamFBO->Unbind();
+
+
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Blur the image for blooming
+    bool isHorizontal = true, isFirst = true;
+    int maxIter = 10;
+    for (int i = 0; i < maxIter; ++i)
+    {
+        pingpongFBOs[isHorizontal]->Bind();
+        blurShader->SetBool("isHorizontal", isHorizontal);
+        glBindTexture(GL_TEXTURE_2D, isFirst
+            ? editorCamFBO->GetColorAttachmentID(1)
+            : pingpongFBOs[!isHorizontal]->GetColorAttachmentID()
+        );
+
+        Renderer2D::DrawPostProcessQuad(blurShader, isFirst
+            ? editorCamFBO->GetColorAttachmentID(1)
+            : pingpongFBOs[!isHorizontal]->GetColorAttachmentID()
+        );
+
+        isHorizontal = !isHorizontal;
+        if (isFirst) { isFirst = false; }
+    }
+    pingpongFBOs[0]->Unbind();
 
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -615,7 +651,7 @@ void EditorLayer::OnImGuiRender()
     ImGui::Begin("Blur");
     {
         auto viewportSize = ImGui::GetContentRegionAvail();
-        ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(1), viewportSize, { 0, 1 }, { 1, 0 });
+        ImGui::Image((ImTextureID)pingpongFBOs[0]->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
     }
     ImGui::End();
 
