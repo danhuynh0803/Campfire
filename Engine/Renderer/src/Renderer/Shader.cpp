@@ -43,6 +43,7 @@ void ShaderManager::Init()
     ShaderManager::Create("quad"  , SHADERS + "/sprite_default.vert", SHADERS + "/sprite_default.frag");
     ShaderManager::Create("text"  , SHADERS + "/text.vert", SHADERS + "/text.frag");
     ShaderManager::Create("skybox", SHADERS + "/skybox.vert", SHADERS + "/skybox.frag");
+    ShaderManager::Create("postprocess", SHADERS + "/post_process.vert", SHADERS + "/post_process.frag");
 }
 
 void ShaderManager::Add(const std::string& tag, SharedPtr<Shader> shader)

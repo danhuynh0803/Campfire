@@ -18,6 +18,7 @@ class EditorLayer : public Layer
     SharedPtr<VertexBuffer> VBO;
     SharedPtr<Shader> lineShader;
     SharedPtr<Shader> blurShader;
+    SharedPtr<Shader> postprocessShader;
 
 public:
     EditorLayer();

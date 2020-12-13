@@ -140,6 +140,8 @@ void EditorLayer::OnAttach()
 
     // Bloom
     blurShader = ShaderManager::Get("blur");
+
+    postprocessShader = ShaderManager::Get("postprocess");
 }
 
 void EditorLayer::OnDetach()
@@ -477,6 +479,7 @@ void EditorLayer::OnUpdate(float dt)
     // Blur the image for blooming
     bool isHorizontal = true, isFirst = true;
     int maxIter = 10;
+    blurShader->Bind();
     for (int i = 0; i < maxIter; ++i)
     {
         pingpongFBOs[isHorizontal]->Bind();
@@ -495,6 +498,20 @@ void EditorLayer::OnUpdate(float dt)
         if (isFirst) { isFirst = false; }
     }
     pingpongFBOs[0]->Unbind();
+
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Postprocess
+    postprocessFBO->Bind();
+    {
+        postprocessShader->Bind();
+        postprocessShader->SetInt("sceneTex", 0);
+        postprocessShader->SetInt("bloomBlurTex", 1);
+        glBindTextureUnit(1, pingpongFBOs[0]->GetColorAttachmentID());
+        Renderer2D::DrawPostProcessQuad(postprocessShader, editorCamFBO->GetColorAttachmentID());
+    }
+    postprocessFBO->Unbind();
 
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -648,10 +665,11 @@ void EditorLayer::OnImGuiRender()
     }
     ImGui::End();
 
-    ImGui::Begin("Blur");
+    ImGui::Begin("PostProcess");
     {
         auto viewportSize = ImGui::GetContentRegionAvail();
-        ImGui::Image((ImTextureID)pingpongFBOs[0]->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        //ImGui::Image((ImTextureID)pingpongFBOs[0]->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
     }
     ImGui::End();
 
@@ -999,6 +1017,10 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 
     gameCamFBO->Resize(resizeSpec, true);
     editorCamFBO->Resize(resizeSpec, true);
+    pingpongFBOs[0]->Resize(resizeSpec, true);
+    pingpongFBOs[1]->Resize(resizeSpec, true);
+    postprocessFBO->Resize(resizeSpec, true);
+
     return false;
 }
 
