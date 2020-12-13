@@ -32,7 +32,11 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     if (entity.HasComponent<TagComponent>())
     {
         auto& tagComp = entity.GetComponent<TagComponent>();
-        ImGui::InputText("Name", &tagComp.tag);
+        auto origTag = tagComp.tag;
+        if (ImGui::InputText("Name", &tagComp.tag))
+        {
+            LOG_INFO("OrigTag = {0} \t NewTag = {1}", origTag, tagComp.tag);
+        }
         ImGui::Separator();
     }
 
@@ -47,7 +51,20 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
             auto& transform = entity.GetComponent<TransformComponent>();
+            static glm::vec3 oldPos;
+
+            if (ImGui::IsMouseClicked(0))
+            {
+                oldPos = transform.position;
+            }
+
             ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
+
+            if (ImGui::IsMouseReleased(0))
+            {
+                LOG_INFO("OrigPos = {0} \t NewPos = {1}", oldPos.x, transform.position.x);
+            }
+
             ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
 
