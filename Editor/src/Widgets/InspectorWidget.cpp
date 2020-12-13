@@ -32,8 +32,13 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
     if (entity.HasComponent<TagComponent>())
     {
         auto& tagComp = entity.GetComponent<TagComponent>();
-        auto origTag = tagComp.tag;
-        if (ImGui::InputText("Name", &tagComp.tag))
+        static std::string origTag;
+        ImGui::InputText("Name", &tagComp.tag);
+        if (ImGui::IsItemActivated())
+        {
+            origTag = tagComp.tag;
+        }
+        if (ImGui::IsItemDeactivatedAfterEdit())
         {
             LOG_INFO("OrigTag = {0} \t NewTag = {1}", origTag, tagComp.tag);
         }
@@ -53,15 +58,17 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
             auto& transform = entity.GetComponent<TransformComponent>();
             static glm::vec3 oldPos;
 
-            if (ImGui::IsMouseClicked(0))
-            {
-                oldPos = transform.position;
-            }
-
             ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
-
-            if (ImGui::IsMouseReleased(0))
+            static bool wasActive = false;
+            if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
+                LOG_INFO("Storing old pos");
+                oldPos = transform.position;
+                wasActive = true;
+            }
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                wasActive = false;
                 LOG_INFO("OrigPos = {0} \t NewPos = {1}", oldPos.x, transform.position.x);
             }
 
