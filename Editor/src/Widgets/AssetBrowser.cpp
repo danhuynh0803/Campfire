@@ -198,26 +198,22 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 {
                     if (isDir)
                     {
-                        if (ImGui::BeginPopupContextItem("Right Click Menu"))
-                        {
-                            #ifdef WIN32
+                        #ifdef WIN32
                             if (ImGui::Button("Open In Explorer"))
                             {
                                 FileSystem::OpenInDirectory(p.path().string().c_str());
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndPopup();
-                            #else
+                        #else
                             if (ImGui::Button("Open Directory"))
                             {
 
                                 FileSystem::OpenInDirectory(p.path().string().c_str());
                                 ImGui::CloseCurrentPopup();
                             }
-                            ImGui::EndPopup();
-                            #endif // WIN32
-                        }
-                        ImGui::OpenPopupOnItemClick("Right Click Menu", 1);
+                        ImGui::EndPopup();
+                        #endif // WIN32
                     }
                     else
                     {

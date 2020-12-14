@@ -1,55 +1,55 @@
 #include "Command/CommandManager.h"
 
-CommandStack CommandManager::mUndoStack;
-CommandStack CommandManager::mRedoStack;
+CommandStack CommandManager::UndoStack;
+CommandStack CommandManager::RedoStack;
 
 void CommandManager::Init()
 {
-    mUndoStack = CommandStack();
+    UndoStack = CommandStack();
 }
 
 void CommandManager::ExecuteCommand(UniquePtr<Command> command)
 {
-    mRedoStack = CommandStack();
+    RedoStack = CommandStack();
     //design pattern wants us to invoke the change here
     command->Execute();
     //mUndoStack.push(command)?;
-    mUndoStack.push(std::move(command));
+    UndoStack.push(std::move(command));
 }
 
 
 void CommandManager::Undo()
 {
-    if (mUndoStack.size() <= 0) return;
+    if (UndoStack.size() <= 0) return;
 
-    mUndoStack.top()->Undo();
-    mRedoStack.push(std::move(mUndoStack.top()));
-    mUndoStack.pop();
+    UndoStack.top()->Undo();
+    RedoStack.push(std::move(UndoStack.top()));
+    UndoStack.pop();
 }
 
 void CommandManager::Redo()
 {
-    if (mRedoStack.size() <= 0) return;
-    mRedoStack.top()->Redo();
-    mUndoStack.push(std::move(mRedoStack.top()));
-    mRedoStack.pop();
+    if (RedoStack.size() <= 0) return;
+    RedoStack.top()->Redo();
+    UndoStack.push(std::move(RedoStack.top()));
+    RedoStack.pop();
 }
 
 void CommandManager::Clear()
 {
-    while (!mUndoStack.empty())
+    while (!UndoStack.empty())
     {
-        mUndoStack.top().reset();
-        mUndoStack.pop();
+        UndoStack.top().reset();
+        UndoStack.pop();
     }
-    while (!mRedoStack.empty())
+    while (!RedoStack.empty())
     {
-        mUndoStack.top().reset();
-        mRedoStack.pop();
+        UndoStack.top().reset();
+        RedoStack.pop();
     }
 }
 
 bool CommandManager::IsRedoStackEmpty()
 {
-    return mRedoStack.empty();
+    return RedoStack.empty();
 }

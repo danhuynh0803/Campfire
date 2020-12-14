@@ -8,8 +8,8 @@
 typedef std::stack<UniquePtr<Command>> CommandStack;
 
 static class CommandManager {
-	static CommandStack mUndoStack;
-	static CommandStack mRedoStack;
+	static CommandStack UndoStack;
+	static CommandStack RedoStack;
 public:
 	static void ExecuteCommand(UniquePtr<Command> command);
 	static void Init();
