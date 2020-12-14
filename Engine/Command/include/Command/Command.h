@@ -35,11 +35,9 @@ private:
 class ImGuiFloat3Command : public Command
 {
 public:
-    ImGuiFloat3Command(glm::vec3& target, const glm::vec3& previous, const glm::vec3& current) :target(target) 
+    ImGuiFloat3Command(glm::vec3& target, const glm::vec3& previous, const glm::vec3& current) :target(target)
     {
         previousValue = previous;
-        //mabyte use this?
-        //previousValue = const_cast<glm::vec3&>(target);
         currentValue = current;
     }
     void Execute() {};

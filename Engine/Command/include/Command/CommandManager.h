@@ -16,5 +16,6 @@ public:
 	static void Undo();
 	static void Redo();
 	static void Clear();
+	static bool IsRedoStackEmpty();
 };
 #endif //COMMANDMANAGER_H
