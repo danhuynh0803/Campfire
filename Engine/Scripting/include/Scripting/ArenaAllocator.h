@@ -30,11 +30,7 @@ struct GlobalAllocator
 			bytesToCopy = nsize;
 		}
 		void* newPtr = Allocate(nsize);
-#ifdef _WIN32
-		CopyMemory(newPtr, ptr, bytesToCopy);
-#else
 		memcpy(newPtr, ptr, bytesToCopy);
-#endif
 		DeAllocate(ptr, osize);
 		return newPtr;
 	}
@@ -163,11 +159,7 @@ struct ArenaAllocator
 			bytesToCopy = nsize;
 		}
 		void* newPtr = Allocate(nsize);
-#ifdef _WIN32
-		CopyMemory(newPtr, ptr, bytesToCopy);
-#else
 		memcpy(newPtr, ptr, bytesToCopy);
-#endif // _WIN32
 		DeAllocate(ptr, osize);
 		return newPtr;
 	}

@@ -5,7 +5,7 @@ target_include_directories(
 )
 
 set(SCRIPTING_HEADERS
-    include/Scripting/ArenaAllocator.h
+    #include/Scripting/ArenaAllocator.h
     include/Scripting/Script.h
     include/Scripting/LuaScript.h
     #include/Scripting/ScriptEngine.h
