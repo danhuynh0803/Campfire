@@ -6,6 +6,7 @@
 #include "Scene/Scene.h"
 #include "Renderer/SceneRenderer.h"
 #include "Scene/Component.h"
+#include "Renderer/Framebuffer.h"
 
 SharedPtr<Framebuffer> sceneFBO;
 

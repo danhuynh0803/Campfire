@@ -17,7 +17,6 @@ void CommandManager::ExecuteCommand(UniquePtr<Command> command)
     UndoStack.push(std::move(command));
 }
 
-
 void CommandManager::Undo()
 {
     if (UndoStack.size() <= 0) return;

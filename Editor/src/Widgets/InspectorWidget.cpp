@@ -70,14 +70,14 @@ void InspectorWidget::ShowEntity(Entity& entity)
             static bool wasActive = false;
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
-                LOG_INFO("Storing old pos");
+                //LOG_INFO("Storing old pos");
                 oldPos = transform.position;
                 wasActive = true;
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
                 wasActive = false;
-                LOG_INFO("OrigPos = {0} \t NewPos = {1}", oldPos.x, transform.position.x);
+                //LOG_INFO("OrigPos = {0} \t NewPos = {1}", oldPos.x, transform.position.x);
                 CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.position, oldPos, transform.position)));
             }
             if(ImGui::Button("undo"))
