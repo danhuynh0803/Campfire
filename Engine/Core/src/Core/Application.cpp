@@ -11,6 +11,8 @@
 
 #include "Renderer/Renderer.h"
 #include "Physics/PhysicsManager.h"
+#include "Command/CommandManager.h"
+
 #include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
 
@@ -34,7 +36,8 @@ Application::Application(const ApplicationProps& props)
     Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
     PhysicsManager::Init();
-
+    CommandManager::Init();
+    
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
     imguiLayer = new ImGuiLayer();

@@ -3,17 +3,18 @@
 
 #include <stack>
 #include "Core/Base.h"
-#include "Command.h"
+#include "Command/Command.h"
 
 typedef std::stack<UniquePtr<Command>> CommandStack;
 
-class CommandManager {
-	CommandStack mUndoStack = CommandStack();;
-	CommandStack mRedoStack;
+static class CommandManager {
+	static CommandStack mUndoStack;
+	static CommandStack mRedoStack;
 public:
-	void ExecuteCommand(UniquePtr<Command> command);
-	void Undo();
-	void Redo();
-	void Clear();
+	static void ExecuteCommand(UniquePtr<Command> command);
+	static void Init();
+	static void Undo();
+	static void Redo();
+	static void Clear();
 };
 #endif //COMMANDMANAGER_H
