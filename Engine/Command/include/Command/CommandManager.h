@@ -10,11 +10,11 @@ typedef std::stack<UniquePtr<Command>> CommandStack;
 static class CommandManager {
 	static CommandStack UndoStack;
 	static CommandStack RedoStack;
-public:
 
+public:
+	//template<typename T, typename ...Args>
+	//static void ExecuteA(T command, Args && ...args);
 	static void Init();
-	template<typename T, typename ...Args>
-	static void ExecuteA(T command, Args && ...args);
 	static void Execute(UniquePtr<Command> command);
 	static void Undo();
 	static void Redo();

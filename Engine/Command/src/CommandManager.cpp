@@ -11,12 +11,12 @@ void CommandManager::Init()
     UndoStack = CommandStack();
 }
 
-template<typename T, typename...Args>
-void CommandManager::ExecuteA(T command, Args&&... args)
-{
-    RedoStack = CommandStack();
-    UndoStack.push(std::make_unique<T>(std::forward<Args>(args)...));
-}
+//template<typename T, typename...Args>
+//void CommandManager::ExecuteA(T command, Args&&... args)
+//{
+//    RedoStack = CommandStack();
+//    UndoStack.push(std::make_unique<T>(std::forward<Args>(args)...));
+//}
 
 void CommandManager::Execute(UniquePtr<Command> command)
 {

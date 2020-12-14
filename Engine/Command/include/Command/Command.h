@@ -2,6 +2,7 @@
 #define COMMAND_H
 
 #include <glm/glm.hpp>
+#include <functional>
 
 class Command
 {
@@ -18,14 +19,8 @@ public:
     ImGuiFloatCommand(float& target , const float& previousValue, const float& currentValue) 
         : previousValue(previousValue), currentValue(currentValue),target(target){}
     void Execute() {};
-    void Undo()
-    {
-        target = previousValue;
-    }
-    void Redo()
-    {
-        target = currentValue;
-    }
+    void Undo() { target = previousValue; }
+    void Redo() { target = currentValue; }
 private:
     float& target;
     float previousValue;
@@ -41,14 +36,8 @@ public:
         currentValue = current;
     }
     void Execute() {};
-    void Undo()
-    {
-        target = previousValue;
-    }
-    void Redo()
-    {
-        target = currentValue;
-    }
+    void Undo() { target = previousValue; }
+    void Redo() { target = currentValue; }
 private:
     glm::vec2& target;
     glm::vec2 previousValue;
@@ -64,14 +53,8 @@ public:
         currentValue = current;
     }
     void Execute() {};
-    void Undo()
-    {
-        target = previousValue;
-    }
-    void Redo()
-    {
-        target = currentValue;
-    }
+    void Undo() { target = previousValue; }
+    void Redo() { target = currentValue; }
 private:
     glm::vec3& target;
     glm::vec3 previousValue;
@@ -87,14 +70,8 @@ public:
         currentValue = current;
     }
     void Execute() {};
-    void Undo()
-    {
-        target = previousValue;
-    }
-    void Redo()
-    {
-        target = currentValue;
-    }
+    void Undo() { target = previousValue; }
+    void Redo() { target = currentValue; }
 private:
     std::string& target;
     std::string previousValue;
@@ -110,16 +87,23 @@ public:
         currentValue = current;
     }
     void Execute() {};
-    void Undo()
-    {
-        target = previousValue;
-    }
-    void Redo()
-    {
-        target = currentValue;
-    }
+    void Undo(){target = previousValue;}
+    void Redo(){target = currentValue;}
 private:
     bool& target;
     bool previousValue;
     bool currentValue;
+};
+
+class ActionCommand : public Command
+{
+public:
+    template <typename F, typename G>
+    ActionCommand(F&& f, G&& g) : redo(std::forward<F>(f)), undo(std::forward<G>(g)){}
+    void Execute(){ redo();}
+    void Undo(){ undo();}
+    void Redo(){ redo();}
+private:
+    std::function<void()> redo;
+    std::function<void()> undo;
 };
