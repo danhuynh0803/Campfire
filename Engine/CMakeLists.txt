@@ -62,7 +62,7 @@ target_link_libraries(
 #ENDMACRO(SOURCE_GROUP_BY_FOLDER)
 
 add_subdirectory(Audio)
-#add_subdirectory(Command)
+add_subdirectory(Command)
 add_subdirectory(Core)
 add_subdirectory(Events)
 add_subdirectory(ImGui)
