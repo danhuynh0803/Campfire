@@ -2,13 +2,12 @@
 
 #include <string>
 
-class LinuxFileSystem
+namespace LinuxFileSystem
 {
-public:
-    static std::string OpenFile(const char*);
-    static std::string SaveFile(const char*);
-    static bool OpenFileWithDefaultProgram(const char*);
-    static bool MoveFiles(const char*, const char*);
-    static bool DeleteFiles(const char*);
-    static bool OpenFileWithXDesktops(const char* filePath);
+    std::string OpenFile(const char*);
+    std::string SaveFile(const char*);
+    bool OpenFileWithDefaultProgram(const char*);
+    bool MoveFiles(const char*, const char*);
+    bool DeleteFiles(const char*);
+    bool OpenFileWithXDesktops(const char*);
 };
