@@ -362,8 +362,6 @@ void EditorLayer::OnUpdate(float dt)
 
         SceneRenderer::BeginScene(activeScene, *editorCamera);
 
-        RenderCommand::SetDrawMode(drawMode);
-
         if (drawSkybox) {
             activeScene->skybox->DrawSkybox();
         }
@@ -371,6 +369,8 @@ void EditorLayer::OnUpdate(float dt)
             RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
             RenderCommand::Clear();
         }
+
+        RenderCommand::SetDrawMode(drawMode);
 
         if (allowViewportCameraEvents)
             cameraController.OnUpdate(dt);
