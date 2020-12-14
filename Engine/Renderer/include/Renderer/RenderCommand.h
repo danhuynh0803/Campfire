@@ -1,5 +1,4 @@
-#ifndef RENDER_COMMAND_H
-#define RENDER_COMMAND_H
+#pragma once
 
 #include "Renderer/RendererAPI.h"
 
@@ -21,6 +20,11 @@ public:
         rendererAPI->Clear();
     }
 
+    static void SetDrawMode(const DrawMode& mode)
+    {
+        rendererAPI->SetDrawMode(mode);
+    }
+
     static void DrawIndexed(const SharedPtr<VertexArray>& vertexArray)
     {
         rendererAPI->DrawIndexed(vertexArray);
@@ -39,5 +43,3 @@ public:
 private:
     static UniquePtr<RendererAPI> rendererAPI;
 };
-
-#endif // RENDER_COMMAND_H

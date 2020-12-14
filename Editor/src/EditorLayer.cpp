@@ -322,6 +322,7 @@ void EditorLayer::OnUpdate(float dt)
             unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
             glDrawBuffers(2, attachments);
 
+            RenderCommand::SetDrawMode(DrawMode::SHADED);
             SceneRenderer::BeginScene(activeScene, *mainGameCamera);
             activeScene->OnRender(deltaTime, *mainGameCamera);
             SceneRenderer::EndScene();
@@ -341,6 +342,9 @@ void EditorLayer::OnUpdate(float dt)
         glDrawBuffers(2, attachments);
 
         SceneRenderer::BeginScene(activeScene, *editorCamera);
+
+        RenderCommand::SetDrawMode(drawMode);
+
         if (allowViewportCameraEvents)
             cameraController.OnUpdate(dt);
         activeScene->OnRender(deltaTime, *editorCamera);
@@ -479,9 +483,8 @@ void EditorLayer::OnUpdate(float dt)
     }
     editorCamFBO->Unbind();
 
-
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    RenderCommand::Clear();
 
     // Blur the image for blooming
     bool isHorizontal = true, isFirst = true;
@@ -506,12 +509,13 @@ void EditorLayer::OnUpdate(float dt)
     }
     pingpongFBOs[0]->Unbind();
 
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    RenderCommand::Clear();
 
     // Postprocess
     postprocessFBO->Bind();
     {
+        RenderCommand::SetDrawMode(DrawMode::SHADED);
         postprocessShader->Bind();
         postprocessShader->SetInt("sceneTex", 0);
         postprocessShader->SetInt("bloomBlurTex", 1);
@@ -584,12 +588,14 @@ void EditorLayer::OnImGuiRender()
     {
         // Scene Toolbar
         //ImGui::DragFloat("CamSpeed", &cameraController.movementSpeed);
-        //const char* shadingMode[] =
-        //{
-        //    "Shaded",
-        //    "Wireframe",
-        //};
-        //ImGui::Combo("")
+        const char* drawModes[] =
+        {
+            "Shaded",
+            "Wireframe",
+        };
+        int currMode = static_cast<int>(drawMode);
+        ImGui::Combo("Draw Mode", &currMode, drawModes, IM_ARRAYSIZE(drawModes));
+        drawMode = static_cast<DrawMode>(currMode);
 
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();

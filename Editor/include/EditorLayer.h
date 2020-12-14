@@ -9,6 +9,7 @@
 #include "Widgets/InspectorWidget.h"
 #include "Widgets/TransformWidget.h"
 #include "Widgets/AssetBrowser.h"
+#include "Renderer/RendererAPI.h"
 
 class EditorLayer : public Layer
 {
@@ -21,6 +22,8 @@ class EditorLayer : public Layer
     SharedPtr<Shader> blurShader;
     SharedPtr<Shader> postprocessShader;
     float exposure = 1.0f;
+
+    DrawMode drawMode = DrawMode::SHADED;
 
 public:
     EditorLayer();
