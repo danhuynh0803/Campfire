@@ -13,11 +13,19 @@ public:
 class ImGuiFloatCommand : public Command
 {
 public:
-    ImGuiFloatCommand();
+    ImGuiFloatCommand(float& target , const float& previousValue, const float& currentValue) 
+        : previousValue(previousValue), currentValue(currentValue),target(target){}
     void Execute() {};
-    void Undo() = 0;
-    void Redo() = 0;
+    void Undo()
+    {
+        target = previousValue;
+    }
+    void Redo()
+    {
+        target = currentValue;
+    }
 private:
-    float& test; //how should we strcut these
-    float value;
+    float& target; //how should we strcut these
+    float previousValue;
+    float currentValue;
 };
