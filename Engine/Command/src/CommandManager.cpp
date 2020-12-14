@@ -48,3 +48,8 @@ void CommandManager::Clear()
         mRedoStack.pop();
     }
 }
+
+bool CommandManager::IsRedoStackEmpty()
+{
+    return mRedoStack.empty();
+}

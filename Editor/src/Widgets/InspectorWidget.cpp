@@ -78,9 +78,16 @@ void InspectorWidget::ShowEntity(Entity& entity)
             {
                 wasActive = false;
                 LOG_INFO("OrigPos = {0} \t NewPos = {1}", oldPos.x, transform.position.x);
-                //CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(new ImGuiFloat3Command(transform.position, oldPos, transform.position)));
+                CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.position, oldPos, transform.position)));
             }
-
+            if(ImGui::Button("undo"))
+            {
+                CommandManager::Undo();
+            }
+            if (ImGui::Button("redo"))
+            {
+                CommandManager::Redo();
+            }
             ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
 
