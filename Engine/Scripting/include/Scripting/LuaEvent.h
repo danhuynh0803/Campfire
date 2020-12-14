@@ -90,7 +90,8 @@ void OnEventEvent(Event2& e)
 
 void OnEvent(LuaEvent& e)
 {
-    LuaEventDispatcher dispatcher(e);
-    dispatcher.Dispatch<Event2>(std::bind(&OnEventEvent, nullptr, std::placeholders::_1));
+    OnEventEvent(static_cast<Event2&>(e));
+    //LuaEventDispatcher dispatcher(e);
+    //dispatcher.Dispatch<Event2>(std::bind(&OnEventEvent, nullptr, std::placeholders::_1));
 }
 
