@@ -71,20 +71,20 @@ void InspectorWidget::ShowEntity(Entity& entity)
             ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
-                oldEuler = transform.position;
+                oldPos = transform.position;
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.position, oldPos, transform.position)));
+                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.position, oldPos, transform.position));
             }
             ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
-                oldPos = transform.euler;
+                oldEuler = transform.euler;
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.euler, oldEuler, transform.euler)));
+                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.euler, oldEuler, transform.euler));
             }
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
@@ -93,7 +93,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.scale, oldScale, transform.scale)));
+                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.scale, oldScale, transform.scale));
             }
 
             // NOTE: Popup should be put after the inspector options

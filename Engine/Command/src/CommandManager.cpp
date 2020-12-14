@@ -1,3 +1,6 @@
+#include "..\include\Command\CommandManager.h"
+#include "..\include\Command\CommandManager.h"
+#include "..\include\Command\CommandManager.h"
 #include "Command/CommandManager.h"
 
 CommandStack CommandManager::UndoStack;
@@ -8,12 +11,18 @@ void CommandManager::Init()
     UndoStack = CommandStack();
 }
 
-void CommandManager::ExecuteCommand(UniquePtr<Command> command)
+template<typename T, typename...Args>
+void CommandManager::ExecuteA(T command, Args&&... args)
 {
     RedoStack = CommandStack();
-    //design pattern wants us to invoke the change here
+    UndoStack.push(std::make_unique<T>(std::forward<Args>(args)...));
+}
+
+void CommandManager::Execute(UniquePtr<Command> command)
+{
+    RedoStack = CommandStack();
+      //design pattern actually wants us to invoke the change here(but ImGUi invokes the change already)
     command->Execute();
-    //mUndoStack.push(command)?;
     UndoStack.push(std::move(command));
 }
 

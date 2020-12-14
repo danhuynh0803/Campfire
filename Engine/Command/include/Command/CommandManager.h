@@ -11,8 +11,11 @@ static class CommandManager {
 	static CommandStack UndoStack;
 	static CommandStack RedoStack;
 public:
-	static void ExecuteCommand(UniquePtr<Command> command);
+
 	static void Init();
+	template<typename T, typename ...Args>
+	static void ExecuteA(T command, Args && ...args);
+	static void Execute(UniquePtr<Command> command);
 	static void Undo();
 	static void Redo();
 	static void Clear();
