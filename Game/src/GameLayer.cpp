@@ -7,7 +7,7 @@
 #include "Renderer/SceneRenderer.h"
 #include "Scene/Component.h"
 
-//SharedPtr<Framebuffer> gameCamFBO;
+SharedPtr<Framebuffer> sceneFBO;
 
 // TODO should be a field within the scene file?
 
@@ -22,6 +22,8 @@ GameLayer::GameLayer()
 
 void GameLayer::OnAttach()
 {
+    //sceneFBO
+
     activeScene->OnStart();
 }
 
@@ -92,6 +94,9 @@ void GameLayer::OnUpdate(float dt)
     {
         // LOG_ERROR("No game camera found in scene");
     }
+
+    // Post process effect
+
 }
 
 void GameLayer::OnImGuiRender()

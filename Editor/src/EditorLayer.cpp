@@ -23,6 +23,7 @@
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
+SharedPtr<Framebuffer> blurFBO;
 SharedPtr<Framebuffer> editorCamFBO;
 SharedPtr<Framebuffer> postprocessFBO;
 std::vector<SharedPtr<Framebuffer>> pingpongFBOs;
@@ -80,6 +81,7 @@ void EditorLayer::OnAttach()
     };
     gameCamFBO = Framebuffer::Create(sceneSpec);
     editorCamFBO = Framebuffer::Create(sceneSpec);
+    blurFBO = Framebuffer::Create(sceneSpec);
 
     FramebufferSpec blurSpec = {
         1920, 1080,
@@ -355,6 +357,16 @@ void EditorLayer::OnUpdate(float dt)
         gameCamFBO->Unbind();
     }
 
+    blurFBO->Bind();
+    {
+        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, attachments);
+        SceneRenderer::BeginScene(activeScene, *editorCamera);
+        RenderCommand::SetDrawMode(drawMode);
+        activeScene->OnRender(deltaTime, *editorCamera);
+    }
+    blurFBO->Unbind();
+
     editorCamFBO->Bind();
     {
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
@@ -523,12 +535,14 @@ void EditorLayer::OnUpdate(float dt)
         pingpongFBOs[isHorizontal]->Bind();
         blurShader->SetBool("isHorizontal", isHorizontal);
         glBindTexture(GL_TEXTURE_2D, isFirst
-            ? editorCamFBO->GetColorAttachmentID(1)
+            //? editorCamFBO->GetColorAttachmentID(1)
+            ? blurFBO->GetColorAttachmentID(1)
             : pingpongFBOs[!isHorizontal]->GetColorAttachmentID()
         );
 
         Renderer2D::DrawPostProcessQuad(blurShader, isFirst
-            ? editorCamFBO->GetColorAttachmentID(1)
+            ? blurFBO->GetColorAttachmentID(1)
+            //? editorCamFBO->GetColorAttachmentID(1)
             : pingpongFBOs[!isHorizontal]->GetColorAttachmentID()
         );
 
@@ -1108,6 +1122,7 @@ bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
     editorCamFBO->Resize(resizeSpec, true);
     pingpongFBOs[0]->Resize(resizeSpec, true);
     pingpongFBOs[1]->Resize(resizeSpec, true);
+    blurFBO->Resize(resizeSpec, true);
 
     FramebufferSpec postSpec = {
         e.GetWidth(), e.GetHeight(), GL_RGBA

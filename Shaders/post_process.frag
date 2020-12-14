@@ -11,33 +11,16 @@ uniform float exposure;
 
 void main()
 {
-    //int samples = 16;
-    //ivec2 texCoord = ivec2(textureSize(tex2DMS) * inUV);
-    //for (int i = 0; i < samples; ++i)
-    //{
-    //    fragColor += texelFetch(tex2DMS, texCoord, i);
-    //}
-    //fragColor *= 1.0f/samples;
-    //vec4 color = texture(tex2D, inUV);
-    //fragColor = vec4(1.0f) - fragColor;
-    //
-    //
-    fragColor =
-        texture(sceneTex, inUV)
-        * vec4(1, 0, 0, 1);
+    vec3 color =
+        texture(sceneTex, inUV).rgb
+      + texture(bloomBlurTex, inUV).rgb
     ;
 
-    //vec3 color =
-    //    //texture(bloomBlurTex, inUV).rgb
-    //    texture(sceneTex, inUV).rgb
-    //  + texture(bloomBlurTex, inUV).rgb
-    //;
+    //color = color / (color + vec3(1.0f));
+    //color = pow(color, vec3(1.0f/2.2f));
+    fragColor = vec4(color, 1.0f);
 
-    ////color = color / (color + vec3(1.0f));
-    ////color = pow(color, vec3(1.0f/2.2f));
-    ////fragColor = vec4(color, 1.0f);
-
-    //// apply gamma correction
+    // apply gamma correction
     //vec3 result = vec3(1.0f) - exp(-color * exposure);
     //result = pow(result, vec3(1.0f / 2.2f));
     //fragColor = vec4(result, 1.0f);
