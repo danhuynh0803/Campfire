@@ -48,7 +48,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
         }
         if (ImGui::IsItemDeactivatedAfterEdit())
         {
-            LOG_INFO("OrigTag = {0} \t NewTag = {1}", origTag, tagComp.tag);
+            //LOG_INFO("OrigTag = {0} \t NewTag = {1}", origTag, tagComp.tag);
         }
         ImGui::Separator();
     }
@@ -65,31 +65,36 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             auto& transform = entity.GetComponent<TransformComponent>();
             static glm::vec3 oldPos;
+            static glm::vec3 oldEuler;
+            static glm::vec3 oldScale;
 
             ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
-            static bool wasActive = false;
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
-                //LOG_INFO("Storing old pos");
-                oldPos = transform.position;
-                wasActive = true;
+                oldEuler = transform.position;
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                wasActive = false;
-                //LOG_INFO("OrigPos = {0} \t NewPos = {1}", oldPos.x, transform.position.x);
                 CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.position, oldPos, transform.position)));
             }
-            if(ImGui::Button("undo"))
-            {
-                CommandManager::Undo();
-            }
-            if (ImGui::Button("redo"))
-            {
-                CommandManager::Redo();
-            }
             ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
+            if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+            {
+                oldPos = transform.euler;
+            }
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.euler, oldEuler, transform.euler)));
+            }
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
+            if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+            {
+                oldScale = transform.scale;
+            }
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                CommandManager::ExecuteCommand(std::make_unique<ImGuiFloat3Command>(ImGuiFloat3Command(transform.scale, oldScale, transform.scale)));
+            }
 
             // NOTE: Popup should be put after the inspector options
             // Since it's possible the user can remove the component

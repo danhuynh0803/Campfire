@@ -17,9 +17,9 @@
 #include "Core/LogWidget.h"
 #include "Util/Ray.h"
 #include <Tracy.hpp>
-
 #include "Renderer/Renderer.h"
 #include "IconsFontAwesome5.h"
+#include "Command/CommandManager.h"
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -154,6 +154,17 @@ void EditorLayer::OnDetach()
 void EditorLayer::ProcessUserInput()
 {
     ZoneScoped;
+
+    //Undo Redo
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_Z))
+    {
+        CommandManager::Undo();
+    }
+
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_X))
+    {
+        CommandManager::Redo();
+    }
 
     if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
     {
