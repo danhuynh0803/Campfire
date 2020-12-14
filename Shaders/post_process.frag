@@ -24,6 +24,7 @@ void main()
     //
     fragColor =
         texture(sceneTex, inUV)
+        * vec4(1, 0, 0, 1);
     ;
 
     //vec3 color =

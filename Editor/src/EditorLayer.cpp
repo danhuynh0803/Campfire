@@ -388,6 +388,7 @@ void EditorLayer::OnUpdate(float dt)
             glm::vec3 color(1.0f, 1.0f, 1.0f);
 
             auto spriteGroup = activeScene->GetAllEntitiesWith<SpriteComponent>();
+
             for (auto e : spriteGroup)
             {
                 Entity entity { e, activeScene.get() };
@@ -660,8 +661,13 @@ void EditorLayer::OnImGuiRender()
         //const ImU32 bg = ImGui::GetColorU32(ImGuiCol_Button);
         //ImGui::BufferingBar("Saving Scene", 0.5f, ImVec2(viewportSize.x, 15), bg, col);
 
-        //ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
-        ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        if (drawPostProcess) {
+            ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        }
+        else {
+            ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        }
+
 
         auto windowSize = ImGui::GetWindowSize();
         ImVec2 minBound = ImGui::GetWindowPos();
