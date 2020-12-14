@@ -108,8 +108,14 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>();
+            SharedPtr<Camera>& camera = entity.GetComponent<CameraComponent>();
 
+            const char* clearFlags[] = { "Skybox", "Solid Color", "Depth Only", "Don't Clear" };
+            auto currClearFlag = static_cast<int>(camera->clearFlag);
+            ImGui::Combo("Clear Flags", &currClearFlag, clearFlags, IM_ARRAYSIZE(clearFlags));
+            camera->clearFlag = static_cast<ClearFlag>(currClearFlag);
+
+            ImGui::ColorEdit4("Background", (float*)&camera->backgroundColor);
             bool prevState = camera->isPerspective;
             ImGui::Checkbox("Is Perspective", &camera->isPerspective);
 

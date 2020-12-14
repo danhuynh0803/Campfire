@@ -24,6 +24,9 @@ class EditorLayer : public Layer
     float exposure = 1.0f;
 
     DrawMode drawMode = DrawMode::SHADED;
+    bool drawSkybox = true;
+    bool drawPostProcess = false;
+    bool drawParticleSystems = false;
 
 public:
     EditorLayer();

@@ -37,8 +37,8 @@ public:
 
     const std::map<uint64_t, Entity> GetEntityMap() { return entityMap; }
 
-public:
     SharedPtr<Skybox> skybox;
+
 private:
     friend class Entity;
     friend class Skybox;
