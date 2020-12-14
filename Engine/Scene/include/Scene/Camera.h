@@ -8,6 +8,14 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader.h"
 
+enum class ClearFlag
+{
+    SKYBOX = 0,
+    COLOR,
+    DEPTH,
+    NONE,
+};
+
 class Camera
 {
 public:
@@ -27,6 +35,9 @@ public:
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler);
 
 public:
+    ClearFlag clearFlag = ClearFlag::SKYBOX;
+    glm::vec4 backgroundColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+
     // TODO remove later
     // might be used by particle system?
     glm::vec3 pos = glm::vec3(0.0f);

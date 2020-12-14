@@ -77,14 +77,9 @@ void SceneRenderer::BeginScene(const SharedPtr<Scene>& scene, const Camera& came
     SubmitCamera(camera);
     SubmitLights(scene);
 
-    // TODO either clear color or draw skybox depending on camera's clear flags
-    //RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
     RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     RenderCommand::Clear();
     Renderer2D::BeginScene(camera);
-
-    // Draw skybox first
-    scene->skybox->DrawSkybox();
 }
 
 void SceneRenderer::EndScene()

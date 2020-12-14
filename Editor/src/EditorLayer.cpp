@@ -8,6 +8,7 @@
 #include "Audio/AudioSystem.h"
 #include "Physics/PhysicsManager.h"
 #include "Scene/SceneManager.h"
+#include "Scene/Skybox.h"
 #include "Renderer/Framebuffer.h"
 #include "Renderer/SceneRenderer.h"
 #include "Renderer/Text.h"
@@ -323,7 +324,25 @@ void EditorLayer::OnUpdate(float dt)
             glDrawBuffers(2, attachments);
 
             RenderCommand::SetDrawMode(DrawMode::SHADED);
-            SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+
+            switch (mainGameCamera->clearFlag)
+            {
+                default:
+                case ClearFlag::SKYBOX:
+                    SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+                    activeScene->skybox->DrawSkybox();
+                    break;
+                case ClearFlag::COLOR:
+                    SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+                    RenderCommand::SetClearColor(mainGameCamera->backgroundColor);
+                    RenderCommand::Clear();
+                    break;
+                case ClearFlag::DEPTH:
+                    break;
+                case ClearFlag::NONE:
+                    break;
+            }
+
             activeScene->OnRender(deltaTime, *mainGameCamera);
             SceneRenderer::EndScene();
         gameCamFBO->Unbind();
@@ -344,6 +363,14 @@ void EditorLayer::OnUpdate(float dt)
         SceneRenderer::BeginScene(activeScene, *editorCamera);
 
         RenderCommand::SetDrawMode(drawMode);
+
+        if (drawSkybox) {
+            activeScene->skybox->DrawSkybox();
+        }
+        else {
+            RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+            RenderCommand::Clear();
+        }
 
         if (allowViewportCameraEvents)
             cameraController.OnUpdate(dt);
@@ -586,8 +613,9 @@ void EditorLayer::OnImGuiRender()
     // Editor viewport
     ImGui::Begin("Scene");
     {
+        // -------------------------------------------------
         // Scene Toolbar
-        //ImGui::DragFloat("CamSpeed", &cameraController.movementSpeed);
+        // Draw modes
         const char* drawModes[] =
         {
             "Shaded",
@@ -596,6 +624,31 @@ void EditorLayer::OnImGuiRender()
         int currMode = static_cast<int>(drawMode);
         ImGui::Combo("Draw Mode", &currMode, drawModes, IM_ARRAYSIZE(drawModes));
         drawMode = static_cast<DrawMode>(currMode);
+
+        ImGui::SameLine();
+
+        const char* effects[] = {
+            "Skybox",
+            "Post-Process",
+            "Particle Systems",
+        };
+        static bool* toggles[] = {
+            &drawSkybox,
+            &drawPostProcess,
+            &drawParticleSystems,
+        };
+
+        if (ImGui::Button("Effects"))
+        {
+            ImGui::OpenPopup("EffectsTogglePopup");
+        }
+        if (ImGui::BeginPopup("EffectsTogglePopup"))
+        {
+            for (int i = 0; i < IM_ARRAYSIZE(effects); i++)
+                ImGui::MenuItem(effects[i], "", toggles[i]);
+            ImGui::EndPopup();
+        }
+        // -------------------------------------------------
 
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();
