@@ -663,12 +663,19 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
     {
         if (ImGui::BeginMenu("Scripts"))
         {
-            if (ImGui::MenuItem("Scripts"))
+            if (ImGui::BeginMenu("Available"))
             {
-                // TODO
-                // Show list of available scripts
-                //
-                //entity.AddComponent<ScriptComponent>();
+                // listing all available scripts in Assets dir
+                auto scriptPaths = FileSystem::GetAllFiles(ASSETS.c_str(), ".lua");
+                for (auto scriptPath : scriptPaths)
+                {
+                    if (ImGui::MenuItem(scriptPath.filename().string().c_str()))
+                    {
+                        entity.AddComponent<ScriptComponent>();
+                        entity.GetComponent<ScriptComponent>().filepath = scriptPath.string();
+                    }
+                }
+                ImGui::EndMenu();
             }
 
             if (ImGui::MenuItem("New Script"))
