@@ -7,6 +7,7 @@ class InspectorWidget
 {
 public:
     void ShowInspector(Entity& entity, bool* isOpen);
+    void ShowEntity(Entity& entity);
 
 private:
     void ShowComponentMenu(Entity& entity);

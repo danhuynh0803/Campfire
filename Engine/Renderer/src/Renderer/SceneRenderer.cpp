@@ -84,7 +84,7 @@ void SceneRenderer::BeginScene(const SharedPtr<Scene>& scene, const Camera& came
     Renderer2D::BeginScene(camera);
 
     // Draw skybox first
-    //scene->skybox->DrawSkybox();
+    scene->skybox->DrawSkybox();
 }
 
 void SceneRenderer::EndScene()

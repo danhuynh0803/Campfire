@@ -21,12 +21,23 @@ void main()
     //vec4 color = texture(tex2D, inUV);
     //fragColor = vec4(1.0f) - fragColor;
     //
-    vec3 color =
-        texture(sceneTex, inUV).rgb
-      + texture(bloomBlurTex, inUV).rgb
+    //
+    fragColor =
+        texture(sceneTex, inUV)
     ;
 
-    vec3 result = vec3(1.0f) - exp(-color * exposure);
-    result = pow(result, vec3(1.0f / 2.2f));
-    fragColor = vec4(result, 1.0f);
+    //vec3 color =
+    //    //texture(bloomBlurTex, inUV).rgb
+    //    texture(sceneTex, inUV).rgb
+    //  + texture(bloomBlurTex, inUV).rgb
+    //;
+
+    ////color = color / (color + vec3(1.0f));
+    ////color = pow(color, vec3(1.0f/2.2f));
+    ////fragColor = vec4(color, 1.0f);
+
+    //// apply gamma correction
+    //vec3 result = vec3(1.0f) - exp(-color * exposure);
+    //result = pow(result, vec3(1.0f / 2.2f));
+    //fragColor = vec4(result, 1.0f);
 }

@@ -124,10 +124,10 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
         activeScene->DuplicateEntity(selectedEntity);
     }
 
-    if (selectedEntity)
-    {
-        wInspector.ShowInspector(selectedEntity, isOpen);
-    }
+    //if (selectedEntity)
+    //{
+    //    wInspector.ShowInspector(selectedEntity, isOpen);
+    //}
 
     if (Input::GetKeyDown(KEY_DELETE) && selectedEntity)
     {

@@ -43,6 +43,13 @@ private:
     void ClearScene();
     std::pair<float, float> GetMouseViewportSpace();
 
+    void ShowMenuFile();
+    void ShowMenuWindow();
+    void ShowMenuCampfire();
+    void ShowAudioSettings(bool* isOpen);
+    void ShowConsole(bool* isOpen);
+    void ShowEditorCameraSettings(bool* isOpen);
+
 private:
     int editorSelectedIndex = -1;
     bool startScene = false;
@@ -55,19 +62,11 @@ private:
     SharedPtr<Camera> editorCamera;
     CameraController cameraController;
 
-    void ShowMenuFile();
-    void ShowMenuWindow();
-    void ShowMenuCampfire();
-
     // Widgets
     HierarchyWidget wHierarchy;
     InspectorWidget wInspector;
     TransformWidget wTransform;
     AssetBrowser wAssetBrowser;
-
-    void ShowAudioSettings(bool* isOpen);
-    void ShowConsole(bool* isOpen);
-    void ShowEditorCameraSettings(bool* isOpen);
 
     bool showAudioSettings = false;
     bool showAssetBrowser = true;

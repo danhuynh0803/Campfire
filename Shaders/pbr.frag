@@ -182,9 +182,9 @@ void main()
     else
         brightColor = vec4(vec3(0.0f), 1.0f);
 
-    //color = color / (color + vec3(1.0f));
+    color = color / (color + vec3(1.0f));
     // apply gamma correction
-    //color = pow(color, vec3(1.0f/2.2f));
+    color = pow(color, vec3(1.0f/2.2f));
 
     fragColor = vec4(color, 1.0f);
 }

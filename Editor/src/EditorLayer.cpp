@@ -327,6 +327,13 @@ void EditorLayer::OnUpdate(float dt)
             SceneRenderer::EndScene();
         gameCamFBO->Unbind();
     }
+    else
+    {
+        gameCamFBO->Bind();
+            RenderCommand::SetClearColor(glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
+            RenderCommand::Clear();
+        gameCamFBO->Unbind();
+    }
 
     editorCamFBO->Bind();
     {
@@ -567,12 +574,22 @@ void EditorLayer::OnImGuiRender()
     {
         wTransform.ShowTransformSettings(&showTransformSettings);
     }
+    if (showInspector)
+    {
+        wInspector.ShowInspector(wHierarchy.GetSelectedEntity(), &showInspector);
+    }
 
     // Editor viewport
     ImGui::Begin("Scene");
     {
-        // Toolbar
+        // Scene Toolbar
         //ImGui::DragFloat("CamSpeed", &cameraController.movementSpeed);
+        //const char* shadingMode[] =
+        //{
+        //    "Shaded",
+        //    "Wireframe",
+        //};
+        //ImGui::Combo("")
 
         auto viewportOffset = ImGui::GetCursorPos();
         auto viewportSize = ImGui::GetContentRegionAvail();
@@ -584,7 +601,8 @@ void EditorLayer::OnImGuiRender()
         //const ImU32 bg = ImGui::GetColorU32(ImGuiCol_Button);
         //ImGui::BufferingBar("Saving Scene", 0.5f, ImVec2(viewportSize.x, 15), bg, col);
 
-        ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        //ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+        ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
 
         auto windowSize = ImGui::GetWindowSize();
         ImVec2 minBound = ImGui::GetWindowPos();
@@ -655,9 +673,13 @@ void EditorLayer::OnImGuiRender()
         static int prevState = -1;
         static int currState = static_cast<int>(state);
 
+        // TODO replace with ImageButtons
         prevState = currState;
+        // If State is stop, then show the play button
+        // Else if State is play, then show the stop button
         ImGui::RadioButton("Stop", &currState, 0); ImGui::SameLine();
         ImGui::RadioButton("Play", &currState, 1); ImGui::SameLine();
+        // If game is running, then enable step button
         ImGui::RadioButton("Pause", &currState, 2);
         state = static_cast<State>(currState);
 
@@ -666,14 +688,14 @@ void EditorLayer::OnImGuiRender()
     }
     ImGui::End();
 
-    ImGui::Begin("PostProcess");
-    {
-        ImGui::SliderFloat("Exposure", &exposure, 0.0f, 5.0f);
-        auto viewportSize = ImGui::GetContentRegionAvail();
-        //ImGui::Image((ImTextureID)pingpongFBOs[0]->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
-        ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
-    }
-    ImGui::End();
+    //ImGui::Begin("PostProcess");
+    //{
+    //    ImGui::SliderFloat("Exposure", &exposure, 0.0f, 5.0f);
+    //    auto viewportSize = ImGui::GetContentRegionAvail();
+    //    //ImGui::Image((ImTextureID)pingpongFBOs[0]->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+    //    ImGui::Image((ImTextureID)postprocessFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+    //}
+    //ImGui::End();
 
     // Game Camera viewport
     ImGui::Begin("Game");

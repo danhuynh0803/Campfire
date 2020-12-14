@@ -14,6 +14,13 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
     ImGui::Begin("Inspector", isOpen);
 
+    if (entity) { ShowEntity(entity); }
+
+    ImGui::End();
+}
+
+void InspectorWidget::ShowEntity(Entity& entity)
+{
     if (ImGui::Button("Save Prefab"))
     {
         std::string path = FileSystem::SaveFile("Prefab Files(*.prefab)\0");
@@ -555,7 +562,6 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
         ShowComponentMenu(entity);
         ImGui::EndPopup();
     }
-    ImGui::End();
 }
 
 void InspectorWidget::ShowComponentMenu(Entity& entity)
@@ -673,7 +679,6 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             ImGui::EndMenu();
         }
     }
-
 
     if (!entity.HasComponent<CameraComponent>())
     {

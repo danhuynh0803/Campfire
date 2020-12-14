@@ -30,7 +30,7 @@
 
 function Start()
  	--Rigidbody.AddVelocity(0, 20, 0)
-	Rigidbody.AddVelocity(0, 10, 0)
+	--Rigidbody.AddVelocity(0, 10, 0)
 end
 
 -- function Update()
@@ -43,6 +43,6 @@ end
 	
 -- end
 
--- function OnTriggerEnter(other)
-
--- end
+function OnTriggerEnter(other)
+	other.Rigidbody.AddVelocity(0, 20, 0)
+end
