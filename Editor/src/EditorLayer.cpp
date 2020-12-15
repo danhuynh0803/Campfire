@@ -161,7 +161,7 @@ void EditorLayer::ProcessUserInput()
         CommandManager::Undo();
     }
 
-    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_X))
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_Y))
     {
         CommandManager::Redo();
     }

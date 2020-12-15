@@ -198,22 +198,13 @@ void AssetBrowser::OnImGuiRender(bool* isOpen)
                 {
                     if (isDir)
                     {
-                        #ifdef WIN32
-                            if (ImGui::Button("Open In Explorer"))
-                            {
-                                FileSystem::OpenInDirectory(p.path().string().c_str());
-                                ImGui::CloseCurrentPopup();
-                            }
-                            ImGui::EndPopup();
-                        #else
-                            if (ImGui::Button("Open Directory"))
-                            {
+                        if (ImGui::Button("Open Directory"))
+                        {
 
-                                FileSystem::OpenInDirectory(p.path().string().c_str());
-                                ImGui::CloseCurrentPopup();
-                            }
+                            FileSystem::OpenInDirectory(p.path().string().c_str());
+                            ImGui::CloseCurrentPopup();
+                        }
                         ImGui::EndPopup();
-                        #endif // WIN32
                     }
                     else
                     {

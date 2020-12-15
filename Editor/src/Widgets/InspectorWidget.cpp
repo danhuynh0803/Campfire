@@ -120,7 +120,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            SharedPtr<Camera>& camera = entity.GetComponent<CameraComponent>();
+            SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>();
 
             const char* clearFlags[] = { "Skybox", "Solid Color", "Depth Only", "Don't Clear" };
             auto currClearFlag = static_cast<int>(camera->clearFlag);
