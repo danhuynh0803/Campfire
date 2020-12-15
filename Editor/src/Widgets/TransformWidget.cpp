@@ -62,9 +62,9 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     auto& transformComp = entity.GetComponent<TransformComponent>();
     glm::mat4& transformMat = entity.GetComponent<TransformComponent>();
     float* transform = const_cast<float*>(glm::value_ptr(transformMat));
-    int moveType;
 
-    //this method was slightly modified
+    int moveType;
+    //this method was slightly modified so that we can query out the MOVETYPE(enum)
     ImGuizmo::Manipulate(
         viewMatrix,
         projMatrix,
@@ -79,9 +79,12 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     );
     
     //Skip the remaing call if there is no action
+    //The second expression is to make sure that the remaining calls will be skipped,
+    //when a scene object is selected(gContext.mbEnable is true and Guizmo is drawn)
+    //and yet there is no interaction(when we interact with inspector,etc )
     if (!ImGuizmo::IsOver || moveType == MOVETYPE::NONE) return;
     static bool wasInUse = false;
-    static glm::vec3 position;
+    static glm::vec3 position;//private with nonstatic also works
 
     //newRotation[3], newScale[3];
     //ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation,newScale);
