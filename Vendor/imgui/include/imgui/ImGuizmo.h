@@ -178,5 +178,5 @@ namespace ImGuizmo
    //
    IMGUI_API void ViewManipulate(float* view, float length, ImVec2 position, ImVec2 size, ImU32 backgroundColor);
    IMGUI_API void ManipulateWithMoveType(const float* view, const float* projection, OPERATION operation, MODE mode, float* matrix, int& moveType, float* deltaMatrix = 0, float* snap = 0, float* localBounds = NULL, float* boundsSnap = NULL);
-   IMGUI_API void MapOutMatrixTranslationComponent(const float* matrix, float* translation);
+   IMGUI_API void MapOutTranslationComponentFromMatrix(const float* matrix, float* translation);
 };

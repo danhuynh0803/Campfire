@@ -93,7 +93,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     {
         float newTranslation[3];
         //I added this one
-        ImGuizmo::MapOutMatrixTranslationComponent(transform, newTranslation);
+        ImGuizmo::MapOutTranslationComponentFromMatrix(transform, newTranslation);
         if (!wasInUse && ImGuizmo::IsUsing() )
         {
             wasInUse = true;
