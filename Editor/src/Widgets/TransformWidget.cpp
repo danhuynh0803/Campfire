@@ -63,6 +63,8 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     glm::mat4& transformMat = entity.GetComponent<TransformComponent>();
     float* transform = const_cast<float*>(glm::value_ptr(transformMat));
     int moveType;
+
+    //this method was slightly modified
     ImGuizmo::Manipulate(
         viewMatrix,
         projMatrix,
@@ -75,14 +77,20 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
         boundSizing ? bounds : NULL,            // local bounds
         boundSizingSnap ? boundsSnap : NULL     // bounds snap
     );
+    
+    //Skip the remaing call if there is no action
     if (!ImGuizmo::IsOver || moveType == MOVETYPE::NONE) return;
     static bool wasInUse = false;
     static glm::vec3 position;
-    float newTranslation[3], newRotation[3], newScale[3];
-    ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation, newScale);
+
+    //newRotation[3], newScale[3];
+    //ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation,newScale);
+    
     if (moveType == MOVETYPE::MOVE_X || moveType == MOVETYPE::MOVE_Y || moveType == MOVETYPE::MOVE_Z)
     {
-        //&& Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT)
+        float newTranslation[3];
+        //I added this one
+        ImGuizmo::MapOutMatrixTranslationComponent(transform, newTranslation);
         if (!wasInUse && ImGuizmo::IsUsing() )
         {
             wasInUse = true;

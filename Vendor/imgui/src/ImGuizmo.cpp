@@ -1927,6 +1927,15 @@ namespace ImGuizmo
       translation[2] = mat.v.position.z;
    }
 
+   void MapOutMatrixTranslationComponent(const float* matrix, float* translation)
+   {
+       matrix_t mat = *(matrix_t*)matrix;
+       mat.OrthoNormalize();
+       translation[0] = mat.v.position.x;
+       translation[1] = mat.v.position.y;
+       translation[2] = mat.v.position.z;
+   }
+
    void RecomposeMatrixFromComponents(const float *translation, const float *rotation, const float *scale, float *matrix)
    {
       matrix_t& mat = *(matrix_t*)matrix;
