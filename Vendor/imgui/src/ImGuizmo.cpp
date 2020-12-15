@@ -1960,7 +1960,7 @@ namespace ImGuizmo
       mat.v.position.Set(translation[0], translation[1], translation[2], 1.f);
    }
 
-   void Manipulate(const float *view, const float *projection, OPERATION operation, MODE mode, float *matrix, int& moveType, float *deltaMatrix, float *snap, float *localBounds, float *boundsSnap)
+   void Manipulate(const float *view, const float *projection, OPERATION operation, MODE mode, float *matrix, float *deltaMatrix, float *snap, float *localBounds, float *boundsSnap)
    {
       ComputeContext(view, projection, matrix, mode);
 
@@ -1984,15 +1984,12 @@ namespace ImGuizmo
               {
               case ROTATE:
                   HandleRotation(matrix, deltaMatrix, type, snap);
-                  moveType = type;
                   break;
               case TRANSLATE:
                   HandleTranslation(matrix, deltaMatrix, type, snap);
-                  moveType = type;
                   break;
               case SCALE:
                   HandleScale(matrix, deltaMatrix, type, snap);
-                  moveType = type;
                   break;
               case BOUNDS:
                   break;
@@ -2320,6 +2317,68 @@ namespace ImGuizmo
          vec_t newEye = camTarget + newDir * length;
          LookAt(&newEye.x, &camTarget.x, &referenceUp.x, view);
       }
+   }
+
+   void ManipulateWithMoveType(const float* view, const float* projection, OPERATION operation, MODE mode, float* matrix, int& moveType, float* deltaMatrix, float* snap, float* localBounds, float* boundsSnap)
+   {
+       ComputeContext(view, projection, matrix, mode);
+
+       // set delta to identity
+       if (deltaMatrix)
+           ((matrix_t*)deltaMatrix)->SetToIdentity();
+
+       // behind camera
+       vec_t camSpacePosition;
+       camSpacePosition.TransformPoint(makeVect(0.f, 0.f, 0.f), gContext.mMVP);
+       if (!gContext.mIsOrthographic && camSpacePosition.z < 0.001f)
+           return;
+
+       // --
+       int type = NONE;
+       if (gContext.mbEnable)
+       {
+           if (!gContext.mbUsingBounds)
+           {
+               switch (operation)
+               {
+               case ROTATE:
+                   HandleRotation(matrix, deltaMatrix, type, snap);
+                   moveType = type;
+                   break;
+               case TRANSLATE:
+                   HandleTranslation(matrix, deltaMatrix, type, snap);
+                   moveType = type;
+                   break;
+               case SCALE:
+                   HandleScale(matrix, deltaMatrix, type, snap);
+                   moveType = type;
+                   break;
+               case BOUNDS:
+                   break;
+               }
+           }
+       }
+
+       if (localBounds && !gContext.mbUsing)
+           HandleAndDrawLocalBounds(localBounds, (matrix_t*)matrix, boundsSnap, operation);
+
+       if (!gContext.mbUsingBounds)
+       {
+           switch (operation)
+           {
+           case ROTATE:
+               DrawRotationGizmo(type);
+               break;
+           case TRANSLATE:
+               DrawTranslationGizmo(type);
+               break;
+           case SCALE:
+               DrawScaleGizmo(type);
+               break;
+           case BOUNDS:
+               break;
+           }
+       }
    }
 };
 

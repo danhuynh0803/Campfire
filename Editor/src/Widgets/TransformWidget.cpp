@@ -65,7 +65,7 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
 
     int moveType;
     //this method was slightly modified so that we can query out the MOVETYPE(enum)
-    ImGuizmo::Manipulate(
+    ImGuizmo::ManipulateWithMoveType(
         viewMatrix,
         projMatrix,
         operation,
