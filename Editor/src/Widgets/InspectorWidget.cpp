@@ -675,7 +675,6 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
     {
         if (ImGui::MenuItem("Light"))
         {
-            //entity.AddComponent<LightComponent>();
             CommandManager::Execute(std::make_unique<ActionCommand>(
                 [&entity]() {entity.AddComponent<LightComponent>(); },
                 [&entity]() {entity.RemoveComponent<LightComponent>(); }));

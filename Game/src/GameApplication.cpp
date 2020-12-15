@@ -9,11 +9,25 @@ public:
         : Application(props)
     {
         enableImgui = false;
+        instance = this;
     }
 
     virtual void OnInit() override
     {
         PushLayer(new GameLayer());
+    }
+
+    virtual void OnEvent(Event& e) override
+    {
+        EventDispatcher dispatcher(e);
+
+        dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(GameApplication::OnWindowClose));
+    }
+
+    bool GameApplication::OnWindowClose(WindowCloseEvent& e)
+    {
+        GameApplication::Get().Close();
+        return false;
     }
 };
 

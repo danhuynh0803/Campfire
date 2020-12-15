@@ -1,6 +1,5 @@
 function Start()
  	Rigidbody.AddVelocity(0, 20, 0)
-	for n in pairs(_G) do print(n) end
 end
 
 function OnTriggerEnter (other)
