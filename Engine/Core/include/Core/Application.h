@@ -28,7 +28,7 @@ public:
     void PushLayer(Layer* layer);
     void PushOverlay(Layer* layer);
 
-    void OnEvent(Event& e);
+    virtual void OnEvent(Event& e);
     bool OnWindowResize(WindowResizeEvent& event);
     bool OnWindowClose(WindowCloseEvent& event);
     bool OnWindowMinimize(WindowMinimizeEvent& event);
@@ -36,9 +36,8 @@ public:
 
 protected:
     bool enableImgui = true;
-
-private:
     static Application* instance;
+private:
     bool isRunning = true;
     ImGuiLayer* imguiLayer;
     LayerStack layerStack;

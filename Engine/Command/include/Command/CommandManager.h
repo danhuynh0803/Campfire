@@ -7,7 +7,7 @@
 
 typedef std::stack<UniquePtr<Command>> CommandStack;
 
-static class CommandManager {
+class CommandManager {
 	static CommandStack UndoStack;
 	static CommandStack RedoStack;
 

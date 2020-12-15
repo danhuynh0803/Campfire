@@ -74,9 +74,9 @@ void LuaScript::Start()
         return;
     }
 
-    lua_pushglobaltable(L);
-    LOG_INFO("Non-Nil Global Variables found in {0}", filepath);
-    LuaParseTableOnTop("");
+    //lua_pushglobaltable(L);
+    //LOG_INFO("Non-Nil Global Variables found in {0}", filepath);
+    //LuaParseTableOnTop("");
 
     luaL_openlibs(L); //opens all standard Lua libraries
 
