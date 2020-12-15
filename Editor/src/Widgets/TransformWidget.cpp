@@ -77,28 +77,28 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     );
     if (!ImGuizmo::IsOver || moveType == MOVETYPE::NONE) return;
     static bool wasInUse = false;
+    static glm::vec3 position;
     float newTranslation[3], newRotation[3], newScale[3];
     ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation, newScale);
-    
-    if (moveType == MOVETYPE::MOVE_X)
+    if (moveType == MOVETYPE::MOVE_X || moveType == MOVETYPE::MOVE_Y || moveType == MOVETYPE::MOVE_Z)
     {
-        if (!wasInUse && ImGuizmo::IsUsing())
+        //&& Input::GetMouseButtonDown(MOUSE_BUTTON_LEFT)
+        if (!wasInUse && ImGuizmo::IsUsing() )
         {
             wasInUse = true;
+            position.x = transformComp.position.x;
+            position.y = transformComp.position.y;
+            position.z = transformComp.position.z;
         }
         if (wasInUse && !ImGuizmo::IsUsing())
         {
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
             wasInUse = false;
-            if (moveType == MOVETYPE::MOVE_X)
-            {
-                float x = transformComp.position.y;
-                float y = transformComp.position.y;
-                float z = transformComp.position.z;
-                //glm::vec3(x1,y,z)
-                CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&transformComp, newTranslation]() {transformComp.position = glm::make_vec3(newTranslation); },
-                    [&transformComp,x,y,z]() {transformComp.position = glm::vec3(x,y,z); }));
-            }
+            CommandManager::Execute(std::make_unique<ActionCommand>(
+                [&transformComp, newTranslation]() {transformComp.position = glm::make_vec3(newTranslation); },
+                [&transformComp, x,y,z]() {transformComp.position = glm::vec3(x, y, z); }));
             return;
         }
         transformComp.position = glm::make_vec3(newTranslation);
