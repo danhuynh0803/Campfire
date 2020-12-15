@@ -1951,7 +1951,7 @@ namespace ImGuizmo
       mat.v.position.Set(translation[0], translation[1], translation[2], 1.f);
    }
 
-   void Manipulate(const float *view, const float *projection, OPERATION operation, MODE mode, float *matrix, float *deltaMatrix, float *snap, float *localBounds, float *boundsSnap)
+   void Manipulate(const float *view, const float *projection, OPERATION operation, MODE mode, float *matrix, int& moveType, float *deltaMatrix, float *snap, float *localBounds, float *boundsSnap)
    {
       ComputeContext(view, projection, matrix, mode);
 
@@ -1975,12 +1975,15 @@ namespace ImGuizmo
               {
               case ROTATE:
                   HandleRotation(matrix, deltaMatrix, type, snap);
+                  moveType = type;
                   break;
               case TRANSLATE:
                   HandleTranslation(matrix, deltaMatrix, type, snap);
+                  moveType = type;
                   break;
               case SCALE:
                   HandleScale(matrix, deltaMatrix, type, snap);
+                  moveType = type;
                   break;
               case BOUNDS:
                   break;

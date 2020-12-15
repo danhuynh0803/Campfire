@@ -2,8 +2,29 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Widgets/TransformWidget.h"
 #include "Core/Input.h"
-
+#include "Command/CommandManager.h"
 #include "Scene/Component.h"
+
+enum MOVETYPE
+{
+    NONE,
+    MOVE_X,
+    MOVE_Y,
+    MOVE_Z,
+    MOVE_YZ,
+    MOVE_ZX,
+    MOVE_XY,
+    MOVE_SCREEN,
+    ROTATE_X,
+    ROTATE_Y,
+    ROTATE_Z,
+    ROTATE_SCREEN,
+    SCALE_X,
+    SCALE_Y,
+    SCALE_Z,
+    SCALE_XYZ
+};
+
 
 void TransformWidget::UpdateViewport(uint32_t width, uint32_t height)
 {
@@ -12,12 +33,13 @@ void TransformWidget::UpdateViewport(uint32_t width, uint32_t height)
 
 void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
 {
+
     if (!entity.HasComponent<TransformComponent>())
     {
         // Don't draw Gizmo if transform componenet not present
         return;
     }
-
+    
     ImGuiIO io = ImGui::GetIO();
     if (!io.WantCaptureKeyboard && !Input::GetMouseButtonDown(MOUSE_BUTTON_RIGHT))
     {
@@ -40,25 +62,47 @@ void TransformWidget::EditTransform(Entity& entity, const Camera& editorCamera)
     auto& transformComp = entity.GetComponent<TransformComponent>();
     glm::mat4& transformMat = entity.GetComponent<TransformComponent>();
     float* transform = const_cast<float*>(glm::value_ptr(transformMat));
-
+    int moveType;
     ImGuizmo::Manipulate(
         viewMatrix,
         projMatrix,
         operation,
         mode,
         transform,
+        moveType,
         nullptr,                                // delta matrix
         isSnapOn ? &snap[0] : nullptr,          // snap
         boundSizing ? bounds : NULL,            // local bounds
         boundSizingSnap ? boundsSnap : NULL     // bounds snap
     );
-
-    // Update transform component's data
+    if (!ImGuizmo::IsOver || moveType == MOVETYPE::NONE) return;
+    static bool wasInUse = false;
     float newTranslation[3], newRotation[3], newScale[3];
     ImGuizmo::DecomposeMatrixToComponents(transform, newTranslation, newRotation, newScale);
-    transformComp.position = glm::make_vec3(newTranslation);
-    transformComp.euler = glm::make_vec3(newRotation);
-    transformComp.scale    = glm::make_vec3(newScale);
+    
+    if (moveType == MOVETYPE::MOVE_X)
+    {
+        if (!wasInUse && ImGuizmo::IsUsing())
+        {
+            wasInUse = true;
+        }
+        if (wasInUse && !ImGuizmo::IsUsing())
+        {
+            wasInUse = false;
+            if (moveType == MOVETYPE::MOVE_X)
+            {
+                float x = transformComp.position.y;
+                float y = transformComp.position.y;
+                float z = transformComp.position.z;
+                //glm::vec3(x1,y,z)
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&transformComp, newTranslation]() {transformComp.position = glm::make_vec3(newTranslation); },
+                    [&transformComp,x,y,z]() {transformComp.position = glm::vec3(x,y,z); }));
+            }
+            return;
+        }
+        transformComp.position = glm::make_vec3(newTranslation);
+    }
 }
 
 void TransformWidget::ShowTransformSettings(bool* isOpen)
