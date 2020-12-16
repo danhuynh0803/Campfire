@@ -48,7 +48,8 @@ void InspectorWidget::ShowEntity(Entity& entity)
         }
         if (ImGui::IsItemDeactivatedAfterEdit())
         {
-            //LOG_INFO("OrigTag = {0} \t NewTag = {1}", origTag, tagComp.tag);
+            //TODO : handle control z conflicts
+            //CommandManager::Execute(std::make_unique<ImGuiStringCommand>(tagComp.tag, origTag, tagComp.tag));
         }
         ImGui::Separator();
     }
@@ -578,7 +579,9 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 std::string path = FileSystem::OpenFile("*.lua");
                 if (!path.empty())
                 {
-                    sc.filepath = path;
+                    CommandManager::Execute(std::make_unique<ActionCommand>(
+                        [&sc,path]() {sc.filepath = path; },
+                        [&sc,filename]() {sc.filepath = filename; }));
                 }
             }
 
@@ -801,7 +804,10 @@ void InspectorWidget::ShowComponentOptionsMenu(Entity& entity)
     {
         if (ImGui::MenuItem("Remove Component"))
         {
-            entity.RemoveComponent<T>();
+            //TODO: add the setting restoration capability
+            //CommandManager::Execute(std::make_unique<ActionCommand>(
+            //    [&entity]() {entity.RemoveComponent<T>(); },
+            //    [&entity]() {entity.AddComponent<T>();}));
         }
     }
     if (ImGui::MenuItem("Copy Component"))

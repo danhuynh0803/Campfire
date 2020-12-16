@@ -13,7 +13,7 @@ public:
 };
 #endif //COMMAND_H
 
-//ImGui Command modifiy toggle value, between the new and the old, at the target reference directly.
+//ImGui Command toggle value, between the new and the old, at the target reference directly.
 class ImGuiFloatCommand : public Command
 {
 public:
@@ -130,7 +130,10 @@ public:
         previousValue = previous;
         currentValue = current;
     }
-    void Execute() {};
+    void Execute() 
+    {
+        target = static_cast<T>(currentValue);
+    };
     void Undo()
     {
         target = static_cast<T>(previousValue);
