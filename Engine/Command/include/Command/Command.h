@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 #include <functional>
-#include "Physics/Rigidbody.h"
 
 class Command
 {
@@ -96,15 +95,18 @@ private:
 };
 
 template<typename T>
-class ImGuiCommand : public Command
+class GenericCommand : public Command
 {
 public:
-    ImGuiCommand(T& target, const T& previous, const T& current) :target(target)
+    GenericCommand(T& target, const T& previous, const T& current) :target(target)
     {
         previousValue = previous;
         currentValue = current;
     }
-    void Execute() {};
+    void Execute() 
+    {
+        target = currentValue;
+    }
     void Undo()
     {
         target = previousValue;
@@ -112,6 +114,30 @@ public:
     void Redo()
     {
         target = currentValue;
+    }
+private:
+    T& target;
+    T previousValue;
+    T currentValue;
+};
+
+template<typename T>
+class EnumCommand : public Command
+{
+public:
+    EnumCommand(T& target, const int& previous, const int& current) :target(target)
+    {
+        previousValue = previous;
+        currentValue = current;
+    }
+    void Execute() {};
+    void Undo()
+    {
+        target = static_cast<T>(previousValue);
+    }
+    void Redo()
+    {
+        target = static_cast<T>(currentValue);
     }
 private:
     T& target;
