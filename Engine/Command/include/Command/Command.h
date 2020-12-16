@@ -13,6 +13,7 @@ public:
 };
 #endif //COMMAND_H
 
+//ImGui Command modifiy toggle value, between the new and the old, at the target reference directly.
 class ImGuiFloatCommand : public Command
 {
 public:
