@@ -316,7 +316,9 @@ void InspectorWidget::ShowEntity(Entity& entity)
             ImGui::Combo("Type", &currType, bodyTypes, IM_ARRAYSIZE(bodyTypes));
             //ImGui::SameLine(); HelpMarker("Static for non-movable objects. Kinematic for objects that player will move. Dynamic for objects that are moved by the engine.\n");
             rigidbody->type = static_cast<Rigidbody::BodyType>(currType);
-
+            static float oldMass;
+            static float oldDrag;
+            static float oldAngularDrag;
             ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
             ImGui::DragFloat("Drag", &rigidbody->drag, 0.1f);
             ImGui::DragFloat("Angular Drag", &rigidbody->angularDrag, 0.1f);
@@ -590,7 +592,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
     {
         if (ImGui::MenuItem("Audio"))
         {
-            entity.AddComponent<AudioComponent>();
+            CommandManager::Execute(std::make_unique<ActionCommand>(
+                [&entity]() {entity.AddComponent<AudioComponent>(); },
+                [&entity]() {entity.RemoveComponent<AudioComponent>(); }));
         }
     }
 
@@ -600,7 +604,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         {
             if (ImGui::MenuItem("Particle System"))
             {
-                entity.AddComponent<ParticleSystemComponent>();
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {entity.AddComponent<ParticleSystemComponent>(); },
+                    [&entity]() {entity.RemoveComponent<ParticleSystemComponent>(); }));
             }
         }
         ImGui::EndMenu();
@@ -611,7 +617,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
     {
         if (ImGui::MenuItem("Mesh"))
         {
-            entity.AddComponent<MeshComponent>();
+            CommandManager::Execute(std::make_unique<ActionCommand>(
+                [&entity]() {entity.AddComponent<MeshComponent>(); },
+                [&entity]() {entity.RemoveComponent<MeshComponent>(); }));
         }
         else if (ImGui::MenuItem("Sprite"))
         {
@@ -625,7 +633,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         {
             if (ImGui::MenuItem("Rigidbody"))
             {
-                entity.AddComponent<RigidbodyComponent>();
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {entity.AddComponent<RigidbodyComponent>(); },
+                    [&entity]() {entity.RemoveComponent<RigidbodyComponent>(); }));
             }
         }
 
@@ -641,7 +651,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         {
             if (!entity.HasComponent<Colliders>())
             {
-                entity.AddComponent<Colliders>();
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {entity.AddComponent<Colliders>(); },
+                    [&entity]() {entity.RemoveComponent<Colliders>(); }));
             }
 
             // TODO 2D collider shapes
@@ -702,7 +714,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
 
             if (ImGui::MenuItem("New Script"))
             {
-                entity.AddComponent<ScriptComponent>();
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {entity.AddComponent<CameraComponent>(); },
+                    [&entity]() {entity.RemoveComponent<CameraComponent>(); }));
             }
 
             ImGui::EndMenu();
@@ -713,7 +727,9 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
     {
         if (ImGui::MenuItem("Camera"))
         {
-            entity.AddComponent<CameraComponent>();
+            CommandManager::Execute(std::make_unique<ActionCommand>(
+                [&entity]() {entity.AddComponent<CameraComponent>(); },
+                [&entity]() {entity.RemoveComponent<CameraComponent>(); }));
         }
     }
 }
