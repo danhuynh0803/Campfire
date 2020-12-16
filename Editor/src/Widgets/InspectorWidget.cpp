@@ -319,29 +319,74 @@ void InspectorWidget::ShowEntity(Entity& entity)
             static float oldMass;
             static float oldDrag;
             static float oldAngularDrag;
+            static bool oldUseGravity;
             ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
+            if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+            {
+                oldMass = rigidbody->mass;
+            }
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                CommandManager::Execute(std::make_unique<ImGuiFloatCommand>(rigidbody->mass, oldMass, rigidbody->mass));
+            }
             ImGui::DragFloat("Drag", &rigidbody->drag, 0.1f);
+            if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+            {
+                oldDrag = rigidbody->drag;
+            }
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                CommandManager::Execute(std::make_unique<ImGuiFloatCommand>(rigidbody->drag, oldDrag, rigidbody->drag));
+            }
             ImGui::DragFloat("Angular Drag", &rigidbody->angularDrag, 0.1f);
-            ImGui::Checkbox("Use Gravity", &rigidbody->useGravity);
-
+            if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+            {
+                oldAngularDrag = rigidbody->angularDrag;
+            }
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                CommandManager::Execute(std::make_unique<ImGuiFloatCommand>(rigidbody->angularDrag, oldAngularDrag, rigidbody->angularDrag));
+            }
+            if (ImGui::Checkbox("Use Gravity", &rigidbody->useGravity))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->useGravity));
+            }
             ImGui::PushID(0);
             ImGui::Text("Freeze Position");
             ImGui::SameLine();
-            ImGui::Checkbox("X", &rigidbody->freezePosition[0]);
+            if (ImGui::Checkbox("X", &rigidbody->freezePosition[0]))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezePosition[0]));
+            }
             ImGui::SameLine();
-            ImGui::Checkbox("Y", &rigidbody->freezePosition[1]);
+            if (ImGui::Checkbox("Y", &rigidbody->freezePosition[1]))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezePosition[1]));
+            }
             ImGui::SameLine();
-            ImGui::Checkbox("Z", &rigidbody->freezePosition[2]);
+            if (ImGui::Checkbox("Z", &rigidbody->freezePosition[2]))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezePosition[2]));
+            }
             ImGui::PopID();
 
             ImGui::PushID(1);
             ImGui::Text("Freeze Rotation");
             ImGui::SameLine();
-            ImGui::Checkbox("X", &rigidbody->freezeRotation[0]);
+            if (ImGui::Checkbox("X", &rigidbody->freezeRotation[0]))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezeRotation[0]));
+            }
             ImGui::SameLine();
-            ImGui::Checkbox("Y", &rigidbody->freezeRotation[1]);
+            if (ImGui::Checkbox("Y", &rigidbody->freezeRotation[1]))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezeRotation[1]));
+            }
             ImGui::SameLine();
-            ImGui::Checkbox("Z", &rigidbody->freezeRotation[2]);
+            if (ImGui::Checkbox("Z", &rigidbody->freezeRotation[2]))
+            {
+                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezeRotation[2]));
+            }
             ImGui::PopID();
 
             if (ImGui::BeginPopup("ComponentOptionsPopup"))

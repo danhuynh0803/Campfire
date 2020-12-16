@@ -81,18 +81,16 @@ private:
 class ImGuiBoolCommand : public Command
 {
 public:
-    ImGuiBoolCommand(bool& target, const bool& previous, const bool& current) :target(target)
+    ImGuiBoolCommand(bool& target) :target(target) 
     {
-        previousValue = previous;
-        currentValue = current;
+        value = target;
     }
     void Execute() {};
-    void Undo(){target = previousValue;}
-    void Redo(){target = currentValue;}
+    void Undo(){ target = !value;}
+    void Redo(){ target = value;}
 private:
     bool& target;
-    bool previousValue;
-    bool currentValue;
+    bool value;
 };
 
 class ActionCommand : public Command
