@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <functional>
+#include "Physics/Rigidbody.h"
 
 class Command
 {
@@ -92,6 +93,30 @@ public:
 private:
     bool& target;
     bool value;
+};
+
+template<typename T>
+class ImGuiCommand : public Command
+{
+public:
+    ImGuiCommand(T& target, const T& previous, const T& current) :target(target)
+    {
+        previousValue = previous;
+        currentValue = current;
+    }
+    void Execute() {};
+    void Undo()
+    {
+        target = previousValue;
+    }
+    void Redo()
+    {
+        target = currentValue;
+    }
+private:
+    T& target;
+    int previousValue;
+    int currentValue;
 };
 
 class ActionCommand : public Command

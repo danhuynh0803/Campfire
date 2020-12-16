@@ -312,10 +312,16 @@ void InspectorWidget::ShowEntity(Entity& entity)
             auto& rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
 
             const char* bodyTypes[] = {"Static", "Kinematic", "Dynamic"};
+            int previousType = static_cast<int>(rigidbody->type);
             int currType = static_cast<int>(rigidbody->type);
-            ImGui::Combo("Type", &currType, bodyTypes, IM_ARRAYSIZE(bodyTypes));
+            if(ImGui::Combo("Type", &currType, bodyTypes, IM_ARRAYSIZE(bodyTypes)))
+            {
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&rigidbody, currType]() {rigidbody->type = static_cast<Rigidbody::BodyType>(currType); },
+                    [&rigidbody, previousType]() {rigidbody->type = static_cast<Rigidbody::BodyType>(previousType); }));
+            }
             //ImGui::SameLine(); HelpMarker("Static for non-movable objects. Kinematic for objects that player will move. Dynamic for objects that are moved by the engine.\n");
-            rigidbody->type = static_cast<Rigidbody::BodyType>(currType);
+
             static float oldMass;
             static float oldDrag;
             static float oldAngularDrag;
