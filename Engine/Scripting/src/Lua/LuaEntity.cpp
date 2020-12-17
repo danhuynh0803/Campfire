@@ -74,7 +74,7 @@ int LuaEntity::EntityDestroy(lua_State* L)
 
 int LuaEntity::OtherEntityDestroy(lua_State* L)
 {
-    LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
+    //LuaScript* script = (LuaScript*)lua_touserdata(L, lua_upvalueindex(1));
     Entity* entity = (Entity*)lua_touserdata(L, lua_upvalueindex(2));
     entity->AddComponent<Destroy>();
     return 0;

@@ -124,10 +124,25 @@ void InspectorWidget::ShowEntity(Entity& entity)
             SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>();
 
             const char* clearFlags[] = { "Skybox", "Solid Color", "Depth Only", "Don't Clear" };
+            auto previousClearFlag = static_cast<int>(camera->clearFlag);
             auto currClearFlag = static_cast<int>(camera->clearFlag);
-            ImGui::Combo("Clear Flags", &currClearFlag, clearFlags, IM_ARRAYSIZE(clearFlags));
-            camera->clearFlag = static_cast<ClearFlag>(currClearFlag);
-
+            if(ImGui::Combo("Clear Flags", &currClearFlag, clearFlags, IM_ARRAYSIZE(clearFlags)))
+            {
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity, currClearFlag]() {
+                        if (entity.IsValid() && entity.HasComponent<CameraComponent>())
+                        {
+                            entity.GetComponent<CameraComponent>().camera->clearFlag = static_cast<ClearFlag>(currClearFlag);
+                        }
+                    },
+                    [&entity, previousClearFlag]() {
+                        if (entity.IsValid() && entity.HasComponent<CameraComponent>())
+                        {
+                            entity.GetComponent<CameraComponent>().camera->clearFlag = static_cast<ClearFlag>(previousClearFlag);
+                        }
+                    }));
+            }
+            glm::vec4 oldColor = camera->backgroundColor;
             ImGui::ColorEdit4("Background", (float*)&camera->backgroundColor);
             bool prevState = camera->isPerspective;
             ImGui::Checkbox("Is Perspective", &camera->isPerspective);
@@ -647,8 +662,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Audio"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<AudioComponent>(); },
-                [&entity]() {entity.RemoveComponent<AudioComponent>(); }));
+                [&entity]() {if (entity.IsValid())entity.AddComponent<AudioComponent>(); },
+                [&entity]() {if (entity.IsValid())entity.RemoveComponent<AudioComponent>(); }));
         }
     }
 
@@ -659,8 +674,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("Particle System"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<ParticleSystemComponent>(); },
-                    [&entity]() {entity.RemoveComponent<ParticleSystemComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<ParticleSystemComponent>(); },
+                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<ParticleSystemComponent>(); }));
             }
         }
         ImGui::EndMenu();
@@ -672,12 +687,14 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Mesh"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<MeshComponent>(); },
-                [&entity]() {entity.RemoveComponent<MeshComponent>(); }));
+                [&entity]() {if (entity.IsValid())entity.AddComponent<MeshComponent>(); },
+                [&entity]() {if (entity.IsValid())entity.RemoveComponent<MeshComponent>(); }));
         }
         else if (ImGui::MenuItem("Sprite"))
         {
-            entity.AddComponent<SpriteComponent>();
+            CommandManager::Execute(std::make_unique<ActionCommand>(
+                [&entity]() {if (entity.IsValid())entity.AddComponent<SpriteComponent>(); },
+                [&entity]() {if (entity.IsValid())entity.RemoveComponent<SpriteComponent>(); }));
         }
     }
 
@@ -688,8 +705,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("Rigidbody"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<RigidbodyComponent>(); },
-                    [&entity]() {entity.RemoveComponent<RigidbodyComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<RigidbodyComponent>(); },
+                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<RigidbodyComponent>(); }));
             }
         }
 
@@ -706,8 +723,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (!entity.HasComponent<Colliders>())
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<Colliders>(); },
-                    [&entity]() {entity.RemoveComponent<Colliders>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<Colliders>(); },
+                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<Colliders>(); }));
             }
 
             // TODO 2D collider shapes
@@ -742,8 +759,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Light"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<LightComponent>(); },
-                [&entity]() {entity.RemoveComponent<LightComponent>(); }));
+                [&entity]() {if(entity.IsValid())entity.AddComponent<LightComponent>(); },
+                [&entity]() {if(entity.IsValid())entity.RemoveComponent<LightComponent>(); }));
         }
     }
 
@@ -769,8 +786,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("New Script"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<CameraComponent>(); },
-                    [&entity]() {entity.RemoveComponent<CameraComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<CameraComponent>(); },
+                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<CameraComponent>(); }));
             }
 
             ImGui::EndMenu();
@@ -782,8 +799,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Camera"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<CameraComponent>(); },
-                [&entity]() {entity.RemoveComponent<CameraComponent>(); }));
+                [&entity]() {if (entity.IsValid())entity.AddComponent<CameraComponent>(); },
+                [&entity]() {if (entity.IsValid())entity.RemoveComponent<CameraComponent>(); }));
         }
     }
 }
