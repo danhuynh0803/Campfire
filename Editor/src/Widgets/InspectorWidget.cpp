@@ -42,15 +42,15 @@ void InspectorWidget::ShowEntity(Entity& entity)
         auto& tagComp = entity.GetComponent<TagComponent>();
         static std::string origTag;
         ImGui::InputText("Name", &tagComp.tag);
-        if (ImGui::IsItemActivated())
-        {
-            origTag = tagComp.tag;
-        }
-        if (ImGui::IsItemDeactivatedAfterEdit())
-        {
-            //TODO : handle control z conflicts
-            //CommandManager::Execute(std::make_unique<ImGuiStringCommand>(tagComp.tag, origTag, tagComp.tag));
-        }
+        //if (ImGui::IsItemActivated())
+        //{
+        //    origTag = tagComp.tag;
+        //}
+        //if (ImGui::IsItemDeactivatedAfterEdit())
+        //{
+        //    //TODO : handle control z conflicts
+        //    //CommandManager::Execute(std::make_unique<ImGuiStringCommand>(tagComp.tag, origTag, tagComp.tag));
+        //}
         ImGui::Separator();
     }
 
@@ -76,8 +76,25 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.position, oldPos, transform.position));
+                //cannot bind static variables...
+                //cannot pass these value by reference neither....
+                glm::vec3 tempOldPos = oldPos;
+                glm::vec3 tempNewPos = transform.position;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewPos]() {
+                    if (entity.IsValid())
+                    {
+                        entity.GetComponent<TransformComponent>().position = tempNewPos;
+                    }
+                },
+                    [&entity, tempOldPos]() {
+                    if (entity.IsValid())
+                    {
+                        entity.GetComponent<TransformComponent>().position = tempOldPos;
+                    }
+                }));
             }
+
             ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
@@ -85,7 +102,21 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.euler, oldEuler, transform.euler));
+                glm::vec3 tempOldRotation = oldEuler;
+                glm::vec3 tempNewRotation = transform.euler;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewRotation]() {
+                    if (entity.IsValid())
+                    {
+                        entity.GetComponent<TransformComponent>().euler = tempNewRotation;
+                    }
+                },
+                    [&entity, tempOldRotation]() {
+                    if (entity.IsValid())
+                    {
+                        entity.GetComponent<TransformComponent>().euler = tempOldRotation;
+                    }
+                }));
             }
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
@@ -94,7 +125,21 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.scale, oldScale, transform.scale));
+                glm::vec3 tempOldScale = oldScale;
+                glm::vec3 tempNewScale = transform.scale;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewScale]() {
+                    if (entity.IsValid())
+                    {
+                        entity.GetComponent<TransformComponent>().scale = tempNewScale;
+                    }
+                },
+                    [&entity, tempOldScale]() {
+                    if (entity.IsValid())
+                    {
+                        entity.GetComponent<TransformComponent>().scale = tempOldScale;
+                    }
+                }));
             }
 
             // NOTE: Popup should be put after the inspector options
