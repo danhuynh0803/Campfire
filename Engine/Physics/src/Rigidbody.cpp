@@ -1,3 +1,6 @@
+#include "..\include\Physics\Rigidbody.h"
+#include "..\include\Physics\Rigidbody.h"
+#include "..\include\Physics\Rigidbody.h"
 #include "Physics/Rigidbody.h"
 #include "Physics/PhysicsManager.h"
 #include "Scene/Component.h"
@@ -28,6 +31,21 @@ void Rigidbody::SetTransform(const TransformComponent& transformComp)
     bulletRigidbody->setWorldTransform(transform);
     bulletRigidbody->getMotionState()->setWorldTransform(transform);
     bulletRigidbody->setCenterOfMassTransform(transform);
+}
+
+void Rigidbody::ToggleGravity()
+{
+    useGravity = !useGravity;
+}
+
+void Rigidbody::ToggleFreezePositon(int i)
+{
+    freezePosition[i] = !freezePosition[i];
+}
+
+void Rigidbody::ToggleFreezeRotation(int i)
+{
+    freezeRotation[i] = !freezeRotation[i];
 }
 
 void Rigidbody::Construct(const glm::vec3& pos, const glm::vec3& euler, const glm::vec3& scale, btCollisionShape* shape)

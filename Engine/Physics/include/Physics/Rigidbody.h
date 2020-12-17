@@ -18,7 +18,9 @@ public:
     void AddVelocity(glm::vec3 velocity);
     glm::vec3 GetVelocity();
     void SetTransform(const TransformComponent& transformComp);
-
+    void ToggleGravity();
+    void ToggleFreezePositon(int);
+    void ToggleFreezeRotation(int);
 public:
     enum class BodyType
     {
