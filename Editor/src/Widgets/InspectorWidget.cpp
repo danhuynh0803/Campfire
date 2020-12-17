@@ -811,7 +811,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
                 [&entity]() {if (entity.IsValid())entity.AddComponent<AudioComponent>(); },
-                [&entity]() {if (entity.IsValid())entity.RemoveComponent<AudioComponent>(); }));
+                [&entity]() {if (entity.IsValid() && entity.HasComponent<AudioComponent>())entity.RemoveComponent<AudioComponent>(); }));
         }
     }
 
@@ -823,7 +823,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
                     [&entity]() {if (entity.IsValid())entity.AddComponent<ParticleSystemComponent>(); },
-                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<ParticleSystemComponent>(); }));
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<ParticleSystemComponent>())entity.RemoveComponent<ParticleSystemComponent>(); }));
             }
         }
         ImGui::EndMenu();
@@ -836,13 +836,13 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
                 [&entity]() {if (entity.IsValid())entity.AddComponent<MeshComponent>(); },
-                [&entity]() {if (entity.IsValid())entity.RemoveComponent<MeshComponent>(); }));
+                [&entity]() {if (entity.IsValid() && entity.HasComponent<MeshComponent>())entity.RemoveComponent<MeshComponent>(); }));
         }
         else if (ImGui::MenuItem("Sprite"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
                 [&entity]() {if (entity.IsValid())entity.AddComponent<SpriteComponent>(); },
-                [&entity]() {if (entity.IsValid())entity.RemoveComponent<SpriteComponent>(); }));
+                [&entity]() {if (entity.IsValid() && entity.HasComponent<SpriteComponent>())entity.RemoveComponent<SpriteComponent>(); }));
         }
     }
 
@@ -854,7 +854,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
                     [&entity]() {if (entity.IsValid())entity.AddComponent<RigidbodyComponent>(); },
-                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<RigidbodyComponent>(); }));
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())entity.RemoveComponent<RigidbodyComponent>(); }));
             }
         }
 
@@ -872,7 +872,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
                     [&entity]() {if (entity.IsValid())entity.AddComponent<Colliders>(); },
-                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<Colliders>(); }));
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<Colliders>())entity.RemoveComponent<Colliders>(); }));
             }
 
             // TODO 2D collider shapes
@@ -908,7 +908,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
                 [&entity]() {if(entity.IsValid())entity.AddComponent<LightComponent>(); },
-                [&entity]() {if(entity.IsValid())entity.RemoveComponent<LightComponent>(); }));
+                [&entity]() {if(entity.IsValid() && entity.HasComponent<LightComponent>())entity.RemoveComponent<LightComponent>(); }));
         }
     }
 
@@ -934,8 +934,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("New Script"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {if (entity.IsValid())entity.AddComponent<CameraComponent>(); },
-                    [&entity]() {if (entity.IsValid())entity.RemoveComponent<CameraComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<ScriptComponent>(); },
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<ScriptComponent>())entity.RemoveComponent<ScriptComponent>(); }));
             }
 
             ImGui::EndMenu();
