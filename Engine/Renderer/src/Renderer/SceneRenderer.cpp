@@ -95,46 +95,27 @@ void SceneRenderer::EndScene()
 
 void SceneRenderer::SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform, SharedPtr<MaterialInstance> overrideMaterial)
 {
-    if (overrideMaterial)
+    auto submeshes = mesh->GetSubmeshes();
+    for (int i = 0; i < submeshes.size(); ++i)
     {
-        overrideMaterial->GetShader()->Bind();
-        overrideMaterial->GetShader()->SetMat4("model", transform);
-        overrideMaterial->Bind();
-    }
-    else
-    {
-        shader->Bind();
-        shader->SetMat4("model", transform);
-    }
+        auto submesh = submeshes.at(i);
 
-    //texCube->Bind(5);
-
-    // TODO Replace with Materials
-    for (auto submesh : mesh->GetSubmeshes())
-    {
-        // Load default white texture of model had no textures
-        if (submesh.textures.size() == 0)
+        if (overrideMaterial)
         {
-            //LOG_WARN("{0}::Warning: No material found, defaulting to white texture", mesh->GetName());
-            //shader->SetFloat("texDiffuse", 0);
-            //whiteTexture->Bind();
+            overrideMaterial->GetShader()->Bind();
+            overrideMaterial->GetShader()->SetMat4("model", transform);
+            overrideMaterial->Bind();
         }
         else
         {
-//            for(size_t i = 0; i < submesh.textures.size(); ++i)
-//            {
-//                auto texture = submesh.textures[i];
-//                if (texture)
-//                {
-//                    shader->SetFloat("texDiffuse", i);
-//                    submesh.textures[i]->Bind(i);
-//                }
-//            }
+            auto mat = mesh->GetMaterialInstance(i);
+            mat->GetShader()->Bind();
+            mat->GetShader()->SetMat4("model", transform);
+            mat->Bind();
         }
 
         RenderCommand::DrawIndexed(submesh.vertexArray);
     }
-
 }
 
 void SceneRenderer::OnWindowResize(uint32_t width, uint32_t height)

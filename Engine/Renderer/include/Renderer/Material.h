@@ -12,6 +12,7 @@ class Material
 public:
     virtual void Bind() const = 0;
     virtual void OnImGuiRender() = 0;
+    std::string name;
 };
 
 class MaterialInstance : public Material

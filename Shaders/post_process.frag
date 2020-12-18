@@ -18,7 +18,8 @@ void main()
 
     //color = color / (color + vec3(1.0f));
     //color = pow(color, vec3(1.0f/2.2f));
-    fragColor = vec4(vec3(1.0f) - color, 1.0f);
+    //fragColor = vec4(vec3(1.0f) - color, 1.0f);
+    fragColor = vec4(color, 1.0f);
 
     // apply gamma correction
     //vec3 result = vec3(1.0f) - exp(-color * exposure);

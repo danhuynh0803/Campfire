@@ -111,8 +111,6 @@ void PbrMaterial::OnImGuiRender()
     ImGui::SameLine(); ImGui::ColorEdit4("Albedo", (float*)&color);
     //==============================================
 
-    ImGui::Separator();
-
     //==============================================
     // Normals
     ImGui::PushID(id);
@@ -130,8 +128,6 @@ void PbrMaterial::OnImGuiRender()
     ImGui::SameLine();
     ImGui::Text("Normals");
     //==============================================
-
-    ImGui::Separator();
 
     //==============================================
     // Metallic
@@ -151,8 +147,6 @@ void PbrMaterial::OnImGuiRender()
     ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f);
     //==============================================
 
-    ImGui::Separator();
-
     //==============================================
     // Roughness
     ImGui::PushID(id);
@@ -171,8 +165,6 @@ void PbrMaterial::OnImGuiRender()
     ImGui::SliderFloat("Roughness", &roughness, 0.01f, 1.0f);
     //==============================================
 
-    ImGui::Separator();
-
     //==============================================
     // Occlusion
     ImGui::PushID(id);
@@ -190,5 +182,8 @@ void PbrMaterial::OnImGuiRender()
     ImGui::SameLine();
     ImGui::SliderFloat("Occlusion", &ao, 0.0f, 1.0f);
     //==============================================
+
+
+    // Emmission
 }
 

@@ -198,7 +198,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
 
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {
-                ShowComponentOptionsMenu<MeshComponent>(entity);
+                ShowComponentOptionsMenu<TextComponent>(entity);
                 ImGui::EndPopup();
             }
 
@@ -233,21 +233,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
 
             if (mesh)
             {
-                ImGui::Text(mesh->GetName().c_str());
-
-                if (meshComp.material)
-                {
-                    ImGui::Separator();
-
-                    ImGui::SetNextItemOpen(false, ImGuiCond_Once);
-                    if (ImGui::TreeNode("Material"))
-                    {
-                        auto& material = meshComp.material;
-                        material->OnImGuiRender();
-
-                        ImGui::TreePop();
-                    }
-                }
+                mesh->OnImGuiRender();
             }
             else
             {

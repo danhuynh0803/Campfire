@@ -475,11 +475,11 @@ void Scene::OnRender(float dt, const Camera& camera)
 
                     transform = glm::scale(transform, scale);
 
-                    SceneRenderer::SubmitMesh(meshComponent, transform, meshComponent.material);
+                    SceneRenderer::SubmitMesh(meshComponent, transform);
                 }
                 else
                 {
-                    SceneRenderer::SubmitMesh(meshComponent, transformComponent, meshComponent.material);
+                    SceneRenderer::SubmitMesh(meshComponent, transformComponent);
                 }
             }
         }

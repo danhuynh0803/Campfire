@@ -15,6 +15,8 @@
 #include "Core/Base.h"
 #include "Util/AABB.h"
 
+class MaterialInstance;
+
 struct Vertex
 {
     glm::vec3 position;
@@ -26,7 +28,7 @@ struct Vertex
 
 struct Submesh
 {
-    Submesh(std::vector<Vertex> v, std::vector<uint32_t> i, std::vector<SharedPtr<Texture>> t)
+    Submesh(std::vector<Vertex> v, std::vector<uint32_t> i, std::vector<SharedPtr<Texture2D>> t)
         : vertices(v), indices(i), textures(t)
     {
         // Load render data
@@ -64,7 +66,7 @@ struct Submesh
     SharedPtr<VertexArray> vertexArray;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::vector<SharedPtr<Texture>> textures;
+    std::vector<SharedPtr<Texture2D>> textures;
     AABB boundingBox;
 };
 
@@ -80,20 +82,22 @@ public:
 
     //SharedPtr<VertexArray> GetVertexArray() { return vertexArray; }
     std::vector<Submesh>& GetSubmeshes() { return submeshes; }
-
+    SharedPtr<MaterialInstance> GetMaterialInstance(uint32_t index) { return materials.at(index); }
     std::string GetFilePath() { return filepath; }
     std::string GetName() const { return name; }
+    void OnImGuiRender();
 
 private:
     void LoadModel(const std::string& path);
     void ProcessNode(aiNode* node, const aiScene* scene);
     Submesh LoadSubmesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<SharedPtr<Texture>> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
+    std::vector<SharedPtr<Texture2D>> LoadMaterialTextures(aiMaterial* mat, aiTextureType type);
 private:
     std::vector<Submesh> submeshes;
     std::string filepath;
     std::string name;
     std::string directory;
+    std::vector<SharedPtr<MaterialInstance>> materials;
 
 private: // assimp related
     //Assimp::Importer importer;

@@ -125,8 +125,6 @@ struct MeshComponent
     MeshComponent(const std::string& meshPath)
     {
         mesh = Mesh::Create(meshPath);
-        // TODO should get material from the .mtl file
-        material = MaterialInstance::Create(MaterialInstance::Type::PBR);
     }
 
     MeshComponent(Geometry geometry)
@@ -152,7 +150,6 @@ struct MeshComponent
                 mesh = Mesh::Create(ASSETS + "/Models/primitives/cylinder.fbx");
                 break;
         }
-        material = MaterialInstance::Create(MaterialInstance::Type::PBR);
     }
 
     void Reset()
@@ -160,7 +157,6 @@ struct MeshComponent
     }
 
     SharedPtr<Mesh> mesh;
-    SharedPtr<MaterialInstance> material;
 
     operator SharedPtr<Mesh>& () { return mesh; }
 };

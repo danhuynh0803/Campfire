@@ -1,8 +1,9 @@
 #include "Renderer/Mesh.h"
 #include "Core/ResourceManager.h"
 #include "Util/AABB.h"
+#include "Renderer/Material.h"
 
-std::vector<SharedPtr<Texture>> textureCache;
+std::vector<SharedPtr<Texture2D>> textureCache;
 
 SharedPtr<Mesh> Mesh::Create(const std::string& filename)
 {
@@ -70,7 +71,7 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::vector<SharedPtr<Texture>> textures;
+    std::vector<SharedPtr<Texture2D>> textures;
     AABB aabb;
     aabb.mMin = { FLT_MAX, FLT_MAX, FLT_MAX };
     aabb.mMax = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
@@ -127,39 +128,103 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
+    // TODO default to pbr as the standard material
+    SharedPtr<MaterialInstance> material = MaterialInstance::Create(MaterialInstance::Type::PBR);
+    material->name = mesh->mName.C_Str();
     if (mesh->mMaterialIndex >= 0)
     {
-        // TODO check if there exists Albedo, specular, normal, bump maps, etc
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<SharedPtr<Texture>> diffuseMaps = LoadMaterialTextures(material,
-                aiTextureType_DIFFUSE, "texture_diffuse");
+        aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
 
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        // TODO check what type of material it is, to assign the proper material instance
+        // Default to use pbr material for now;
+        //if (mesh->type)
 
-        std::vector<SharedPtr<Texture>> specularMaps = LoadMaterialTextures(
-                material, aiTextureType_SPECULAR, "texture_specular");
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        auto mat = std::dynamic_pointer_cast<PbrMaterial>(material);
 
-        std::vector<SharedPtr<Texture>> normalMaps = LoadMaterialTextures(
-                material, aiTextureType_NORMALS, "texture_normal");
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+        { // Ambient
+
+        }
+
+        { // Diffuse
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE);
+            if (textures.size() > 0)
+            {
+                mat->albedoMap = textures.at(0);
+                mat->useAlbedoMap = true;
+            }
+        }
+
+        { // Displacement
+
+        }
+
+        { // Emmissive
+
+        }
+
+        { // Height
+
+        }
+
+        { // Lightmap (Ambient Occlusion)
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_LIGHTMAP);
+            if (textures.size() > 0)
+            {
+                mat->ambientOcclusionMap = textures.at(0);
+                mat->useOcclusionMap = true;
+            }
+        }
+
+        { // Normal
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_NORMALS);
+            if (textures.size() > 0)
+            {
+                mat->normalMap = textures.at(0);
+                mat->useNormalMap = true;
+            }
+        }
+
+        { // Opacity
+
+        }
+
+        { // Reflection
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_REFLECTION);
+            if (textures.size() > 0)
+            {
+            }
+        }
+
+        { // Shininess
+
+        }
+
+        { // Specular
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_SPECULAR);
+        }
     }
     else
     {
         CORE_WARN("No Textures associated with {0}", name);
     }
 
+    materials.emplace_back(material);
     Submesh submesh(vertices, indices, textures);
     submesh.boundingBox = aabb;
 
     return submesh;
 }
 
-std::vector<SharedPtr<Texture>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName)
+std::vector<SharedPtr<Texture2D>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTextureType type)
 {
-    std::vector<SharedPtr<Texture>> textures;
+    std::vector<SharedPtr<Texture2D>> textures;
 
-    SharedPtr<Texture> texture;
+    SharedPtr<Texture2D> texture;
     for (size_t i = 0; i < mat->GetTextureCount(type); ++i)
     {
         aiString str;
@@ -188,3 +253,22 @@ std::vector<SharedPtr<Texture>> Mesh::LoadMaterialTextures(aiMaterial* mat, aiTe
 
     return textures;
 }
+
+void Mesh::OnImGuiRender()
+{
+    ImGui::Text(name.c_str());
+
+    ImGui::Separator();
+
+    ImGui::Text("Material List");
+    for (auto& material : materials)
+    {
+        if (ImGui::TreeNode(material->name.c_str()))
+        {
+            material->OnImGuiRender();
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+    }
+}
+
