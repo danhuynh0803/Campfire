@@ -21,7 +21,6 @@ void CommandManager::Init()
 void CommandManager::Execute(UniquePtr<Command> command)
 {
     RedoStack = CommandStack();
-      //design pattern actually wants us to invoke the change here(but ImGUi invokes the change already)
     command->Execute();
     UndoStack.push(std::move(command));
 }

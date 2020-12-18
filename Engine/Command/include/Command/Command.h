@@ -14,6 +14,7 @@ public:
 #endif //COMMAND_H
 
 //ImGui Command toggle value, between the new and the old, at the target reference directly.
+//but the refernece might get deleted when the component or the entity is destoryed
 class ImGuiFloatCommand : public Command
 {
 public:
@@ -60,6 +61,23 @@ private:
     glm::vec3& target;
     glm::vec3 previousValue;
     glm::vec3 currentValue;
+};
+
+class ImGuiFloat4Command : public Command
+{
+public:
+    ImGuiFloat4Command(glm::vec4& target, const glm::vec4& previous, const glm::vec4& current) :target(target)
+    {
+        previousValue = previous;
+        currentValue = current;
+    }
+    void Execute() {};
+    void Undo() { target = previousValue; }
+    void Redo() { target = currentValue; }
+private:
+    glm::vec4& target;
+    glm::vec4 previousValue;
+    glm::vec4 currentValue;
 };
 
 class ImGuiStringCommand : public Command
@@ -156,6 +174,19 @@ public:
     void Execute(){ redo();}
     void Undo(){ undo();}
     void Redo(){ redo();}
+private:
+    std::function<void()> redo;
+    std::function<void()> undo;
+};
+
+class SkippedExecuteActionCommand : public Command
+{
+public:
+    template <typename F, typename G>
+    SkippedExecuteActionCommand(F&& f, G&& g) : redo(std::forward<F>(f)), undo(std::forward<G>(g)) {}
+    void Execute() {}
+    void Undo() { undo(); }
+    void Redo() { redo(); }
 private:
     std::function<void()> redo;
     std::function<void()> undo;

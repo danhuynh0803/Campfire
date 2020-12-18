@@ -42,15 +42,15 @@ void InspectorWidget::ShowEntity(Entity& entity)
         auto& tagComp = entity.GetComponent<TagComponent>();
         static std::string origTag;
         ImGui::InputText("Name", &tagComp.tag);
-        if (ImGui::IsItemActivated())
-        {
-            origTag = tagComp.tag;
-        }
-        if (ImGui::IsItemDeactivatedAfterEdit())
-        {
-            //TODO : handle control z conflicts
-            //CommandManager::Execute(std::make_unique<ImGuiStringCommand>(tagComp.tag, origTag, tagComp.tag));
-        }
+        //if (ImGui::IsItemActivated())
+        //{
+        //    origTag = tagComp.tag;
+        //}
+        //if (ImGui::IsItemDeactivatedAfterEdit())
+        //{
+        //    //TODO : handle control z conflicts
+        //    //CommandManager::Execute(std::make_unique<ImGuiStringCommand>(tagComp.tag, origTag, tagComp.tag));
+        //}
         ImGui::Separator();
     }
 
@@ -76,8 +76,15 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.position, oldPos, transform.position));
+                //cannot bind static variables...
+                //cannot pass these value by reference neither....
+                glm::vec3 tempOldPos = oldPos;
+                glm::vec3 tempNewPos = transform.position;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewPos]() {if (entity.IsValid())entity.GetComponent<TransformComponent>().position = tempNewPos;},
+                    [&entity, tempOldPos]() {if (entity.IsValid())entity.GetComponent<TransformComponent>().position = tempOldPos; }));
             }
+
             ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
@@ -85,7 +92,11 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.euler, oldEuler, transform.euler));
+                glm::vec3 tempOldRotation = oldEuler;
+                glm::vec3 tempNewRotation = transform.euler;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewRotation]() {if (entity.IsValid())entity.GetComponent<TransformComponent>().euler = tempNewRotation;},
+                    [&entity, tempOldRotation]() {if (entity.IsValid())entity.GetComponent<TransformComponent>().euler = tempOldRotation;}));
             }
             ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
@@ -94,7 +105,11 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloat3Command>(transform.scale, oldScale, transform.scale));
+                glm::vec3 tempOldScale = oldScale;
+                glm::vec3 tempNewScale = transform.scale;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewScale]() {if (entity.IsValid())entity.GetComponent<TransformComponent>().scale = tempNewScale;},
+                    [&entity, tempOldScale]() {if (entity.IsValid())entity.GetComponent<TransformComponent>().scale = tempOldScale;}));
             }
 
             // NOTE: Popup should be put after the inspector options
@@ -124,10 +139,25 @@ void InspectorWidget::ShowEntity(Entity& entity)
             SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>();
 
             const char* clearFlags[] = { "Skybox", "Solid Color", "Depth Only", "Don't Clear" };
+            auto previousClearFlag = static_cast<int>(camera->clearFlag);
             auto currClearFlag = static_cast<int>(camera->clearFlag);
-            ImGui::Combo("Clear Flags", &currClearFlag, clearFlags, IM_ARRAYSIZE(clearFlags));
-            camera->clearFlag = static_cast<ClearFlag>(currClearFlag);
-
+            if(ImGui::Combo("Clear Flags", &currClearFlag, clearFlags, IM_ARRAYSIZE(clearFlags)))
+            {
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity, currClearFlag]() {
+                        if (entity.IsValid() && entity.HasComponent<CameraComponent>())
+                        {
+                            entity.GetComponent<CameraComponent>().camera->clearFlag = static_cast<ClearFlag>(currClearFlag);
+                        }
+                    },
+                    [&entity, previousClearFlag]() {
+                        if (entity.IsValid() && entity.HasComponent<CameraComponent>())
+                        {
+                            entity.GetComponent<CameraComponent>().camera->clearFlag = static_cast<ClearFlag>(previousClearFlag);
+                        }
+                    }));
+            }
+            glm::vec4 oldColor = camera->backgroundColor;
             ImGui::ColorEdit4("Background", (float*)&camera->backgroundColor);
             bool prevState = camera->isPerspective;
             ImGui::Checkbox("Is Perspective", &camera->isPerspective);
@@ -320,7 +350,21 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloatCommand>(rigidbody->mass, oldMass, rigidbody->mass));
+                float tempOldMass = oldMass;
+                float tempNewMass = rigidbody->mass;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewMass]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->mass = tempNewMass;
+                    }
+                },
+                    [&entity, tempOldMass]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->mass = tempOldMass;
+                    }
+                }));
             }
             ImGui::DragFloat("Drag", &rigidbody->drag, 0.1f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
@@ -329,7 +373,21 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloatCommand>(rigidbody->drag, oldDrag, rigidbody->drag));
+                float tempOldDrag = oldDrag;
+                float tempNewDrag = rigidbody->drag;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewDrag]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->drag = tempNewDrag;
+                    }
+                },
+                    [&entity, tempOldDrag]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->mass = tempOldDrag;
+                    }
+                }));
             }
             ImGui::DragFloat("Angular Drag", &rigidbody->angularDrag, 0.1f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
@@ -338,28 +396,94 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
-                CommandManager::Execute(std::make_unique<ImGuiFloatCommand>(rigidbody->angularDrag, oldAngularDrag, rigidbody->angularDrag));
+                float tempOldAngularDrag = oldAngularDrag;
+                float tempNewAngularDrag = rigidbody->angularDrag;
+                CommandManager::Execute(std::make_unique<SkippedExecuteActionCommand>(
+                    [&entity, tempNewAngularDrag]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->angularDrag = tempNewAngularDrag;
+                    }
+                },
+                    [&entity, tempOldAngularDrag]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->angularDrag = tempOldAngularDrag;
+                    }
+                }));
             }
             if (ImGui::Checkbox("Use Gravity", &rigidbody->useGravity))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->useGravity));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleGravity();
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleGravity();
+                    }
+                }));
             }
             ImGui::PushID(0);
             ImGui::Text("Freeze Position");
             ImGui::SameLine();
             if (ImGui::Checkbox("X", &rigidbody->freezePosition[0]))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezePosition[0]));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(0);
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(0);
+                    }
+                }));
             }
             ImGui::SameLine();
             if (ImGui::Checkbox("Y", &rigidbody->freezePosition[1]))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezePosition[1]));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(1);
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(1);
+                    }
+                }));
             }
             ImGui::SameLine();
             if (ImGui::Checkbox("Z", &rigidbody->freezePosition[2]))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezePosition[2]));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(2);
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(2);
+                    }
+                }));
             }
             ImGui::PopID();
 
@@ -368,17 +492,56 @@ void InspectorWidget::ShowEntity(Entity& entity)
             ImGui::SameLine();
             if (ImGui::Checkbox("X", &rigidbody->freezeRotation[0]))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezeRotation[0]));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezeRotation(0);
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(0);
+                    }
+                }));
             }
             ImGui::SameLine();
             if (ImGui::Checkbox("Y", &rigidbody->freezeRotation[1]))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezeRotation[1]));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezeRotation(1);
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(1);
+                    }
+                }));
             }
             ImGui::SameLine();
             if (ImGui::Checkbox("Z", &rigidbody->freezeRotation[2]))
             {
-                CommandManager::Execute(std::make_unique<ImGuiBoolCommand>(rigidbody->freezeRotation[2]));
+                CommandManager::Execute(std::make_unique<ActionCommand>(
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        //show we load the saved or toggle?
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezeRotation(2);
+                    }
+                },
+                    [&entity]() {
+                    if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())
+                    {
+                        entity.GetComponent<RigidbodyComponent>().rigidbody->ToggleFreezePositon(2);
+                    }
+                }));
             }
             ImGui::PopID();
 
@@ -566,8 +729,8 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 if (!path.empty())
                 {
                     CommandManager::Execute(std::make_unique<ActionCommand>(
-                        [&sc,path]() {sc.filepath = path; },
-                        [&sc,filename]() {sc.filepath = filename; }));
+                        [&entity,path]() {if(entity.IsValid() && entity.HasComponent<ScriptComponent>())entity.GetComponent<ScriptComponent>().filepath = path; },
+                        [&entity,filename]() {if (entity.IsValid() && entity.HasComponent<ScriptComponent>())entity.GetComponent<ScriptComponent>().filepath = filename; }));
                 }
             }
 
@@ -633,8 +796,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Audio"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<AudioComponent>(); },
-                [&entity]() {entity.RemoveComponent<AudioComponent>(); }));
+                [&entity]() {if (entity.IsValid())entity.AddComponent<AudioComponent>(); },
+                [&entity]() {if (entity.IsValid() && entity.HasComponent<AudioComponent>())entity.RemoveComponent<AudioComponent>(); }));
         }
     }
 
@@ -645,8 +808,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("Particle System"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<ParticleSystemComponent>(); },
-                    [&entity]() {entity.RemoveComponent<ParticleSystemComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<ParticleSystemComponent>(); },
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<ParticleSystemComponent>())entity.RemoveComponent<ParticleSystemComponent>(); }));
             }
         }
         ImGui::EndMenu();
@@ -658,12 +821,14 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Mesh"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<MeshComponent>(); },
-                [&entity]() {entity.RemoveComponent<MeshComponent>(); }));
+                [&entity]() {if (entity.IsValid())entity.AddComponent<MeshComponent>(); },
+                [&entity]() {if (entity.IsValid() && entity.HasComponent<MeshComponent>())entity.RemoveComponent<MeshComponent>(); }));
         }
         else if (ImGui::MenuItem("Sprite"))
         {
-            entity.AddComponent<SpriteComponent>();
+            CommandManager::Execute(std::make_unique<ActionCommand>(
+                [&entity]() {if (entity.IsValid())entity.AddComponent<SpriteComponent>(); },
+                [&entity]() {if (entity.IsValid() && entity.HasComponent<SpriteComponent>())entity.RemoveComponent<SpriteComponent>(); }));
         }
     }
 
@@ -674,8 +839,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("Rigidbody"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<RigidbodyComponent>(); },
-                    [&entity]() {entity.RemoveComponent<RigidbodyComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<RigidbodyComponent>(); },
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<RigidbodyComponent>())entity.RemoveComponent<RigidbodyComponent>(); }));
             }
         }
 
@@ -692,8 +857,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (!entity.HasComponent<Colliders>())
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<Colliders>(); },
-                    [&entity]() {entity.RemoveComponent<Colliders>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<Colliders>(); },
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<Colliders>())entity.RemoveComponent<Colliders>(); }));
             }
 
             // TODO 2D collider shapes
@@ -728,8 +893,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Light"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<LightComponent>(); },
-                [&entity]() {entity.RemoveComponent<LightComponent>(); }));
+                [&entity]() {if(entity.IsValid())entity.AddComponent<LightComponent>(); },
+                [&entity]() {if(entity.IsValid() && entity.HasComponent<LightComponent>())entity.RemoveComponent<LightComponent>(); }));
         }
     }
 
@@ -755,8 +920,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             if (ImGui::MenuItem("New Script"))
             {
                 CommandManager::Execute(std::make_unique<ActionCommand>(
-                    [&entity]() {entity.AddComponent<CameraComponent>(); },
-                    [&entity]() {entity.RemoveComponent<CameraComponent>(); }));
+                    [&entity]() {if (entity.IsValid())entity.AddComponent<ScriptComponent>(); },
+                    [&entity]() {if (entity.IsValid() && entity.HasComponent<ScriptComponent>())entity.RemoveComponent<ScriptComponent>(); }));
             }
 
             ImGui::EndMenu();
@@ -768,8 +933,8 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
         if (ImGui::MenuItem("Camera"))
         {
             CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {entity.AddComponent<CameraComponent>(); },
-                [&entity]() {entity.RemoveComponent<CameraComponent>(); }));
+                [&entity]() {if (entity.IsValid())entity.AddComponent<CameraComponent>(); },
+                [&entity]() {if (entity.IsValid())entity.RemoveComponent<CameraComponent>(); }));
         }
     }
 }

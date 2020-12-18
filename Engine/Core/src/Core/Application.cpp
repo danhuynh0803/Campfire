@@ -102,7 +102,6 @@ void Application::OnEvent(Event& e)
     EventDispatcher dispatcher(e);
 
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
-    dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 
     for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
     {
@@ -126,6 +125,7 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
     return false;
 }
 
+//not used
 bool Application::OnWindowClose(WindowCloseEvent& e)
 {
     //isRunning = false;
