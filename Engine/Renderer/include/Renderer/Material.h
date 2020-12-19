@@ -45,11 +45,15 @@ public:
     float roughness = 0.5f;
     float ao = 0.5f;
 
+    glm::vec3 emissiveColor = glm::vec3(0.0f, 0.0f, 0.0f);
+    float emissiveIntensity = 5.0f;
+
     bool useAlbedoMap    = false;
     bool useMetallicMap  = false;
     bool useNormalMap    = false;
     bool useRoughnessMap = false;
     bool useOcclusionMap = false;
+    bool useEmissiveMap = false;
 
     SharedPtr<Texture2D> albedoMap = nullptr;
     SharedPtr<Texture2D> metallicMap = nullptr;
@@ -57,4 +61,5 @@ public:
     SharedPtr<Texture2D> roughnessMap = nullptr;
     SharedPtr<Texture2D> ambientOcclusionMap = nullptr;
     SharedPtr<Texture2D> opacityMap = nullptr;
+    SharedPtr<Texture2D> emissiveMap = nullptr;
 };

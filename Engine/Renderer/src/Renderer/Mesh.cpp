@@ -160,7 +160,13 @@ Submesh Mesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
         }
 
         { // Emmissive
-
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_EMISSIVE);
+            if (textures.size() > 0)
+            {
+                mat->emissiveMap = textures.at(0);
+                mat->useEmissiveMap = true;
+            }
         }
 
         { // Height

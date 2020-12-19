@@ -35,12 +35,16 @@ PbrMaterial::PbrMaterial()
     uint32_t whiteTextureData = 0xffffffff;
     whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-    std::string directory = "../Assets/Textures/pbr/snow/";
-    albedoMap           = Texture2D::Create(directory + "albedo.png");
-    metallicMap         = Texture2D::Create(directory + "metallic.png");
-    normalMap           = Texture2D::Create(directory + "normal.png");
-    roughnessMap        = Texture2D::Create(directory + "roughness.png");
-    ambientOcclusionMap = Texture2D::Create(directory + "ao.png");
+    SharedPtr<Texture2D> blackTexture = Texture2D::Create(1, 1);
+    uint32_t blackTextureData = 0x00000000;
+    whiteTexture->SetData(&blackTextureData, sizeof(uint32_t));
+
+    albedoMap           = whiteTexture;
+    metallicMap         = blackTexture;
+    normalMap           = blackTexture;
+    roughnessMap        = blackTexture;
+    ambientOcclusionMap = blackTexture;
+    emissiveMap         = blackTexture;
 }
 
 void PbrMaterial::Bind() const
@@ -51,19 +55,24 @@ void PbrMaterial::Bind() const
     shader->SetFloat("uMetallic", metallic);
     shader->SetFloat("uRoughness", roughness);
     shader->SetFloat("uAO", ao);
+    shader->SetFloat3("uEmissionColor", emissiveColor);
+    shader->SetFloat("uEmissiveIntensity", emissiveIntensity);
 
     shader->SetBool("useAlbedoMap", useAlbedoMap);
     shader->SetBool("useMetallicMap", useMetallicMap);
     shader->SetBool("useNormalMap", useNormalMap);
     shader->SetBool("useRoughnessMap", useRoughnessMap);
     shader->SetBool("useOcclusionMap", useOcclusionMap);
+    shader->SetBool("useEmissiveMap", useEmissiveMap);
 
     shader->SetInt("albedoMap", 0);
     shader->SetInt("metallicMap", 1);
     shader->SetInt("normalMap", 2);
     shader->SetInt("roughnessMap", 3);
     shader->SetInt("ambientOcclusionMap", 4);
-    shader->SetInt("skybox", 5);
+    shader->SetInt("emissiveMap", 5);
+
+    shader->SetInt("skybox", 6);
 
     if (albedoMap)
     {
@@ -88,6 +97,11 @@ void PbrMaterial::Bind() const
     if (ambientOcclusionMap)
     {
         ambientOcclusionMap->Bind(4);
+    }
+
+    if (emissiveMap)
+    {
+        emissiveMap->Bind(5);
     }
 }
 
@@ -184,6 +198,23 @@ void PbrMaterial::OnImGuiRender()
     //==============================================
 
 
+    //==============================================
     // Emmission
+    ImGui::PushID(id);
+    ImGui::Checkbox("", &useEmissiveMap); ImGui::SameLine();
+    id++;
+    ImGui::PopID();
+    if (ImGui::ImageButton((ImTextureID)emissiveMap->GetRenderID(), ImVec2(16, 16), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
+    {
+        std::string path = FileSystem::OpenFile();
+        if (!path.empty())
+        {
+            emissiveMap = Texture2D::Create(path);
+        }
+    }
+    ImGui::SameLine();
+    ImGui::ColorEdit3("Color", (float*)&emissiveColor);
+    ImGui::SliderFloat("Intensity", &emissiveIntensity, 0.0f, 10.0f);
+    //==============================================
 }
 

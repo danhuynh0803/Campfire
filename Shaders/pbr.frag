@@ -33,18 +33,22 @@ uniform vec4  uAlbedo;
 uniform float uMetallic;
 uniform float uRoughness;
 uniform float uAO;
+uniform vec3  uEmissionColor;
+uniform float uEmissiveIntensity;
 
 uniform bool useAlbedoMap;
 uniform bool useMetallicMap;
 uniform bool useNormalMap;
 uniform bool useRoughnessMap;
 uniform bool useOcclusionMap;
+uniform bool useEmissiveMap;
 
 uniform sampler2D albedoMap;
 uniform sampler2D metallicMap;
 uniform sampler2D normalMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D ambientOcclusionMap;
+uniform sampler2D emissiveMap;
 
 uniform samplerCube skybox;
 
@@ -119,6 +123,10 @@ void main()
     float metallic = useMetallicMap ? texture(metallicMap, inUV).r : uMetallic;
     float roughness = useRoughnessMap ? texture(roughnessMap, inUV).r : uRoughness;
     float ao = useOcclusionMap ? texture(ambientOcclusionMap, inUV).r : uAO;
+
+    vec3 emission = useEmissiveMap ? texture(emissiveMap, inUV).rgb : uEmissionColor;
+    emission *= uEmissiveIntensity;
+
     vec3 N = useNormalMap ? GetNormalFromMap() : normalize(inNormal);
 
     vec3 V = normalize(inCamPos - inPos);
@@ -174,7 +182,7 @@ void main()
     }
 
     vec3 ambient = vec3(0.03f) * albedo* ao;
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + Lo + emission;
 
     float brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
     if (brightness > 1.0f)
