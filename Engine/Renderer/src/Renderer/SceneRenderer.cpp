@@ -72,6 +72,13 @@ void SceneRenderer::Shutdown()
 {
 }
 
+void SceneRenderer::BeginSceneWithoutClear(const SharedPtr<Scene>& scene, const Camera& camera)
+{
+    SubmitCamera(camera);
+    SubmitLights(scene);
+    Renderer2D::BeginScene(camera);
+}
+
 void SceneRenderer::BeginScene(const SharedPtr<Scene>& scene, const Camera& camera)
 {
     SubmitCamera(camera);
@@ -79,6 +86,7 @@ void SceneRenderer::BeginScene(const SharedPtr<Scene>& scene, const Camera& came
 
     RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     RenderCommand::Clear();
+
     Renderer2D::BeginScene(camera);
 }
 

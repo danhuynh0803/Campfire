@@ -56,6 +56,15 @@ private:
     void ShowConsole(bool* isOpen);
     void ShowEditorCameraSettings(bool* isOpen);
 
+    void ScreenToWorldRay(
+        float mouseX, float mouseY,
+        int screenWidth, int screenHeight,
+        glm::mat4 viewMatrix,
+        glm::mat4 projMatrix,
+        glm::vec3& outOrigin,
+        glm::vec3& outDirection
+    );
+
 private:
     int editorSelectedIndex = -1;
     bool startScene = false;

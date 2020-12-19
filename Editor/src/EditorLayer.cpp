@@ -397,9 +397,14 @@ void EditorLayer::OnUpdate(float dt)
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
 
+        // Set editor cam to perspective just to draw the skybox
+        bool isPerspective = editorCamera->isPerspective;
+        editorCamera->isPerspective = true;
         SceneRenderer::BeginScene(activeScene, *editorCamera);
+        editorCamera->isPerspective = isPerspective;
 
         if (drawSkybox) {
+            RenderCommand::SetDrawMode(DrawMode::SHADED);
             activeScene->skybox->DrawSkybox();
         }
         else {
@@ -409,6 +414,7 @@ void EditorLayer::OnUpdate(float dt)
 
         RenderCommand::SetDrawMode(drawMode);
 
+        SceneRenderer::BeginSceneWithoutClear(activeScene, *editorCamera);
         if (allowViewportCameraEvents)
             cameraController.OnUpdate(dt);
         activeScene->OnRender(deltaTime, *editorCamera);
@@ -987,7 +993,7 @@ void EditorLayer::OnEvent(Event& event)
     dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(EditorLayer::OnWindowClose));
 }
 
-static void ScreenToWorldRay(
+void EditorLayer::ScreenToWorldRay(
     float mouseX, float mouseY,
     int screenWidth, int screenHeight,
     glm::mat4 viewMatrix,
@@ -1020,8 +1026,17 @@ static void ScreenToWorldRay(
     glm::vec4 rayStartWorld = worldSpaceMatrix * rayStartNDC;
     rayStartWorld /= rayStartWorld.w;
 
-    glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
-    rayEndWorld /= rayEndWorld.w;
+    glm::vec4 rayEndWorld;
+    if (editorCamera->isPerspective)
+    {
+        rayEndWorld = worldSpaceMatrix * rayEndNDC;
+        rayEndWorld /= rayEndWorld.w;
+    }
+    else
+    {
+        rayEndWorld = rayStartWorld;
+        rayEndWorld.z = rayStartWorld.z - 10000.0f;
+    }
 
     outOrigin = rayStartWorld;
     outDirection = glm::normalize(rayEndWorld - rayStartWorld);
