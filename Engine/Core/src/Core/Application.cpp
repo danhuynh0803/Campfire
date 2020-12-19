@@ -16,6 +16,7 @@
 #include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
 #include "Scripting/LuaManager.h"
+#include "Events/LuaEvent.h"
 
 Application* Application::instance = nullptr;
 
@@ -33,7 +34,7 @@ Application::Application(const ApplicationProps& props)
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
     //PushLayer(new VulkanLayer());
-    //LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent), this, std::placeholders::_1);
+    LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
     
     Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer

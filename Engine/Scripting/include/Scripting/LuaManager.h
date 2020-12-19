@@ -4,29 +4,26 @@
 #include <sstream>
 #include "Events/LuaEvent.h"
 
+using LuaEventCallbackFn = std::function<void(LuaEvent&)>;
+
+struct LuaData
+{
+    std::string title;
+    LuaEventCallbackFn EventCallback;
+};
+
 class LuaManager
-{    
+{
 public:
-    using LuaEventCallbackFn = std::function<void(LuaEvent&)>;
-    static void SetEventCallback(const LuaEventCallbackFn& callback) { data.EventCallback = callback; }
-    
-    struct LuaData
-    {
-        std::string title;
-
-        LuaEventCallbackFn EventCallback;
-    };
-
+    static void SetEventCallback(const LuaEventCallbackFn& callback);
+private:
     static LuaData data;
 };
 
 class LuaEventDispatcher
 {
 public:
-    LuaEventDispatcher(LuaEvent& e)
-        : event(e)
-    {
-    }
+    LuaEventDispatcher(LuaEvent& e): event(e){}
 
     template<typename T, typename F>
     bool Dispatch(const F& func)

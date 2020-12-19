@@ -25,6 +25,7 @@ set(SCRIPTING_SRC
     src/Script.cpp
     #src/ScriptEngine.cpp
     src/LuaScript.cpp
+    src/LuaManager.cpp
     #src/LuaCall.cpp
     src/Lua/LuaTransform.cpp
     src/Lua/LuaTag.cpp
