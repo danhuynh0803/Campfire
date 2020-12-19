@@ -5,6 +5,7 @@ set(EVENTS_HEADERS
     include/Events/KeyEvent.h
     include/Events/MouseEvent.h
     include/Events/LuaEvent.h
+    include/Events/LuaManagerEvent.h
 )
 
 target_include_directories(

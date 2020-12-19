@@ -16,7 +16,6 @@
 #include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
 #include "Scripting/LuaManager.h"
-#include "Events/LuaEvent.h"
 
 Application* Application::instance = nullptr;
 
@@ -118,7 +117,7 @@ void Application::OnLuaEvent(LuaEvent& e)
 {
     for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
     {
-        (*revIt)->onLuaEvent(e);
+        (*revIt)->OnLuaEvent(e);
         if (e.handled) { break; }
     }
 }

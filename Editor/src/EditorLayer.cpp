@@ -20,6 +20,7 @@
 #include "Renderer/Renderer.h"
 #include "IconsFontAwesome5.h"
 #include "Command/CommandManager.h"
+#include "Scripting/LuaManager.h"
 
 // TODO refactor task: FBOs should be handled by a renderer
 SharedPtr<Framebuffer> gameCamFBO;
@@ -973,6 +974,12 @@ void EditorLayer::OnEvent(Event& event)
     dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(EditorLayer::OnWindowClose));
 }
 
+void EditorLayer::OnLuaEvent(LuaEvent& event)
+{
+    LuaEventDispatcher dispatcher(event);
+    dispatcher.Dispatch<LuaSetGlobalEvent>(BIND_EVENT_FN(EditorLayer::OnLuaSetGlobal));
+}
+
 static void ScreenToWorldRay(
     float mouseX, float mouseY,
     int screenWidth, int screenHeight,
@@ -1267,6 +1274,11 @@ bool EditorLayer::OnWindowClose(WindowCloseEvent& e)
     // Need to do this here since events and imgui rendering is decoupled
     // and cannot render imgui in an event
     shouldOpenExitPrompt = true;
+    return false;
+}
+
+bool EditorLayer::OnLuaSetGlobal(LuaSetGlobalEvent& e)
+{
     return false;
 }
 

@@ -15,7 +15,7 @@ struct Layer
     virtual void OnUpdate(float) {}
     virtual void OnImGuiRender() {}
     virtual void OnEvent(Event&) {}
-    virtual void onLuaEvent(LuaEvent&) {}
+    virtual void OnLuaEvent(LuaEvent&) {}
 
     std::string name;
 };
