@@ -29,6 +29,10 @@ void CameraController::OnEvent(Event& e)
 
 void CameraController::LockViewTo2d()
 {
+    right = glm::vec3(1, 0, 0);
+    up    = glm::vec3(0, 1, 0);
+    front = glm::vec3(0, 0, -1);
+
     activeCamera->RecalculateViewMatrix(
         activeCamera->pos,
         glm::vec3(0, 0, -1),
@@ -67,12 +71,21 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
     }
     else
     {
-        if (fov >= 1.0f && fov <= 60.0f)
-            fov -= e.GetYOffset();
-        if (fov <= 1.0f)
-            fov = 1.0f;
-        if (fov >= 60.0f)
-            fov = 60.0f;
+        if (activeCamera->isPerspective)
+        {
+            if (fov >= 1.0f && fov <= 60.0f)
+                fov -= e.GetYOffset();
+            if (fov <= 1.0f)
+                fov = 1.0f;
+            if (fov >= 60.0f)
+                fov = 60.0f;
+        }
+        else
+        {
+            // invert since we want to zoom out when scrolling down
+            // which is done by increasing the size of the ortho viewport
+            activeCamera->size = std::clamp(activeCamera->size -= e.GetYOffset(), 0.1f, 50.0f);
+        }
     }
 
     activeCamera->vFov = fov;

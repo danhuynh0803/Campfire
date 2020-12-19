@@ -28,15 +28,6 @@ SharedPtr<Framebuffer> editorCamFBO;
 SharedPtr<Framebuffer> postprocessFBO;
 std::vector<SharedPtr<Framebuffer>> pingpongFBOs;
 
-static void ScreenToWorldRay(
-    float mouseX, float mouseY,
-    int screenWidth, int screenHeight,
-    glm::mat4 viewMatrix,
-    glm::mat4 projMatrix,
-    glm::vec3& outOrigin,
-    glm::vec3& outDirection
-);
-
 // Curr display for the game viewport
 static uint32_t currDisplay = 0;
 
