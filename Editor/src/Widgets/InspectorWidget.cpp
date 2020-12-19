@@ -658,6 +658,11 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
+            const char* lightTypes[] = { "Directional", "Point", "Spot", "Area" };
+            auto currType = static_cast<int>(comp.type);
+            ImGui::Combo("Type", (int*)&currType, lightTypes, IM_ARRAYSIZE(lightTypes));
+            comp.type = static_cast<LightComponent::LightType>(currType);
+
             ImGui::ColorEdit4("Light Color", (float*)&comp.color);
 
             // TODO reorganize this with range, type, etc
@@ -941,12 +946,37 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
 
     if (!entity.HasComponent<LightComponent>())
     {
-        if (ImGui::MenuItem("Light"))
+        if (ImGui::BeginMenu("Light"))
         {
-            CommandManager::Execute(std::make_unique<ActionCommand>(
-                [&entity]() {if(entity.IsValid())entity.AddComponent<LightComponent>(); },
-                [&entity]() {if(entity.IsValid() && entity.HasComponent<LightComponent>())entity.RemoveComponent<LightComponent>(); }));
+            if (ImGui::MenuItem("Directional Light"))
+            {
+                entity.AddComponent<LightComponent>(LightComponent::LightType::DIRECTIONAL);
+            }
+            if (ImGui::MenuItem("Point Light"))
+            {
+                entity.AddComponent<LightComponent>(LightComponent::LightType::POINT);
+            }
+            // TODO
+            if (ImGui::MenuItem("Spot Light"))
+            {
+                entity.AddComponent<LightComponent>(LightComponent::LightType::SPOT);
+            }
+            // TODO
+            if (ImGui::MenuItem("Area Light"))
+            {
+                entity.AddComponent<LightComponent>(LightComponent::LightType::AREA);
+            }
+
+            ImGui::EndMenu();
         }
+
+        // TODO move this for the other lights
+        //if (ImGui::MenuItem("Light"))
+        //{
+        //    CommandManager::Execute(std::make_unique<ActionCommand>(
+        //        [&entity]() {if(entity.IsValid())entity.AddComponent<LightComponent>(); },
+        //        [&entity]() {if(entity.IsValid() && entity.HasComponent<LightComponent>()) entity.RemoveComponent<LightComponent>(); }));
+        //}
     }
 
     if (!entity.HasComponent<ScriptComponent>())
