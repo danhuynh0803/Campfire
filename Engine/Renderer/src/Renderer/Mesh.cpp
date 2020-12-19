@@ -260,15 +260,23 @@ void Mesh::OnImGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Material List");
-    for (auto& material : materials)
+    if (ImGui::TreeNode("Material List"))
     {
-        if (ImGui::TreeNode(material->name.c_str()))
+        for (int i = 0; i < materials.size(); ++i)
         {
-            material->OnImGuiRender();
-            ImGui::TreePop();
+            ImGui::PushID(i);
+            auto& material = materials.at(i);
+
+            if (ImGui::TreeNode(material->name.c_str()))
+            {
+                material->OnImGuiRender();
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+
+            ImGui::PopID();
         }
-        ImGui::Separator();
+        ImGui::TreePop();
     }
 }
 
