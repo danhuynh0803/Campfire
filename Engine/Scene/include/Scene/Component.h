@@ -44,6 +44,12 @@ struct TagComponent
     //operator const std::string& () const { return tag; }
 };
 
+struct ActiveComponent
+{
+    bool isActive = true;
+    operator bool& () { return isActive; }
+};
+
 struct TransformComponent
 {
     glm::vec3 position = glm::vec3(0.0f);
