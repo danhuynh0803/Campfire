@@ -59,6 +59,8 @@ void PhysicsManager::SubmitEntity(Entity entity)
         auto colliders = entity.GetComponent<Colliders>().list;
         for (auto collider : colliders)
         {
+            if (!collider->isActive) continue;
+
             collider->UpdateShape(transformComponent.scale);
             btTransform transform;
             transform.setIdentity();

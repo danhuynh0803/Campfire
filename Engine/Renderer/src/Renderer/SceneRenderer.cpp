@@ -145,6 +145,8 @@ void SceneRenderer::SubmitLights(const SharedPtr<Scene>& scene)
     {
         auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
 
+        if (!lightComponent.isActive) continue;
+
         glm::vec4 position = glm::vec4(transformComponent.position, 0.0f);
 
         glm::vec4 attenFactors =

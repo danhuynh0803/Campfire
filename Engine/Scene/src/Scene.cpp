@@ -216,7 +216,7 @@ void Scene::OnStart()
 
     registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
     {
-        if (!sc.filepath.empty())
+        if (sc.isActive && !sc.filepath.empty())
         {
             if (!sc.instance)
             {
@@ -275,7 +275,8 @@ void Scene::OnUpdate(float dt)
         {
             auto [transformComponent, rigidbodyComponent] = group.get<TransformComponent, RigidbodyComponent>(entity);
 
-            PhysicsManager::UpdateEntity(rigidbodyComponent, transformComponent);
+            if (rigidbodyComponent.isActive)
+                PhysicsManager::UpdateEntity(rigidbodyComponent, transformComponent);
         }
     }
 
@@ -297,7 +298,7 @@ void Scene::OnUpdate(float dt)
         ZoneScopedN("LuaUpdateScripts");
         registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
         {
-            if (sc.filepath.empty() || sc.instance->hasSynataxError) return;//for std::function
+            if (!sc.isActive || sc.filepath.empty() || sc.instance->hasSynataxError) return;//for std::function
 
             //bool runUpdate, runOnTriggerEnter, runOnTriggerStay, runOnTriggerExit;
             //lua_State* L = luaL_newstate();
@@ -403,7 +404,7 @@ void Scene::OnRender(float dt, const Camera& camera)
             for (auto entity : group)
             {
                 auto [transformComponent, particleSystemComponent] = group.get<TransformComponent, ParticleSystemComponent>(entity);
-                if (particleSystemComponent.ps)
+                if (particleSystemComponent.isActive && particleSystemComponent.ps)
                 {
                     particleSystemComponent.ps->position = transformComponent.position;
                     // TODO have this transparency ordering check in renderer instead of PS
@@ -424,7 +425,8 @@ void Scene::OnRender(float dt, const Camera& camera)
             {
                 auto [transformComponent, spriteComponent] = group.get<TransformComponent, SpriteComponent>(entity);
 
-                Renderer2D::SubmitQuad(transformComponent, spriteComponent.sprite, spriteComponent.color);
+                if (spriteComponent.isActive)
+                    Renderer2D::SubmitQuad(transformComponent, spriteComponent.sprite, spriteComponent.color);
             }
         }
     }
@@ -437,7 +439,7 @@ void Scene::OnRender(float dt, const Camera& camera)
         for (auto entity : group)
         {
             auto [transformComponent, relationshipComponent, meshComponent] = group.get<TransformComponent, RelationshipComponent, MeshComponent>(entity);
-            if (meshComponent.mesh)
+            if (meshComponent.isActive && meshComponent.mesh)
             {
                 // If entity is a child, then apply parents transform to it
                 if (relationshipComponent.parent != entt::null)
@@ -493,7 +495,7 @@ void Scene::OnRender(float dt, const Camera& camera)
         for (auto entity : group)
         {
             auto [transformComponent, textComponent] = group.get<TransformComponent, TextComponent>(entity);
-            if (textComponent.text)
+            if (textComponent.isActive && textComponent.text)
             {
                 textComponent.text->Draw(transformComponent, camera);
             }

@@ -125,18 +125,26 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::Separator();
     }
 
+    int isActiveID = 0;
+
     // Camera
     if (entity.HasComponent<CameraComponent>())
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Camera"))
         {
+            auto& comp = entity.GetComponent<CameraComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>();
+            SharedPtr<Camera> camera = comp.camera;
 
             const char* clearFlags[] = { "Skybox", "Solid Color", "Depth Only", "Don't Clear" };
             auto previousClearFlag = static_cast<int>(camera->clearFlag);
@@ -200,6 +208,12 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Text"))
         {
+            auto& comp = entity.GetComponent<TextComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
@@ -243,6 +257,12 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Mesh"))
         {
+            auto& comp = entity.GetComponent<MeshComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
@@ -287,12 +307,17 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Sprite"))
         {
+            auto& comp = entity.GetComponent<SpriteComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            auto& comp = entity.GetComponent<SpriteComponent>();
             ImGui::Text(comp.sprite->GetName().c_str());
             if (ImGui::ImageButton((ImTextureID)comp.sprite->GetRenderID(), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), -1, ImVec4(0,0,0,0), ImVec4(0.9, 0.9f, 0.9f, 1.0f)))
             {
@@ -321,6 +346,12 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Rigidbody"))
         {
+            auto& comp = entity.GetComponent<RigidbodyComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
@@ -570,7 +601,11 @@ void InspectorWidget::ShowEntity(Entity& entity)
             //if (ImGui::TreeNode(colliderComponent.GetShapeTypeString().c_str()))
             if (ImGui::TreeNode("Collider Shape"))
             {
-                // TODO, this should remove the item in the list and not the entire component
+                ImGui::PushID(isActiveID++);
+                ImGui::Checkbox("", &collider->isActive);
+                ImGui::PopID();
+                ImGui::SameLine();
+
                 if (ImGui::Button("..."))
                 {
                     ImGui::OpenPopup("ComponentListOptionsPopup");
@@ -612,12 +647,16 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Light"))
         {
+            auto& comp = entity.GetComponent<LightComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
-
-            auto& comp = entity.GetComponent<LightComponent>();
 
             ImGui::ColorEdit4("Light Color", (float*)&comp.color);
 
@@ -642,6 +681,12 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Particle System"))
         {
+            auto& comp = entity.GetComponent<LightComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
@@ -716,6 +761,12 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Script"))
         {
+            auto& comp = entity.GetComponent<ScriptComponent>();
+            ImGui::PushID(isActiveID++);
+            ImGui::Checkbox("", &comp.isActive);
+            ImGui::PopID();
+            ImGui::SameLine();
+
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");

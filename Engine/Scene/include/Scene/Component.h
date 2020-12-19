@@ -106,6 +106,7 @@ struct CameraComponent
     }
 
     operator SharedPtr<Camera>& () { return camera; }
+    bool isActive = true;
 };
 
 struct MeshComponent
@@ -157,8 +158,8 @@ struct MeshComponent
     }
 
     SharedPtr<Mesh> mesh;
-
     operator SharedPtr<Mesh>& () { return mesh; }
+    bool isActive = true;
 };
 
 struct SpriteComponent
@@ -194,6 +195,8 @@ struct SpriteComponent
         flip[0] = false;
         flip[1] = false;
     }
+
+    bool isActive = true;
 };
 
 struct LightComponent
@@ -229,6 +232,8 @@ struct LightComponent
         linear = 0.09f;
         quadratic = 0.032f;
     }
+
+    bool isActive = true;
 };
 
 struct RigidbodyComponent
@@ -245,6 +250,7 @@ struct RigidbodyComponent
 
     SharedPtr<Rigidbody> rigidbody;
     operator SharedPtr<Rigidbody>& () { return rigidbody; }
+    bool isActive = true;
 };
 
 struct Colliders
@@ -284,6 +290,7 @@ struct AudioComponent
 
     SharedPtr<AudioSource> audioSource;
     operator SharedPtr<AudioSource>& () { return audioSource; }
+    bool isActive = true;
 };
 
 // TODO
@@ -292,6 +299,7 @@ struct AudioComponent
 struct UITransformComponent
 {
 
+    bool isActive = true;
 };
 
 
@@ -309,6 +317,7 @@ struct TextComponent
 
     SharedPtr<Text> text;
     operator SharedPtr<Text>& () { return text; }
+    bool isActive = true;
 };
 
 
@@ -360,6 +369,8 @@ struct ScriptComponent
     bool runOnTriggerEnter = true;
     bool runOnTriggerStay = true;
     bool runOnTriggerExit = true;
+
+    bool isActive = true;
 };
 
 struct ParticleSystemComponent
@@ -379,4 +390,6 @@ struct ParticleSystemComponent
         ps = CreateSharedPtr<ParticleSystem>();
         ps->Init();
     }
+
+    bool isActive = true;
 };

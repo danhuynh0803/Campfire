@@ -287,7 +287,11 @@ void EditorLayer::OnUpdate(float dt)
     SharedPtr<Camera> mainGameCamera = nullptr;
     for (auto entity : group)
     {
-        SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
+        auto comp = group.get<CameraComponent>(entity);
+
+        if (!comp.isActive) continue;
+
+        SharedPtr<Camera> selectedCamera = comp.camera;
         if (selectedCamera->targetDisplay == currDisplay)
         {
             mainGameCamera = selectedCamera;

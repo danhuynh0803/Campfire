@@ -59,6 +59,8 @@ struct Collider
     //    }
     //    return shapeTypeName.append(" Collider");
     //}
+
+    bool isActive = true;
 };
 
 struct BoxCollider : public Collider
