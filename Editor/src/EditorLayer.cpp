@@ -283,6 +283,16 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnUpdate(deltaTime);
     }
 
+    if (is2d)
+    {
+        cameraController.LockViewTo2d();
+        editorCamera->isPerspective = false;
+    }
+    else
+    {
+        editorCamera->isPerspective = true;
+    }
+
     auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
     SharedPtr<Camera> mainGameCamera = nullptr;
     for (auto entity : group)
@@ -641,7 +651,7 @@ void EditorLayer::OnImGuiRender()
     }
 
     // Editor viewport
-    ImGui::Begin("Scene");
+    ImGui::Begin("Viewport");
     {
         // -------------------------------------------------
         // Scene Toolbar
@@ -654,6 +664,10 @@ void EditorLayer::OnImGuiRender()
         int currMode = static_cast<int>(drawMode);
         ImGui::Combo("Draw Mode", &currMode, drawModes, IM_ARRAYSIZE(drawModes));
         drawMode = static_cast<DrawMode>(currMode);
+
+        ImGui::SameLine();
+
+        ImGui::Checkbox("2D", &is2d);
 
         ImGui::SameLine();
 

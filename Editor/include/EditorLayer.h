@@ -25,7 +25,7 @@ class EditorLayer : public Layer
 
     DrawMode drawMode = DrawMode::SHADED;
     bool drawSkybox = true;
-    bool drawPostProcess = false;
+    bool drawPostProcess = true;
     bool drawParticleSystems = false;
 
 public:
@@ -65,6 +65,7 @@ private:
     SharedPtr<Scene> runtimeScene;
     SharedPtr<Scene> activeScene;
 
+    bool is2d = false;
     SharedPtr<Camera> editorCamera;
     CameraController cameraController;
 
