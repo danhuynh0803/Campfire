@@ -233,6 +233,21 @@ void EditorLayer::OnUpdate(float dt)
 
     ZoneScoped;
 
+    {
+        auto group = activeScene->GetAllEntitiesWith<ActiveComponent>();
+        for (auto handle : group)
+        {
+            Entity entity(handle, activeScene.get());
+            bool isActive = entity.GetComponent<ActiveComponent>();
+            //if (entity.GetComponent<ActiveComponent>())
+            //    activeScene->EnableEntity(entity);
+            //else
+            //    activeScene->DisableEntity(entity);
+        }
+    }
+
+    // Move inactive/active objects from registries
+
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
 
     static int editorSelectedIndex = -1;
@@ -290,7 +305,7 @@ void EditorLayer::OnUpdate(float dt)
     {
         auto comp = group.get<CameraComponent>(entity);
 
-        if (!comp.isActive) continue;
+        if (!comp.isActive) { continue; }
 
         SharedPtr<Camera> selectedCamera = comp.camera;
         if (selectedCamera->targetDisplay == currDisplay)
@@ -317,8 +332,8 @@ void EditorLayer::OnUpdate(float dt)
                             glm::radians(parentEulerAngles.x),
                             glm::radians(parentEulerAngles.y),
                             glm::radians(parentEulerAngles.z)
-                            )
-                        );
+                        )
+                    );
                 glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
 
                 mainGameCamera->pos = rotationPosition;
@@ -496,50 +511,50 @@ void EditorLayer::OnUpdate(float dt)
         // TODO don't remove yet, still need to figure out
         // slight mismatch from raycast not matching mouse pos
         // Most likely a mismatch with resolution somewhere
-        //if (Input::GetMouseButton(MOUSE_BUTTON_LEFT))
-        //{
-        //    auto [mouseX , mouseY] = GetMouseViewportSpace();
-        //    LOG_TRACE("MouseX = {0}", mouseX);
-        //    LOG_TRACE("MouseX = {0}", mouseY);
-        //    LOG_TRACE("cameraW = {0}", editorCamera->width);
-        //    LOG_TRACE("cameraH = {0}", editorCamera->height);
-        //    LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
-        //    LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
+        if (Input::GetMouseButton(MOUSE_BUTTON_LEFT))
+        {
+            auto [mouseX , mouseY] = GetMouseViewportSpace();
+            LOG_TRACE("MouseX = {0}", mouseX);
+            LOG_TRACE("MouseX = {0}", mouseY);
+            LOG_TRACE("cameraW = {0}", editorCamera->width);
+            LOG_TRACE("cameraH = {0}", editorCamera->height);
+            LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
+            LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
 
-        //    glm::vec3 rayOrig, rayDir;
-        //    ScreenToWorldRay(
-        //        mouseX,
-        //        mouseY,
-        //        editorCamera->width,
-        //        editorCamera->height,
-        //        editorCamera->GetViewMatrix(),
-        //        editorCamera->GetProjMatrix(),
-        //        rayOrig,
-        //        rayDir
-        //    );
-        //    Ray ray(rayOrig, rayDir);
+            glm::vec3 rayOrig, rayDir;
+            ScreenToWorldRay(
+                mouseX,
+                mouseY,
+                editorCamera->width,
+                editorCamera->height,
+                editorCamera->GetViewMatrix(),
+                editorCamera->GetProjMatrix(),
+                rayOrig,
+                rayDir
+            );
+            Ray ray(rayOrig, rayDir);
 
-        //    //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
-        //    //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+            //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
+            //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
 
-        //    glm::vec3 color(1.0f, 0.0f, 0.0f);
-        //    GLfloat vertices[] =
-        //    {
-        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+            glm::vec3 color(1.0f, 0.0f, 0.0f);
+            GLfloat vertices[] =
+            {
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
 
-        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-        //    };
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+            };
 
-        //    VBO->SetData(vertices, sizeof(vertices));
+            VBO->SetData(vertices, sizeof(vertices));
 
-        //    Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
-        //}
+            Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
+        }
 
         SceneRenderer::EndScene();
     }
@@ -1017,17 +1032,18 @@ void EditorLayer::ScreenToWorldRay(
     glm::vec4 rayStartWorld = worldSpaceMatrix * rayStartNDC;
     rayStartWorld /= rayStartWorld.w;
 
-    glm::vec4 rayEndWorld;
-    if (editorCamera->isPerspective)
-    {
-        rayEndWorld = worldSpaceMatrix * rayEndNDC;
-        rayEndWorld /= rayEndWorld.w;
-    }
-    else
-    {
-        rayEndWorld = rayStartWorld;
-        rayEndWorld.z = rayStartWorld.z - 10000.0f;
-    }
+    glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
+    rayEndWorld /= rayEndWorld.w;
+    //if (editorCamera->isPerspective)
+    //{
+    //    rayEndWorld = worldSpaceMatrix * rayEndNDC;
+    //    rayEndWorld /= rayEndWorld.w;
+    //}
+    //else
+    //{
+    //    rayEndWorld = rayStartWorld;
+    //    rayEndWorld.z = rayStartWorld.z - 10000.0f;
+    //}
 
     outOrigin = rayStartWorld;
     outDirection = glm::normalize(rayEndWorld - rayStartWorld);

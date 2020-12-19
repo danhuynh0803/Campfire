@@ -212,12 +212,14 @@ void Camera::SetOrthographicProjection()
     float aspectRatio = (width / height);
     projMatrix =
         glm::ortho(
-            -aspectRatio * size, // min X
-             aspectRatio * size, // max X
-            -size,               // min Y
-             size,               // max Y
-            nearPlane,           // min Z
-            farPlane             // max Z
+            -0.5f * aspectRatio * size, // left
+             0.5f * aspectRatio * size, // right
+            -0.5f * size, // bottom
+             0.5f * size, // top
+             // Note: setting it to nearPlane
+             // seems to mess up ImGuizmo, not sure why
+            -farPlane, // near
+             farPlane  // far
         )
     ;
 }

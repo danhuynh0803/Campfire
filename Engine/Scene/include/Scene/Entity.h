@@ -65,8 +65,6 @@ public:
     }
     operator entt::entity() const { return entityHandle; }
 
-    bool isActive = true;
-
 private:
     entt::entity entityHandle { entt::null };
     Scene* scene;
