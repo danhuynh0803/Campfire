@@ -3,6 +3,7 @@
 #include <string>
 
 class Event;
+class LuaEvent;
 
 struct Layer
 {
@@ -11,9 +12,10 @@ struct Layer
 
     virtual void OnAttach() {}
     virtual void OnDetach() {}
-    virtual void OnUpdate(float timestep) {}
+    virtual void OnUpdate(float) {}
     virtual void OnImGuiRender() {}
-    virtual void OnEvent(Event& event) {}
+    virtual void OnEvent(Event&) {}
+    virtual void onLuaEvent(LuaEvent&) {}
 
     std::string name;
 };

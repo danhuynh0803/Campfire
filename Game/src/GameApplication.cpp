@@ -24,6 +24,11 @@ public:
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(GameApplication::OnWindowClose));
     }
 
+    virtual void OnLuaEvent(LuaEvent& e) override
+    {
+        
+    }
+
     bool GameApplication::OnWindowClose(WindowCloseEvent& e)
     {
         GameApplication::Get().Close();

@@ -114,6 +114,7 @@ void LuaScript::Start()
         lua_pushstring(L, "__sub");
         lua_pushcfunction(L, LuaVector::LuaVec2Sub);
         lua_settable(L, -3);
+        lua_pop(L, 1);//metatable can be popped after initialization
     }
 
     {
@@ -125,6 +126,7 @@ void LuaScript::Start()
         lua_pushstring(L, "__sub");
         lua_pushcfunction(L, LuaVector::LuaVec3Sub);
         lua_settable(L, -3);
+        lua_pop(L, 1);
     }
     
     {
@@ -136,6 +138,7 @@ void LuaScript::Start()
         lua_pushstring(L, "__sub");
         lua_pushcfunction(L, LuaVector::LuaVec4Sub);
         lua_settable(L, -3); //sets the (meta)table and pop above
+        lua_pop(L, 1);
     }
     
     LuaPushComponetTable<TransformComponent>();
@@ -149,9 +152,8 @@ void LuaScript::Start()
         lua_pushcclosure(L, LuaEntity::Instantiate, 1);
         lua_setfield(L, -2, "Instantiate");
 
-        lua_pushlightuserdata(L, this);
         lua_pushlightuserdata(L, &entity);
-        lua_pushcclosure(L, LuaEntity::EntityDestroy, 2);
+        lua_pushcclosure(L, LuaEntity::EntityDestroy, 1);
         lua_setfield(L, -2, "Destroy");
     }
     lua_setglobal(L, "Entity"); //name the table entity
@@ -324,9 +326,8 @@ void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const ch
 void LuaScript::LuaPushEntity(Entity entity)
 {
     lua_newtable(L);
-    lua_pushlightuserdata(L, this);
     lua_pushlightuserdata(L, &entity);
-    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 2);
+    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 1);
     lua_setfield(L, -2, "Destroy");
 
     if (entity.HasComponent<TagComponent>())

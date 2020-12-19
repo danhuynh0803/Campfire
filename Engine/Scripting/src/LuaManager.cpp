@@ -33,7 +33,7 @@ public:
     //}
 };
 
-class Event2 : public LuaEvent
+class LuaGlobalEvent : public LuaEvent
 {
 public:
     static LuaEventType GetStaticType() { return LuaEventType::None; }
@@ -53,7 +53,7 @@ struct LuaData
     LuaEventCallbackFn EventCallback;
 };
 
-class X
+class LuaManager
 {    
     void SetEventCallback(const LuaEventCallbackFn& callback) { data.EventCallback = callback; }
     LuaData data;
@@ -83,15 +83,15 @@ private:
     LuaEvent& event;
 };
 
-void OnEventEvent(Event2& e)
-{
-
-}
 
 void OnEvent(LuaEvent& e)
 {
-    OnEventEvent(static_cast<Event2&>(e));
-    //LuaEventDispatcher dispatcher(e);
-    //dispatcher.Dispatch<Event2>(std::bind(&OnEventEvent, nullptr, std::placeholders::_1));
+    LuaEventDispatcher dispatcher(e);
+    dispatcher.Dispatch<LuaGlobalEvent>(std::bind(&OnEventEvent, nullptr, std::placeholders::_1));
+}
+
+void OnEventEvent(LuaGlobalEvent& e)
+{
+
 }
 

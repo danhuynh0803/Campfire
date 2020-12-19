@@ -29,6 +29,8 @@ public:
     void PushOverlay(Layer* layer);
 
     virtual void OnEvent(Event& e);
+    virtual void OnLuaEvent(LuaEvent& e);
+
     bool OnWindowResize(WindowResizeEvent& event);
     bool OnWindowClose(WindowCloseEvent& event);
     bool OnWindowMinimize(WindowMinimizeEvent& event);

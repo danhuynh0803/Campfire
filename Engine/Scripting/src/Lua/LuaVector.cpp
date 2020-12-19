@@ -21,6 +21,7 @@ int LuaVector::LuaVec2(lua_State* L)
 
 	return 1;
 }
+
 int LuaVector::LuaVec3(lua_State* L)
 {
 	lua_newtable(L);
