@@ -33,6 +33,8 @@ Application::Application(const ApplicationProps& props)
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
     //PushLayer(new VulkanLayer());
+
+    LuaManager::Init();
     LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
     
     Renderer::Init();
@@ -51,6 +53,7 @@ Application::~Application()
     // TODO move to shutdown
     PhysicsManager::Shutdown();
     Renderer::Shutdown();
+    LuaManager::Shutdown();
     Shutdown();
 }
 
