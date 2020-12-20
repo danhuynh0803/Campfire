@@ -508,53 +508,51 @@ void EditorLayer::OnUpdate(float dt)
             camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
 
-        // TODO don't remove yet, still need to figure out
-        // slight mismatch from raycast not matching mouse pos
-        // Most likely a mismatch with resolution somewhere
-        if (Input::GetMouseButton(MOUSE_BUTTON_LEFT))
-        {
-            auto [mouseX , mouseY] = GetMouseViewportSpace();
-            LOG_TRACE("MouseX = {0}", mouseX);
-            LOG_TRACE("MouseX = {0}", mouseY);
-            LOG_TRACE("cameraW = {0}", editorCamera->width);
-            LOG_TRACE("cameraH = {0}", editorCamera->height);
-            LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
-            LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
+        // TODO keep for figuring out ortho raycasting
+        //if (Input::GetMouseButton(MOUSE_BUTTON_LEFT))
+        //{
+        //    auto [mouseX , mouseY] = GetMouseViewportSpace();
+        //    LOG_INFO("MouseX = {0}", mouseX);
+        //    LOG_INFO("MouseY = {0}", mouseY);
+        //    LOG_INFO("cameraW = {0}", editorCamera->width);
+        //    LOG_INFO("cameraH = {0}", editorCamera->height);
+        //    LOG_INFO("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
+        //    LOG_INFO("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
 
-            glm::vec3 rayOrig, rayDir;
-            ScreenToWorldRay(
-                mouseX,
-                mouseY,
-                editorCamera->width,
-                editorCamera->height,
-                editorCamera->GetViewMatrix(),
-                editorCamera->GetProjMatrix(),
-                rayOrig,
-                rayDir
-            );
-            Ray ray(rayOrig, rayDir);
+        //    glm::vec3 rayOrig, rayDir;
+        //    ScreenToWorldRay(
+        //        mouseX,
+        //        mouseY,
+        //        editorCamera->width,
+        //        editorCamera->height,
+        //        editorCamera->GetViewMatrix(),
+        //        editorCamera->GetProjMatrix(),
+        //        rayOrig,
+        //        rayDir
+        //    );
+        //    Ray ray(rayOrig, rayDir);
 
-            //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
-            //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
+        //    //LOG_TRACE("rayOrig = ({0}, {1} {2})", rayOrig.x, rayOrig.y, rayOrig.z);
+        //    //LOG_TRACE("rayDir = ({0}, {1} {2})", rayDir.x, rayDir.y, rayDir.z);
 
-            glm::vec3 color(1.0f, 0.0f, 0.0f);
-            GLfloat vertices[] =
-            {
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //    glm::vec3 color(1.0f, 0.0f, 0.0f);
+        //    GLfloat vertices[] =
+        //    {
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
 
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-                rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
-                rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
-            };
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //        rayOrig.x, rayOrig.y, rayOrig.z, color.r, color.g, color.b,
+        //        rayDir.x, rayDir.y, rayDir.z, color.r, color.g, color.b,
+        //    };
 
-            VBO->SetData(vertices, sizeof(vertices));
+        //    VBO->SetData(vertices, sizeof(vertices));
 
-            Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
-        }
+        //    Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
+        //}
 
         SceneRenderer::EndScene();
     }
@@ -1370,11 +1368,12 @@ std::pair<float, float> EditorLayer::GetMouseViewportSpace()
     mouseX -= minViewportBound.x;
     mouseY -= minViewportBound.y;
 
-    auto viewportWidth = maxViewportBound.x - minViewportBound.x;
-    auto viewportHeight = maxViewportBound.y - minViewportBound.y;
+    //auto viewportWidth = maxViewportBound.x - minViewportBound.x;
+    //auto viewportHeight = maxViewportBound.y - minViewportBound.y;
+    //LOG_INFO("vp width = {0}, vp height = {1}", viewportWidth, viewportHeight);
 
     return {
-        (mouseX / viewportWidth) * 2.0f - 1.0f,
-        ((mouseY / viewportHeight) * 2.0f - 1.0f) * -1.0f // mouse.y is inverted
+        (mouseX / editorCamera->width) * 2.0f - 1.0f,
+        ((mouseY / editorCamera->height) * 2.0f - 1.0f) * -1.0f // mouse.y is inverted
     };
 }
