@@ -709,8 +709,6 @@ void EditorLayer::OnImGuiRender()
         auto viewportSize = ImGui::GetContentRegionAvail();
         editorCamera->SetProjection((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
 
-        LOG_INFO("Proj width = {0}, Proj height = {1}", (uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
-
         // Loading bar if scene is saving or loading
         // TODO move to SceneManager
         //const ImU32 col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
@@ -723,7 +721,6 @@ void EditorLayer::OnImGuiRender()
         else {
             ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
         }
-
 
         auto windowSize = ImGui::GetWindowSize();
         ImVec2 minBound = ImGui::GetWindowPos();
@@ -819,7 +816,7 @@ void EditorLayer::OnImGuiRender()
     //ImGui::End();
 
     // Game Camera viewport
-    ImGui::Begin("Game");
+    ImGui::Begin("Game View");
     {
         ImGui::PushID(0);
         const char* displays[] = { "Display 1", "Display 2", "Display 3", "Display 4", "Display 5" };
@@ -833,6 +830,10 @@ void EditorLayer::OnImGuiRender()
         const char* resolutions[] = { "Free aspect", "16x9" };
         ImGui::Combo("", (int*)&currResolutionIndex, resolutions, IM_ARRAYSIZE(resolutions));
         ImGui::PopID();
+
+        //ImGui::SameLine();
+
+        ImGui::Checkbox("Maximize", &maximizeGameViewport);
 
         auto viewportSize = ImGui::GetContentRegionAvail();
         switch (currResolutionIndex)
@@ -855,14 +856,36 @@ void EditorLayer::OnImGuiRender()
                         - glm::vec2(fixed16x9Viewport.x, fixed16x9Viewport.y)
                     )
                     + titleBarHeight
-                    ;
+                ;
+
                 ImGui::SetCursorPos({ center.x, center.y });
                 ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), fixed16x9Viewport, { 0, 1 }, { 1, 0 });
                 break;
             }
         }
+
     }
     ImGui::End();
+
+    if (maximizeGameViewport
+        && state == State::PLAY)
+    {
+        bool isOpen = true;
+        // Scale down a bit just to be able to see the whole window
+        ImGui::SetNextWindowSize(ImVec2(maxResolution.x * 0.95f, maxResolution.y * 0.95f));
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoCollapse
+            | ImGuiWindowFlags_NoDocking
+            //| ImGuiWindowFlags_NoTitleBar
+            | ImGuiWindowFlags_NoSavedSettings
+        ;
+        ImGui::Begin("Game", &isOpen, flags);
+
+        auto viewportSize = ImGui::GetContentRegionAvail();
+        ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+
+        ImGui::End();
+    }
 
     // Engine closing
     if (shouldOpenExitPrompt)
@@ -1165,6 +1188,7 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
 bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
     //LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
+    maxResolution = glm::ivec2(e.GetWidth(), e.GetHeight());
     editorCamera->SetProjection(e.GetWidth(), e.GetHeight());
 
     FramebufferSpec resizeSpec = {

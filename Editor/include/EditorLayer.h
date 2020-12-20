@@ -70,6 +70,8 @@ private:
     bool startScene = false;
     bool stopScene = true;
     bool shouldOpenExitPrompt = false;
+    bool maximizeGameViewport = false;
+    glm::ivec2 maxResolution = glm::ivec2(1920, 1080);
     SharedPtr<Scene> editorScene;
     SharedPtr<Scene> runtimeScene;
     SharedPtr<Scene> activeScene;
