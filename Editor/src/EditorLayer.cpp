@@ -291,7 +291,8 @@ void EditorLayer::OnUpdate(float dt)
 
     if (is2d)
     {
-        cameraController.LockViewTo2d();
+        // FIXME Issues with clicking when reorienting view
+        //cameraController.LockViewTo2d();
         editorCamera->isPerspective = false;
     }
     else
@@ -708,6 +709,8 @@ void EditorLayer::OnImGuiRender()
         auto viewportSize = ImGui::GetContentRegionAvail();
         editorCamera->SetProjection((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
 
+        LOG_INFO("Proj width = {0}, Proj height = {1}", (uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+
         // Loading bar if scene is saving or loading
         // TODO move to SceneManager
         //const ImU32 col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
@@ -1032,6 +1035,10 @@ void EditorLayer::ScreenToWorldRay(
 
     glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
     rayEndWorld /= rayEndWorld.w;
+
+    LOG_INFO("Start = {0}, {1}, {2}, {3}", rayStartWorld.x, rayStartWorld.y, rayStartWorld.z, rayStartWorld.w);
+    LOG_INFO("End   = {0}, {1}, {2}, {3}", rayEndWorld.x, rayEndWorld.y, rayEndWorld.z, rayEndWorld.w);
+
     //if (editorCamera->isPerspective)
     //{
     //    rayEndWorld = worldSpaceMatrix * rayEndNDC;
