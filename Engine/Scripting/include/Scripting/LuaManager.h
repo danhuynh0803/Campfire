@@ -17,6 +17,7 @@ struct LuaData
 
 namespace LuaUtility
 {
+    bool is_number(const std::string& s);
     void TransferTable(lua_State* L1, lua_State* L2);
     JsonObject SerializeLuaTable(lua_State*, JsonObject& json);
     void DeseralizeLuaTable(lua_State*, JsonObject);

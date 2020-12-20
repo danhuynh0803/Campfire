@@ -1,6 +1,7 @@
 #include "Scripting/LuaManager.h"
 #include <string>
 #include "Core/Log.h"
+#include <cstdlib>
 
 LuaData LuaManager::data;
 lua_State* LuaManager::L;
@@ -51,6 +52,13 @@ void LuaManager::SetGlobalLuaTable(const char* name, lua_State* L2)
     lua_newtable(L2);
     LuaUtility::TransferTable(L, L2);
     lua_setglobal(L2, name);
+}
+
+bool LuaUtility::is_number(const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
 }
 
 void LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
@@ -201,9 +209,82 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, JsonObject jsonObject)
 {
 	//push a table back to the target lua state
     lua_newtable(L);
-    for (JsonObject::iterator it = jsonObject.begin(); it != jsonObject.end(); ++it) 
+    for (auto& [key, value] : jsonObject.items()) 
     {
-        std::cout << it.key() << " : " << it.value() << "\n";
+        if (is_number(key))
+        {
+            if (value.is_null())
+            {
+                lua_pushnil(L);
+                lua_pushinteger(L, std::atoi(key.c_str()));
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_boolean())
+            {
+                lua_pushboolean(L, (bool)value);//or json[key]
+                lua_pushinteger(L, std::atoi(key.c_str()));
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_number_float())
+            {
+                lua_pushnumber(L, (double)value);
+                lua_pushinteger(L, std::atoi(key.c_str()));
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_number_integer())
+            {
+                lua_pushinteger(L, (int)value);
+                lua_pushinteger(L, std::atoi(key.c_str()));
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_object())
+            {
+                DeseralizeLuaTable(L, value);
+                lua_pushinteger(L, std::atoi(key.c_str()));
+                lua_rawset(L, -3);
+            }
+        }
+        else
+        {
+            if (value.is_null())
+            {
+                lua_pushnil(L);
+                lua_pushstring(L, key.c_str());
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_boolean())
+            {
+                lua_pushboolean(L, (bool)value);
+                lua_pushstring(L, key.c_str());
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_number_float())
+            {
+                lua_pushnumber(L, (double)value);
+                lua_pushstring(L, key.c_str());
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_number_integer())
+            {
+                lua_pushinteger(L, (int)value);
+                lua_pushstring(L, key.c_str());
+                lua_rawset(L, -3);
+            }
+            else
+            if (value.is_object())
+            {
+                DeseralizeLuaTable(L, (JsonObject)value);
+                lua_pushstring(L, key.c_str());
+                lua_rawset(L, -3);
+            }
+        }
     }
 }
 
