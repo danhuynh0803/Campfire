@@ -386,20 +386,20 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, JsonObject jsonObject)
         {
             if (value.is_null())
             {
-                lua_pushnil(L);
                 lua_pushstring(L, key.c_str());
+                lua_pushnil(L);
                 lua_rawset(L, -3);
             }
             else if (value.is_boolean())
             {
-                lua_pushboolean(L, (bool)value);
                 lua_pushstring(L, key.c_str());
+                lua_pushboolean(L, (bool)value);
                 lua_rawset(L, -3);
             }
             else if (value.is_number_integer())
             {
-                lua_pushinteger(L, (lua_Integer)value);
                 lua_pushstring(L, key.c_str());
+                lua_pushinteger(L, (lua_Integer)value);
                 lua_rawset(L, -3);
             }
             else if (value.is_number_float())
@@ -410,14 +410,14 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, JsonObject jsonObject)
             }
             else if (value.is_string())
             {
-                lua_pushstring(L, value.get<std::string>().c_str());
                 lua_pushstring(L, key.c_str());
+                lua_pushstring(L, value.get<std::string>().c_str());
                 lua_rawset(L, -3);
             }
             else if (value.is_object())
             {
-                DeseralizeLuaTable(L, (JsonObject)value);
                 lua_pushstring(L, key.c_str());
+                DeseralizeLuaTable(L, (JsonObject)value);
                 lua_rawset(L, -3);
             }
         }
