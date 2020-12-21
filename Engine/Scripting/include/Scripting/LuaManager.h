@@ -36,10 +36,10 @@ public:
     static void SetGlobalLuaString(const char*, const char*);
     static void SetGlobalLuaBoolean(const char*, const bool&);
     static bool SetGlobalLuaTable(const char*, lua_State*);
-    static bool GetGlobalLuaNumber(const char*, lua_Number&);
-    static bool GetGlobalLuaInteger(const char*, lua_Integer&);
-    static bool GetGlobalLuaString(const char*, const char*);
-    static bool GetGlobalLuaBoolean(const char*, bool&);
+    static bool GetGlobalLuaNumber(const char*, lua_State*);
+    static bool GetGlobalLuaInteger(const char*, lua_State*);
+    static bool GetGlobalLuaString(const char*, lua_State*);
+    static bool GetGlobalLuaBoolean(const char*, lua_State*);
     static bool GetGlobalLuaTable(const char*, lua_State* L2);
 
 private:

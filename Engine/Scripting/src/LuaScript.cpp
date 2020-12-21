@@ -78,26 +78,26 @@ void LuaScript::Start()
     lua_pushcfunction(L, LuaUtility::Log);
     lua_setglobal(L, "Log");
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         lua_pushcfunction(L, LuaVector::LuaVec2);
         lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec2");
     }
-    lua_setglobal(L, "Vec2");
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         lua_pushcfunction(L, LuaVector::LuaVec3);
         lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec3");
     }
-    lua_setglobal(L, "Vec3");
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         lua_pushcfunction(L, LuaVector::LuaVec4);
         lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec4");
     }
-    lua_setglobal(L, "Vec4");
     
     {
         char* vec2MetaTableName = "LuaVec2MetaTable";
@@ -134,35 +134,61 @@ void LuaScript::Start()
         lua_settable(L, -3); //sets the (meta)table and pop above
         lua_pop(L, 1);
     }
-    
-    LuaPushComponetTable<TransformComponent>();
-    LuaPushComponetTable<RigidbodyComponent>();
-    LuaPushComponetTable<AudioSource>();
-    LuaPushComponetTable<Colliders>();
 
-    lua_newtable(L);
     {
+        LuaPushComponetTable<TransformComponent>();
+        LuaPushComponetTable<RigidbodyComponent>();
+        LuaPushComponetTable<AudioSource>();
+        LuaPushComponetTable<Colliders>();
+    }
+
+    {
+        lua_newtable(L);
         lua_pushlightuserdata(L, this);
         lua_pushcclosure(L, LuaEntity::Instantiate, 1);
         lua_setfield(L, -2, "Instantiate");
-
         lua_pushlightuserdata(L, &entity);
         lua_pushcclosure(L, LuaEntity::EntityDestroy, 1);
         lua_setfield(L, -2, "Destroy");
+        lua_setglobal(L, "Entity"); //name the table entity
     }
-    lua_setglobal(L, "Entity"); //name the table entity
-
-    lua_newtable(L);
+   
     {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaGlobal::GetBoolean);
+        lua_setfield(L, -2, "GetBoolean");
+        lua_pushcfunction(L, LuaGlobal::GetInteger);
+        lua_setfield(L, -2, "GetInteger");
+        lua_pushcfunction(L, LuaGlobal::GetNumber);
+        lua_setfield(L, -2, "GetNumber");
+        lua_pushcfunction(L, LuaGlobal::GetString);
+        lua_setfield(L, -2, "GetString");
+        lua_pushcfunction(L, LuaGlobal::GetTable);
+        lua_setfield(L, -2, "GetTable");
+        lua_pushcfunction(L, LuaGlobal::SetBoolean);
+        lua_setfield(L, -2, "SetBoolean");
+        lua_pushcfunction(L, LuaGlobal::SetInteger);
+        lua_setfield(L, -2, "SetInteger");
+        lua_pushcfunction(L, LuaGlobal::SetNumber);
+        lua_setfield(L, -2, "SetNumber");
+        lua_pushcfunction(L, LuaGlobal::SetString);
+        lua_setfield(L, -2, "SetString");
+        lua_pushcfunction(L, LuaGlobal::SetTable);
+        lua_setfield(L, -2, "SetTable");
+        lua_setglobal(L, "Global"); 
+    }
+
+    {
+        lua_newtable(L);
         LuaPushCFunctionWithTag(LuaTag::GetTag,"GetTag");
+        lua_setglobal(L, "Tag");//name the table Tag
     }
-    lua_setglobal(L, "Tag");//name the table Tag
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         luaL_setfuncs(L, LuaInput::inputLib, 0);
+        lua_setglobal(L, "Input");//name the table Input
     }
-    lua_setglobal(L, "Input");//name the table Input
 
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     if (lua_getglobal(L, "Start"))

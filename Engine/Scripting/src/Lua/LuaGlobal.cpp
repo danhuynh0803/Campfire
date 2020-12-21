@@ -1,5 +1,6 @@
 #include "Scripting/Lua/LuaGlobal.h"
 #include "Scripting/LuaManager.h"
+#include "Core/Log.h"
 
 int LuaGlobal::SetNumber(lua_State* L)
 {
@@ -55,13 +56,11 @@ int LuaGlobal::GetNumber(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    lua_Number number;
-    if (!LuaManager::GetGlobalLuaNumber(name, number))
+    if (!LuaManager::GetGlobalLuaNumber(name, L))
     {
         lua_pushstring(L, "Cannot find the double value.");
         lua_error(L);
     }
-    lua_pushboolean(L, number);
     return 1;
 }
 
@@ -69,13 +68,11 @@ int LuaGlobal::GetBoolean(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    bool value;
-    if (!LuaManager::GetGlobalLuaBoolean(name,value))
+    if (!LuaManager::GetGlobalLuaBoolean(name, L))
     {
         lua_pushstring(L, "Cannot find the boolean value.");
         lua_error(L);
     }
-    lua_pushboolean(L, value);
     return 1;
 }
 
@@ -83,13 +80,11 @@ int LuaGlobal::GetInteger(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    lua_Integer number;
-    if (!LuaManager::GetGlobalLuaInteger(name, number))
+    if (!LuaManager::GetGlobalLuaInteger(name, L))
     {
         lua_pushstring(L, "Cannot find the integer value.");
         lua_error(L);
     }
-    lua_pushinteger(L, number);
     return 1;
 }
 
@@ -97,13 +92,11 @@ int LuaGlobal::GetString(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    const char* value;
-    if (!LuaManager::GetGlobalLuaString(name, value))
+    if (!LuaManager::GetGlobalLuaString(name, L))
     {
-        lua_pushstring(L, "Cannot find the integer value.");
+        lua_pushstring(L, "Cannot find the string value.");
         lua_error(L);
     }
-    lua_pushstring(L, value);
     return 1;
 }
 
