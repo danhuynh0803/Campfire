@@ -54,6 +54,62 @@ void LuaManager::SetGlobalLuaTable(const char* name, lua_State* L2)
     lua_setglobal(L2, name);
 }
 
+bool LuaManager::GetGlobalLuaNumber(const char* name, lua_Number& number)
+{
+    lua_getglobal(L, name);
+    if(lua_isnumber(L,-1))
+    {
+        lua_pop(L, 1);
+        number = lua_tonumber(L, -1);
+        return true;
+    }
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaInteger(const char* name, lua_Integer& value)
+{
+    lua_getglobal(L, name);
+    if (lua_isnumber(L, -1))
+    {
+        lua_pop(L, 1);
+        value = lua_tointeger(L, -1);
+        return true;
+    }
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaString(const char* name, const char* value)
+{
+    lua_getglobal(L, name);
+    if (lua_isstring(L, -1))
+    {
+        lua_pop(L, 1);
+        value = lua_tostring(L, -1);
+        return true;
+    }
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaBoolean(const char* name, bool& value)
+{
+    lua_getglobal(L, name);
+    if (lua_isboolean(L, -1))
+    {
+        lua_pop(L, 1);
+        value = lua_toboolean(L, -1);
+        return true;
+    }
+    return false;
+}
+
+void LuaManager::GetGlobalLuaTable(const char* name, lua_State* L2)
+{
+    if (!lua_istable(L, -1)) return;
+    lua_newtable(L2);
+    LuaUtility::TransferTable(L, L2);
+    lua_setglobal(L2, name);
+}
+
 bool LuaUtility::is_number(const std::string& s)
 {
     std::string::const_iterator it = s.begin();

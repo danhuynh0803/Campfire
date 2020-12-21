@@ -11,7 +11,7 @@ using JsonObject = nlohmann::json;
 
 struct LuaData
 {
-    std::string title;
+    std::string sender;
     LuaEventCallbackFn EventCallback;
 };
 
@@ -29,12 +29,17 @@ class LuaManager
 public:
     static void Init();
     static void Shutdown();
-    static void SetEventCallback(const LuaEventCallbackFn& callback);
+    static void SetEventCallback(const LuaEventCallbackFn&);
     static void SetGlobalLuaNumber(const char*, const lua_Number&);
     static void SetGlobalLuaInteger(const char*, const lua_Integer&);
     static void SetGlobalLuaString(const char*, const char*);
     static void SetGlobalLuaBoolean(const char*, const bool&);
     static void SetGlobalLuaTable(const char*, lua_State*);
+    static bool GetGlobalLuaNumber(const char*, lua_Number&);
+    static bool GetGlobalLuaInteger(const char*, lua_Integer&);
+    static bool GetGlobalLuaString(const char*, const char*);
+    static bool GetGlobalLuaBoolean(const char*, bool&);
+    static void GetGlobalLuaTable(const char*, lua_State* L2);
 
 private:
     static LuaData data;
