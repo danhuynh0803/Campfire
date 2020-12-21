@@ -46,12 +46,13 @@ void LuaManager::SetGlobalLuaBoolean(const char* name, const bool& boolean)
     lua_setglobal(L, name);
 }
 
-void LuaManager::SetGlobalLuaTable(const char* name, lua_State* L2)
+bool LuaManager::SetGlobalLuaTable(const char* name, lua_State* L2)
 {
-    if (!lua_istable(L, -1)) return;
-    lua_newtable(L2);
-    LuaUtility::TransferTable(L, L2);
-    lua_setglobal(L2, name);
+    if (!lua_istable(L, -1)) return false;
+    lua_newtable(L);
+    LuaUtility::TransferTable(L2, L);
+    lua_setglobal(L, name);
+    return true;
 }
 
 bool LuaManager::GetGlobalLuaNumber(const char* name, lua_Number& number)
@@ -102,12 +103,13 @@ bool LuaManager::GetGlobalLuaBoolean(const char* name, bool& value)
     return false;
 }
 
-void LuaManager::GetGlobalLuaTable(const char* name, lua_State* L2)
+bool LuaManager::GetGlobalLuaTable(const char* name, lua_State* L2)
 {
-    if (!lua_istable(L, -1)) return;
+    lua_getglobal(L, name);
+    if (!lua_istable(L, -1)) return false;
     lua_newtable(L2);
     LuaUtility::TransferTable(L, L2);
-    lua_setglobal(L2, name);
+    return true;
 }
 
 bool LuaUtility::is_number(const std::string& s)
@@ -125,7 +127,13 @@ void LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
     {
         if (lua_isstring(L1,-2))
         {
-            if (lua_isnumber(L1, -1))
+            if (lua_isinteger(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushinteger(L2, lua_tointeger(L1, -1));
+                lua_settable(L2, -3);
+            }
+            else if (lua_isnumber(L1, -1))
             {
                 lua_pushstring(L2, lua_tostring(L1, -2));
                 lua_pushnumber(L2, lua_tonumber(L1, -1));
@@ -135,6 +143,12 @@ void LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
             {
                 lua_pushstring(L2, lua_tostring(L1, -2));
                 lua_pushstring(L2, lua_tostring(L1, -1));
+                lua_settable(L2, -3);
+            }
+            else if (lua_isboolean(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushboolean(L2, lua_toboolean(L1, -1));
                 lua_settable(L2, -3);
             }
             else if (lua_istable(L1, -1))
@@ -147,9 +161,16 @@ void LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
         }
         else if (lua_isnumber(L1, -2))
         {
-            if (lua_isnumber(L1, -1))
+            if (lua_isinteger(L1, -1))
             {
-                lua_pushstring(L2, std::to_string(lua_tonumber(L1,-2)).c_str());
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushinteger(L2, lua_tointeger(L1, -1));
+                lua_settable(L2, -3);
+
+            }
+            else if (lua_isnumber(L1, -1))
+            {
+                lua_pushstring(L2, std::to_string(lua_tonumber(L1, -2)).c_str());
                 lua_pushnumber(L2, lua_tonumber(L1, -1));
                 lua_settable(L2, -3);
             }
@@ -157,6 +178,12 @@ void LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
             {
                 lua_pushstring(L2, std::to_string(lua_tonumber(L1, -2)).c_str());
                 lua_pushstring(L2, lua_tostring(L1, -1));
+                lua_settable(L2, -3);
+            }
+            else if (lua_isboolean(L1, -1))
+            {
+                lua_pushstring(L2, std::to_string(lua_tonumber(L1, -2)).c_str());
+                lua_pushboolean(L2, lua_toboolean(L1, -1));
                 lua_settable(L2, -3);
             }
             else if (lua_istable(L1, -1))
@@ -187,7 +214,7 @@ JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
                     switch (lua_type(L, -2))//key type
                     {
                         case LUA_TNUMBER:
-                            json[std::to_string(lua_tonumber(L, -2))] = nullptr;
+                            json[std::to_string(lua_tointeger(L, -2))] = nullptr;
                             break;
                         case LUA_TSTRING:
                             json[lua_tostring(L, -2)] = nullptr;
@@ -215,7 +242,14 @@ JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
                     switch (lua_type(L, -2))
                     {
                         case LUA_TNUMBER:
-                            json[std::to_string(lua_tonumber(L, -2))] = lua_tonumber(L, -1);
+                            if (lua_isinteger(L, -1))
+                            {
+                                json[std::to_string(lua_tointeger(L, -2))] = lua_tointeger(L, -1);
+                            }
+                            else
+                            {
+                                json[std::to_string(lua_tointeger(L, -2))] = lua_tonumber(L, -1);
+                            }
                             break;
                         case LUA_TSTRING:
                             json[lua_tostring(L, -2)] = lua_tonumber(L, -1);
@@ -228,7 +262,7 @@ JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
                     switch (lua_type(L, -2))
                     {
                         case LUA_TNUMBER:
-                            json[std::to_string(lua_tonumber(L, -2))] = lua_tostring(L, -1);
+                            json[std::to_string(lua_tointeger(L, -2))] = lua_tostring(L, -1);
                             break;
                         case LUA_TSTRING:
                             json[lua_tostring(L, -2)] = lua_tostring(L, -1);
@@ -242,7 +276,7 @@ JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
                     switch (lua_type(L, -2))
                     {
                         case LUA_TNUMBER:
-                            json[std::to_string(lua_tonumber(L, -2))] = SerializeLuaTable(L, subJson);
+                            json[std::to_string(lua_tointeger(L, -2))] = SerializeLuaTable(L, subJson);
                             break;
                         case LUA_TSTRING:
                             json[lua_tostring(L, -2)] = SerializeLuaTable(L, subJson);
@@ -292,7 +326,7 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, JsonObject jsonObject)
             else
             if (value.is_number_integer())
             {
-                lua_pushinteger(L, (int)value);
+                lua_pushinteger(L, (lua_Integer)value);
                 lua_pushinteger(L, std::atoi(key.c_str()));
                 lua_rawset(L, -3);
             }
@@ -329,7 +363,7 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, JsonObject jsonObject)
             else
             if (value.is_number_integer())
             {
-                lua_pushinteger(L, (int)value);
+                lua_pushinteger(L, (lua_Integer)value);
                 lua_pushstring(L, key.c_str());
                 lua_rawset(L, -3);
             }
@@ -495,4 +529,12 @@ void LuaUtility::ParseLuaTableOnTop(lua_State *L, const char* tabs)
         }
         LOG_INFO("{0}{1}", tabs, "}");
     }
+}
+
+int LuaUtility::Log(lua_State* L)
+{
+    luaL_checkstring(L, -1);
+    const char* msg = lua_tostring(L, -1);
+    LOG_INFO(msg);
+    return 0;
 }

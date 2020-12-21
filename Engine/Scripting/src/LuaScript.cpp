@@ -11,6 +11,8 @@
 #include "Scripting/Lua/LuaVector.h"
 #include "Scripting/Lua/LuaCollider.h"
 #include "Scripting/Lua/LuaEntity.h"
+#include "Scripting/Lua/LuaGlobal.h"
+#include "Scripting/LuaManager.h"
 #include "Core/Log.h"
 #include "Physics/Collider.h"
 
@@ -26,14 +28,6 @@ int LuaScriptCallBack::LuaCallback(lua_State* L)
         luaL_traceback(L, L, message, 1);
         return 1;
     }
-    return 0;
-}
-
-static int Log(lua_State* L)
-{
-    luaL_checkstring(L, -1);
-    const char* msg = lua_tostring(L, -1);
-    LOG_INFO(msg);
     return 0;
 }
 
@@ -81,7 +75,7 @@ void LuaScript::Start()
     luaL_openlibs(L); //opens all standard Lua libraries
 
     // Setup logs
-    lua_pushcfunction(L, Log);
+    lua_pushcfunction(L, LuaUtility::Log);
     lua_setglobal(L, "Log");
 
     lua_newtable(L);

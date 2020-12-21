@@ -22,6 +22,7 @@ namespace LuaUtility
     JsonObject SerializeLuaTable(lua_State*, JsonObject& json);
     void DeseralizeLuaTable(lua_State*, JsonObject);
     void ParseLuaTableOnTop(lua_State*, const char*);
+    int Log(lua_State* L);
 }
 
 class LuaManager
@@ -34,12 +35,12 @@ public:
     static void SetGlobalLuaInteger(const char*, const lua_Integer&);
     static void SetGlobalLuaString(const char*, const char*);
     static void SetGlobalLuaBoolean(const char*, const bool&);
-    static void SetGlobalLuaTable(const char*, lua_State*);
+    static bool SetGlobalLuaTable(const char*, lua_State*);
     static bool GetGlobalLuaNumber(const char*, lua_Number&);
     static bool GetGlobalLuaInteger(const char*, lua_Integer&);
     static bool GetGlobalLuaString(const char*, const char*);
     static bool GetGlobalLuaBoolean(const char*, bool&);
-    static void GetGlobalLuaTable(const char*, lua_State* L2);
+    static bool GetGlobalLuaTable(const char*, lua_State* L2);
 
 private:
     static LuaData data;
