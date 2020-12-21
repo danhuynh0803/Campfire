@@ -221,8 +221,6 @@ void Scene::OnStart()
         {
             if (!sc.instance)
             {
-                // TODO bind based on the type of script it is
-                sc.template Bind<LuaScript>();
                 sc.instance = sc.InstantiateScript();
                 sc.instance->entity = Entity(entity, this);
                 sc.instance->filepath = sc.filepath;

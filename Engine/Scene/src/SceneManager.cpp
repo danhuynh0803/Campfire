@@ -439,6 +439,8 @@ Entity SceneManager::DeserializeEntity(json eJson, Scene* parentScene)
         comp.runOnTriggerEnter = cJson["runOnTriggerEnter"];
         comp.runOnTriggerStay = cJson["runOnTriggerStay"];
         comp.runOnTriggerExit = cJson["runOnTriggerExit"];
+        // TODO bind based on the type of script it is
+        comp.template Bind<LuaScript>();
     }
 
     if (eJson.contains("TextComponent"))
