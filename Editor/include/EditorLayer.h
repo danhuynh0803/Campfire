@@ -27,7 +27,7 @@ class EditorLayer : public Layer
 
     DrawMode drawMode = DrawMode::SHADED;
     bool drawSkybox = true;
-    bool drawPostProcess = false;
+    bool drawPostProcess = true;
     bool drawParticleSystems = false;
 
 public:
@@ -60,15 +60,27 @@ private:
     void ShowConsole(bool* isOpen);
     void ShowEditorCameraSettings(bool* isOpen);
 
+    void ScreenToWorldRay(
+        float mouseX, float mouseY,
+        int screenWidth, int screenHeight,
+        glm::mat4 viewMatrix,
+        glm::mat4 projMatrix,
+        glm::vec3& outOrigin,
+        glm::vec3& outDirection
+    );
+
 private:
     int editorSelectedIndex = -1;
     bool startScene = false;
     bool stopScene = true;
     bool shouldOpenExitPrompt = false;
+    bool maximizeGameViewport = false;
+    glm::ivec2 maxResolution = glm::ivec2(1920, 1080);
     SharedPtr<Scene> editorScene;
     SharedPtr<Scene> runtimeScene;
     SharedPtr<Scene> activeScene;
 
+    bool is2d = false;
     SharedPtr<Camera> editorCamera;
     CameraController cameraController;
 

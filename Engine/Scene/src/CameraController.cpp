@@ -27,20 +27,36 @@ void CameraController::OnEvent(Event& e)
     dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(CameraController::OnMouseMoved));
 }
 
+void CameraController::LockViewTo2d()
+{
+    right = glm::vec3(1, 0, 0);
+    up    = glm::vec3(0, 1, 0);
+    front = glm::vec3(0, 0, -1);
+
+    activeCamera->RecalculateViewMatrix(
+        activeCamera->pos,
+        glm::vec3(0, 0, -1),
+        glm::vec3(0, 1, 0)
+    );
+}
+
 void CameraController::OnUpdate(float dt)
 {
     movementSpeed = (Input::GetKey(KEY_LEFT_SHIFT)) ? (normalSpeed * 2.0f) : normalSpeed;
 
     if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
-        if (Input::GetKey(KEY_W))
-            ProcessKeyboard(FORWARD, dt);
-        if (Input::GetKey(KEY_A))
-            ProcessKeyboard(LEFT, dt);
-        if (Input::GetKey(KEY_S))
-            ProcessKeyboard(BACKWARD, dt);
-        if (Input::GetKey(KEY_D))
-            ProcessKeyboard(RIGHT, dt);
+        if (activeCamera->isPerspective)
+        {
+            if (Input::GetKey(KEY_W))
+                ProcessKeyboard(FORWARD, dt);
+            if (Input::GetKey(KEY_A))
+                ProcessKeyboard(LEFT, dt);
+            if (Input::GetKey(KEY_S))
+                ProcessKeyboard(BACKWARD, dt);
+            if (Input::GetKey(KEY_D))
+                ProcessKeyboard(RIGHT, dt);
+        }
     }
 
     UpdateCameraVectors();
@@ -55,12 +71,21 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
     }
     else
     {
-        if (fov >= 1.0f && fov <= 60.0f)
-            fov -= e.GetYOffset();
-        if (fov <= 1.0f)
-            fov = 1.0f;
-        if (fov >= 60.0f)
-            fov = 60.0f;
+        if (activeCamera->isPerspective)
+        {
+            if (fov >= 1.0f && fov <= 60.0f)
+                fov -= e.GetYOffset();
+            if (fov <= 1.0f)
+                fov = 1.0f;
+            if (fov >= 60.0f)
+                fov = 60.0f;
+        }
+        else
+        {
+            // invert since we want to zoom out when scrolling down
+            // which is done by increasing the size of the ortho viewport
+            activeCamera->size = std::clamp(activeCamera->size -= e.GetYOffset(), 0.1f, 50.0f);
+        }
     }
 
     activeCamera->vFov = fov;
@@ -98,7 +123,10 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e)
     lastX = e.GetX();
     lastY = e.GetY();
 
-    if (Input::GetMouseButton(MOUSE_BUTTON_MIDDLE))
+    if (Input::GetMouseButton(MOUSE_BUTTON_MIDDLE)
+        || (!activeCamera->isPerspective
+            && Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+    )
     {
         xOffset *= 0.01f;
         yOffset *= 0.01f;

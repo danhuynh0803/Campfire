@@ -29,15 +29,6 @@ SharedPtr<Framebuffer> editorCamFBO;
 SharedPtr<Framebuffer> postprocessFBO;
 std::vector<SharedPtr<Framebuffer>> pingpongFBOs;
 
-static void ScreenToWorldRay(
-    float mouseX, float mouseY,
-    int screenWidth, int screenHeight,
-    glm::mat4 viewMatrix,
-    glm::mat4 projMatrix,
-    glm::vec3& outOrigin,
-    glm::vec3& outDirection
-);
-
 // Curr display for the game viewport
 static uint32_t currDisplay = 0;
 
@@ -243,6 +234,21 @@ void EditorLayer::OnUpdate(float dt)
 
     ZoneScoped;
 
+    {
+        auto group = activeScene->GetAllEntitiesWith<ActiveComponent>();
+        for (auto handle : group)
+        {
+            Entity entity(handle, activeScene.get());
+            bool isActive = entity.GetComponent<ActiveComponent>();
+            //if (entity.GetComponent<ActiveComponent>())
+            //    activeScene->EnableEntity(entity);
+            //else
+            //    activeScene->DisableEntity(entity);
+        }
+    }
+
+    // Move inactive/active objects from registries
+
     float deltaTime = (state == State::PAUSE) ? 0.0f : dt;
 
     static int editorSelectedIndex = -1;
@@ -284,13 +290,24 @@ void EditorLayer::OnUpdate(float dt)
         activeScene->OnUpdate(deltaTime);
     }
 
+    if (is2d)
+    {
+        // FIXME Issues with clicking when reorienting view
+        //cameraController.LockViewTo2d();
+        editorCamera->isPerspective = false;
+    }
+    else
+    {
+        editorCamera->isPerspective = true;
+    }
+
     auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
     SharedPtr<Camera> mainGameCamera = nullptr;
     for (auto entity : group)
     {
         auto comp = group.get<CameraComponent>(entity);
 
-        if (!comp.isActive) continue;
+        if (!comp.isActive) { continue; }
 
         SharedPtr<Camera> selectedCamera = comp.camera;
         if (selectedCamera->targetDisplay == currDisplay)
@@ -317,8 +334,8 @@ void EditorLayer::OnUpdate(float dt)
                             glm::radians(parentEulerAngles.x),
                             glm::radians(parentEulerAngles.y),
                             glm::radians(parentEulerAngles.z)
-                            )
-                        );
+                        )
+                    );
                 glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
 
                 mainGameCamera->pos = rotationPosition;
@@ -388,9 +405,14 @@ void EditorLayer::OnUpdate(float dt)
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
 
+        // Set editor cam to perspective just to draw the skybox
+        bool isPerspective = editorCamera->isPerspective;
+        editorCamera->isPerspective = true;
         SceneRenderer::BeginScene(activeScene, *editorCamera);
+        editorCamera->isPerspective = isPerspective;
 
         if (drawSkybox) {
+            RenderCommand::SetDrawMode(DrawMode::SHADED);
             activeScene->skybox->DrawSkybox();
         }
         else {
@@ -400,6 +422,7 @@ void EditorLayer::OnUpdate(float dt)
 
         RenderCommand::SetDrawMode(drawMode);
 
+        SceneRenderer::BeginSceneWithoutClear(activeScene, *editorCamera);
         if (allowViewportCameraEvents)
             cameraController.OnUpdate(dt);
         activeScene->OnRender(deltaTime, *editorCamera);
@@ -487,18 +510,16 @@ void EditorLayer::OnUpdate(float dt)
             camera->DrawFrustum(entity.GetComponent<TransformComponent>());
         }
 
-        // TODO don't remove yet, still need to figure out
-        // slight mismatch from raycast not matching mouse pos
-        // Most likely a mismatch with resolution somewhere
+        // TODO keep for figuring out ortho raycasting
         //if (Input::GetMouseButton(MOUSE_BUTTON_LEFT))
         //{
         //    auto [mouseX , mouseY] = GetMouseViewportSpace();
-        //    LOG_TRACE("MouseX = {0}", mouseX);
-        //    LOG_TRACE("MouseX = {0}", mouseY);
-        //    LOG_TRACE("cameraW = {0}", editorCamera->width);
-        //    LOG_TRACE("cameraH = {0}", editorCamera->height);
-        //    LOG_TRACE("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
-        //    LOG_TRACE("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
+        //    LOG_INFO("MouseX = {0}", mouseX);
+        //    LOG_INFO("MouseY = {0}", mouseY);
+        //    LOG_INFO("cameraW = {0}", editorCamera->width);
+        //    LOG_INFO("cameraH = {0}", editorCamera->height);
+        //    LOG_INFO("viewportW = {0}", maxViewportBound.x - minViewportBound.x);
+        //    LOG_INFO("viewportH = {0}", maxViewportBound.y - minViewportBound.y);
 
         //    glm::vec3 rayOrig, rayDir;
         //    ScreenToWorldRay(
@@ -642,7 +663,7 @@ void EditorLayer::OnImGuiRender()
     }
 
     // Editor viewport
-    ImGui::Begin("Scene");
+    ImGui::Begin("Viewport");
     {
         // -------------------------------------------------
         // Scene Toolbar
@@ -655,6 +676,10 @@ void EditorLayer::OnImGuiRender()
         int currMode = static_cast<int>(drawMode);
         ImGui::Combo("Draw Mode", &currMode, drawModes, IM_ARRAYSIZE(drawModes));
         drawMode = static_cast<DrawMode>(currMode);
+
+        ImGui::SameLine();
+
+        ImGui::Checkbox("2D", &is2d);
 
         ImGui::SameLine();
 
@@ -697,7 +722,6 @@ void EditorLayer::OnImGuiRender()
         else {
             ImGui::Image((ImTextureID)editorCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
         }
-
 
         auto windowSize = ImGui::GetWindowSize();
         ImVec2 minBound = ImGui::GetWindowPos();
@@ -793,7 +817,7 @@ void EditorLayer::OnImGuiRender()
     //ImGui::End();
 
     // Game Camera viewport
-    ImGui::Begin("Game");
+    ImGui::Begin("Game View");
     {
         ImGui::PushID(0);
         const char* displays[] = { "Display 1", "Display 2", "Display 3", "Display 4", "Display 5" };
@@ -807,6 +831,10 @@ void EditorLayer::OnImGuiRender()
         const char* resolutions[] = { "Free aspect", "16x9" };
         ImGui::Combo("", (int*)&currResolutionIndex, resolutions, IM_ARRAYSIZE(resolutions));
         ImGui::PopID();
+
+        //ImGui::SameLine();
+
+        ImGui::Checkbox("Maximize", &maximizeGameViewport);
 
         auto viewportSize = ImGui::GetContentRegionAvail();
         switch (currResolutionIndex)
@@ -829,14 +857,36 @@ void EditorLayer::OnImGuiRender()
                         - glm::vec2(fixed16x9Viewport.x, fixed16x9Viewport.y)
                     )
                     + titleBarHeight
-                    ;
+                ;
+
                 ImGui::SetCursorPos({ center.x, center.y });
                 ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), fixed16x9Viewport, { 0, 1 }, { 1, 0 });
                 break;
             }
         }
+
     }
     ImGui::End();
+
+    if (maximizeGameViewport
+        && state == State::PLAY)
+    {
+        bool isOpen = true;
+        // Scale down a bit just to be able to see the whole window
+        ImGui::SetNextWindowSize(ImVec2(maxResolution.x * 0.95f, maxResolution.y * 0.95f));
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoCollapse
+            | ImGuiWindowFlags_NoDocking
+            //| ImGuiWindowFlags_NoTitleBar
+            | ImGuiWindowFlags_NoSavedSettings
+        ;
+        ImGui::Begin("Game", &isOpen, flags);
+
+        auto viewportSize = ImGui::GetContentRegionAvail();
+        ImGui::Image((ImTextureID)gameCamFBO->GetColorAttachmentID(), viewportSize, { 0, 1 }, { 1, 0 });
+
+        ImGui::End();
+    }
 
     // Engine closing
     if (shouldOpenExitPrompt)
@@ -980,7 +1030,7 @@ void EditorLayer::OnLuaEvent(LuaEvent& event)
     dispatcher.Dispatch<LuaSetGlobalEvent>(BIND_EVENT_FN(EditorLayer::OnLuaSetGlobal));
 }
 
-static void ScreenToWorldRay(
+void EditorLayer::ScreenToWorldRay(
     float mouseX, float mouseY,
     int screenWidth, int screenHeight,
     glm::mat4 viewMatrix,
@@ -1015,6 +1065,20 @@ static void ScreenToWorldRay(
 
     glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
     rayEndWorld /= rayEndWorld.w;
+
+    LOG_INFO("Start = {0}, {1}, {2}, {3}", rayStartWorld.x, rayStartWorld.y, rayStartWorld.z, rayStartWorld.w);
+    LOG_INFO("End   = {0}, {1}, {2}, {3}", rayEndWorld.x, rayEndWorld.y, rayEndWorld.z, rayEndWorld.w);
+
+    //if (editorCamera->isPerspective)
+    //{
+    //    rayEndWorld = worldSpaceMatrix * rayEndNDC;
+    //    rayEndWorld /= rayEndWorld.w;
+    //}
+    //else
+    //{
+    //    rayEndWorld = rayStartWorld;
+    //    rayEndWorld.z = rayStartWorld.z - 10000.0f;
+    //}
 
     outOrigin = rayStartWorld;
     outDirection = glm::normalize(rayEndWorld - rayStartWorld);
@@ -1131,6 +1195,7 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
 bool EditorLayer::OnWindowResize(WindowResizeEvent& e)
 {
     //LOG_INFO("Resize: ScrWidth = {0}, ScrHeight = {1}", e.GetWidth(), e.GetHeight());
+    maxResolution = glm::ivec2(e.GetWidth(), e.GetHeight());
     editorCamera->SetProjection(e.GetWidth(), e.GetHeight());
 
     FramebufferSpec resizeSpec = {
@@ -1346,11 +1411,12 @@ std::pair<float, float> EditorLayer::GetMouseViewportSpace()
     mouseX -= minViewportBound.x;
     mouseY -= minViewportBound.y;
 
-    auto viewportWidth = maxViewportBound.x - minViewportBound.x;
-    auto viewportHeight = maxViewportBound.y - minViewportBound.y;
+    //auto viewportWidth = maxViewportBound.x - minViewportBound.x;
+    //auto viewportHeight = maxViewportBound.y - minViewportBound.y;
+    //LOG_INFO("vp width = {0}, vp height = {1}", viewportWidth, viewportHeight);
 
     return {
-        (mouseX / viewportWidth) * 2.0f - 1.0f,
-        ((mouseY / viewportHeight) * 2.0f - 1.0f) * -1.0f // mouse.y is inverted
+        (mouseX / editorCamera->width) * 2.0f - 1.0f,
+        ((mouseY / editorCamera->height) * 2.0f - 1.0f) * -1.0f // mouse.y is inverted
     };
 }

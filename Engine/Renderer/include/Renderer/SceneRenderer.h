@@ -18,6 +18,7 @@ public:
     static void Shutdown();
     static void OnWindowResize(uint32_t width, uint32_t height);
 
+    static void BeginSceneWithoutClear(const SharedPtr<Scene>& scene, const Camera& camera);
     static void BeginScene(const SharedPtr<Scene>& scene, const Camera& camera);
     static void EndScene();
 

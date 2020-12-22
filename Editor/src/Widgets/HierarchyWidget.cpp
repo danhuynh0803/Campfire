@@ -58,9 +58,11 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
     int rootIdx = 0;
     static int childIdx = -1;
     auto entityMap = activeScene->GetEntityMap();
+    // TODO
+    // replace entityMap with just querying entities directly from the registry
+    // though this might mess up the ordering
     for (auto entityPair : entityMap)
     {
-        //    if (filter.PassFilter(tag.c_str()))
         ImGuiTreeNodeFlags node_flags = base_flags;
         const bool is_selected = (selection_mask & (1 << rootIdx)) != 0;
 
@@ -73,24 +75,28 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
         if (!entity) {
             continue;
         }
+
         std::string tag = entity.GetComponent<TagComponent>().tag;
-
-        RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
-        if (relationshipComp.numChildren == 0)
+        // Skip entities that don't match the filter
+        if (filter.PassFilter(tag.c_str()))
         {
-            // Object contains no children, so set as selectable leaf
-            node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
-            ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
-            if (ImGui::IsItemClicked())
+            RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
+            if (relationshipComp.numChildren == 0)
             {
-                selected = rootIdx;
-                childIdx = -1;
+                // Object contains no children, so set as selectable leaf
+                node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
+                ImGui::TreeNodeEx((void*)(intptr_t)rootIdx, node_flags, "%d. %s", rootIdx, tag.c_str());
+                if (ImGui::IsItemClicked())
+                {
+                    selected = rootIdx;
+                    childIdx = -1;
+                }
             }
-        }
 
-        if (selected == rootIdx)
-        {
-            OverrideSelectedEntity(entity, activeScene);
+            if (selected == rootIdx)
+            {
+                OverrideSelectedEntity(entity, activeScene);
+            }
         }
 
         ++rootIdx;

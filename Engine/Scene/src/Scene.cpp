@@ -158,6 +158,7 @@ void Scene::CopyFrom(const SharedPtr<Scene>& srcScene)
 
     if (!enttMap.empty())
     {
+        CopyComponent<ActiveComponent>(registry, srcScene->registry, enttMap);
         CopyComponent<TagComponent>(registry, srcScene->registry, enttMap);
         CopyComponent<TransformComponent>(registry, srcScene->registry, enttMap);
         CopyComponent<MeshComponent>(registry, srcScene->registry, enttMap);
@@ -220,8 +221,6 @@ void Scene::OnStart()
         {
             if (!sc.instance)
             {
-                // TODO bind based on the type of script it is
-                sc.template Bind<LuaScript>();
                 sc.instance = sc.InstantiateScript();
                 sc.instance->entity = Entity(entity, this);
                 sc.instance->filepath = sc.filepath;
@@ -539,6 +538,7 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     uint64_t ID = static_cast<uint64_t>(entt::entity(entity));
     entity.AddComponent<IDComponent>(ID);
     std::string tag = GetUniqueTag(name);
+    entity.AddComponent<ActiveComponent>();
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
     entity.AddComponent<RelationshipComponent>();
@@ -559,6 +559,8 @@ Entity Scene::DuplicateEntity(Entity entity)
     std::string tag = entity.GetComponent<TagComponent>();
     Entity newEntity = CreateEntity(tag);
 
+    // FIXME have a list of components to copy to avoid duplicate code
+    CopyComponentIfExists<ActiveComponent>(newEntity, entity, registry);
     CopyComponentIfExists<TransformComponent>(newEntity, entity, registry);
     CopyComponentIfExists<MeshComponent>(newEntity, entity, registry);
     CopyComponentIfExists<SpriteComponent>(newEntity, entity, registry);

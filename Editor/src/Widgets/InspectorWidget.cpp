@@ -22,6 +22,12 @@ void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 
 void InspectorWidget::ShowEntity(Entity& entity)
 {
+    int isActiveID = 0;
+    ImGui::PushID(isActiveID++);
+    ImGui::Checkbox("", &entity.GetComponent<ActiveComponent>().isActive);
+    ImGui::PopID();
+    ImGui::SameLine();
+
     if (ImGui::Button("Save Prefab"))
     {
         std::string path = FileSystem::SaveFile("Prefab Files(*.prefab)\0");
@@ -124,8 +130,6 @@ void InspectorWidget::ShowEntity(Entity& entity)
         }
         ImGui::Separator();
     }
-
-    int isActiveID = 0;
 
     // Camera
     if (entity.HasComponent<CameraComponent>())
