@@ -44,7 +44,7 @@ int LuaGlobal::SetTable(lua_State* L)
     int topIndex = lua_gettop(L);
     luaL_checktype(L, topIndex, LUA_TTABLE);
     const char* name = luaL_checkstring(L, topIndex - 1);
-    if (!LuaManager::SetGlobalLuaTable(name, L))
+    if (!LuaManager::SetGlobalLuaTable(L, name))
     {
         lua_pushstring(L, "Cannot set the table value.");
         lua_error(L);
@@ -56,7 +56,7 @@ int LuaGlobal::GetNumber(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaNumber(name, L))
+    if (!LuaManager::GetGlobalLuaNumber(L,name))
     {
         lua_pushstring(L, "Cannot find the double value.");
         lua_error(L);
@@ -68,7 +68,7 @@ int LuaGlobal::GetBoolean(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaBoolean(name, L))
+    if (!LuaManager::GetGlobalLuaBoolean(L, name))
     {
         lua_pushstring(L, "Cannot find the boolean value.");
         lua_error(L);
@@ -80,7 +80,7 @@ int LuaGlobal::GetInteger(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaInteger(name, L))
+    if (!LuaManager::GetGlobalLuaInteger(L, name))
     {
         lua_pushstring(L, "Cannot find the integer value.");
         lua_error(L);
@@ -92,7 +92,7 @@ int LuaGlobal::GetString(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaString(name, L))
+    if (!LuaManager::GetGlobalLuaString(L, name))
     {
         lua_pushstring(L, "Cannot find the string value.");
         lua_error(L);
@@ -104,7 +104,7 @@ int LuaGlobal::GetTable(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaTable(name, L))
+    if (!LuaManager::GetGlobalLuaTable(L,name))
     {
         lua_pushstring(L, "Cannot find the table value.");
         lua_error(L);

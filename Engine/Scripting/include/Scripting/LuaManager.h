@@ -20,7 +20,8 @@ namespace LuaUtility
     bool is_number(const std::string& s);
     bool TransferTable(lua_State* L1, lua_State* L2);
     JsonObject SerializeLuaTable(lua_State*, JsonObject& json);
-    void DeseralizeLuaTable(lua_State*, JsonObject);
+    int DeseralizeLuaTableX(lua_State* L);
+    void DeseralizeLuaTable(lua_State*, const JsonObject&);
     void ParseLuaTableOnTop(lua_State*, const char*);
     int Log(lua_State* L);
 }
@@ -35,12 +36,19 @@ public:
     static void SetGlobalLuaInteger(const char*, const lua_Integer&);
     static void SetGlobalLuaString(const char*, const char*);
     static void SetGlobalLuaBoolean(const char*, const bool&);
-    static bool SetGlobalLuaTable(const char*, lua_State*);
-    static bool GetGlobalLuaNumber(const char*, lua_State*);
-    static bool GetGlobalLuaInteger(const char*, lua_State*);
-    static bool GetGlobalLuaString(const char*, lua_State*);
-    static bool GetGlobalLuaBoolean(const char*, lua_State*);
-    static bool GetGlobalLuaTable(const char*, lua_State* L2);
+    static bool SetGlobalLuaTable(lua_State* , const char*);
+    static bool SetGlobalLuaTableNumber(const char*, const char*, const lua_Number&);
+    static bool SetGlobalLuaTableInteger(const char*, const char*, const lua_Integer&);
+    static bool SetGlobalLuaTableString(const char*, const char*, const char*);
+    static bool SetGlobalLuaTableBoolean(const char*, const char*, const bool&);
+    static bool SetGlobalLuaTableTable(lua_State*,const char* ,const char*);
+    static bool GetGlobalLuaNumber(lua_State* , const char*);
+    static bool GetGlobalLuaInteger(lua_State* , const char*);
+    static bool GetGlobalLuaString(lua_State* , const char*);
+    static bool GetGlobalLuaBoolean(lua_State* ,const char*);
+    static bool GetGlobalLuaTable(lua_State*, const char*);
+
+    void Find(const char* name);
 
 private:
     static LuaData data;

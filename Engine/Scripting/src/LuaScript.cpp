@@ -181,13 +181,20 @@ void LuaScript::Start()
     {
         lua_newtable(L);
         LuaPushCFunctionWithTag(LuaTag::GetTag,"GetTag");
-        lua_setglobal(L, "Tag");//name the table Tag
+        lua_setglobal(L, "Tag");
     }
 
     {
         lua_newtable(L);
         luaL_setfuncs(L, LuaInput::inputLib, 0);
-        lua_setglobal(L, "Input");//name the table Input
+        lua_setglobal(L, "Input");
+    }
+
+    {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaUtility::DeseralizeLuaTableX);
+        lua_setfield(L, -2, "DeseralizeLuaTableX");
+        lua_setglobal(L, "Utility");
     }
 
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
