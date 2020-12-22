@@ -15,6 +15,7 @@
 
 #include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
+#include "Scripting/LuaManager.h"
 
 Application* Application::instance = nullptr;
 
@@ -33,6 +34,9 @@ Application::Application(const ApplicationProps& props)
 
     //PushLayer(new VulkanLayer());
 
+    LuaManager::Init();
+    LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
+    
     Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
     PhysicsManager::Init();
@@ -49,6 +53,7 @@ Application::~Application()
     // TODO move to shutdown
     PhysicsManager::Shutdown();
     Renderer::Shutdown();
+    LuaManager::Shutdown();
     Shutdown();
 }
 
@@ -107,6 +112,15 @@ void Application::OnEvent(Event& e)
     {
         (*revIt)->OnEvent(e);
         // If event is handled by this layer then don't propogate event down layerstack
+        if (e.handled) { break; }
+    }
+}
+
+void Application::OnLuaEvent(LuaEvent& e)
+{
+    for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
+    {
+        (*revIt)->OnLuaEvent(e);
         if (e.handled) { break; }
     }
 }

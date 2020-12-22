@@ -11,6 +11,8 @@
 #include "Scripting/Lua/LuaVector.h"
 #include "Scripting/Lua/LuaCollider.h"
 #include "Scripting/Lua/LuaEntity.h"
+#include "Scripting/Lua/LuaGlobal.h"
+#include "Scripting/LuaManager.h"
 #include "Core/Log.h"
 #include "Physics/Collider.h"
 
@@ -26,14 +28,6 @@ int LuaScriptCallBack::LuaCallback(lua_State* L)
         luaL_traceback(L, L, message, 1);
         return 1;
     }
-    return 0;
-}
-
-static int Log(lua_State* L)
-{
-    luaL_checkstring(L, -1);
-    const char* msg = lua_tostring(L, -1);
-    LOG_INFO(msg);
     return 0;
 }
 
@@ -81,29 +75,29 @@ void LuaScript::Start()
     luaL_openlibs(L); //opens all standard Lua libraries
 
     // Setup logs
-    lua_pushcfunction(L, Log);
+    lua_pushcfunction(L, LuaUtility::Log);
     lua_setglobal(L, "Log");
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         lua_pushcfunction(L, LuaVector::LuaVec2);
         lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec2");
     }
-    lua_setglobal(L, "Vec2");
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         lua_pushcfunction(L, LuaVector::LuaVec3);
         lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec3");
     }
-    lua_setglobal(L, "Vec3");
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         lua_pushcfunction(L, LuaVector::LuaVec4);
         lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec4");
     }
-    lua_setglobal(L, "Vec4");
     
     {
         char* vec2MetaTableName = "LuaVec2MetaTable";
@@ -114,6 +108,7 @@ void LuaScript::Start()
         lua_pushstring(L, "__sub");
         lua_pushcfunction(L, LuaVector::LuaVec2Sub);
         lua_settable(L, -3);
+        lua_pop(L, 1);//metatable can be popped after initialization
     }
 
     {
@@ -125,6 +120,7 @@ void LuaScript::Start()
         lua_pushstring(L, "__sub");
         lua_pushcfunction(L, LuaVector::LuaVec3Sub);
         lua_settable(L, -3);
+        lua_pop(L, 1);
     }
     
     {
@@ -136,37 +132,70 @@ void LuaScript::Start()
         lua_pushstring(L, "__sub");
         lua_pushcfunction(L, LuaVector::LuaVec4Sub);
         lua_settable(L, -3); //sets the (meta)table and pop above
+        lua_pop(L, 1);
     }
-    
-    LuaPushComponetTable<TransformComponent>();
-    LuaPushComponetTable<RigidbodyComponent>();
-    LuaPushComponetTable<AudioSource>();
-    LuaPushComponetTable<Colliders>();
 
-    lua_newtable(L);
     {
+        LuaPushComponetTable<TransformComponent>();
+        LuaPushComponetTable<RigidbodyComponent>();
+        LuaPushComponetTable<AudioSource>();
+        LuaPushComponetTable<Colliders>();
+    }
+
+    {
+        lua_newtable(L);
         lua_pushlightuserdata(L, this);
         lua_pushcclosure(L, LuaEntity::Instantiate, 1);
         lua_setfield(L, -2, "Instantiate");
-
-        lua_pushlightuserdata(L, this);
         lua_pushlightuserdata(L, &entity);
-        lua_pushcclosure(L, LuaEntity::EntityDestroy, 2);
+        lua_pushcclosure(L, LuaEntity::EntityDestroy, 1);
         lua_setfield(L, -2, "Destroy");
+        lua_setglobal(L, "Entity"); //name the table entity
     }
-    lua_setglobal(L, "Entity"); //name the table entity
-
-    lua_newtable(L);
+   
     {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaGlobal::GetBoolean);
+        lua_setfield(L, -2, "GetBoolean");
+        lua_pushcfunction(L, LuaGlobal::GetInteger);
+        lua_setfield(L, -2, "GetInteger");
+        lua_pushcfunction(L, LuaGlobal::GetNumber);
+        lua_setfield(L, -2, "GetNumber");
+        lua_pushcfunction(L, LuaGlobal::GetString);
+        lua_setfield(L, -2, "GetString");
+        lua_pushcfunction(L, LuaGlobal::GetTable);
+        lua_setfield(L, -2, "GetTable");
+        lua_pushcfunction(L, LuaGlobal::SetBoolean);
+        lua_setfield(L, -2, "SetBoolean");
+        lua_pushcfunction(L, LuaGlobal::SetInteger);
+        lua_setfield(L, -2, "SetInteger");
+        lua_pushcfunction(L, LuaGlobal::SetNumber);
+        lua_setfield(L, -2, "SetNumber");
+        lua_pushcfunction(L, LuaGlobal::SetString);
+        lua_setfield(L, -2, "SetString");
+        lua_pushcfunction(L, LuaGlobal::SetTable);
+        lua_setfield(L, -2, "SetTable");
+        lua_setglobal(L, "Global"); 
+    }
+
+    {
+        lua_newtable(L);
         LuaPushCFunctionWithTag(LuaTag::GetTag,"GetTag");
+        lua_setglobal(L, "Tag");
     }
-    lua_setglobal(L, "Tag");//name the table Tag
 
-    lua_newtable(L);
     {
+        lua_newtable(L);
         luaL_setfuncs(L, LuaInput::inputLib, 0);
+        lua_setglobal(L, "Input");
     }
-    lua_setglobal(L, "Input");//name the table Input
+
+    {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaUtility::DeseralizeLuaTableX);
+        lua_setfield(L, -2, "DeseralizeLuaTableX");
+        lua_setglobal(L, "Utility");
+    }
 
     lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
     if (lua_getglobal(L, "Start"))
@@ -324,9 +353,8 @@ void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const ch
 void LuaScript::LuaPushEntity(Entity entity)
 {
     lua_newtable(L);
-    lua_pushlightuserdata(L, this);
     lua_pushlightuserdata(L, &entity);
-    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 2);
+    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 1);
     lua_setfield(L, -2, "Destroy");
 
     if (entity.HasComponent<TagComponent>())
@@ -514,158 +542,5 @@ void LuaScript::LuaPushComponetTable()
     else
     {
         CORE_WARN("Missing {0} component", typeid(T).name());
-    }
-}
-
-void LuaScript::LuaParseTableOnTop(const char* tabs)
-{
-    if (lua_istable(L, -1))
-    {
-        std::stringstream tabStream;
-        LOG_INFO("{0}{1}", tabs, "{");
-        tabStream << tabs << "\t";
-        lua_pushnil(L);
-        while (lua_next(L, -2) != 0)
-        {
-            switch (lua_type(L, -1))//value type
-            {
-                case LUA_TNONE:
-                    CORE_INFO("What is the case for it to be NONE?");
-                    break;
-                case LUA_TNIL:
-                    switch (lua_type(L, -2))//key type
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]: nil", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]: nil", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TBOOLEAN:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2), lua_toboolean(L, -1));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2), lua_toboolean(L, -1));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TLIGHTUSERDATA:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TNUMBER:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2), lua_tonumber(L, -1));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2), lua_tonumber(L, -1));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TSTRING:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]: \"{3}\"", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2), lua_tostring(L, -1));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]: \"{3}\"", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2), lua_tostring(L, -1));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TTABLE:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                            LuaParseTableOnTop(tabStream.str().c_str());
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                            LuaParseTableOnTop(tabStream.str().c_str());
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TFUNCTION:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TUSERDATA:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                case LUA_TTHREAD:
-                    switch (lua_type(L, -2))
-                    {
-                        case LUA_TNUMBER:
-                            LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                            break;
-                        case LUA_TSTRING:
-                            LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                            break;
-                        default:
-                            //other type of key
-                            break;
-                    }
-                    break;
-                default:
-                    CORE_INFO("What is the case for this");
-                    break;
-            }
-            lua_pop(L, 1);
-        }
-        LOG_INFO("{0}{1}", tabs,"}");
     }
 }

@@ -10,7 +10,7 @@ set(SCRIPTING_HEADERS
     include/Scripting/LuaScript.h
     #include/Scripting/ScriptEngine.h
     #include/Scripting/LuaCall.h
-    include/Scripting/LuaEvent.h
+    include/Scripting/LuaManager.h
     include/Scripting/Lua/LuaTransform.h
     include/Scripting/Lua/LuaTag.h
     include/Scripting/Lua/LuaEntity.h
@@ -19,14 +19,15 @@ set(SCRIPTING_HEADERS
     include/Scripting/Lua/LuaAudioSource.h
     include/Scripting/Lua/LuaVector.h
     include/Scripting/Lua/LuaCollider.h
+    include/Scripting/Lua/LuaGlobal.h
 )
 
 set(SCRIPTING_SRC
     src/Script.cpp
     #src/ScriptEngine.cpp
     src/LuaScript.cpp
+    src/LuaManager.cpp
     #src/LuaCall.cpp
-    src/LuaEvent.cpp
     src/Lua/LuaTransform.cpp
     src/Lua/LuaTag.cpp
     src/Lua/LuaEntity.cpp
@@ -35,6 +36,7 @@ set(SCRIPTING_SRC
     src/Lua/LuaAudioSource.cpp
     src/Lua/LuaVector.cpp
     src/Lua/LuaCollider.cpp
+    src/Lua/LuaGlobal.cpp
 )
 
 target_sources(

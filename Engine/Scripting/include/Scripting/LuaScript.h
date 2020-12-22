@@ -27,7 +27,6 @@ public:
 private:
     lua_State* L;
     void LuaPushEntity(Entity);
-    void LuaParseTableOnTop(const char*);
     void LuaPushCFunctionWithEntity(const lua_CFunction&, const char*);
     void LuaPushCFunctionWithRigidbody(Entity, const lua_CFunction&, const char*);
     void LuaPushCFunctionWithRigidbody(const lua_CFunction&, const char*);
