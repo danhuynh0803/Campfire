@@ -48,6 +48,7 @@ void LuaManager::SetGlobalLuaBoolean(const char* name, const bool& boolean)
 
 bool LuaManager::SetGlobalLuaTable(lua_State* from, const char* name)
 {
+    //check name here to prevent bad assignment
     if (!lua_istable(from, -1)) return false;
     lua_newtable(L);
     if (!LuaUtility::TransferTable(from, L))
@@ -321,13 +322,13 @@ JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
                 {
                     JsonObject subJson;
                     SerializeLuaTable(L, subJson);
-                    if (!subJson.is_null())
+                    if (!subJson.is_null())//empty table
                     {
                         json[std::to_string(lua_tointeger(L, -2))] = subJson;
                     }
                     else
                     {
-                        json[std::to_string(lua_tointeger(L, -2))] = JsonObject();
+                        json[std::to_string(lua_tointeger(L, -2))] = JsonObject({});
                     }
                 }
             }
