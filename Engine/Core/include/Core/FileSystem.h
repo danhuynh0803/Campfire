@@ -13,6 +13,10 @@ public:
     static bool OpenInDirectory(const char* filePath);
     static std::string SaveFile(const char* filter = "");
     static std::vector<std::filesystem::path> GetAllFiles(const char* root, const char* ext);
+    static bool OpenCampFireGithubRepo();
+    static bool OpenCampFireGithubRepoTroubleshoot();
+    static bool OpenCampFireGithubRepoWiki();
+    static bool OpenEmail(const char*);
 
 private:
     static bool restrictToAssets;

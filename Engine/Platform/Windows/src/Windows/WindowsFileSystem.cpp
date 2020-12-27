@@ -346,3 +346,27 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
     }
     CloseHandle(hDirectory);
 }
+
+bool WindowsFileSystem::OpenCampFireGithubRepo()
+{
+    ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire", NULL, NULL, SW_SHOWDEFAULT);
+    return true;
+}
+
+bool WindowsFileSystem::OpenCampFireGithubRepoTroubleshoot()
+{
+    ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/issues", NULL, NULL, SW_SHOWDEFAULT);
+    return true;
+}
+
+bool WindowsFileSystem::OpenCampFireGithubRepoWiki()
+{
+    ShellExecuteA(NULL, "open", "https://github.com/danhuynh0803/Campfire/wiki", NULL, NULL, SW_SHOWDEFAULT);
+    return true;
+}
+
+bool WindowsFileSystem::OpenEmail(const char* email)
+{
+    ShellExecuteA(0, "open", email, 0, 0, 1);
+    return true;
+}

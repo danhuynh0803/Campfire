@@ -136,3 +136,45 @@ bool LinuxFileSystem::OpenFileWithXDesktops(const char* filePath)
     }
     return 1;
 }
+
+bool LinuxFileSystem::OpenCampFireGithubRepo()
+{
+    int pid = fork();
+    if (pid < 0)
+    {
+        return 0;
+    }
+    if (pid == 0) {
+        execl("/usr/bin/xdg-open", "xdg-open", "https://github.com/danhuynh0803/Campfire", (char*)0);
+        exit(1);
+    }
+    return 1;
+}
+
+bool LinuxFileSystem::OpenCampFireGithubRepoTroubleshoot()
+{
+    int pid = fork();
+    if (pid < 0)
+    {
+        return 0;
+    }
+    if (pid == 0) {
+        execl("/usr/bin/xdg-open", "xdg-open", "https://github.com/danhuynh0803/Campfire/issues", (char*)0);
+        exit(1);
+    }
+    return 1;
+}
+
+bool LinuxFileSystem::OpenCampFireGithubRepoWiki()
+{
+    int pid = fork();
+    if (pid < 0)
+    {
+        return 0;
+    }
+    if (pid == 0) {
+        execl("/usr/bin/xdg-open", "xdg-open", "https://github.com/danhuynh0803/Campfire/wiki", (char*)0);
+        exit(1);
+    }
+    return 1;
+}

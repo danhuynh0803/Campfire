@@ -88,3 +88,39 @@ std::vector<std::filesystem::path> FileSystem::GetAllFiles(const char* root, con
 
     return matches;
 }
+
+bool FileSystem::OpenCampFireGithubRepo()
+{
+#ifdef PLATFORM_WINDOWS
+    return WindowsFileSystem::OpenCampFireGithubRepo();
+#else
+    return LinuxFileSystem::OpenCampFireGithubRepo();
+#endif
+}
+
+bool FileSystem::OpenCampFireGithubRepoTroubleshoot()
+{
+#ifdef PLATFORM_WINDOWS
+    return WindowsFileSystem::OpenCampFireGithubRepoTroubleshoot();
+#else
+    return LinuxFileSystem::OpenCampFireGithubRepoTroubleshoot();
+#endif
+}
+
+bool FileSystem::OpenCampFireGithubRepoWiki()
+{
+#ifdef PLATFORM_WINDOWS
+    return WindowsFileSystem::OpenCampFireGithubRepoWiki();
+#else
+    return LinuxFileSystem::OpenCampFireGithubRepoWiki();
+#endif
+}
+
+bool FileSystem::OpenEmail(const char* email)
+{
+#ifdef PLATFORM_WINDOWS
+    return WindowsFileSystem::OpenEmail(email);
+#else
+    //return LinuxFileSystem::OpenEmail(email);
+#endif
+}
