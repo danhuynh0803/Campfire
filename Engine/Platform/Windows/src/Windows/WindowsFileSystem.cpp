@@ -14,22 +14,6 @@
 
 //TODO: Use wchart method for unicode characters
 
-wchar_t* CharToWChar(const char* text)
-{
-    size_t size = strlen(text) + 1;
-    wchar_t* wchar = new wchar_t[size];
-    mbstowcs(wchar, text, size);
-    return wchar;
-}
-
-char* WCharToChar(const wchar_t* text)
-{
-    size_t size = wcslen(text) + 1;
-    char* c = new char[size];
-    wcstombs(c, text, size);
-    return c;
-}
-
 std::string WSTRToSTR(const std::wstring& wstr)
 {
     std::string strTo;
@@ -49,6 +33,10 @@ std::string WSTRToSTR(const std::wstring& wstr)
     }
     strTo = buffer;
     delete[] buffer;
+    if (result != 0)
+    {
+        return "Error";
+    }
     return strTo;
 }
 
@@ -71,6 +59,10 @@ std::wstring STRToWSTR(const std::string& string)
     }
     wstrTo = buffer;
     delete[] buffer;
+    if (result != 0)
+    {
+        return L"Error";
+    }
     return wstrTo;
 }
 

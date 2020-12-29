@@ -1,5 +1,6 @@
 #include "Scripting/LuaManager.h"
 #include "Scripting/LuaUtility.h"
+#include "Util/Utility.h"
 
 //LuaData LuaManager::data;
 lua_State* LuaManager::L;
@@ -192,7 +193,16 @@ void LuaManager::AddListener(std::function<void(T&)> callback)
 template<typename T>
 void LuaManager::RemoveListener(std::function<void(T&)> callback)
 {
-    //to do
+    //need to test this
+    //Do I pass the reference or the value here?
+    for (auto listener : GetListeners<T>())
+    {
+        if (Utilty::GetAddress(listener) == Utilty::GetAddress(callback))
+        {
+            GetListeners<T>().erase(listener);
+        }
+    }
+
 }
 
 template<typename T>

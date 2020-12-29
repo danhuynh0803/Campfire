@@ -5,7 +5,7 @@
 enum class LuaEventType
 {
     None = 0,
-    LuaSetGlobalValue
+    LuaSetGlobalEvent
 };
 
 //enum LuaEventCategory
@@ -16,8 +16,11 @@ enum class LuaEventType
 //    EventCategoryApplication3 = 4
 //};
 
-class LuaEvent
+struct LuaEvent
 {
+    LuaEventType type = LuaEventType::None;
+    LuaEvent(LuaEventType type) : type(type) {}
+
     //bool handled = false;
 
     //virtual LuaEventType GetEventType() const = 0;
@@ -29,8 +32,4 @@ class LuaEvent
     ////{
     ////    return GetCategoryFlags() & category;
     ////}
-
-public:
-    LuaEventType type = LuaEventType::None;
-    LuaEvent(LuaEventType type) : type(type) {}
 };
