@@ -1078,8 +1078,8 @@ void EditorLayer::ScreenToWorldRay(
     glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
     rayEndWorld /= rayEndWorld.w;
 
-    LOG_INFO("Start = {0}, {1}, {2}, {3}", rayStartWorld.x, rayStartWorld.y, rayStartWorld.z, rayStartWorld.w);
-    LOG_INFO("End   = {0}, {1}, {2}, {3}", rayEndWorld.x, rayEndWorld.y, rayEndWorld.z, rayEndWorld.w);
+    //LOG_INFO("Start = {0}, {1}, {2}, {3}", rayStartWorld.x, rayStartWorld.y, rayStartWorld.z, rayStartWorld.w);
+    //LOG_INFO("End   = {0}, {1}, {2}, {3}", rayEndWorld.x, rayEndWorld.y, rayEndWorld.z, rayEndWorld.w);
 
     //if (editorCamera->isPerspective)
     //{
@@ -1110,9 +1110,7 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
     }
     */
 
-    ImGuiIO& io = ImGui::GetIO();
-
-    if (!hasViewportAction)
+    if (!allowViewportCameraEvents)
     {
         return false;
     }
