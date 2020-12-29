@@ -10,6 +10,7 @@
 #include "Renderer/Material.h"
 #include "Scene/SceneManager.h"
 #include "Command/CommandManager.h"
+#include "Scripting/LuaManager.h"
 
 void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
@@ -780,6 +781,28 @@ void InspectorWidget::ShowEntity(Entity& entity)
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
+
+            json LuaGlobals = LuaManager::SerializeLuaTable("t");
+            for (auto& [key, value] : LuaGlobals.items())
+            {
+                if (value.is_number())
+                {
+                    static float oldFloat;
+                    static float x = (float)value;
+
+                    ImGui::DragFloat(key.c_str(), &x);
+
+                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+                    {
+                        oldFloat = x;
+                    }
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        LuaManager::SetGlobalLuaTableNumber("t", key.c_str(), x);
+                    }
+                }
+            }
+
             auto& sc = entity.GetComponent<ScriptComponent>();
 
             std::string filename = sc.filepath.empty() ? "Blank" : sc.filepath;

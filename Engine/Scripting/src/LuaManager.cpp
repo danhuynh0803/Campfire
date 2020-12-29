@@ -1,6 +1,5 @@
 #include "Scripting/LuaManager.h"
 #include "Scripting/LuaUtility.h"
-#include "Util/Utility.h"
 
 //LuaData LuaManager::data;
 lua_State* LuaManager::L;
@@ -61,10 +60,10 @@ bool LuaManager::SetGlobalLuaTable(lua_State* from, const char* name)
 
 bool LuaManager::SetGlobalLuaTableNumber(const char* table, const char* name, const lua_Number& number)
 {
-    //To be implemented
-    //might be not plausible 
-    //the names are not unique
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushnumber(L, number);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
@@ -91,14 +90,6 @@ bool LuaManager::SetGlobalLuaTableBoolean(const char* table, const char* name, c
 
 bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* table, const char* name)
 {
-    //if (!lua_istable(from, -1)) return false;
-    //lua_newtable(L);
-    //if (!LuaUtility::TransferTable(from, L))
-    //{
-    //    lua_pop(L, 1);
-    //    return false;
-    //}
-    //lua_setglobal(L, name);
     return true;
 }
 
@@ -172,46 +163,18 @@ bool LuaManager::GetGlobalLuaTable(lua_State* to, const char* name)
     return true;
 }
 
+LuaManager::JsonObject LuaManager::SerializeLuaTable(const char* name)
+{
+    lua_getglobal(L, name);
+    JsonObject json;
+    LuaUtility::SerializeLuaTable(L, json);
+    lua_pop(L, 1);
+    return json;
+}
+
 void LuaManager::Find(const char* name)
 {
     //might not be plausible
-}
-
-template<typename T>
-std::vector<std::function<void(T&)>>& LuaManager::GetListeners()
-{
-    static std::vector<std::function<void(T&)>> listeners;
-    return listeners;
-}
-
-template<typename T>
-void LuaManager::AddListener(std::function<void(T&)> callback)
-{
-    GetListeners<T>().push_back(std::move(callback));
-}
-
-template<typename T>
-void LuaManager::RemoveListener(std::function<void(T&)> callback)
-{
-    //need to test this
-    //Do I pass the reference or the value here?
-    for (auto listener : GetListeners<T>())
-    {
-        if (Utilty::GetAddress(listener) == Utilty::GetAddress(callback))
-        {
-            GetListeners<T>().erase(listener);
-        }
-    }
-
-}
-
-template<typename T>
-void LuaManager::TriggerEvent(T& event)
-{
-    for (auto& listener : GetListeners<T>())
-    {
-        listener(event);
-    }
 }
 
 //JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)

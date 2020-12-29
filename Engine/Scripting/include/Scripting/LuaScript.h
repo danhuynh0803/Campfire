@@ -17,21 +17,21 @@ public:
 
     void LoadStandardLibries();
     void Start();
-    void Update(float);
+    void Update(float deltaTime);
     void Destroy();
 
-    void OnTriggerEnter(Entity);
-    void OnTriggerStay(Entity);
-    void OnTriggerExit(Entity);
+    void OnTriggerEnter(Entity entity);
+    void OnTriggerStay(Entity entity);
+    void OnTriggerExit(Entity entity);
 
 private:
     lua_State* L;
-    void LuaPushEntity(Entity);
-    void LuaPushCFunctionWithEntity(const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithRigidbody(Entity, const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithRigidbody(const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithTag(const lua_CFunction&, const char*);
-    void LuaPushCFunctionWithAudioSource(const lua_CFunction&, const char*);
+    void LuaPushEntity(Entity entity);
+    void LuaPushCFunctionWithEntity(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithRigidbody(Entity, const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithTag(const lua_CFunction& f, const char* name);
+    void LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const char* name);
     template<typename T>
     void LuaPushComponetTable();
 };

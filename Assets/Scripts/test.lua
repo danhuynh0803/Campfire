@@ -59,37 +59,38 @@ function Start()
 	-- print(y[4].o)
 	-- print(y[7])
 	-- print(y[200])
-	t = Utility.DeseralizeLuaTableX({ 
-		x = 1,
-		y = { true, n = "test"}, 
-		false, 
-		a = {"x","y","z"},
-		"n",
-		{"1.0","0.5","4"},
-		nil,
-		s = { },
-		[100] = "sad", 
-		es = false
-	})
-	print(t.s)
-	print(t.x)
-	print(t.y)
-	print(t.y[1])
-	print(t.y.n)
-	print(t[1])
-	print(t[2])
-	print(t.a[0])
-	print(t.a[1])
-	print(t.a[2])
-	print(t.a[3])
-	print(t.y[2])
-	print(t[3][1])
-	print(t[3][2])
-	print(t[3][3])
-	print(t[4])
-	print(t.s)
-	print(t[100])
-	print(t.es)
+	Global.SetTable("t", { "x",x = 2})
+	-- t = Utility.DeseralizeLuaTableX({ 
+	-- 	x = 1,
+	-- 	y = { true, n = "test"}, 
+	-- 	false, 
+	-- 	a = {"x","y","z"},
+	-- 	"n",
+	-- 	{"1.0","0.5","4"},
+	-- 	nil,
+	-- 	s = { },
+	-- 	[100] = "sad", 
+	-- 	es = false
+	-- })
+	-- print(t.s)
+	-- print(t.x)
+	-- print(t.y)
+	-- print(t.y[1])
+	-- print(t.y.n)
+	-- print(t[1])
+	-- print(t[2])
+	-- print(t.a[0])
+	-- print(t.a[1])
+	-- print(t.a[2])
+	-- print(t.a[3])
+	-- print(t.y[2])
+	-- print(t[3][1])
+	-- print(t[3][2])
+	-- print(t[3][3])
+	-- print(t[4])
+	-- print(t.s)
+	-- print(t[100])
+	-- print(t.es)
 end
 
 -- function Update()

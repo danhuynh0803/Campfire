@@ -66,58 +66,58 @@ bool LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
             }
         }
         else
-            if (lua_isstring(L1, -2))
+        if (lua_isstring(L1, -2))
+        {
+            if (lua_isnil(L1, -1))
             {
-                if (lua_isnil(L1, -1))
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushnil(L2);
+                lua_rawset(L2, -3);
+            }
+            else if (lua_isinteger(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushinteger(L2, lua_tointeger(L1, -1));
+                lua_rawset(L2, -3);
+            }
+            else if (lua_isnumber(L1, -1) && !lua_isstring(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushnumber(L2, lua_tonumber(L1, -1));
+                lua_rawset(L2, -3);
+            }
+            else if (lua_isstring(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushstring(L2, lua_tostring(L1, -1));
+                lua_rawset(L2, -3);
+            }
+            else if (lua_isboolean(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_pushboolean(L2, lua_toboolean(L1, -1));
+                lua_rawset(L2, -3);
+            }
+            else if (lua_istable(L1, -1))
+            {
+                lua_pushstring(L2, lua_tostring(L1, -2));
+                lua_newtable(L2);
+                if (TransferTable(L1, L2))
                 {
-                    lua_pushstring(L2, lua_tostring(L1, -2));
-                    lua_pushnil(L2);
-                    lua_rawset(L2, -3);
+                    lua_settable(L2, -3);
                 }
-                else if (lua_isinteger(L1, -1))
+                else
                 {
-                    lua_pushstring(L2, lua_tostring(L1, -2));
-                    lua_pushinteger(L2, lua_tointeger(L1, -1));
-                    lua_rawset(L2, -3);
-                }
-                else if (lua_isnumber(L1, -1) && !lua_isstring(L1, -1))
-                {
-                    lua_pushstring(L2, lua_tostring(L1, -2));
-                    lua_pushnumber(L2, lua_tonumber(L1, -1));
-                    lua_rawset(L2, -3);
-                }
-                else if (lua_isstring(L1, -1))
-                {
-                    lua_pushstring(L2, lua_tostring(L1, -2));
-                    lua_pushstring(L2, lua_tostring(L1, -1));
-                    lua_rawset(L2, -3);
-                }
-                else if (lua_isboolean(L1, -1))
-                {
-                    lua_pushstring(L2, lua_tostring(L1, -2));
-                    lua_pushboolean(L2, lua_toboolean(L1, -1));
-                    lua_rawset(L2, -3);
-                }
-                else if (lua_istable(L1, -1))
-                {
-                    lua_pushstring(L2, lua_tostring(L1, -2));
-                    lua_newtable(L2);
-                    if (TransferTable(L1, L2))
-                    {
-                        lua_settable(L2, -3);
-                    }
-                    else
-                    {
-                        lua_pop(L2, 2);
-                    }
+                    lua_pop(L2, 2);
                 }
             }
+        }
         lua_pop(L1, 1);
     }
     return true;
 }
 
-JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
+LuaUtility::JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
 {
     if (lua_istable(L, -1))
     {
