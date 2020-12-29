@@ -17,6 +17,10 @@ namespace WindowsFileSystem
     bool OpenFileWithDefaultProgram(const char*);
     bool EditFileWithDefaultProgram(const char*);
     void RunFileDirectoryWatcher(const char*);
+    bool OpenCampFireGithubRepo();
+    bool OpenCampFireGithubRepoTroubleshoot();
+    bool OpenCampFireGithubRepoWiki();
+    bool OpenEmail(const char*);
 };
 
 #endif // WINDOWS_FILE_SYSTEM_H

@@ -10,4 +10,7 @@ namespace LinuxFileSystem
     bool MoveFiles(const char*, const char*);
     bool DeleteFiles(const char*);
     bool OpenFileWithXDesktops(const char*);
+    bool OpenCampFireGithubRepo();
+    bool OpenCampFireGithubRepoTroubleshoot();
+    bool OpenCampFireGithubRepoWiki();
 };
