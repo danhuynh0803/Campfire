@@ -3,7 +3,7 @@
 #include <string>
 
 class Event;
-class LuaEvent;
+//class LuaEvent;
 
 struct Layer
 {
@@ -15,7 +15,7 @@ struct Layer
     virtual void OnUpdate(float) {}
     virtual void OnImGuiRender() {}
     virtual void OnEvent(Event&) {}
-    virtual void OnLuaEvent(LuaEvent&) {}
+    //virtual void OnLuaEvent(LuaEvent&) {}
 
     std::string name;
 };

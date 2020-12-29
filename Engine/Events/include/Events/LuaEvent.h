@@ -5,7 +5,7 @@
 enum class LuaEventType
 {
     None = 0,
-    Global
+    LuaSetGlobalValue
 };
 
 //enum LuaEventCategory
@@ -18,16 +18,19 @@ enum class LuaEventType
 
 class LuaEvent
 {
+    //bool handled = false;
+
+    //virtual LuaEventType GetEventType() const = 0;
+    //virtual const char* GetName() const = 0;
+    ////virtual int GetCategoryFlags() const = 0;
+    //virtual std::string ToString() const { return GetName(); }
+
+    ////bool IsInCategory(LuaEventCategory category)
+    ////{
+    ////    return GetCategoryFlags() & category;
+    ////}
+
 public:
-    bool handled = false;
-
-    virtual LuaEventType GetEventType() const = 0;
-    virtual const char* GetName() const = 0;
-    //virtual int GetCategoryFlags() const = 0;
-    virtual std::string ToString() const { return GetName(); }
-
-    //bool IsInCategory(LuaEventCategory category)
-    //{
-    //    return GetCategoryFlags() & category;
-    //}
+    LuaEventType type = LuaEventType::None;
+    LuaEvent(LuaEventType type) : type(type) {}
 };

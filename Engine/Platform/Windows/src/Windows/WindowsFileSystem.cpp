@@ -35,7 +35,18 @@ std::string WSTRToSTR(const std::wstring& wstr)
     std::string strTo;
     char* buffer = new char[wstr.length() + 1];
     buffer[wstr.size()] = '\0';
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, (int)wstr.length(), NULL, NULL);
+    int result = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, (int)wstr.length(), NULL, NULL);
+    switch (result)
+    {
+        case ERROR_INSUFFICIENT_BUFFER:
+            break;
+        case ERROR_INVALID_FLAGS:
+            break;
+        case ERROR_INVALID_PARAMETER:
+            break;
+        case ERROR_NO_UNICODE_TRANSLATION:
+            break;
+    }
     strTo = buffer;
     delete[] buffer;
     return strTo;
@@ -46,7 +57,18 @@ std::wstring STRToWSTR(const std::string& string)
     std::wstring wstrTo;
     wchar_t* buffer = new wchar_t[string.length() + 1];
     buffer[string.size()] = '\0';
-    MultiByteToWideChar(CP_ACP, 0, string.c_str(), -1, buffer, (int)string.length());
+    int result = MultiByteToWideChar(CP_ACP, 0, string.c_str(), -1, buffer, (int)string.length());
+    switch (result)
+    {
+        case ERROR_INSUFFICIENT_BUFFER:
+            break;
+        case ERROR_INVALID_FLAGS:
+            break;
+        case ERROR_INVALID_PARAMETER:
+            break;
+        case ERROR_NO_UNICODE_TRANSLATION:
+            break;
+    }
     wstrTo = buffer;
     delete[] buffer;
     return wstrTo;

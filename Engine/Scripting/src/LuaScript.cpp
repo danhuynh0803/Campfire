@@ -12,24 +12,10 @@
 #include "Scripting/Lua/LuaCollider.h"
 #include "Scripting/Lua/LuaEntity.h"
 #include "Scripting/Lua/LuaGlobal.h"
+#include "Scripting/LuaUtility.h"
 #include "Scripting/LuaManager.h"
 #include "Core/Log.h"
 #include "Physics/Collider.h"
-
-
-#define LUA_DESTROY_ENTITY "Destroy Entity"
-
-int LuaScriptCallBack::LuaCallback(lua_State* L)
-{
-    const char* message = lua_tostring(L, 1);
-    if (message && strcmp(message, LUA_DESTROY_ENTITY) != 0)
-    {
-        //replace and push an error message that includes stack trace
-        luaL_traceback(L, L, message, 1);
-        return 1;
-    }
-    return 0;
-}
 
 void LuaScript::LoadStandardLibries()
 {
@@ -197,7 +183,7 @@ void LuaScript::Start()
         lua_setglobal(L, "Utility");
     }
 
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_pushcfunction(L, LuaUtility::LuaCallback);
     if (lua_getglobal(L, "Start"))
     {
         if (lua_pcall(L, 0, 0, -2) != LUA_OK)
@@ -213,7 +199,7 @@ void LuaScript::Update(float dt)
 {
     lua_pushnumber(L, dt);
     lua_setglobal(L, "deltatime");
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_pushcfunction(L, LuaUtility::LuaCallback);
     if (lua_getglobal(L, "Update"))
     {
         if (runUpdate)
@@ -244,7 +230,7 @@ void LuaScript::Destroy()
 void LuaScript::OnTriggerEnter(Entity other)
 {
     if (!other.IsValid()) return;
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_pushcfunction(L, LuaUtility::LuaCallback);
     if (lua_getglobal(L, "OnTriggerEnter"))
     {
         if (runOnTriggerEnter)
@@ -267,7 +253,7 @@ void LuaScript::OnTriggerEnter(Entity other)
 void LuaScript::OnTriggerStay(Entity other)
 {
     if (!other.IsValid()) return;
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_pushcfunction(L, LuaUtility::LuaCallback);
     if(lua_getglobal(L, "OnTriggerStay"))
     {
         LuaPushEntity(other);
@@ -291,7 +277,7 @@ void LuaScript::OnTriggerStay(Entity other)
 void LuaScript::OnTriggerExit(Entity other)
 {
     if (!other.IsValid()) return;
-    lua_pushcfunction(L, LuaScriptCallBack::LuaCallback);
+    lua_pushcfunction(L, LuaUtility::LuaCallback);
     if (lua_getglobal(L, "OnTriggerExit"))
     {
         LuaPushEntity(other);

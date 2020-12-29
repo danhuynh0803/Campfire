@@ -10,8 +10,8 @@
 #include "Widgets/TransformWidget.h"
 #include "Widgets/AssetBrowser.h"
 #include "Renderer/RendererAPI.h"
-#include "Events/LuaEvent.h"
-#include "Events/LuaManagerEvent.h"
+//#include "Events/LuaEvent.h"
+//#include "Events/LuaManagerEvent.h"
 
 class EditorLayer : public Layer
 {
@@ -39,12 +39,12 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnImGuiRender() override;
     virtual void OnEvent(Event& event) override;
-    virtual void OnLuaEvent(LuaEvent&) override;
+    //virtual void OnLuaEvent(LuaEvent&) override;
 
     bool OnWindowResize(WindowResizeEvent& e);
     bool OnMouseClick(MouseButtonPressedEvent& e);
     bool OnWindowClose(WindowCloseEvent& e);
-    bool OnLuaSetGlobal(LuaSetGlobalEvent& e);
+    //bool OnLuaSetGlobal(LuaSetGlobalEvent& e);
 
 private:
     void ProcessUserInput();

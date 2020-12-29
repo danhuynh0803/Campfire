@@ -2,36 +2,21 @@
 #include <functional>
 #include <string>
 #include <sstream>
-#include "Events/LuaEvent.h"
 #include "lua.hpp"
-#include <nlohmann/json.hpp>
+#include "Events/LuaEvent.h"
 
-using LuaEventCallbackFn = std::function<void(LuaEvent&)>;
-using JsonObject = nlohmann::json;
-
-struct LuaData
-{
-    std::string sender;
-    LuaEventCallbackFn EventCallback;
-};
-
-namespace LuaUtility
-{
-    bool is_number(const std::string& s);
-    bool TransferTable(lua_State* L1, lua_State* L2);
-    JsonObject SerializeLuaTable(lua_State*, JsonObject& json);
-    int DeseralizeLuaTableX(lua_State* L);
-    void DeseralizeLuaTable(lua_State*, const JsonObject&);
-    void ParseLuaTableOnTop(lua_State*, const char*);
-    int Log(lua_State* L);
-}
+//struct LuaData
+//{
+//    std::string sender;
+//    LuaEventCallbackFn EventCallback;
+//};
 
 class LuaManager
 {
 public:
     static void Init();
     static void Shutdown();
-    static void SetEventCallback(const LuaEventCallbackFn&);
+    //static void SetEventCallback(const LuaEventCallbackFn&);
     static void SetGlobalLuaNumber(const char*, const lua_Number&);
     static void SetGlobalLuaInteger(const char*, const lua_Integer&);
     static void SetGlobalLuaString(const char*, const char*);
@@ -47,31 +32,39 @@ public:
     static bool GetGlobalLuaString(lua_State* , const char*);
     static bool GetGlobalLuaBoolean(lua_State* ,const char*);
     static bool GetGlobalLuaTable(lua_State*, const char*);
+    static void Find(const char*);
 
-    void Find(const char* name);
+    template <typename T>
+    static void AddListener(std::function<void(T&)>);
+    template<typename T>
+    static void RemoveListener(std::function<void(T&)>);
+    template <typename T>
+    static void TriggerEvent(T&);
 
 private:
-    static LuaData data;
+    //static LuaData data;
     static lua_State* L;
+    template <typename T>
+    static std::vector<std::function<void(T&)>>& GetListeners();
 };
 
 
-class LuaEventDispatcher
-{
-public:
-    LuaEventDispatcher(LuaEvent& e): event(e){}
-
-    template<typename T, typename F>
-    bool Dispatch(const F& func)
-    {
-        if (event.GetEventType() == T::GetStaticType())
-        {
-            event.handled = func(static_cast<T&>(event));
-            return true;
-        }
-        return false;
-    }
-
-private:
-    LuaEvent& event;
-};
+//class LuaEventDispatcher
+//{
+//public:
+//    LuaEventDispatcher(LuaEvent& e): event(e){}
+//
+//    template<typename T, typename F>
+//    bool Dispatch(const F& func)
+//    {
+//        if (event.GetEventType() == T::GetStaticType())
+//        {
+//            event.handled = func(static_cast<T&>(event));
+//            return true;
+//        }
+//        return false;
+//    }
+//
+//private:
+//    LuaEvent& event;
+//};
