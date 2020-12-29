@@ -210,3 +210,13 @@ bool WindowsWindow::IsVSync() const
 {
     return data.VSync;
 }
+
+void WindowsWindow::EnableCursor()
+{
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void WindowsWindow::DisableCursor()
+{
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}

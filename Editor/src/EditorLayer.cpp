@@ -423,8 +423,28 @@ void EditorLayer::OnUpdate(float dt)
         RenderCommand::SetDrawMode(drawMode);
 
         SceneRenderer::BeginSceneWithoutClear(activeScene, *editorCamera);
+
         if (allowViewportCameraEvents)
+        {
+            if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+                hasViewportAction = true;
+        }
+
+        if (hasViewportAction)
+        {
+            if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+            {
+                Application::Get().GetWindow().DisableCursor();
+            }
+            else
+            {
+                Application::Get().GetWindow().EnableCursor();
+                hasViewportAction = false;
+            }
+
             cameraController.OnUpdate(dt);
+        }
+
         activeScene->OnRender(deltaTime, *editorCamera);
 
         // TODO Change so that debug draw only shows BBs of selected objects
@@ -1013,7 +1033,8 @@ void EditorLayer::ShowMenuCampfire()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    if (allowViewportCameraEvents)
+    //if (allowViewportCameraEvents)
+    if (hasViewportAction)
     {
         cameraController.OnEvent(event);
     }
@@ -1100,7 +1121,7 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
 
     ImGuiIO& io = ImGui::GetIO();
 
-    if (!allowViewportCameraEvents)
+    if (!hasViewportAction)
     {
         return false;
     }
