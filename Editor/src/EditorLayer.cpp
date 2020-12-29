@@ -423,8 +423,32 @@ void EditorLayer::OnUpdate(float dt)
         RenderCommand::SetDrawMode(drawMode);
 
         SceneRenderer::BeginSceneWithoutClear(activeScene, *editorCamera);
+
         if (allowViewportCameraEvents)
+        {
+            if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+                hasViewportAction = true;
+        }
+
+        if (hasViewportAction)
+        {
+            if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+            {
+                Application::Get().GetWindow().DisableCursor();
+            }
+            else
+            {
+                Application::Get().GetWindow().EnableCursor();
+                hasViewportAction = false;
+            }
+        }
+
+        if (allowViewportCameraEvents
+            || hasViewportAction
+        ) {
             cameraController.OnUpdate(dt);
+        }
+
         activeScene->OnRender(deltaTime, *editorCamera);
 
         // TODO Change so that debug draw only shows BBs of selected objects
@@ -1004,8 +1028,9 @@ void EditorLayer::ShowMenuCampfire()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    if (allowViewportCameraEvents)
-    {
+    if (allowViewportCameraEvents
+        || hasViewportAction
+    ) {
         cameraController.OnEvent(event);
     }
 
@@ -1057,8 +1082,8 @@ void EditorLayer::ScreenToWorldRay(
     glm::vec4 rayEndWorld = worldSpaceMatrix * rayEndNDC;
     rayEndWorld /= rayEndWorld.w;
 
-    LOG_INFO("Start = {0}, {1}, {2}, {3}", rayStartWorld.x, rayStartWorld.y, rayStartWorld.z, rayStartWorld.w);
-    LOG_INFO("End   = {0}, {1}, {2}, {3}", rayEndWorld.x, rayEndWorld.y, rayEndWorld.z, rayEndWorld.w);
+    //LOG_INFO("Start = {0}, {1}, {2}, {3}", rayStartWorld.x, rayStartWorld.y, rayStartWorld.z, rayStartWorld.w);
+    //LOG_INFO("End   = {0}, {1}, {2}, {3}", rayEndWorld.x, rayEndWorld.y, rayEndWorld.z, rayEndWorld.w);
 
     //if (editorCamera->isPerspective)
     //{
@@ -1088,8 +1113,6 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
         LOG_TRACE("MB pressed");
     }
     */
-
-    ImGuiIO& io = ImGui::GetIO();
 
     if (!allowViewportCameraEvents)
     {

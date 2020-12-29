@@ -103,6 +103,8 @@ private:
     bool showLightSettings = false;
     bool showLightExplorer = false;
 
+    bool hasViewportAction = false;
+
     glm::vec2 minViewportBound;
     glm::vec2 maxViewportBound;
 

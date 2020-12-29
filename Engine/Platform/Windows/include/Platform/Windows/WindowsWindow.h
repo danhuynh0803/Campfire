@@ -20,6 +20,8 @@ public:
     void SetEventCallback(const EventCallbackFn& callback) override { data.EventCallback = callback; }
     void SetVSync(bool enabled) override;
     bool IsVSync() const override;
+    void EnableCursor() override;
+    void DisableCursor() override;
 
     virtual void* GetNativeWindow() const { return window; }
 
