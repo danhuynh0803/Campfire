@@ -441,7 +441,11 @@ void EditorLayer::OnUpdate(float dt)
                 Application::Get().GetWindow().EnableCursor();
                 hasViewportAction = false;
             }
+        }
 
+        if (allowViewportCameraEvents
+            || hasViewportAction
+        ) {
             cameraController.OnUpdate(dt);
         }
 
@@ -1024,9 +1028,9 @@ void EditorLayer::ShowMenuCampfire()
 
 void EditorLayer::OnEvent(Event& event)
 {
-    //if (allowViewportCameraEvents)
-    if (hasViewportAction)
-    {
+    if (allowViewportCameraEvents
+        || hasViewportAction
+    ) {
         cameraController.OnEvent(event);
     }
 
