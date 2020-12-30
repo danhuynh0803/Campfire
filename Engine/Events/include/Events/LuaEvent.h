@@ -2,11 +2,15 @@
 #include <string>
 #include <functional>
 
-enum class LuaEventType
+namespace LuatGlobalEvent
 {
-    None = 0,
-    LuaSetGlobalEvent
-};
+    enum class Type
+    {
+        None = 0,
+        LuaSetGlobalEvent
+    };
+}
+
 
 //enum LuaEventCategory
 //{
@@ -18,8 +22,8 @@ enum class LuaEventType
 
 struct LuaEvent
 {
-    LuaEventType type = LuaEventType::None;
-    LuaEvent(LuaEventType type) : type(type) {}
+    LuatGlobalEvent::Type type = LuatGlobalEvent::Type::None;
+    LuaEvent(LuatGlobalEvent::Type type) : type(type) {}
 
     //bool handled = false;
 

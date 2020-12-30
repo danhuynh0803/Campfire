@@ -7,6 +7,8 @@
 
 namespace WindowsFileSystem
 {
+    std::string WSTRToSTR(const std::wstring& wstr);
+    std::wstring STRToWSTR(const std::string& string);
     std::string OpenFileName(const char* filter);
     std::string SaveFileName(const char* filter);
     void FindFiles(const char* fileName);

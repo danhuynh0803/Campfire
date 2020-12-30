@@ -1,4 +1,5 @@
 #include "Platform/Windows/WindowsFileSystem.h"
+#include <iostream>
 #include <algorithm>
 #include <regex>
 #include <sstream>
@@ -14,7 +15,7 @@
 
 //TODO: Use wchart method for unicode characters
 
-std::string WSTRToSTR(const std::wstring& wstr)
+std::string WindowsFileSystem::WSTRToSTR(const std::wstring& wstr)
 {
     std::string strTo;
     char* buffer = new char[wstr.length() + 1];
@@ -40,7 +41,7 @@ std::string WSTRToSTR(const std::wstring& wstr)
     return strTo;
 }
 
-std::wstring STRToWSTR(const std::string& string)
+std::wstring WindowsFileSystem::STRToWSTR(const std::string& string)
 {
     std::wstring wstrTo;
     wchar_t* buffer = new wchar_t[string.length() + 1];
@@ -105,7 +106,6 @@ std::string WindowsFileSystem::OpenFileName(const char* filter)
     return fileNameStr;
 }
 
-#include <iostream>;
 std::string WindowsFileSystem::SaveFileName(const char* filter)
 {
     // TODO refactor so it can handle multiple extensions
@@ -224,6 +224,7 @@ bool WindowsFileSystem::DeleteFiles(const char* fileName)
     }
     return true;
 }
+
 bool WindowsFileSystem::OpenFileWithDefaultProgram(const char* filePath)
 {
     const int res = (int)ShellExecuteA(NULL, "open", filePath, NULL, NULL, SW_SHOWDEFAULT);
@@ -309,53 +310,84 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
     }
 
     char notify[1024];
-    ZeroMemory(notify, 0, sizeof(notify));
-    FILE_NOTIFY_INFORMATION* pNotification = (FILE_NOTIFY_INFORMATION*)notify;
-    DWORD bytesReturned = 0;
+    ZeroMemory(notify, sizeof(notify));
+    bool reading = true;
+    bool bPending = false;
+    OVERLAPPED overlap{0};
+    DWORD dwBytesReturned = 0;
+    DWORD dwOverlapBytesReturned = 0;
 
-    while (TRUE)
+    while (reading)
     {
-        ZeroMemory(pNotification, sizeof(notify));
-
-        auto watchState = ReadDirectoryChangesW(hDirectory,
+        bPending = ReadDirectoryChangesW(hDirectory,
             &notify,
             sizeof(notify),
             TRUE,   //Watch subdirectory
             FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE,
-            (LPDWORD)&bytesReturned,
+            (LPDWORD)&dwBytesReturned,
             NULL,
             NULL);
 
-        if (GetLastError() == ERROR_INVALID_FUNCTION)
-        {
-            break;
-        }
-        else if (watchState == FALSE)
+        if (GetLastError() == ERROR_INVALID_FUNCTION) break;
+        else if (GetLastError() == ERROR_NOTIFY_ENUM_DIR) continue;
+        else if (!bPending)
         {
             DWORD dwErr = GetLastError();
+            //CrAssert(0, CrWin32ErrorString());
             break;
-        }
-        else if (GetLastError() == ERROR_NOTIFY_ENUM_DIR)
-        {
-            continue;
         }
         else
         {
-            std::wstring fileName(pNotification->FileName, pNotification->FileNameLength / sizeof(wchar_t));
-            //std::string fullFileName = watchDirectory + "/" + WSTRToStr(fileName);
-            switch (pNotification->Action)
+            while (reading)
             {
-                case FILE_ACTION_ADDED:
-                    break;
-                case FILE_ACTION_REMOVED:
-                    break;
-                case FILE_ACTION_MODIFIED:
-                    break;
-                case FILE_ACTION_RENAMED_OLD_NAME:
-                    break;
+                if (GetOverlappedResult(hDirectory, &overlap, &dwBytesReturned, false))
+                {
+                    bPending = false;
+                    if (dwBytesReturned != 0)
+                    {
+                        FILE_NOTIFY_INFORMATION* pNotification = (FILE_NOTIFY_INFORMATION*)notify;
+                        do
+                        {
+                            if (pNotification->Action != 0)
+                            {
+                                switch (pNotification->Action)
+                                {
+                                    case FILE_ACTION_ADDED:
+                                        break;
+                                    case FILE_ACTION_REMOVED:
+                                        break;
+                                    case FILE_ACTION_MODIFIED:
+                                        break;
+                                    case FILE_ACTION_RENAMED_OLD_NAME:
+                                        break;
+                                }
+                                std::wstring fileName(pNotification->FileName, pNotification->FileNameLength);
+                                //unicode gg
+                                CORE_INFO("{0}", WSTRToSTR(fileName).c_str());
+                                //std::string fullFileName = watchDirectory + "/" + WSTRToStr(fileName);
+                                //call callback here
+                            }
+                            if (pNotification->NextEntryOffset == 0) break;
+                            //std::vector<BYTE> buffer(1024*64);
+                            //fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<BYTE*>(fni) + fni->NextEntryOffset);
+                            //pNotification = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<char*>(fni) + fni->NextEntryOffset);
+                            //or this?
+                            pNotification += pNotification->NextEntryOffset;
+                        
+                        } while (true);
+                    }
+                }
+                if (GetLastError() != ERROR_IO_INCOMPLETE)
+                {
+                    //CrAssert(0, CrWin32ErrorString());
+                }
+                Sleep(10);
             }
-            //unicode gg
-            CORE_INFO("{0}", WSTRToSTR(fileName).c_str());
+            if (bPending)
+            {
+                CancelIo(hDirectory);
+                GetOverlappedResult(hDirectory, &overlap, &dwBytesReturned, TRUE);
+            }
         }
     }
     CloseHandle(hDirectory);
