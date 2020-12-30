@@ -92,12 +92,12 @@ bool LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
                 lua_pushstring(L2, lua_tostring(L1, -1));
                 lua_rawset(L2, -3);
             }
-            else if (lua_isboolean(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_pushboolean(L2, lua_toboolean(L1, -1));
-                lua_rawset(L2, -3);
-            }
+            //else if (lua_isboolean(L1, -1))
+            //{
+            //    lua_pushstring(L2, lua_tostring(L1, -2));
+            //    lua_pushboolean(L2, lua_toboolean(L1, -1));
+            //    lua_rawset(L2, -3);
+            //}
             else if (lua_istable(L1, -1))
             {
                 lua_pushstring(L2, lua_tostring(L1, -2));
@@ -134,18 +134,29 @@ LuaUtility::JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& j
                 {
                     json[std::to_string(lua_tointeger(L, -2))] = lua_tointeger(L, -1);
                 }
-                else if (lua_isnumber(L, -1) && !lua_isstring(L, -1))
+                else if (lua_isnumber(L, -1))//if the value is "2"(not 2), this is also true
                 {
                     json[std::to_string(lua_tointeger(L, -2))] = lua_tonumber(L, -1);
                 }
-                else if (lua_isstring(L, -1))
+                else if (lua_isstring(L, -1))//if the value is 2, this is also true...
                 {
-                    json[std::to_string(lua_tointeger(L, -2))] = std::string(lua_tostring(L, -1));
+                    if (strcmp(lua_tostring(L, -1), "true") == 0 )
+                    {
+                        json[std::to_string(lua_tointeger(L, -2))] = true;
+                    }
+                    else if (strcmp(lua_tostring(L, -1), "false") == 0)
+                    {
+                        json[std::to_string(lua_tointeger(L, -2))] = false;
+                    }
+                    else
+                    {
+                        json[std::to_string(lua_tointeger(L, -2))] = std::string(lua_tostring(L, -1));
+                    }
                 }
-                else if (lua_isboolean(L, -1))
-                {
-                    json[std::to_string(lua_tointeger(L, -2))] = lua_toboolean(L, -1);
-                }
+                //else if (lua_isboolean(L, -1)) //this conflicts with is_integer and is_number
+                //{
+                //    json[std::to_string(lua_tointeger(L, -2))] = lua_toboolean(L, -1);
+                //}
                 else if (lua_istable(L, -1))
                 {
                     JsonObject subJson;
@@ -170,18 +181,29 @@ LuaUtility::JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& j
                 {
                     json[std::string(lua_tostring(L, -2))] = lua_tointeger(L, -1);
                 }
-                else if (lua_isnumber(L, -1) && !lua_isstring(L, -1))
+                else if (lua_isnumber(L, -1))
                 {
                     json[std::string(lua_tostring(L, -2))] = lua_tonumber(L, -1);
                 }
                 else if (lua_isstring(L, -1))
                 {
-                    json[std::string(lua_tostring(L, -2))] = std::string(lua_tostring(L, -1));
+                    if (strcmp(lua_tostring(L, -1), "true") == 0)
+                    {
+                        json[std::string(lua_tostring(L, -2))] = true;
+                    }
+                    else if (strcmp(lua_tostring(L, -1), "false") == 0)
+                    {
+                        json[std::string(lua_tostring(L, -2))] = false;
+                    }
+                    else
+                    {
+                        json[std::string(lua_tostring(L, -2))] = std::string(lua_tostring(L, -1));
+                    }
                 }
-                else if (lua_isboolean(L, -1))
-                {
-                    json[std::string(lua_tostring(L, -2))] = lua_toboolean(L, -1);
-                }
+                //else if (lua_isboolean(L, -1)) //this conflicts with is_integer and is_number
+                //{
+                //    json[std::string(lua_tostring(L, -2))] = lua_toboolean(L, -1);
+                //}
                 else if (lua_istable(L, -1))
                 {
                     JsonObject subJson;
@@ -230,7 +252,15 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, const JsonObject& jsonObject)
             else if (value.is_boolean())
             {
                 lua_pushinteger(L, std::atoi(key.c_str()));
-                lua_pushboolean(L, value);//or json[key]
+                bool theValue = value.get<bool>();
+                if (theValue)
+                {
+                    lua_pushstring(L, "true");
+                }
+                else
+                {
+                    lua_pushstring(L, "false");
+                }
                 lua_rawset(L, -3);
             }
             else if (value.is_number_integer())
@@ -275,7 +305,15 @@ void LuaUtility::DeseralizeLuaTable(lua_State* L, const JsonObject& jsonObject)
             else if (value.is_boolean())
             {
                 lua_pushstring(L, key.c_str());
-                lua_pushboolean(L, value);
+                bool theValue = value.get<bool>();
+                if (theValue)
+                {
+                    lua_pushstring(L, "true");
+                }
+                else
+                {
+                    lua_pushstring(L, "false");
+                }
                 lua_rawset(L, -3);
             }
             else if (value.is_number_integer())

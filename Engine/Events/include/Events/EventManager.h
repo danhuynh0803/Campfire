@@ -28,7 +28,6 @@ namespace EventManager
                 GetListeners<T>().erase(listener);
             }
         }
-
     }
 
     template<typename T>

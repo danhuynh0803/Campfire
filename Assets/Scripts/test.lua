@@ -59,8 +59,8 @@ function Start()
 	-- print(y[4].o)
 	-- print(y[7])
 	-- print(y[200])
-	Global.SetTable("t", { "x",x = 2})
-	-- t = Utility.DeseralizeLuaTableX({ 
+	Global.SetTable("t", { x = 2.0, y = 3, z = "Test", a = "false" })
+	-- s = Utility.DeseralizeLuaTableX({ 
 	-- 	x = 1,
 	-- 	y = { true, n = "test"}, 
 	-- 	false, 
@@ -72,25 +72,25 @@ function Start()
 	-- 	[100] = "sad", 
 	-- 	es = false
 	-- })
-	-- print(t.s)
-	-- print(t.x)
-	-- print(t.y)
-	-- print(t.y[1])
-	-- print(t.y.n)
-	-- print(t[1])
-	-- print(t[2])
-	-- print(t.a[0])
-	-- print(t.a[1])
-	-- print(t.a[2])
-	-- print(t.a[3])
-	-- print(t.y[2])
-	-- print(t[3][1])
-	-- print(t[3][2])
-	-- print(t[3][3])
-	-- print(t[4])
-	-- print(t.s)
-	-- print(t[100])
-	-- print(t.es)
+	-- print(s.s)
+	-- print(s.x)
+	-- print(s.y)
+	-- print(s.y[1])
+	-- print(s.y.n)
+	-- print(s[1])
+	-- print(s[2])
+	-- print(s.a[0])
+	-- print(s.a[1])
+	-- print(s.a[2])
+	-- print(s.a[3])
+	-- print(s.y[2])
+	-- print(s[3][1])
+	-- print(s[3][2])
+	-- print(s[3][3])
+	-- print(s[4])
+	-- print(s.s)
+	-- print(s[100])
+	-- print(s.es)
 end
 
 -- function Update()
@@ -102,6 +102,9 @@ end
 	-- -- end
 	
 -- end
+function Update(dt)
+	x = Global.GetTable("t")
+end
 
 function OnTriggerEnter(other)
 	other.Rigidbody.AddVelocity(0, 20, 0)

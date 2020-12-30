@@ -69,27 +69,38 @@ bool LuaManager::SetGlobalLuaTableNumber(const char* table, const char* name, co
 
 bool LuaManager::SetGlobalLuaTableInteger(const char* table, const char* name, const lua_Integer& integer)
 {
-    //To be implemented
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushinteger(L, integer);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
 bool LuaManager::SetGlobalLuaTableString(const char* table, const char* name, const char* string)
 {
-    //To be implemented
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushstring(L, string);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
+    return true;
     return true;
 }
 
 bool LuaManager::SetGlobalLuaTableBoolean(const char* table, const char* name, const bool& boolean)
 {
-    //To be implemented
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushboolean(L, boolean);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
 bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* table, const char* name)
 {
+    lua_getglobal(L, table);
+    //to do
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 

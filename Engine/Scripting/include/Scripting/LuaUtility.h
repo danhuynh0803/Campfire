@@ -5,7 +5,6 @@
 namespace LuaUtility
 {
     using JsonObject = nlohmann::json;
-
     bool is_number(const std::string& s);
     bool TransferTable(lua_State* L1, lua_State* L2);
     JsonObject SerializeLuaTable(lua_State*, JsonObject& json);

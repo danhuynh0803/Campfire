@@ -785,20 +785,66 @@ void InspectorWidget::ShowEntity(Entity& entity)
             json LuaGlobals = LuaManager::SerializeLuaTable("t");
             for (auto& [key, value] : LuaGlobals.items())
             {
-                if (value.is_number())
+                if (value.is_number_integer())
                 {
-                    static float oldFloat;
-                    static float x = (float)value;
+                    static int oldInt;
+                    static int currentInt = value;
 
-                    ImGui::DragFloat(key.c_str(), &x);
+                    ImGui::DragInt(key.c_str(), &currentInt);
 
                     if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
                     {
-                        oldFloat = x;
+                        oldInt = currentInt;
                     }
                     if (ImGui::IsItemDeactivatedAfterEdit())
                     {
-                        LuaManager::SetGlobalLuaTableNumber("t", key.c_str(), x);
+                        LuaManager::SetGlobalLuaTableInteger("t", key.c_str(), currentInt);
+                    }
+                }
+                else if(value.is_number_float())
+                {
+                    static float oldFloat;
+                    static float currentFloat = (float)value;
+
+                    ImGui::DragFloat(key.c_str(), &currentFloat);
+
+                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+                    {
+                        oldFloat = currentFloat;
+                    }
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        LuaManager::SetGlobalLuaTableNumber("t", key.c_str(), currentFloat);
+                    }
+                }
+                else if (value.is_string())
+                {
+                    static std::string oldString;
+                    static std::string currentString = value;
+                    ImGui::InputText(key.c_str(), &currentString);
+                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+                    {
+                        oldString = currentString;
+                    }
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        LuaManager::SetGlobalLuaTableString("t", key.c_str(), currentString.c_str());
+                    }
+                }
+                else if (value.is_boolean())
+                {
+                    static bool current = value;
+                    if (ImGui::Checkbox(key.c_str(), &current))
+                    {
+                        if (current)
+                        {
+                            LuaManager::SetGlobalLuaTableString("t", key.c_str(), "true");
+                        }
+                        else
+                        {
+                            LuaManager::SetGlobalLuaTableString("t", key.c_str(), "false");
+                        }
+
                     }
                 }
             }
