@@ -21,7 +21,7 @@ namespace EventManager
     {
         //need to test this
         //Do I pass the reference or the value here?
-        for (auto listener : GetListeners<T>())
+        for (auto& listener : GetListeners<T>())
         {
             if (Utilty::GetAddress(listener) == Utilty::GetAddress(callback))
             {

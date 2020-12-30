@@ -8,6 +8,8 @@ void LuaManager::Init()
 {
     L = luaL_newstate();
     luaL_openlibs(L);
+    lua_newtable(L);
+    lua_setglobal(L, LUA_MANAGER_GLOBAL);
 }
 
 void LuaManager::Shutdown()
@@ -83,7 +85,6 @@ bool LuaManager::SetGlobalLuaTableString(const char* table, const char* name, co
     lua_setfield(L, -2, name);
     lua_setglobal(L, table);
     return true;
-    return true;
 }
 
 bool LuaManager::SetGlobalLuaTableBoolean(const char* table, const char* name, const bool& boolean)
@@ -95,12 +96,18 @@ bool LuaManager::SetGlobalLuaTableBoolean(const char* table, const char* name, c
     return true;
 }
 
-bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* table, const char* name)
+bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* target, const char* name)
 {
-    lua_getglobal(L, table);
-    //to do
+    if (!lua_istable(from, -1)) return false;
+    lua_getglobal(L, target);
+    lua_newtable(L);
+    if (!LuaUtility::TransferTable(from, L))
+    {
+        lua_pop(L, 2);
+        return false;
+    }
     lua_setfield(L, -2, name);
-    lua_setglobal(L, table);
+    lua_setglobal(L, target);
     return true;
 }
 
@@ -168,13 +175,124 @@ bool LuaManager::GetGlobalLuaTable(lua_State* to, const char* name)
     if (!LuaUtility::TransferTable(L, to))
     {
         lua_pop(to,1);
+        lua_pop(L, 1);
         return false;
     }
     lua_pop(L, 1);//pop the very first table from the getglobal
     return true;
 }
 
-LuaManager::JsonObject LuaManager::SerializeLuaTable(const char* name)
+bool LuaManager::GetGlobalLuaTableNumber(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isnumber(L, -1))
+    {
+        lua_pushnumber(to, lua_tonumber(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableInteger(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isinteger(L, -1))
+    {
+        lua_pushinteger(to, lua_tointeger(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableString(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isstring(L, -1))
+    {
+        lua_pushstring(to, lua_tostring(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableBoolean(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isboolean(L, -1))
+    {
+        lua_pushboolean(to, lua_toboolean(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableTable(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 2);
+        return false;
+    }
+    lua_newtable(to);
+    if (!LuaUtility::TransferTable(L, to))
+    {
+        lua_pop(to, 1);
+        lua_pop(L, 2);
+        return false;
+    }
+    lua_pop(L, 2);
+    return true;
+}
+
+LuaManager::JsonObject LuaManager::SerializeLuaGlobalTable()
+{
+    lua_getglobal(L, LUA_MANAGER_GLOBAL);
+    JsonObject json;
+    LuaUtility::SerializeLuaTable(L, json);
+    lua_pop(L, 1);
+    return json;
+}
+
+LuaManager::JsonObject LuaManager::SerializeLuaGlobalTable(const char* name)
 {
     lua_getglobal(L, name);
     JsonObject json;

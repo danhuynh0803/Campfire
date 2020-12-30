@@ -41,7 +41,7 @@ public:
     SharedPtr<Collider> collider = Collider::Create(Collider::Shape::BOX);
 
 private:
-    btRigidBody* bulletRigidbody;
+    btRigidBody* bulletRigidbody = nullptr;
 };
 
 #endif // RIGIDBODY_H

@@ -41,9 +41,10 @@ function Start()
 	-- Global.SetString("x", "test")
 	-- y = Global.GetString("x")
 	-- print(y)
-	--Global.SetTable("t", { "x",x = 2, y = "s", o = { n = 2, x = 's', y = false, "ss", s = nil },"ss", "1",{ o = "xx"}, 2.2, 55, nil,[200] = "3.4"})
-	--y = Global.GetTable("t")
+	-- Global.SetTable("t", { "x", false, x = 2.5, y = "s", o = { n = 2, x = 's', y = false, "ss", s = nil },"ss", "1",{ o = "xx"}, 2.2, 55, nil,[200] = "3.4"})
+	-- y = Global.GetTable("t")
 	-- print(y)
+	-- print(y.x)
 	-- print(y.y)
 	-- print(y.o.n)
 	-- print(y.o.x)
@@ -59,8 +60,16 @@ function Start()
 	-- print(y[4].o)
 	-- print(y[7])
 	-- print(y[200])
-	Global.SetTable("t", { x = 2.0, y = 3, z = "Test", a = "false" })
-	-- s = Utility.DeseralizeLuaTableX({ 
+
+	Global.SetNumber("x", 3.0)
+	Global.SetInteger("y", 1)
+	Global.SetNumber("z", 3.0)
+	Global.SetString("MyString", "I am a string")
+	Global.SetBoolean("Toggle Box", true)
+
+	-- s = Utility.DeseralizeLuaTableX({
+	-- 	2 , false, x = "S"
+	-- })
 	-- 	x = 1,
 	-- 	y = { true, n = "test"}, 
 	-- 	false, 
@@ -102,9 +111,9 @@ end
 	-- -- end
 	
 -- end
-function Update(dt)
-	x = Global.GetTable("t")
-end
+-- function Update(dt)
+-- 	x = Global.GetTable("t")
+-- end
 
 function OnTriggerEnter(other)
 	other.Rigidbody.AddVelocity(0, 20, 0)

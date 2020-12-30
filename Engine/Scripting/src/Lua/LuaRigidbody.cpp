@@ -68,7 +68,10 @@ int LuaRigidbody::SetMass(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Mass info. Possibly was destroyed?");
         lua_error(L);
     }
-    rigidbody->mass = mass;
+    else
+    {
+        rigidbody->mass = mass;
+    }
     return 0;
 }
 
@@ -80,7 +83,10 @@ int LuaRigidbody::GetMass(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Mass info. Possibly was destroyed?");
         lua_error(L);
     }
-    lua_pushnumber(L, rigidbody->mass);
+    else
+    {
+        lua_pushnumber(L, rigidbody->mass);
+    }
     return 1;
 }
 
@@ -94,7 +100,10 @@ int LuaRigidbody::SetDrag(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Drag info. Possibly was destroyed?");
         lua_error(L);
     }
-    rigidbody->drag = drag;
+    else
+    {
+        rigidbody->drag = drag;
+    }
     return 0;
 }
 
@@ -106,7 +115,10 @@ int LuaRigidbody::GetDrag(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Drag info. Possibly was destroyed?");
         lua_error(L);
     }
-    lua_pushnumber(L, rigidbody->drag);
+    else
+    {
+        lua_pushnumber(L, rigidbody->drag);
+    }
     return 1;
 }
 
@@ -120,7 +132,10 @@ int LuaRigidbody::SetAngularDrag(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/AngularDrag info. Possibly was destroyed?");
         lua_error(L);
     }
-    rigidbody->angularDrag = angularDrag;
+    else
+    {
+        rigidbody->angularDrag = angularDrag;
+    }
     return 0;
 }
 
@@ -132,7 +147,10 @@ int LuaRigidbody::GetAngularDrag(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/AngularDrag info. Possibly was destroyed?");
         lua_error(L);
     }
-    lua_pushnumber(L, rigidbody->angularDrag);
+    else
+    {
+        lua_pushnumber(L, rigidbody->angularDrag);
+    }
     return 1;
 }
 
@@ -146,7 +164,10 @@ int LuaRigidbody::UseGravity(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Use Gravity info. Possibly was destroyed?");
         lua_error(L);
     }
-    rigidbody->useGravity = lua_toboolean(L, -1);
+    else
+    {
+        rigidbody->useGravity = lua_toboolean(L, -1);
+    }
     return 0;
 }
 
@@ -162,12 +183,15 @@ int LuaRigidbody::FreezePosition(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Freeze Position info. Possibly destroyed?");
         lua_error(L);
     }
-    bool x = lua_toboolean(L, -3);
-    bool y = lua_toboolean(L, -2);
-    bool z = lua_toboolean(L, -1);
-    rigidbody->freezePosition[0] = x;
-    rigidbody->freezePosition[1] = y;
-    rigidbody->freezePosition[2] = z;
+    else
+    {
+        bool x = lua_toboolean(L, -3);
+        bool y = lua_toboolean(L, -2);
+        bool z = lua_toboolean(L, -1);
+        rigidbody->freezePosition[0] = x;
+        rigidbody->freezePosition[1] = y;
+        rigidbody->freezePosition[2] = z;
+    }
     return 0;
 }
 
@@ -183,11 +207,14 @@ int LuaRigidbody::FreezeRotation(lua_State* L)
         lua_pushstring(L, "Missing Transfrom Rigidbody/Freeze Rotation info. Possibly was destroyed?");
         lua_error(L);
     }
-    bool x = lua_toboolean(L, -3);
-    bool y = lua_toboolean(L, -2);
-    bool z = lua_toboolean(L, -1);
-    rigidbody->freezeRotation[0] = x;
-    rigidbody->freezeRotation[1] = y;
-    rigidbody->freezeRotation[2] = z;
+    else
+    {
+        bool x = lua_toboolean(L, -3);
+        bool y = lua_toboolean(L, -2);
+        bool z = lua_toboolean(L, -1);
+        rigidbody->freezeRotation[0] = x;
+        rigidbody->freezeRotation[1] = y;
+        rigidbody->freezeRotation[2] = z;
+    }
     return 0;
 }

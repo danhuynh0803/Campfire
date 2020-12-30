@@ -378,7 +378,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
             static float oldMass;
             static float oldDrag;
             static float oldAngularDrag;
-            static bool oldUseGravity;
+            static bool oldUseGravity = false;
             ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
@@ -782,7 +782,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            json LuaGlobals = LuaManager::SerializeLuaTable("t");
+            json LuaGlobals = LuaManager::SerializeLuaGlobalTable();
             for (auto& [key, value] : LuaGlobals.items())
             {
                 if (value.is_number_integer())
@@ -798,7 +798,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                     }
                     if (ImGui::IsItemDeactivatedAfterEdit())
                     {
-                        LuaManager::SetGlobalLuaTableInteger("t", key.c_str(), currentInt);
+                        LuaManager::SetGlobalLuaTableInteger(LUA_MANAGER_GLOBAL, key.c_str(), currentInt);
                     }
                 }
                 else if(value.is_number_float())
@@ -814,7 +814,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                     }
                     if (ImGui::IsItemDeactivatedAfterEdit())
                     {
-                        LuaManager::SetGlobalLuaTableNumber("t", key.c_str(), currentFloat);
+                        LuaManager::SetGlobalLuaTableNumber(LUA_MANAGER_GLOBAL, key.c_str(), currentFloat);
                     }
                 }
                 else if (value.is_string())
@@ -828,7 +828,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                     }
                     if (ImGui::IsItemDeactivatedAfterEdit())
                     {
-                        LuaManager::SetGlobalLuaTableString("t", key.c_str(), currentString.c_str());
+                        LuaManager::SetGlobalLuaTableString(LUA_MANAGER_GLOBAL, key.c_str(), currentString.c_str());
                     }
                 }
                 else if (value.is_boolean())
@@ -836,15 +836,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                     static bool current = value;
                     if (ImGui::Checkbox(key.c_str(), &current))
                     {
-                        if (current)
-                        {
-                            LuaManager::SetGlobalLuaTableString("t", key.c_str(), "true");
-                        }
-                        else
-                        {
-                            LuaManager::SetGlobalLuaTableString("t", key.c_str(), "false");
-                        }
-
+                        LuaManager::SetGlobalLuaTableBoolean(LUA_MANAGER_GLOBAL, key.c_str(), current);
                     }
                 }
             }
@@ -864,7 +856,8 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
 
             lua_State* L = luaL_newstate();
-            if (luaL_dofile(L, sc.filepath.c_str()) == LUA_OK)//check syntax error
+            
+            if ((luaL_loadfile(L, sc.filepath.c_str()) | lua_pcall(L, 0, LUA_MULTRET, 0)) == LUA_OK)//check syntax error
             {
                 if (lua_getglobal(L, "Start"))
                 {
@@ -1060,7 +1053,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             {
                 // listing all available scripts in Assets dir
                 auto scriptPaths = FileSystem::GetAllFiles(ASSETS.c_str(), ".lua");
-                for (auto scriptPath : scriptPaths)
+                for (auto& scriptPath : scriptPaths)
                 {
                     if (ImGui::MenuItem(scriptPath.filename().string().c_str()))
                     {

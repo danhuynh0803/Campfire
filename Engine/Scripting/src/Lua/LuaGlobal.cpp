@@ -7,7 +7,7 @@ int LuaGlobal::SetNumber(lua_State* L)
     int topIndex = lua_gettop(L);
     lua_Number number = luaL_checknumber(L, topIndex);
     const char* name = luaL_checkstring(L, topIndex - 1);
-    LuaManager::SetGlobalLuaNumber(name, number);
+    LuaManager::SetGlobalLuaTableNumber(LUA_MANAGER_GLOBAL, name, number);
     return 0;
 }
 
@@ -17,7 +17,7 @@ int LuaGlobal::SetBoolean(lua_State* L)
     luaL_checktype(L, topIndex, LUA_TBOOLEAN);
     bool value = lua_toboolean(L, topIndex);
     const char* name = luaL_checkstring(L, topIndex - 1);
-    LuaManager::SetGlobalLuaBoolean(name, value);
+    LuaManager::SetGlobalLuaTableBoolean(LUA_MANAGER_GLOBAL, name, value);
     return 0;
 }
 
@@ -26,7 +26,7 @@ int LuaGlobal::SetInteger(lua_State* L)
     int topIndex = lua_gettop(L);
     lua_Integer nunber = luaL_checkinteger(L, topIndex);
     const char* name = luaL_checkstring(L, topIndex - 1);
-    LuaManager::SetGlobalLuaInteger(name, nunber);
+    LuaManager::SetGlobalLuaTableInteger(LUA_MANAGER_GLOBAL, name, nunber);
     return 0;
 }
 
@@ -35,7 +35,7 @@ int LuaGlobal::SetString(lua_State* L)
     int topIndex = lua_gettop(L);
     const char* value = luaL_checkstring(L, topIndex);
     const char* name = luaL_checkstring(L, topIndex - 1);
-    LuaManager::SetGlobalLuaString(name, value);
+    LuaManager::SetGlobalLuaTableString(LUA_MANAGER_GLOBAL, name, value);
     return 0;
 }
 
@@ -44,7 +44,7 @@ int LuaGlobal::SetTable(lua_State* L)
     int topIndex = lua_gettop(L);
     luaL_checktype(L, topIndex, LUA_TTABLE);
     const char* name = luaL_checkstring(L, topIndex - 1);
-    if (!LuaManager::SetGlobalLuaTable(L, name))
+    if (!LuaManager::SetGlobalLuaTableTable(L, LUA_MANAGER_GLOBAL, name))
     {
         lua_pushstring(L, "Cannot set the table value.");
         lua_error(L);
@@ -56,7 +56,7 @@ int LuaGlobal::GetNumber(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaNumber(L,name))
+    if (!LuaManager::GetGlobalLuaTableNumber(L, LUA_MANAGER_GLOBAL, name))
     {
         lua_pushstring(L, "Cannot find the double value.");
         lua_error(L);
@@ -68,7 +68,7 @@ int LuaGlobal::GetBoolean(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaBoolean(L, name))
+    if (!LuaManager::GetGlobalLuaTableBoolean(L, LUA_MANAGER_GLOBAL, name))
     {
         lua_pushstring(L, "Cannot find the boolean value.");
         lua_error(L);
@@ -80,7 +80,7 @@ int LuaGlobal::GetInteger(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaInteger(L, name))
+    if (!LuaManager::GetGlobalLuaTableInteger(L, LUA_MANAGER_GLOBAL, name))
     {
         lua_pushstring(L, "Cannot find the integer value.");
         lua_error(L);
@@ -92,7 +92,7 @@ int LuaGlobal::GetString(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaString(L, name))
+    if (!LuaManager::GetGlobalLuaTableString(L, LUA_MANAGER_GLOBAL, name))
     {
         lua_pushstring(L, "Cannot find the string value.");
         lua_error(L);
@@ -104,7 +104,7 @@ int LuaGlobal::GetTable(lua_State* L)
 {
     int topIndex = lua_gettop(L);
     const char* name = luaL_checkstring(L, topIndex);
-    if (!LuaManager::GetGlobalLuaTable(L,name))
+    if (!LuaManager::GetGlobalLuaTableTable(L, LUA_MANAGER_GLOBAL, name))
     {
         lua_pushstring(L, "Cannot find the table value.");
         lua_error(L);

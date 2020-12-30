@@ -42,6 +42,8 @@ private:
         bool VSync;
 
         EventCallbackFn EventCallback;
+
+        WindowData() = default;
     };
 
     WindowData data;
