@@ -1,15 +1,15 @@
 #include "Scripting/LuaManager.h"
-#include <string>
-#include "Core/Log.h"
-#include <cstdlib>
+#include "Scripting/LuaUtility.h"
 
-LuaData LuaManager::data;
+//LuaData LuaManager::data;
 lua_State* LuaManager::L;
 
 void LuaManager::Init()
 {
     L = luaL_newstate();
     luaL_openlibs(L);
+    lua_newtable(L);
+    lua_setglobal(L, LUA_MANAGER_GLOBAL);
 }
 
 void LuaManager::Shutdown()
@@ -17,10 +17,10 @@ void LuaManager::Shutdown()
     lua_close(L);
 }
 
-void LuaManager::SetEventCallback(const LuaEventCallbackFn& callback)
-{
-	data.EventCallback = callback;
-}
+//void LuaManager::SetEventCallback(const LuaEventCallbackFn& callback)
+//{
+//	data.EventCallback = callback;
+//}
 
 void LuaManager::SetGlobalLuaNumber(const char* name, const lua_Number& number)
 {
@@ -62,44 +62,52 @@ bool LuaManager::SetGlobalLuaTable(lua_State* from, const char* name)
 
 bool LuaManager::SetGlobalLuaTableNumber(const char* table, const char* name, const lua_Number& number)
 {
-    //To be implemented
-    //might be not plausible 
-    //the names are not unique
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushnumber(L, number);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
 bool LuaManager::SetGlobalLuaTableInteger(const char* table, const char* name, const lua_Integer& integer)
 {
-    //To be implemented
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushinteger(L, integer);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
 bool LuaManager::SetGlobalLuaTableString(const char* table, const char* name, const char* string)
 {
-    //To be implemented
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushstring(L, string);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
 bool LuaManager::SetGlobalLuaTableBoolean(const char* table, const char* name, const bool& boolean)
 {
-    //To be implemented
-    //lua_setglobal(L, name);
+    lua_getglobal(L, table);
+    lua_pushboolean(L, boolean);
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, table);
     return true;
 }
 
-bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* table, const char* name)
+bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* target, const char* name)
 {
-    //if (!lua_istable(from, -1)) return false;
-    //lua_newtable(L);
-    //if (!LuaUtility::TransferTable(from, L))
-    //{
-    //    lua_pop(L, 1);
-    //    return false;
-    //}
-    //lua_setglobal(L, name);
+    if (!lua_istable(from, -1)) return false;
+    lua_getglobal(L, target);
+    lua_newtable(L);
+    if (!LuaUtility::TransferTable(from, L))
+    {
+        lua_pop(L, 2);
+        return false;
+    }
+    lua_setfield(L, -2, name);
+    lua_setglobal(L, target);
     return true;
 }
 
@@ -167,482 +175,135 @@ bool LuaManager::GetGlobalLuaTable(lua_State* to, const char* name)
     if (!LuaUtility::TransferTable(L, to))
     {
         lua_pop(to,1);
+        lua_pop(L, 1);
         return false;
     }
     lua_pop(L, 1);//pop the very first table from the getglobal
     return true;
 }
 
-void LuaManager::Find(const char* name)
+bool LuaManager::GetGlobalLuaTableNumber(lua_State* to, const char* table, const char* name)
 {
-    //might not be plausible
-}
-
-bool LuaUtility::is_number(const std::string& s)
-{
-    std::string::const_iterator it = s.begin();
-    while (it != s.end() && std::isdigit(*it)) ++it;
-    return !s.empty() && it == s.end();
-}
-
-bool LuaUtility::TransferTable(lua_State* L1, lua_State* L2)
-{
-    if (!lua_istable(L1, -1)) return false;
-    lua_pushnil(L1);
-    while (lua_next(L1, -2) != 0)
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
     {
-        if (lua_isinteger(L1, -2))
-        {
-            if (lua_isnil(L1, -1))
-            {
-                lua_pushinteger(L2, lua_tointeger(L1, -2));
-                lua_pushnil(L2);
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isinteger(L1, -1))
-            {
-                lua_pushinteger(L2, lua_tointeger(L1, -2));
-                lua_pushinteger(L2, lua_tointeger(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isnumber(L1, -1) && !lua_isstring(L1, -1))
-            {
-                lua_pushinteger(L2, lua_tointeger(L1, -2));
-                lua_pushnumber(L2, lua_tonumber(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isstring(L1, -1))
-            {
-                lua_pushinteger(L2, lua_tointeger(L1, -2));
-                lua_pushstring(L2, lua_tostring(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isboolean(L1, -1))
-            {
-                lua_pushinteger(L2, lua_tonumber(L1, -2));
-                lua_pushboolean(L2, lua_toboolean(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_istable(L1, -1))
-            {
-                lua_pushinteger(L2, lua_tointeger(L1, -2));
-                lua_newtable(L2);
-                if (TransferTable(L1, L2))
-                {
-                    lua_settable(L2, -3);
-                }
-                else
-                {
-                    lua_pop(L2, 2);
-                }
-            }
-        }
-        else
-        if (lua_isstring(L1,-2))
-        {
-            if (lua_isnil(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_pushnil(L2);
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isinteger(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_pushinteger(L2, lua_tointeger(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isnumber(L1, -1) && !lua_isstring(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_pushnumber(L2, lua_tonumber(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isstring(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_pushstring(L2, lua_tostring(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_isboolean(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_pushboolean(L2, lua_toboolean(L1, -1));
-                lua_rawset(L2, -3);
-            }
-            else if (lua_istable(L1, -1))
-            {
-                lua_pushstring(L2, lua_tostring(L1, -2));
-                lua_newtable(L2);
-                if (TransferTable(L1, L2))
-                {
-                    lua_settable(L2, -3);
-                }
-                else
-                {
-                    lua_pop(L2, 2);
-                }
-            }
-        }
-        lua_pop(L1, 1);
+        lua_pop(L, 1);
+        return false;
     }
+    lua_getfield(L, -1, name);
+    if (lua_isnumber(L, -1))
+    {
+        lua_pushnumber(to, lua_tonumber(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableInteger(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isinteger(L, -1))
+    {
+        lua_pushinteger(to, lua_tointeger(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableString(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isstring(L, -1))
+    {
+        lua_pushstring(to, lua_tostring(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableBoolean(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (lua_isboolean(L, -1))
+    {
+        lua_pushboolean(to, lua_toboolean(L, -1));
+        lua_pop(L, 2);
+        return true;
+    }
+    lua_pop(L, 2);
+    return false;
+}
+
+bool LuaManager::GetGlobalLuaTableTable(lua_State* to, const char* table, const char* name)
+{
+    lua_getglobal(L, table);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_getfield(L, -1, name);
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 2);
+        return false;
+    }
+    lua_newtable(to);
+    if (!LuaUtility::TransferTable(L, to))
+    {
+        lua_pop(to, 1);
+        lua_pop(L, 2);
+        return false;
+    }
+    lua_pop(L, 2);
     return true;
 }
 
-JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
+LuaManager::JsonObject LuaManager::SerializeLuaGlobalTable()
 {
-    if (lua_istable(L, -1))
-    {
-        lua_pushnil(L);
-        while (lua_next(L, -2) != 0)
-        {
-            if (lua_isinteger(L, -2))
-            {
-                if (lua_isnil(L, -1))
-                {
-                    json[std::to_string(lua_tointeger(L, -2))] = nullptr;
-                }
-                else if (lua_isinteger(L, -1))
-                {
-                    json[std::to_string(lua_tointeger(L, -2))] = lua_tointeger(L, -1);
-                }
-                else if (lua_isnumber(L, -1) && !lua_isstring(L, -1))
-                {
-                    json[std::to_string(lua_tointeger(L, -2))] = lua_tonumber(L, -1);
-                }
-                else if (lua_isstring(L, -1))
-                {
-                    json[std::to_string(lua_tointeger(L, -2))] = std::string(lua_tostring(L, -1));
-                }
-                else if (lua_isboolean(L, -1))
-                {
-                    json[std::to_string(lua_tointeger(L, -2))] = lua_toboolean(L, -1);
-                }
-                else if (lua_istable(L, -1))
-                {
-                    JsonObject subJson;
-                    SerializeLuaTable(L, subJson);
-                    if (!subJson.is_null())//empty table
-                    {
-                        json[std::to_string(lua_tointeger(L, -2))] = subJson;
-                    }
-                    else
-                    {
-                        json[std::to_string(lua_tointeger(L, -2))] = JsonObject({});
-                    }
-                }
-            }
-            else if (lua_isstring(L, -2))
-            {
-                if (lua_isnil(L, -1))
-                {
-                    json[std::string(lua_tostring(L, -2))] = nullptr;
-                }
-                else if (lua_isinteger(L, -1))
-                {
-                    json[std::string(lua_tostring(L, -2))] = lua_tointeger(L, -1);
-                }
-                else if (lua_isnumber(L, -1) && !lua_isstring(L, -1))
-                {
-                    json[std::string(lua_tostring(L, -2))] = lua_tonumber(L, -1);
-                }
-                else if (lua_isstring(L, -1))
-                {
-                    json[std::string(lua_tostring(L, -2))] = std::string(lua_tostring(L, -1));
-                }
-                else if (lua_isboolean(L, -1))
-                {
-                    json[std::string(lua_tostring(L, -2))] = lua_toboolean(L, -1);
-                }
-                else if (lua_istable(L, -1))
-                {
-                    JsonObject subJson;
-                    SerializeLuaTable(L, subJson);
-                    if (!subJson.is_null())
-                    {
-                        json[std::string(lua_tostring(L, -2))] = subJson;
-                    }
-                    else
-                    {
-                        //similar wuth a empty lua table
-                        json[std::string(lua_tostring(L, -2))] = JsonObject({});
-                    }
-                }
-            }
-            lua_pop(L, 1);
-        }
-    }
+    lua_getglobal(L, LUA_MANAGER_GLOBAL);
+    JsonObject json;
+    LuaUtility::SerializeLuaTable(L, json);
+    lua_pop(L, 1);
     return json;
 }
 
-int LuaUtility::DeseralizeLuaTableX(lua_State* L)
+LuaManager::JsonObject LuaManager::SerializeLuaGlobalTable(const char* name)
 {
-    luaL_checktype(L, -1, LUA_TTABLE);
-    JsonObject object;
-    SerializeLuaTable(L, object);
-    DeseralizeLuaTable(L, object);
-    return 1;
+    lua_getglobal(L, name);
+    JsonObject json;
+    LuaUtility::SerializeLuaTable(L, json);
+    lua_pop(L, 1);
+    return json;
 }
 
-void LuaUtility::DeseralizeLuaTable(lua_State* L, const JsonObject& jsonObject)
+void LuaManager::Find(const char* name)
 {
-    //push a table back to the target lua state
-    lua_newtable(L);
-    for (auto& [key, value] : jsonObject.items())
-    {
-        //for integer key
-        if (is_number(key))
-        {
-            if (value.is_null())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                lua_pushnil(L);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_boolean())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                lua_pushboolean(L, value);//or json[key]
-                lua_rawset(L, -3);
-            }
-            else if (value.is_number_integer())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                lua_pushinteger(L, value);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_number_float())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                lua_pushnumber(L, value);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_string())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                lua_pushstring(L, value.get<std::string>().c_str());
-                lua_rawset(L, -3);
-            }
-            else if (value.is_array())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                DeseralizeLuaTable(L, value);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_object())
-            {
-                lua_pushinteger(L, std::atoi(key.c_str()));
-                DeseralizeLuaTable(L, value);
-                lua_rawset(L, -3);
-            }
-        }
-        else//string key
-        {
-            if (value.is_null())
-            {
-                lua_pushstring(L, key.c_str());
-                lua_pushnil(L);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_boolean())
-            {
-                lua_pushstring(L, key.c_str());
-                lua_pushboolean(L, value);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_number_integer())
-            {
-                lua_pushstring(L, key.c_str());
-                lua_pushinteger(L, value);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_number_float())
-            {
-                lua_pushnumber(L, value);
-                lua_pushstring(L, key.c_str());
-                lua_rawset(L, -3);
-            }
-            else if (value.is_string())
-            {
-                lua_pushstring(L, key.c_str());
-                lua_pushstring(L, value.get<std::string>().c_str());
-                lua_rawset(L, -3);
-            }
-            else if (value.is_array())
-            {
-                lua_pushstring(L, key.c_str());
-                DeseralizeLuaTable(L, value);
-                lua_rawset(L, -3);
-            }
-            else if (value.is_object())
-            {
-                lua_pushstring(L, key.c_str());
-                DeseralizeLuaTable(L, value);
-                lua_rawset(L, -3);
-            }
-        }
-    }
-}
-
-void LuaUtility::ParseLuaTableOnTop(lua_State *L, const char* tabs)
-{
-    if (lua_istable(L, -1))
-    {
-        std::stringstream tabStream;
-        LOG_INFO("{0}{1}", tabs, "{");
-        tabStream << tabs << "\t";
-        lua_pushnil(L);
-        while (lua_next(L, -2) != 0)
-        {
-            switch (lua_type(L, -1))//value type
-            {
-            case LUA_TNONE:
-                CORE_INFO("What is the case for it to be NONE?");
-                break;
-            case LUA_TNIL:
-                switch (lua_type(L, -2))//key type
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]: nil", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]: nil", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TBOOLEAN:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2), lua_toboolean(L, -1));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2), lua_toboolean(L, -1));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TLIGHTUSERDATA:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TNUMBER:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2), lua_tonumber(L, -1));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]: {3}", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2), lua_tonumber(L, -1));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TSTRING:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]: \"{3}\"", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2), lua_tostring(L, -1));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]: \"{3}\"", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2), lua_tostring(L, -1));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TTABLE:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                    ParseLuaTableOnTop(L,tabStream.str().c_str());
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                    //LuaParseTableOnTop(tabStream.str().c_str());
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TFUNCTION:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TUSERDATA:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            case LUA_TTHREAD:
-                switch (lua_type(L, -2))
-                {
-                case LUA_TNUMBER:
-                    LOG_INFO("{0}({1})[{2}]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tointeger(L, -2));
-                    break;
-                case LUA_TSTRING:
-                    LOG_INFO("{0}({1})[\"{2}\"]", tabStream.str().c_str(), lua_typename(L, lua_type(L, -1)), lua_tostring(L, -2));
-                    break;
-                default:
-                    //other type of key
-                    break;
-                }
-                break;
-            default:
-                CORE_INFO("What is the case for this? Something went wrong :(");
-                break;
-            }
-            lua_pop(L, 1);
-        }
-        LOG_INFO("{0}{1}", tabs, "}");
-    }
-}
-
-int LuaUtility::Log(lua_State* L)
-{
-    luaL_checkstring(L, -1);
-    const char* msg = lua_tostring(L, -1);
-    LOG_INFO(msg);
-    return 0;
+    //might not be plausible
 }
 
 //JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)

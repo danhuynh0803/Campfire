@@ -7,16 +7,16 @@
 
 namespace WindowsFileSystem
 {
-    std::string OpenFileName(const char*);
-    std::string SaveFileName(const char*);
-    void FindFiles(const char*);
-    bool CopyAFile(const char*, const char*, bool);
-    bool MoveFiles(const char*, const char*);
-    bool DeleteFiles(const char*);
-    bool OpenInWindowsExplorer(const char*);
-    bool OpenFileWithDefaultProgram(const char*);
-    bool EditFileWithDefaultProgram(const char*);
-    void RunFileDirectoryWatcher(const char*);
+    std::string OpenFileName(const char* filter);
+    std::string SaveFileName(const char* filter);
+    void FindFiles(const char* fileName);
+    bool CopyAFile(const char* source, const char* target, bool checkIfAlreadyExist);
+    bool MoveFiles(const char* source, const char* target);
+    bool DeleteFiles(const char* fileName);
+    bool OpenInWindowsExplorer(const char* filePath);
+    bool OpenFileWithDefaultProgram(const char* filePath);
+    bool EditFileWithDefaultProgram(const char* fileDirectory);
+    void RunFileDirectoryWatcher(const char* watchDirectory);
     bool OpenCampFireGithubRepo();
     bool OpenCampFireGithubRepoTroubleshoot();
     bool OpenCampFireGithubRepoWiki();

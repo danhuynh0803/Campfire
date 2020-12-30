@@ -10,6 +10,7 @@
 #include "Renderer/Material.h"
 #include "Scene/SceneManager.h"
 #include "Command/CommandManager.h"
+#include "Scripting/LuaManager.h"
 
 void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
@@ -377,7 +378,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
             static float oldMass;
             static float oldDrag;
             static float oldAngularDrag;
-            static bool oldUseGravity;
+            static bool oldUseGravity = false;
             ImGui::DragFloat("Mass", &rigidbody->mass, 0.1f);
             if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
             {
@@ -780,6 +781,66 @@ void InspectorWidget::ShowEntity(Entity& entity)
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
+
+            json LuaGlobals = LuaManager::SerializeLuaGlobalTable();
+            for (auto& [key, value] : LuaGlobals.items())
+            {
+                if (value.is_number_integer())
+                {
+                    static int oldInt;
+                    static int currentInt = value;
+
+                    ImGui::DragInt(key.c_str(), &currentInt);
+
+                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+                    {
+                        oldInt = currentInt;
+                    }
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        LuaManager::SetGlobalLuaTableInteger(LUA_MANAGER_GLOBAL, key.c_str(), currentInt);
+                    }
+                }
+                else if(value.is_number_float())
+                {
+                    static float oldFloat;
+                    static float currentFloat = (float)value;
+
+                    ImGui::DragFloat(key.c_str(), &currentFloat);
+
+                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+                    {
+                        oldFloat = currentFloat;
+                    }
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        LuaManager::SetGlobalLuaTableNumber(LUA_MANAGER_GLOBAL, key.c_str(), currentFloat);
+                    }
+                }
+                else if (value.is_string())
+                {
+                    static std::string oldString;
+                    static std::string currentString = value;
+                    ImGui::InputText(key.c_str(), &currentString);
+                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
+                    {
+                        oldString = currentString;
+                    }
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {
+                        LuaManager::SetGlobalLuaTableString(LUA_MANAGER_GLOBAL, key.c_str(), currentString.c_str());
+                    }
+                }
+                else if (value.is_boolean())
+                {
+                    static bool current = value;
+                    if (ImGui::Checkbox(key.c_str(), &current))
+                    {
+                        LuaManager::SetGlobalLuaTableBoolean(LUA_MANAGER_GLOBAL, key.c_str(), current);
+                    }
+                }
+            }
+
             auto& sc = entity.GetComponent<ScriptComponent>();
 
             std::string filename = sc.filepath.empty() ? "Blank" : sc.filepath;
@@ -795,7 +856,8 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
 
             lua_State* L = luaL_newstate();
-            if (luaL_dofile(L, sc.filepath.c_str()) == LUA_OK)//check syntax error
+            
+            if ((luaL_loadfile(L, sc.filepath.c_str()) | lua_pcall(L, 0, LUA_MULTRET, 0)) == LUA_OK)//check syntax error
             {
                 if (lua_getglobal(L, "Start"))
                 {
@@ -991,7 +1053,7 @@ void InspectorWidget::ShowComponentMenu(Entity& entity)
             {
                 // listing all available scripts in Assets dir
                 auto scriptPaths = FileSystem::GetAllFiles(ASSETS.c_str(), ".lua");
-                for (auto scriptPath : scriptPaths)
+                for (auto& scriptPath : scriptPaths)
                 {
                     if (ImGui::MenuItem(scriptPath.filename().string().c_str()))
                     {

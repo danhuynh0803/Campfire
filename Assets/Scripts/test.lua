@@ -41,9 +41,10 @@ function Start()
 	-- Global.SetString("x", "test")
 	-- y = Global.GetString("x")
 	-- print(y)
-	--Global.SetTable("t", { "x",x = 2, y = "s", o = { n = 2, x = 's', y = false, "ss", s = nil },"ss", "1",{ o = "xx"}, 2.2, 55, nil,[200] = "3.4"})
-	--y = Global.GetTable("t")
+	-- Global.SetTable("t", { "x", false, x = 2.5, y = "s", o = { n = 2, x = 's', y = false, "ss", s = nil },"ss", "1",{ o = "xx"}, 2.2, 55, nil,[200] = "3.4"})
+	-- y = Global.GetTable("t")
 	-- print(y)
+	-- print(y.x)
 	-- print(y.y)
 	-- print(y.o.n)
 	-- print(y.o.x)
@@ -59,37 +60,46 @@ function Start()
 	-- print(y[4].o)
 	-- print(y[7])
 	-- print(y[200])
-	t = Utility.DeseralizeLuaTableX({ 
-		x = 1,
-		y = { true, n = "test"}, 
-		false, 
-		a = {"x","y","z"},
-		"n",
-		{"1.0","0.5","4"},
-		nil,
-		s = { },
-		[100] = "sad", 
-		es = false
-	})
-	print(t.s)
-	print(t.x)
-	print(t.y)
-	print(t.y[1])
-	print(t.y.n)
-	print(t[1])
-	print(t[2])
-	print(t.a[0])
-	print(t.a[1])
-	print(t.a[2])
-	print(t.a[3])
-	print(t.y[2])
-	print(t[3][1])
-	print(t[3][2])
-	print(t[3][3])
-	print(t[4])
-	print(t.s)
-	print(t[100])
-	print(t.es)
+
+	Global.SetNumber("x", 3.0)
+	Global.SetInteger("y", 1)
+	Global.SetNumber("z", 3.0)
+	Global.SetString("MyString", "I am a string")
+	Global.SetBoolean("Toggle Box", true)
+
+	-- s = Utility.DeseralizeLuaTableX({
+	-- 	2 , false, x = "S"
+	-- })
+	-- 	x = 1,
+	-- 	y = { true, n = "test"}, 
+	-- 	false, 
+	-- 	a = {"x","y","z"},
+	-- 	"n",
+	-- 	{"1.0","0.5","4"},
+	-- 	nil,
+	-- 	s = { },
+	-- 	[100] = "sad", 
+	-- 	es = false
+	-- })
+	-- print(s.s)
+	-- print(s.x)
+	-- print(s.y)
+	-- print(s.y[1])
+	-- print(s.y.n)
+	-- print(s[1])
+	-- print(s[2])
+	-- print(s.a[0])
+	-- print(s.a[1])
+	-- print(s.a[2])
+	-- print(s.a[3])
+	-- print(s.y[2])
+	-- print(s[3][1])
+	-- print(s[3][2])
+	-- print(s[3][3])
+	-- print(s[4])
+	-- print(s.s)
+	-- print(s[100])
+	-- print(s.es)
 end
 
 -- function Update()
@@ -100,6 +110,9 @@ end
 		-- -- Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
 	-- -- end
 	
+-- end
+-- function Update(dt)
+-- 	x = Global.GetTable("t")
 -- end
 
 function OnTriggerEnter(other)

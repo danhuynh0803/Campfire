@@ -35,7 +35,7 @@ Application::Application(const ApplicationProps& props)
     //PushLayer(new VulkanLayer());
 
     LuaManager::Init();
-    LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
+    //LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
     
     Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
@@ -116,14 +116,14 @@ void Application::OnEvent(Event& e)
     }
 }
 
-void Application::OnLuaEvent(LuaEvent& e)
-{
-    for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
-    {
-        (*revIt)->OnLuaEvent(e);
-        if (e.handled) { break; }
-    }
-}
+//void Application::OnLuaEvent(LuaEvent& e)
+//{
+//    for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
+//    {
+//        (*revIt)->OnLuaEvent(e);
+//        if (e.handled) { break; }
+//    }
+//}
 
 bool Application::OnWindowResize(WindowResizeEvent& e)
 {

@@ -1040,11 +1040,11 @@ void EditorLayer::OnEvent(Event& event)
     dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(EditorLayer::OnWindowClose));
 }
 
-void EditorLayer::OnLuaEvent(LuaEvent& event)
-{
-    LuaEventDispatcher dispatcher(event);
-    dispatcher.Dispatch<LuaSetGlobalEvent>(BIND_EVENT_FN(EditorLayer::OnLuaSetGlobal));
-}
+//void EditorLayer::OnLuaEvent(LuaEvent& event)
+//{
+//    LuaEventDispatcher dispatcher(event);
+//    dispatcher.Dispatch<LuaSetGlobalEvent>(BIND_EVENT_FN(EditorLayer::OnLuaSetGlobal));
+//}
 
 void EditorLayer::ScreenToWorldRay(
     float mouseX, float mouseY,
@@ -1356,10 +1356,10 @@ bool EditorLayer::OnWindowClose(WindowCloseEvent& e)
     return false;
 }
 
-bool EditorLayer::OnLuaSetGlobal(LuaSetGlobalEvent& e)
-{
-    return false;
-}
+//bool EditorLayer::OnLuaSetGlobal(LuaSetGlobalEvent& e)
+//{
+//    return false;
+//}
 
 // TODO
 bool EditorLayer::OpenConfirmPrompt(const char* msg)

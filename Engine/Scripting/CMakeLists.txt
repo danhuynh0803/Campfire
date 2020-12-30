@@ -11,6 +11,7 @@ set(SCRIPTING_HEADERS
     #include/Scripting/ScriptEngine.h
     #include/Scripting/LuaCall.h
     include/Scripting/LuaManager.h
+    include/Scripting/LuaUtility.h
     include/Scripting/Lua/LuaTransform.h
     include/Scripting/Lua/LuaTag.h
     include/Scripting/Lua/LuaEntity.h
@@ -27,6 +28,7 @@ set(SCRIPTING_SRC
     #src/ScriptEngine.cpp
     src/LuaScript.cpp
     src/LuaManager.cpp
+    src/LuaUtility.cpp
     #src/LuaCall.cpp
     src/Lua/LuaTransform.cpp
     src/Lua/LuaTag.cpp
