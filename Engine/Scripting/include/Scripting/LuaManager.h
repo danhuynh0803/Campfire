@@ -29,7 +29,7 @@ struct LuaManager
     static bool SetGlobalLuaTableInteger(const char* table, const char* name, const lua_Integer& integer);
     static bool SetGlobalLuaTableString(const char* table, const char* name, const char* value);
     static bool SetGlobalLuaTableBoolean(const char* table, const char* name, const bool& value);
-    static bool SetGlobalLuaTableTable(lua_State* from, const char* target, const char* name);
+    static bool SetGlobalLuaTableTable(lua_State* from, const char* table, const char* name);
     static bool GetGlobalLuaNumber(lua_State* to, const char* name);
     static bool GetGlobalLuaInteger(lua_State* to, const char* name);
     static bool GetGlobalLuaString(lua_State* to, const char* name);
@@ -42,11 +42,13 @@ struct LuaManager
     static bool GetGlobalLuaTableTable(lua_State* to, const char* target, const char* name);
     static JsonObject SerializeLuaGlobalTable();
     static JsonObject SerializeLuaGlobalTable(const char* name);
+    static const JsonObject& GetLuaGlobal();
     static void Find(const char* name);
 
 private:
     //static LuaData data;
     static lua_State* L;
+    static JsonObject LuaGlobal;
 };
 
 //class LuaEventDispatcher

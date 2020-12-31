@@ -111,9 +111,10 @@ end
 	-- -- end
 	
 -- end
--- function Update(dt)
--- 	x = Global.GetTable("t")
--- end
+function Update()
+	Global.SetNumber("z", dt)
+
+end
 
 function OnTriggerEnter(other)
 	other.Rigidbody.AddVelocity(0, 20, 0)

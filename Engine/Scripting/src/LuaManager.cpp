@@ -3,6 +3,7 @@
 
 //LuaData LuaManager::data;
 lua_State* LuaManager::L;
+LuaManager::JsonObject LuaManager::LuaGlobal;
 
 void LuaManager::Init()
 {
@@ -10,10 +11,12 @@ void LuaManager::Init()
     luaL_openlibs(L);
     lua_newtable(L);
     lua_setglobal(L, LUA_MANAGER_GLOBAL);
+    LuaGlobal = JsonObject({});
 }
 
 void LuaManager::Shutdown()
 {
+    LuaGlobal = JsonObject({});
     lua_close(L);
 }
 
@@ -66,6 +69,10 @@ bool LuaManager::SetGlobalLuaTableNumber(const char* table, const char* name, co
     lua_pushnumber(L, number);
     lua_setfield(L, -2, name);
     lua_setglobal(L, table);
+    if (strcmp(table, LUA_MANAGER_GLOBAL) == 0)
+    {
+        LuaGlobal = SerializeLuaGlobalTable();
+    }
     return true;
 }
 
@@ -75,6 +82,10 @@ bool LuaManager::SetGlobalLuaTableInteger(const char* table, const char* name, c
     lua_pushinteger(L, integer);
     lua_setfield(L, -2, name);
     lua_setglobal(L, table);
+    if (strcmp(table, LUA_MANAGER_GLOBAL) == 0)
+    {
+        LuaGlobal = SerializeLuaGlobalTable();
+    }
     return true;
 }
 
@@ -84,6 +95,10 @@ bool LuaManager::SetGlobalLuaTableString(const char* table, const char* name, co
     lua_pushstring(L, string);
     lua_setfield(L, -2, name);
     lua_setglobal(L, table);
+    if (strcmp(table, LUA_MANAGER_GLOBAL) == 0)
+    {
+        LuaGlobal = SerializeLuaGlobalTable();
+    }
     return true;
 }
 
@@ -93,13 +108,17 @@ bool LuaManager::SetGlobalLuaTableBoolean(const char* table, const char* name, c
     lua_pushboolean(L, boolean);
     lua_setfield(L, -2, name);
     lua_setglobal(L, table);
+    if (strcmp(table, LUA_MANAGER_GLOBAL) == 0)
+    {
+        LuaGlobal = SerializeLuaGlobalTable();
+    }
     return true;
 }
 
-bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* target, const char* name)
+bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* table, const char* name)
 {
     if (!lua_istable(from, -1)) return false;
-    lua_getglobal(L, target);
+    lua_getglobal(L, table);
     lua_newtable(L);
     if (!LuaUtility::TransferTable(from, L))
     {
@@ -107,7 +126,11 @@ bool LuaManager::SetGlobalLuaTableTable(lua_State* from, const char* target, con
         return false;
     }
     lua_setfield(L, -2, name);
-    lua_setglobal(L, target);
+    lua_setglobal(L, table);
+    if (strcmp(table, LUA_MANAGER_GLOBAL) == 0)
+    {
+        LuaGlobal = SerializeLuaGlobalTable();
+    }
     return true;
 }
 
@@ -299,6 +322,11 @@ LuaManager::JsonObject LuaManager::SerializeLuaGlobalTable(const char* name)
     LuaUtility::SerializeLuaTable(L, json);
     lua_pop(L, 1);
     return json;
+}
+
+const LuaManager::JsonObject& LuaManager::GetLuaGlobal()
+{
+    return LuaGlobal;
 }
 
 void LuaManager::Find(const char* name)

@@ -781,62 +781,32 @@ void InspectorWidget::ShowEntity(Entity& entity)
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
-
-            json LuaGlobals = LuaManager::SerializeLuaGlobalTable();
-            for (auto& [key, value] : LuaGlobals.items())
+            for (auto& [key, value] : LuaManager::GetLuaGlobal().items())
             {
                 if (value.is_number_integer())
                 {
-                    static int oldInt;
-                    static int currentInt = value;
-
-                    ImGui::DragInt(key.c_str(), &currentInt);
-
-                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
-                    {
-                        oldInt = currentInt;
-                    }
-                    if (ImGui::IsItemDeactivatedAfterEdit())
-                    {
-                        LuaManager::SetGlobalLuaTableInteger(LUA_MANAGER_GLOBAL, key.c_str(), currentInt);
-                    }
+                    int nubmer = value;
+                    ImGui::Text("%s: %i", key.c_str(), nubmer);
                 }
                 else if(value.is_number_float())
                 {
-                    static float oldFloat;
-                    static float currentFloat = (float)value;
-
-                    ImGui::DragFloat(key.c_str(), &currentFloat);
-
-                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
-                    {
-                        oldFloat = currentFloat;
-                    }
-                    if (ImGui::IsItemDeactivatedAfterEdit())
-                    {
-                        LuaManager::SetGlobalLuaTableNumber(LUA_MANAGER_GLOBAL, key.c_str(), currentFloat);
-                    }
+                    float nubmer = value.get<float>();
+                    ImGui::Text("%s: %f",key.c_str(), nubmer);
                 }
                 else if (value.is_string())
                 {
-                    static std::string oldString;
-                    static std::string currentString = value;
-                    ImGui::InputText(key.c_str(), &currentString);
-                    if (ImGui::IsItemActivated() && ImGui::IsMouseClicked(0))
-                    {
-                        oldString = currentString;
-                    }
-                    if (ImGui::IsItemDeactivatedAfterEdit())
-                    {
-                        LuaManager::SetGlobalLuaTableString(LUA_MANAGER_GLOBAL, key.c_str(), currentString.c_str());
-                    }
+                    std::string text = value;
+                    ImGui::Text("%s: %s", key.c_str(), text.c_str());
                 }
                 else if (value.is_boolean())
                 {
-                    static bool current = value;
-                    if (ImGui::Checkbox(key.c_str(), &current))
+                    if (value.get<bool>())
                     {
-                        LuaManager::SetGlobalLuaTableBoolean(LUA_MANAGER_GLOBAL, key.c_str(), current);
+                        ImGui::Text("%s: true");
+                    }
+                    else
+                    {
+                        ImGui::Text("%s: false");
                     }
                 }
             }

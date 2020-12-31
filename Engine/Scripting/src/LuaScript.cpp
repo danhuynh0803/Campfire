@@ -198,7 +198,7 @@ void LuaScript::Start()
 void LuaScript::Update(float dt)
 {
     lua_pushnumber(L, dt);
-    lua_setglobal(L, "deltatime");
+    lua_setglobal(L, "dt");
     lua_pushcfunction(L, LuaUtility::LuaCallback);
     if (lua_getglobal(L, "Update"))
     {
