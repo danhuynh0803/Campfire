@@ -10,6 +10,8 @@ public:
     void ShowEntity(Entity& entity);
 
 private:
+    void ShowJsonObject(const nlohmann::json& json);
+
     void ShowComponentMenu(Entity& entity);
 
     template <typename T>

@@ -781,36 +781,9 @@ void InspectorWidget::ShowEntity(Entity& entity)
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
-            for (auto& [key, value] : LuaManager::GetLuaGlobal().items())
-            {
-                if (value.is_number_integer())
-                {
-                    int nubmer = value;
-                    ImGui::Text("%s: %i", key.c_str(), nubmer);
-                }
-                else if(value.is_number_float())
-                {
-                    float nubmer = value.get<float>();
-                    ImGui::Text("%s: %f",key.c_str(), nubmer);
-                }
-                else if (value.is_string())
-                {
-                    std::string text = value;
-                    ImGui::Text("%s: %s", key.c_str(), text.c_str());
-                }
-                else if (value.is_boolean())
-                {
-                    if (value.get<bool>())
-                    {
-                        ImGui::Text("%s: true", key.c_str());
-                    }
-                    else
-                    {
-                        ImGui::Text("%s: false", key.c_str());
-                    }
-                }
-            }
 
+            ShowJsonObject(LuaManager::GetLuaGlobal());
+            
             auto& sc = entity.GetComponent<ScriptComponent>();
 
             std::string filename = sc.filepath.empty() ? "Blank" : sc.filepath;
@@ -878,6 +851,55 @@ void InspectorWidget::ShowEntity(Entity& entity)
     {
         ShowComponentMenu(entity);
         ImGui::EndPopup();
+    }
+}
+
+void InspectorWidget::ShowJsonObject(const nlohmann::json& json)
+{
+    for (auto& [key, value] : json.items())
+    {
+        if (value.is_number_integer())
+        {
+            int nubmer = value;
+            ImGui::Text("%s: %i", key.c_str(), nubmer);
+        }
+        else if (value.is_number_float())
+        {
+            float nubmer = value.get<float>();
+            ImGui::Text("%s: %f", key.c_str(), nubmer);
+        }
+        else if (value.is_string())
+        {
+            std::string text = value;
+            ImGui::Text("%s: %s", key.c_str(), text.c_str());
+        }
+        else if (value.is_boolean())
+        {
+            if (value.get<bool>())
+            {
+                ImGui::Text("%s: true", key.c_str());
+            }
+            else
+            {
+                ImGui::Text("%s: false", key.c_str());
+            }
+        }
+        else if (value.is_array())
+        {
+            if (ImGui::TreeNode(key.c_str()))
+            {
+                ShowJsonObject(value);
+                ImGui::TreePop();
+            }
+        }
+        else if (value.is_object())
+        {
+            if (ImGui::TreeNode(key.c_str()))
+            {
+                ShowJsonObject(value);
+                ImGui::TreePop();
+            }
+        }
     }
 }
 

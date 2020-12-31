@@ -66,7 +66,8 @@ function Start()
 	Global.SetNumber("z", 3.0)
 	Global.SetString("MyString", "I am a string")
 	Global.SetBoolean("Bool", true)
-
+	Global.SetTable("T", { x = "test", s = 1, n = { }, s = { 6,7,8,9,10}})
+	Global.SetTable("Array", { 1, 2, 3, 4, 5, { s = "test"}})
 	-- s = Utility.DeseralizeLuaTableX({
 	-- 	2 , false, x = "S"
 	-- })
