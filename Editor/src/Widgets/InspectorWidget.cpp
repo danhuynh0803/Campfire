@@ -802,11 +802,11 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 {
                     if (value.get<bool>())
                     {
-                        ImGui::Text("%s: true");
+                        ImGui::Text("%s: true", key.c_str());
                     }
                     else
                     {
-                        ImGui::Text("%s: false");
+                        ImGui::Text("%s: false", key.c_str());
                     }
                 }
             }

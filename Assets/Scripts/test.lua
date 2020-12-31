@@ -65,7 +65,7 @@ function Start()
 	Global.SetInteger("y", 1)
 	Global.SetNumber("z", 3.0)
 	Global.SetString("MyString", "I am a string")
-	Global.SetBoolean("Toggle Box", true)
+	Global.SetBoolean("Bool", true)
 
 	-- s = Utility.DeseralizeLuaTableX({
 	-- 	2 , false, x = "S"
@@ -112,7 +112,7 @@ end
 	
 -- end
 function Update()
-	Global.SetNumber("z", dt)
+	Global.SetNumber("DAT FPS", 1/dt)
 
 end
 
