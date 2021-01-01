@@ -115,3 +115,8 @@ set_target_properties(tracy PROPERTIES FOLDER "Vendor")
 #font-awesome-5
 add_library(font-awesome-5 INTERFACE)
 target_include_directories(font-awesome-5 INTERFACE "font-awesome-5/include/")
+
+# RuntimeCompiledCPlusPlus
+add_subdirectory(RuntimeCompiledCPlusPlus/Aurora)
+set_target_properties(RuntimeCompiler PROPERTIES FOLDER "Vendor")
+set_target_properties(RuntimeObjectSystem PROPERTIES FOLDER "Vendor")

@@ -2,6 +2,7 @@
 
 #include "Core/Application.h"
 #include "Core/ResourceManager.h"
+#include <RuntimeObjectSystem/RuntimeObjectSystem.h>
 
 extern Application* CreateApplication();
 

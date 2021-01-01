@@ -35,6 +35,7 @@ target_link_libraries(
         glfw
         lua
         tracy
+        RuntimeCompiler RuntimeObjectSystem
     PRIVATE
         BulletDynamics BulletCollision LinearMath
         stb
