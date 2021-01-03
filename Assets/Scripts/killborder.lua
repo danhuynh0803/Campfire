@@ -3,12 +3,12 @@ function Start()
 end
 
 function OnTriggerEnter (other)
-    --Log("killborder " .. other.tag)
+    --Log("killborder " .. other.Tag.GetTag())
     other.Destroy()
 	a = other.Transform.GetPosition()
 end
 
 function OnTriggerExit (other)
-    --Log("killborder " .. other.tag)
+    --Log("killborder " .. other.Tag.GetTag())
     other.Destroy()
 end

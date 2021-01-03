@@ -5,7 +5,16 @@
 int LuaTag::GetTag(lua_State* L)
 {
     const char* tag = (const char*)lua_touserdata(L, lua_upvalueindex(1));
-    lua_pushstring(L, tag);
+    if (!tag)
+    {
+        lua_pushstring(L, "Missing Tag/Get Tag info. Possibly was destroyed?");
+        lua_error(L);
+    }
+    else
+    {
+        lua_pushstring(L, tag);
+    }
+
     return 1;
 }
 

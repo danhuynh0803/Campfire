@@ -1,7 +1,5 @@
 #pragma once
-#include <functional>
-#include <string>
-#include <sstream>
+//#include <functional>
 #include "lua.hpp"
 #include "Events/LuaEvent.h"
 #include "nlohmann/json.hpp"
@@ -19,6 +17,8 @@ struct LuaManager
 
     static void Init();
     static void Shutdown();
+    static void OnStart();
+    static void OnStop();
     //static void SetEventCallback(const LuaEventCallbackFn&);
     static void SetGlobalLuaNumber(const char* name, const lua_Number& number);
     static void SetGlobalLuaInteger(const char* name, const lua_Integer& integer);

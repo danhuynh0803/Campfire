@@ -21,6 +21,7 @@ set(SCRIPTING_HEADERS
     include/Scripting/Lua/LuaVector.h
     include/Scripting/Lua/LuaCollider.h
     include/Scripting/Lua/LuaGlobal.h
+    include/Scripting/Lua/LuaCamera.h
 )
 
 set(SCRIPTING_SRC
@@ -39,6 +40,7 @@ set(SCRIPTING_SRC
     src/Lua/LuaVector.cpp
     src/Lua/LuaCollider.cpp
     src/Lua/LuaGlobal.cpp
+    src/Lua/LuaCamera.cpp
 )
 
 target_sources(

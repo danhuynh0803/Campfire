@@ -33,7 +33,8 @@ public:
     glm::mat4 GetViewProjMatrix() const { return projMatrix * viewMatrix; }
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
     void RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& euler);
-
+    void SetClearFlag(const std::string currentFlag);
+    const std::string& GetClearFlag();
 public:
     ClearFlag clearFlag = ClearFlag::SKYBOX;
     glm::vec4 backgroundColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);

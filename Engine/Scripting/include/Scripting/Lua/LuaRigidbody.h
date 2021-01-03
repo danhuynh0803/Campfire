@@ -12,7 +12,12 @@ namespace LuaRigidbody
     int GetDrag(lua_State*);
     int SetAngularDrag(lua_State*);
     int GetAngularDrag(lua_State*);
-    int UseGravity(lua_State*);
-    int FreezePosition(lua_State*);
-    int FreezeRotation(lua_State*);
+    int SetUseGravity(lua_State*);
+    int GetUseGravity(lua_State*);
+    int SetFreezePosition(lua_State*);
+    int GetFreezePosition(lua_State*);
+    int SetFreezeRotation(lua_State*);
+    int GetFreezeRotation(lua_State*);
+    int SetBodyType(lua_State*);
+    int GetBodyType(lua_State*);
 }

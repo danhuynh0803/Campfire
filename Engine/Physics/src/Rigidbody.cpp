@@ -7,6 +7,20 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+static const std::map<std::string, Rigidbody::BodyType> str2BodyTypeMap
+{
+    { "Static", Rigidbody::BodyType::STATIC },
+    { "Kinematic", Rigidbody::BodyType::KINEMATIC },
+    { "Dynamic", Rigidbody::BodyType::DYNAMIC },
+};
+
+static const std::map<Rigidbody::BodyType, std::string> BodyType2strMap
+{
+    { Rigidbody::BodyType::STATIC, "Static"},
+    { Rigidbody::BodyType::KINEMATIC, "Kinematic" },
+    { Rigidbody::BodyType::DYNAMIC, "Dynamic" },
+};
+
 void Rigidbody::SetTransform(const TransformComponent& transformComp)
 {
     btTransform transform;
@@ -31,6 +45,22 @@ void Rigidbody::SetTransform(const TransformComponent& transformComp)
     bulletRigidbody->setWorldTransform(transform);
     bulletRigidbody->getMotionState()->setWorldTransform(transform);
     bulletRigidbody->setCenterOfMassTransform(transform);
+}
+
+void Rigidbody::SetBodyType(const std::string& currentType)
+{
+    if (str2BodyTypeMap.find(currentType) != str2BodyTypeMap.end())
+    {
+        type = static_cast<Rigidbody::BodyType>(str2BodyTypeMap.at(currentType));
+    }
+}
+
+const std::string& Rigidbody::GetBodyType()
+{
+    if (BodyType2strMap.find(type) != BodyType2strMap.end())
+    {
+        return BodyType2strMap.at(type);
+    }
 }
 
 void Rigidbody::ToggleGravity()

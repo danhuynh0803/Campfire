@@ -7,6 +7,7 @@ LuaManager::JsonObject LuaManager::LuaGlobal;
 
 void LuaManager::Init()
 {
+    if (L) return;
     L = luaL_newstate();
     luaL_openlibs(L);
     lua_newtable(L);
@@ -16,8 +17,19 @@ void LuaManager::Init()
 
 void LuaManager::Shutdown()
 {
+    if (!L) return;
     LuaGlobal = JsonObject({});
     lua_close(L);
+}
+
+void LuaManager::OnStart()
+{
+    Init();
+}
+
+void LuaManager::OnStop()
+{
+    Shutdown();
 }
 
 //void LuaManager::SetEventCallback(const LuaEventCallbackFn& callback)
@@ -331,100 +343,5 @@ const LuaManager::JsonObject& LuaManager::GetLuaGlobal()
 
 void LuaManager::Find(const char* name)
 {
-    //might not be plausible
+    //find the all value with key and the name and return a table 
 }
-
-//JsonObject LuaUtility::SerializeLuaTable(lua_State* L, JsonObject& json)
-//{
-//    if (lua_istable(L, -1))
-//    {
-//        lua_pushnil(L);
-//        while (lua_next(L, -2) != 0)
-//        {
-//            JsonObject subJson;
-//            switch (lua_type(L, -1))//value type
-//            {
-//            case LUA_TNIL:
-//                switch (lua_type(L, -2))//key type
-//                {
-//                case LUA_TNUMBER:
-//                    json[std::to_string(lua_tointeger(L, -2))] = nullptr;
-//                    break;
-//                case LUA_TSTRING:
-//                    json[std::string(lua_tostring(L, -2))] = nullptr;
-//                    break;
-//                default:
-//                    //other type of key
-//                    break;
-//                }
-//                break;
-//            case LUA_TBOOLEAN:
-//                switch (lua_type(L, -2))
-//                {
-//                case LUA_TNUMBER:
-//                    json[std::to_string(lua_tointeger(L, -2))] = lua_toboolean(L, -1);
-//                    break;
-//                case LUA_TSTRING:
-//                    json[std::string(lua_tostring(L, -2))] = lua_toboolean(L, -1);
-//                    break;
-//                default:
-//                    //other type of key
-//                    break;
-//                }
-//                break;
-//            case LUA_TNUMBER:
-//                switch (lua_type(L, -2))
-//                {
-//                case LUA_TNUMBER:
-//                    if (lua_isinteger(L, -1))
-//                    {
-//                        json[std::to_string(lua_tointeger(L, -2))] = lua_tointeger(L, -1);
-//                    }
-//                    else
-//                    {
-//                        json[std::to_string(lua_tointeger(L, -2))] = lua_tonumber(L, -1);
-//                    }
-//                    break;
-//                case LUA_TSTRING:
-//                    json[std::string(lua_tostring(L, -2))] = lua_tonumber(L, -1);
-//                    break;
-//                default:
-//                    break;
-//                }
-//                break;
-//            case LUA_TSTRING:
-//                switch (lua_type(L, -2))
-//                {
-//                case LUA_TNUMBER:
-//                    json[std::to_string(lua_tointeger(L, -2))] = std::string(lua_tostring(L, -1));
-//                    break;
-//                case LUA_TSTRING:
-//                    json[std::string(lua_tostring(L, -2))] = std::string(lua_tostring(L, -1));
-//                    break;
-//                default:
-//                    //other type of key
-//                    break;
-//                }
-//                break;
-//            case LUA_TTABLE:
-//                switch (lua_type(L, -2))
-//                {
-//                case LUA_TNUMBER:
-//                    json[std::to_string(lua_tointeger(L, -2))] = SerializeLuaTable(L, subJson);
-//                    break;
-//                case LUA_TSTRING:
-//                    json[std::string(lua_tostring(L, -2))] = SerializeLuaTable(L, subJson);
-//                    break;
-//                default:
-//                    //other type of key
-//                    break;
-//                }
-//                break;
-//            default:
-//                break;
-//            }
-//            lua_pop(L, 1);
-//        }
-//    }
-//    return json;
-//}

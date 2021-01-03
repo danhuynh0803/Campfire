@@ -2,6 +2,23 @@
 
 #include "Scene/Camera.h"
 #include "Renderer/Renderer.h"
+#include <map>
+
+static const std::map<std::string, ClearFlag> str2ClearFlagMap
+{
+    { "Skybox", ClearFlag::SKYBOX },
+    { "Color", ClearFlag::COLOR },
+    { "Depth", ClearFlag::DEPTH },
+    { "None", ClearFlag::NONE },
+};
+
+static const std::map<ClearFlag, std::string> ClearFlag2StrMap
+{
+    { ClearFlag::SKYBOX, "Skybox" },
+    { ClearFlag::COLOR, "Color" },
+    { ClearFlag::DEPTH, "Depth"},
+    { ClearFlag::NONE,  "None"},
+};
 
 Camera::Camera()
     : width(1600.0f), height(900.0f), nearPlane(0.1f), farPlane(100.0f)
@@ -158,6 +175,22 @@ void Camera::RecalculateViewMatrix(const glm::vec3& position, const glm::vec3& e
     up = glm::normalize(glm::cross(right, front));
 
     viewMatrix = glm::lookAt(position, position + front, up);
+}
+
+void Camera::SetClearFlag(const std::string currentFlag)
+{
+    if (str2ClearFlagMap.find(currentFlag) != str2ClearFlagMap.end())
+    {
+        clearFlag = static_cast<ClearFlag>(str2ClearFlagMap.at(currentFlag));
+    }
+}
+
+const std::string& Camera::GetClearFlag()
+{
+    if (ClearFlag2StrMap.find(clearFlag) != ClearFlag2StrMap.end())
+    {
+        return ClearFlag2StrMap.at(clearFlag);
+    }
 }
 
 void Camera::SetProjection()
