@@ -7,16 +7,12 @@ function Start()
 	Global.SetTable("Mixed-Key-Type-Table", { 1, 2, 3, 4, 5, x = { s = "test"}})
 end
 
--- function Update()
-	-- Rigidbody.AddVelocity(0, 0.01, 0)
-	-- -- Timer = Timer - deltatime
-	-- -- if (Timer <= 0) then
-		-- -- Timer = 0.03
-		-- -- Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
-	-- -- end
-	
--- end
 function Update()
+	-- Timer = Timer - dt
+	-- if (Timer <= 0) then
+	-- 	Timer = 0.03
+	-- 	Entity:Instantiate("cube.prefab", -1.45, -5, 0)	
+	-- end
 	Global.SetNumber("DAT FPS", 1/dt)
 end
 

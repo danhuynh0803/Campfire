@@ -799,36 +799,30 @@ void InspectorWidget::ShowEntity(Entity& entity)
             }
 
             lua_State* L = luaL_newstate();
-            
             if ((luaL_loadfile(L, sc.filepath.c_str()) | lua_pcall(L, 0, LUA_MULTRET, 0)) == LUA_OK)//check syntax error
             {
-                if (lua_getglobal(L, "Start"))
-                {
-                    //ImGui::Checkbox("Run Start", &(sc.runUpdate));
-                }
-
-                if (lua_getglobal(L, "Update"))
+                if (lua_getglobal(L, "Update") && lua_isfunction(L,-1))
                 {
                     ImGui::Checkbox("Run Update", &(sc.runUpdate));
                 }
 
-                if (lua_getglobal(L, "OnTriggerEnter"))
+                if (lua_getglobal(L, "OnTriggerEnter") && lua_isfunction(L, -1))
                 {
                     ImGui::Checkbox("Run OnTriggerEnter", &(sc.runOnTriggerEnter));
                 }
 
-                if (lua_getglobal(L, "OnTriggerStay"))
+                if (lua_getglobal(L, "OnTriggerStay") && lua_isfunction(L, -1))
                 {
                     ImGui::Checkbox("Run OnTriggerStay", &(sc.runOnTriggerStay));
                 }
 
-                if (lua_getglobal(L, "OnTriggerExit"))
+                if (lua_getglobal(L, "OnTriggerExit") && lua_isfunction(L,-1))
                 {
                     ImGui::Checkbox("Run OnTriggerExit", &(sc.runOnTriggerExit));
                 }
             }
-
             lua_close(L);
+            
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {
                 ShowComponentOptionsMenu<ScriptComponent>(entity);

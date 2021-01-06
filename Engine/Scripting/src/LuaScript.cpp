@@ -1,5 +1,4 @@
 #include  <type_traits>
-
 #include "Scene/ScriptableEntity.h"
 #include "Scripting/LuaScript.h"
 #include "Scripting/Lua/LuaTransform.h"
@@ -66,63 +65,6 @@ void LuaScript::Start()
     lua_setglobal(L, "Log");
 
     {
-        lua_newtable(L);
-        lua_pushcfunction(L, LuaVector::LuaVec2);
-        lua_setfield(L, -2, "New");
-        lua_setglobal(L, "Vec2");
-    }
-
-    {
-        lua_newtable(L);
-        lua_pushcfunction(L, LuaVector::LuaVec3);
-        lua_setfield(L, -2, "New");
-        lua_setglobal(L, "Vec3");
-    }
-
-    {
-        lua_newtable(L);
-        lua_pushcfunction(L, LuaVector::LuaVec4);
-        lua_setfield(L, -2, "New");
-        lua_setglobal(L, "Vec4");
-    }
-    
-    {
-        char* vec2MetaTableName = "LuaVec2MetaTable";
-        luaL_newmetatable(L, vec2MetaTableName);
-        lua_pushstring(L, "__add");
-        lua_pushcfunction(L, LuaVector::LuaVec2Add);
-        lua_settable(L, -3);
-        lua_pushstring(L, "__sub");
-        lua_pushcfunction(L, LuaVector::LuaVec2Sub);
-        lua_settable(L, -3);
-        lua_pop(L, 1);//metatable can be popped after initialization
-    }
-
-    {
-        char* vec3MetaTableName = "LuaVec3MetaTable";
-        luaL_newmetatable(L, vec3MetaTableName);
-        lua_pushstring(L, "__add");
-        lua_pushcfunction(L, LuaVector::LuaVec3Add);
-        lua_settable(L, -3);
-        lua_pushstring(L, "__sub");
-        lua_pushcfunction(L, LuaVector::LuaVec3Sub);
-        lua_settable(L, -3);
-        lua_pop(L, 1);
-    }
-    
-    {
-        char* vec4MetaTableName = "LuaVec4MetaTable";
-        luaL_newmetatable(L, vec4MetaTableName);
-        lua_pushstring(L, "__add");
-        lua_pushcfunction(L, LuaVector::LuaVec4Add);
-        lua_settable(L, -3);
-        lua_pushstring(L, "__sub");
-        lua_pushcfunction(L, LuaVector::LuaVec4Sub);
-        lua_settable(L, -3); //sets the (meta)table and pop above
-        lua_pop(L, 1);
-    }
-
-    {
         LuaPushComponetTable<TransformComponent>();
         LuaPushComponetTable<RigidbodyComponent>();
         LuaPushComponetTable<AudioSource>();
@@ -185,17 +127,26 @@ void LuaScript::Start()
         lua_setfield(L, -2, "DeseralizeLuaTableX");
         lua_setglobal(L, "Utility");
     }
-
     lua_pushcfunction(L, LuaUtility::LuaCallback);
-    if (lua_getglobal(L, "Start"))
+    if (!lua_getglobal(L, "Start"))
     {
+        lua_pop(L, 1);
+        return;
+    }
+    else
+    {
+        if (!lua_isfunction(L, -1))
+        {
+            lua_pop(L, 2);
+            return;
+        }
         if (lua_pcall(L, 0, 0, -2) != LUA_OK)
         {
             LOG_ERROR("Cannot run Start() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
             lua_pop(L, 1);
         }
+        lua_pop(L, 1);
     }
-    lua_pop(L, 1);
 }
 
 void LuaScript::Update(float dt)
@@ -203,8 +154,19 @@ void LuaScript::Update(float dt)
     lua_pushnumber(L, dt);
     lua_setglobal(L, "dt");
     lua_pushcfunction(L, LuaUtility::LuaCallback);
-    if (lua_getglobal(L, "Update"))
+    if (!lua_getglobal(L, "Update"))
     {
+        entity.GetComponent<ScriptComponent>().runUpdate = false;
+        lua_pop(L, 2);
+        return;
+    }
+    else
+    {
+        if (!lua_isfunction(L, -1))
+        {
+            lua_pop(L, 2);
+            return;
+        }
         if (runUpdate)
         {
             if (lua_pcall(L, 0, 0, -2) != LUA_OK)
@@ -213,16 +175,8 @@ void LuaScript::Update(float dt)
                 lua_pop(L, 1);
             }
         }
-        else
-        {
-            lua_pop(L, 1);
-        }
+        lua_pop(L, 1);
     }
-    else
-    {
-        entity.GetComponent<ScriptComponent>().runUpdate = false;
-    }
-    lua_pop(L, 1);
 }
 
 void LuaScript::Destroy()
@@ -234,73 +188,149 @@ void LuaScript::OnTriggerEnter(Entity other)
 {
     if (!other.IsValid()) return;
     lua_pushcfunction(L, LuaUtility::LuaCallback);
-    if (lua_getglobal(L, "OnTriggerEnter"))
+    if (!lua_getglobal(L, "OnTriggerEnter"))
     {
+        entity.GetComponent<ScriptComponent>().runOnTriggerEnter = false;
+        lua_pop(L, 2);
+        return;
+    }
+    else
+    {
+        if (!lua_isfunction(L, -1))
+        {
+            lua_pop(L, 2);
+            return;
+        }
         if (runOnTriggerEnter)
         {
-            LuaPushEntity(other);
+            LuaEntity::LuaPushEntity(L,other);
             if (lua_pcall(L, 1, 0, -3) != LUA_OK)
             {
                 LOG_ERROR("Cannot run OnTriggerEnter() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
                 lua_pop(L, 1);
             }
         }
-        else
-        {
-            lua_pop(L, 1);
-        }
+        lua_pop(L, 1);
     }
-    lua_pop(L, 1);
 }
 
 void LuaScript::OnTriggerStay(Entity other)
 {
     if (!other.IsValid()) return;
     lua_pushcfunction(L, LuaUtility::LuaCallback);
-    if(lua_getglobal(L, "OnTriggerStay"))
+    if (!lua_getglobal(L, "OnTriggerStay"))
     {
-        LuaPushEntity(other);
+        entity.GetComponent<ScriptComponent>().runOnTriggerStay = false;
+        lua_pop(L, 2);
+        return;
+    }
+    else
+    {
+        if (!lua_istable(L, -1))
+        {
+            lua_pop(L, 2);
+            return;
+        }
         if (runOnTriggerStay)
         {
-            LuaPushEntity(other);
+            LuaEntity::LuaPushEntity(L,other);
             if (lua_pcall(L, 1, 0, -3) != LUA_OK)
             {
                 LOG_ERROR("Cannot run OnTriggerStay() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
                 lua_pop(L, 1);
+                return;
             }
         }
-        else
-        {
-            lua_pop(L, 1);
-        }
+        lua_pop(L, 1);
     }
-    lua_pop(L, 1);
 }
 
 void LuaScript::OnTriggerExit(Entity other)
 {
     if (!other.IsValid()) return;
     lua_pushcfunction(L, LuaUtility::LuaCallback);
-    if (lua_getglobal(L, "OnTriggerExit"))
+    if (!lua_getglobal(L, "OnTriggerExit"))
     {
-        LuaPushEntity(other);
+        entity.GetComponent<ScriptComponent>().runOnTriggerExit = false;
+        lua_pop(L, 2);
+        return;
+    }
+    else
+    {
         if (runOnTriggerExit)
         {
+            LuaEntity::LuaPushEntity(L, other);
             if (lua_pcall(L, 1, 0, -3) != LUA_OK)
             {
                 LOG_ERROR("Cannot run OnTriggerExit() within {0}. Error: {1}", filepath, lua_tostring(L, -1));
                 lua_pop(L, 1);
             }
         }
-        else
-        {
-            lua_pop(L, 1);
-        }
+        lua_pop(L, 1);
     }
-    lua_pop(L, 1);
 }
 
 //Push Functions
+
+void LuaScript::LuaPushVectorTables()
+{
+    {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaVector::LuaVec2);
+        lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec2");
+    }
+
+    {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaVector::LuaVec3);
+        lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec3");
+    }
+
+    {
+        lua_newtable(L);
+        lua_pushcfunction(L, LuaVector::LuaVec4);
+        lua_setfield(L, -2, "New");
+        lua_setglobal(L, "Vec4");
+    }
+
+    {
+        char* vec2MetaTableName = "LuaVec2MetaTable";
+        luaL_newmetatable(L, vec2MetaTableName);
+        lua_pushstring(L, "__add");
+        lua_pushcfunction(L, LuaVector::LuaVec2Add);
+        lua_settable(L, -3);
+        lua_pushstring(L, "__sub");
+        lua_pushcfunction(L, LuaVector::LuaVec2Sub);
+        lua_settable(L, -3);
+        lua_pop(L, 1);
+    }
+
+    {
+        char* vec3MetaTableName = "LuaVec3MetaTable";
+        luaL_newmetatable(L, vec3MetaTableName);
+        lua_pushstring(L, "__add");
+        lua_pushcfunction(L, LuaVector::LuaVec3Add);
+        lua_settable(L, -3);
+        lua_pushstring(L, "__sub");
+        lua_pushcfunction(L, LuaVector::LuaVec3Sub);
+        lua_settable(L, -3);
+        lua_pop(L, 1);
+    }
+
+    {
+        char* vec4MetaTableName = "LuaVec4MetaTable";
+        luaL_newmetatable(L, vec4MetaTableName);
+        lua_pushstring(L, "__add");
+        lua_pushcfunction(L, LuaVector::LuaVec4Add);
+        lua_settable(L, -3);
+        lua_pushstring(L, "__sub");
+        lua_pushcfunction(L, LuaVector::LuaVec4Sub);
+        lua_settable(L, -3);
+        lua_pop(L, 1);
+    }
+}
 
 void LuaScript::LuaPushCFunctionWithAudioSource(const lua_CFunction& f, const char* name)
 {
@@ -325,25 +355,9 @@ void LuaScript::LuaPushCFunctionWithCamera(const lua_CFunction& f, const char* n
     lua_setfield(L, -2, name);
 }
 
-void LuaScript::LuaPushCFunctionWithCamera(Entity entity, const lua_CFunction& f, const char* name)
-{
-    SharedPtr<Camera> camera = entity.GetComponent<CameraComponent>().camera;
-    lua_pushlightuserdata(L, camera.get());
-    lua_pushcclosure(L, f, 1);
-    lua_setfield(L, -2, name);
-}
-
 void LuaScript::LuaPushCFunctionWithRigidbody(const lua_CFunction& f, const char* name)
 {
     SharedPtr<Rigidbody> rigidbody = GetComponent<RigidbodyComponent>().rigidbody;
-    lua_pushlightuserdata(L, rigidbody.get());
-    lua_pushcclosure(L, f, 1);
-    lua_setfield(L, -2, name);
-}
-
-void LuaScript::LuaPushCFunctionWithRigidbody(Entity entity, const lua_CFunction& f, const char* name)
-{
-    SharedPtr<Rigidbody> rigidbody = entity.GetComponent<RigidbodyComponent>().rigidbody;
     lua_pushlightuserdata(L, rigidbody.get());
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
@@ -354,141 +368,6 @@ void LuaScript::LuaPushCFunctionWithTag(const lua_CFunction& f, const char* name
     lua_pushlightuserdata(L, &(GetComponent<TagComponent>().tag));
     lua_pushcclosure(L, f, 1);
     lua_setfield(L, -2, name);
-}
-
-void LuaScript::LuaPushEntity(Entity entity)
-{
-    lua_newtable(L);
-    lua_pushlightuserdata(L, &entity);
-    lua_pushcclosure(L, LuaEntity::OtherEntityDestroy, 1);
-    lua_setfield(L, -2, "Destroy");
-
-    if (entity.HasComponent<TagComponent>())
-    {
-        {
-            lua_newtable(L);
-            lua_pushlightuserdata(L, &(entity.GetComponent<TagComponent>().tag));
-            lua_pushcclosure(L, LuaTag::GetTag, 1);
-            lua_setfield(L, -2, "GetTag");
-        }
-        lua_setfield(L, -2, "Tag");
-    }
-
-    if (entity.HasComponent<TransformComponent>())
-    {
-        {
-            lua_newtable(L);
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaTransfrom::SetEntityPosition, 1);
-            lua_setfield(L, -2, "SetPosition");
-
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().euler));
-            lua_pushcclosure(L, LuaTransfrom::SetEntityRotation, 1);
-            lua_setfield(L, -2, "SetRotation");
-
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().scale));
-            lua_pushcclosure(L, LuaTransfrom::SetEntityScale, 1);
-            lua_setfield(L, -2, "SetScale");
-
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaTransfrom::Translate, 1);
-            lua_setfield(L, -2, "Translate");
-
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().position));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityPosition, 1);
-            lua_setfield(L, -2, "GetPosition");
-
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().rotation));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityRotation, 1);
-            lua_setfield(L, -2, "GetRotation");
-
-            lua_pushlightuserdata(L, &(entity.GetComponent<TransformComponent>().scale));
-            lua_pushcclosure(L, LuaTransfrom::GetEntityScale, 1);
-            lua_setfield(L, -2, "GetScale");
-        }
-        lua_setfield(L, -2, "Transform");
-    }
-
-    if (entity.HasComponent<RigidbodyComponent>())
-    {
-        {
-            lua_newtable(L);
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetVelocity, "SetVelocity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::AddVelocity, "AddVelocity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetVelocity, "GetVelocity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetMass, "SetMass");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetMass, "GetMass");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetDrag, "SetDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetDrag, "GetDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetAngularDrag, "SetAngularDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetAngularDrag, "GetAngularDrag");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetUseGravity, "SetUseGravity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetUseGravity, "GetUseGravity");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetFreezePosition, "SetFreezePosition");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetFreezePosition, "GetFreezePosition");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetFreezeRotation, "SetFreezeRotation");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetFreezePosition, "GetFreezeRotation");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::SetBodyType, "SetBodyType");
-            LuaPushCFunctionWithRigidbody(entity, LuaRigidbody::GetBodyType, "GetBodyType");
-        }
-        lua_setfield(L, -2, "Rigidbody");
-    }
-
-    if (entity.HasComponent<AudioComponent>())
-    {
-        {
-            lua_newtable(L);
-            LuaPushCFunctionWithAudioSource(LuaAudioSource::Play, "Play");
-            LuaPushCFunctionWithAudioSource(LuaAudioSource::Pause, "Pause");
-            LuaPushCFunctionWithAudioSource(LuaAudioSource::Stop, "Stop");
-        }
-        lua_setfield(L, -2, "AudioSource");
-    }
-
-    if (entity.HasComponent<CameraComponent>())
-    {
-        {
-            lua_newtable(L);
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetClearFlags, "SetClearFlags");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetClearFlags, "GetClearFlags");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetBackgroundColor, "SetBackgroundColor");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetBackgroundColor, "GetBackgroundColor");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetIsPerspective, "SetIsPerspective");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetIsPerspective, "SetClearFlags");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetVerticalFOV, "SetVerticalFOV");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetVerticalFOV, "GetVerticalFOV");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetNearPlane, "SetNearPlane");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetNearPlane, "GetNearPlane");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetFarPlane, "GetFarPlane");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetFarPlane, "SetFarPlane");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetDepth, "SetDepth");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetDepth, "GetDepth");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetViewPortRectX, "SetViewPortRectX");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetViewPortRectX, "GetViewPortRectX");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetViewPortRectY, "SetViewPortRectY");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetViewPortRectY, "GetViewPortRectY");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetViewPortRectWidth, "SetViewPortRectWidth");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::GetViewPortRectWidth, "SetViewPortRectWidth");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetViewPortRectHeight, "SetViewPortRectHeight");
-            LuaPushCFunctionWithCamera(entity, LuaCamera::SetViewPortRectHeight, "SetViewPortRectHeight");
-        }
-        lua_setfield(L, -2, "Camera");
-    }
-    //if (entity.HasComponent<MeshComponent>())
-    //{
-    //}
-    //if (entity.HasComponent<SpriteComponent>())
-    //{
-    //}
-    //if (entity.HasComponent<LightComponent>())
-    //{
-    //}
-    //if (entity.HasComponent<TextComponent>())
-    //{
-    //}
-    //if (entity.HasComponent<ScriptComponent>())
-    //{
-    //}
 }
 
 template <class T>
