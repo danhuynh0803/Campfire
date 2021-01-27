@@ -46,7 +46,7 @@ private:
     std::atomic_bool done;
     ThreadSafeQueue<Job> jobPoolQueue;
     std::vector<std::unique_ptr<JobStealingQueue<Job>>> jobStealingQueues;
-    std::vector<std::thread> threadPool;
+    std::vector<std::jthread> threadPool;
     JobThreadsJoiner joiner;
     inline static thread_local JobStealingQueue<Job>* localJobQueue;
     inline static thread_local unsigned myIndex;

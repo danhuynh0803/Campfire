@@ -45,9 +45,11 @@ public:
         return *this;
     }
 
-    //Job(const Job&) = delete;
-    //Job(Job&) = delete;
-    //Job& operator=(const Job&) = delete;
+    Job(const Job&) = delete;
+    Job(Job&) = delete;
+    Job& operator=(const Job&) = delete;
+
+    void operator()() { impl->Call(); }
 
     /*
     template <typename F, typename ... Args>
@@ -58,9 +60,7 @@ public:
     }
     */
 
-    void operator()() { impl->Call(); }
-
-private:
+//private:
     //std::function<void(Args...)> fn;
     //std::tuple<Args...> args;
 };

@@ -17,6 +17,7 @@ set(CORE_HEADERS
     include/Core/MouseCodes.h
     include/Core/Random.h
     include/Core/ResourceManager.h
+    include/Core/RCCpp.h
     include/Core/Time.h
     include/Core/Timer.h
     include/Core/Window.h
@@ -32,6 +33,7 @@ set(CORE_SRC
     src/Core/LogWidget.cpp
     src/Core/Random.cpp
     src/Core/ResourceManager.cpp
+    src/Core/RCCpp.cpp
     src/Core/Time.cpp
     src/Core/Window.cpp
 )

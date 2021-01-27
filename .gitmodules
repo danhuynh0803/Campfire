@@ -19,3 +19,6 @@
 [submodule "Vendor/tracy"]
 	path = Vendor/tracy
 	url = https://github.com/wolfpld/tracy
+[submodule "Vendor/RuntimeCompiledCPlusPlus"]
+	path = Vendor/RuntimeCompiledCPlusPlus
+	url = https://github.com/danhuynh0803/RuntimeCompiledCPlusPlus
