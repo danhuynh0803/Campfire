@@ -691,12 +691,6 @@ void InspectorWidget::ShowEntity(Entity& entity)
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Particle System"))
         {
-            auto& comp = entity.GetComponent<LightComponent>();
-            ImGui::PushID(isActiveID++);
-            ImGui::Checkbox("", &comp.isActive);
-            ImGui::PopID();
-            ImGui::SameLine();
-
             if (ImGui::Button("..."))
             {
                 ImGui::OpenPopup("ComponentOptionsPopup");
