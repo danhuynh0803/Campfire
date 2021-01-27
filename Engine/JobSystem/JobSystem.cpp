@@ -16,7 +16,7 @@ JobSystem::JobSystem()
         }
         for (int i = 0; i < numThreads; ++i)
         {
-            threadPool.push_back(std::thread(&JobSystem::JobThread, this, i));
+            threadPool.push_back(std::jthread(&JobSystem::JobThread, this, i));
         }
     }
     catch (...)

@@ -94,7 +94,7 @@ public:
 	InterruptibleThread(FunctionType f)
 	{
 		std::promise<InterruptFlag*> p;
-		internalThread = std::thread([f, &p] {
+		internalThread = std::jthread([f, &p] {
 			p.set_value(&this_thread_interrupt_flag);
 			try{ f();} catch(ThreadInterrupted const&){}
 		});
@@ -108,7 +108,7 @@ public:
 		}
 	}
 private:
-	std::thread internalThread;
+	std::jthread internalThread;
 	InterruptFlag* flag;
 };
 void InterruptionPoint()
