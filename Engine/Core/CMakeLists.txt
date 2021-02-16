@@ -21,6 +21,7 @@ set(CORE_HEADERS
     include/Core/Time.h
     include/Core/Timer.h
     include/Core/Window.h
+    include/Core/ProcessorInfo.h
 )
 
 set(CORE_SRC
@@ -36,6 +37,7 @@ set(CORE_SRC
     src/Core/RCCpp.cpp
     src/Core/Time.cpp
     src/Core/Window.cpp
+    src/Core/ProcessorInfo.cpp
 )
 
 #MACRO(SOURCE_GROUP_BY_FOLDER target)

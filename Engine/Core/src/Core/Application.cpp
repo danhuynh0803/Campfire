@@ -16,17 +16,21 @@
 #include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
 #include "Scripting/LuaManager.h"
+#include "Core/ProcessorInfo.h"
 
 Application* Application::instance = nullptr;
 
 Application::Application(const ApplicationProps& props)
 {
+
     Log::Init();
     LogWidget::Init();
     Time::Init();
     Random::Init();
     //JobSystem::Init();
     AudioSystem::Init();
+    
+    ProcessorInfo::Display();
 
     instance = this;
     window = Window::Create({props.name, props.width, props.height});

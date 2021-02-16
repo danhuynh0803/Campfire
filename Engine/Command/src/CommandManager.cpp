@@ -1,6 +1,3 @@
-#include "..\include\Command\CommandManager.h"
-#include "..\include\Command\CommandManager.h"
-#include "..\include\Command\CommandManager.h"
 #include "Command/CommandManager.h"
 
 CommandStack CommandManager::UndoStack;
