@@ -17,6 +17,7 @@
 //#include "JobSystem/JobSystem.h"
 #include "Scripting/LuaManager.h"
 #include "Core/ProcessorInfo.h"
+#include "Core/RCCpp.h"
 
 Application* Application::instance = nullptr;
 
@@ -29,8 +30,8 @@ Application::Application(const ApplicationProps& props)
     Random::Init();
     //JobSystem::Init();
     AudioSystem::Init();
-    
     ProcessorInfo::Display();
+    RCCpp::Init();
 
     instance = this;
     window = Window::Create({props.name, props.width, props.height});
@@ -40,12 +41,12 @@ Application::Application(const ApplicationProps& props)
 
     LuaManager::Init();
     //LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
-    
+
     Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
     PhysicsManager::Init();
     CommandManager::Init();
-    
+
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
     imguiLayer = new ImGuiLayer();
@@ -58,6 +59,7 @@ Application::~Application()
     PhysicsManager::Shutdown();
     Renderer::Shutdown();
     LuaManager::Shutdown();
+    RCCpp::Shutdown();
     Shutdown();
 }
 
@@ -69,6 +71,7 @@ void Application::Run()
     {
         //Timer timer("FrameTime");
         Time::Update();
+        RCCpp::Update(Time::deltaTime);
 
         for (Layer* layer : layerStack)
         {
