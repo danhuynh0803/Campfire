@@ -2,6 +2,11 @@
 
 #include <RuntimeObjectSystem/RuntimeObjectSystem.h>
 
+struct SystemTable
+{
+
+};
+
 class RCCpp
 {
 public:
@@ -11,5 +16,6 @@ public:
 
 private:
     static IRuntimeObjectSystem* s_pRuntimeObjectSystem;
+    static SystemTable* s_pSystemTable;
     //static StdioLogSystem           g_Logger;
 };
