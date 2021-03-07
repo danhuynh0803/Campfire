@@ -1,4 +1,3 @@
-#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "Vulkan/VulkanSwapChain.h"
 #include "Vulkan/VulkanContext.h"
 
@@ -158,15 +157,11 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
 
 void VulkanSwapChain::CreateBarriers()
 {
-    vk::SemaphoreCreateInfo semaphoreInfo
-    {
-        .flags = vk::SemaphoreCreateFlags()
-    };
+    vk::SemaphoreCreateInfo semaphoreInfo;
+    semaphoreInfo.flags = vk::SemaphoreCreateFlags();
 
-    vk::FenceCreateInfo fenceInfo
-    {
-        .flags = vk::FenceCreateFlagBits::eSignaled
-    };
+    vk::FenceCreateInfo fenceInfo;
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     for (size_t i = 0; i < maxFramesInFlight; ++i)
@@ -205,14 +200,12 @@ void VulkanSwapChain::Present()
     // Note: each entry in waitStages will correspond to the same semaphore in waitSemaphores
     vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
-    vk::SubmitInfo submitInfo
-    {
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = waitSemaphores,
-        .pWaitDstStageMask = waitStages,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &commandBuffers[mImageIndex].get(),
-    };
+    vk::SubmitInfo submitInfo;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffers[mImageIndex].get();
 
     auto& renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
     vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
@@ -224,11 +217,9 @@ void VulkanSwapChain::Present()
     auto graphicsQueue = mDevice->GetGraphicsQueue();
     graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
 
-    vk::PresentInfoKHR presentInfo
-    {
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = signalSemaphores,
-    };
+    vk::PresentInfoKHR presentInfo;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
 
     vk::SwapchainKHR swapChains[] = { swapChain.get() };
     presentInfo.swapchainCount = 1;
@@ -245,20 +236,18 @@ vk::UniqueCommandPool VulkanSwapChain::CreateCommandPool(uint32_t queueFamilyInd
 {
     return VulkanContext::Get()->GetDevice()->GetVulkanDevice().createCommandPoolUnique(
         vk::CommandPoolCreateInfo {
-            .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-            .queueFamilyIndex = queueFamilyIndex
+            vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+            queueFamilyIndex
         }
     );
 }
 
 std::vector<vk::UniqueCommandBuffer> VulkanSwapChain::CreateCommandBuffers(uint32_t size)
 {
-    vk::CommandBufferAllocateInfo commandBufferAllocInfo
-    {
-        .commandPool = commandPool.get(),
-        .level = vk::CommandBufferLevel::ePrimary,
-        .commandBufferCount = size,
-    };
+    vk::CommandBufferAllocateInfo commandBufferAllocInfo;
+    commandBufferAllocInfo.commandPool = commandPool.get();
+    commandBufferAllocInfo.level = vk::CommandBufferLevel::ePrimary;
+    commandBufferAllocInfo.commandBufferCount = size;
 
     return VulkanContext::Get()->GetDevice()->GetVulkanDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
 }
@@ -274,16 +263,14 @@ void VulkanSwapChain::CreateFramebuffers()
             imageViews[i].get()
         };
 
-        vk::FramebufferCreateInfo framebufferCreateInfo
-        {
-            .flags = vk::FramebufferCreateFlags(),
-            .renderPass = VulkanContext::Get()->mGraphicsPipeline->GetVulkanRenderPass(),
-            .attachmentCount = 1,
-            .pAttachments = attachments,
-            .width = swapChainExtent.width,
-            .height = swapChainExtent.height,
-            .layers = 1,
-        };
+        vk::FramebufferCreateInfo framebufferCreateInfo;
+        framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
+        framebufferCreateInfo.renderPass = VulkanContext::Get()->mGraphicsPipeline->GetVulkanRenderPass();
+        framebufferCreateInfo.attachmentCount = 1;
+        framebufferCreateInfo.pAttachments = attachments;
+        framebufferCreateInfo.width = swapChainExtent.width;
+        framebufferCreateInfo.height = swapChainExtent.height;
+        framebufferCreateInfo.layers = 1;
 
         swapChainFramebuffers[i] = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createFramebufferUnique(framebufferCreateInfo);
     }

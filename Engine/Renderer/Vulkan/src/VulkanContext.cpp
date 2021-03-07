@@ -48,16 +48,15 @@ void VulkanContext::SwapBuffers()
 
 vk::UniqueInstance VulkanContext::CreateInstance()
 {
-    vk::ApplicationInfo appInfo {
-        .pApplicationName = "Vulkan Context",
-        .applicationVersion = 1,
-        .pEngineName = "Campfire Engine",
-        .engineVersion = 1,
-        .apiVersion = VK_API_VERSION_1_2
-    };
+    vk::ApplicationInfo appInfo;
+    appInfo.pApplicationName = "Vulkan Context";
+    appInfo.applicationVersion = 1;
+    appInfo.pEngineName = "Campfire Engine";
+    appInfo.engineVersion = 1;
+    appInfo.apiVersion = VK_API_VERSION_1_2;
 
 #ifdef NDEBUG
-    const bool enableValidationLayers = false;
+const bool enableValidationLayers = false;
 #else
     const bool enableValidationLayers = true;
 #endif
@@ -72,9 +71,8 @@ vk::UniqueInstance VulkanContext::CreateInstance()
         throw std::runtime_error("Validation layers enabled, but not available");
     }
 
-    vk::InstanceCreateInfo instanceCreateInfo {
-        .pApplicationInfo = &appInfo
-    };
+    vk::InstanceCreateInfo instanceCreateInfo;
+    instanceCreateInfo.pApplicationInfo = &appInfo;
 
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;

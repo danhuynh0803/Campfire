@@ -9,24 +9,18 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     auto framebuffer = VulkanContext::Get()->mSwapChain->GetCurrentFramebuffer();
     uint32_t imageIndex = VulkanContext::Get()->mSwapChain->GetCurrentImageIndex();
 
-    vk::CommandBufferBeginInfo beginInfo
-    {
+    vk::CommandBufferBeginInfo beginInfo;
         // TODO: investigate if simulataneous use is faster or slower?
-        .flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse,
-        .pInheritanceInfo = nullptr,
-    };
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
+    beginInfo.pInheritanceInfo = nullptr;
 
-    vk::Extent2D extent
-    {
-        .width = VulkanContext::Get()->mSwapChain->GetWidth(),
-        .height = VulkanContext::Get()->mSwapChain->GetHeight(),
-    };
+    vk::Extent2D extent;
+    extent.width = VulkanContext::Get()->mSwapChain->GetWidth();
+    extent.height = VulkanContext::Get()->mSwapChain->GetHeight();
 
-    vk::Rect2D renderArea
-    {
-        .offset = {0, 0},
-        .extent = extent,
-    };
+    vk::Rect2D renderArea;
+    renderArea.offset = {0, 0};
+    renderArea.extent = extent;
 
     commandBuffer.begin(beginInfo);
 
@@ -35,14 +29,12 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.3f, 0.3f, 1.0f } }));
     //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
 
-    vk::RenderPassBeginInfo renderPassBeginInfo
-    {
-        .renderPass = graphicsPipeline->GetVulkanRenderPass(),
-        .framebuffer = framebuffer,
-        .renderArea = renderArea,
-        .clearValueCount = 1,
-        .pClearValues = &clearValues,
-    };
+    vk::RenderPassBeginInfo renderPassBeginInfo;
+    renderPassBeginInfo.renderPass = graphicsPipeline->GetVulkanRenderPass();
+    renderPassBeginInfo.framebuffer = framebuffer;
+    renderPassBeginInfo.renderArea = renderArea;
+    renderPassBeginInfo.clearValueCount = 1;
+    renderPassBeginInfo.pClearValues = &clearValues;
 
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());

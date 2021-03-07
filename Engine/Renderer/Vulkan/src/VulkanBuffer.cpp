@@ -1,4 +1,4 @@
-#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+//#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanContext.h"
 #include <vulkan/vulkan.hpp>
@@ -20,10 +20,14 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
 
     vk::BufferCreateInfo bufferInfo
     {
-        .flags = vk::BufferCreateFlags(),
-        .size = size,
-        .usage = usageFlags,
-        .sharingMode = vk::SharingMode::eExclusive,
+        vk::BufferCreateFlags(),
+        size,
+        usageFlags,
+        vk::SharingMode::eExclusive,
+        //.flags = vk::BufferCreateFlags(),
+        //.size = size,
+        //.usage = usageFlags,
+        //.sharingMode = vk::SharingMode::eExclusive,
     };
 
     buffer = device.createBufferUnique(bufferInfo);
@@ -33,8 +37,10 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
 
     vk::MemoryAllocateInfo allocInfo
     {
-        .allocationSize = memoryReqs.size,
-        .memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags),
+        memoryReqs.size,
+        FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags),
+        //.allocationSize = memoryReqs.size,
+        //.memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags),
     };
 
     bufferMemory = device.allocateMemoryUnique(allocInfo);
@@ -48,9 +54,12 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
 
     vk::CommandBufferAllocateInfo allocateInfo
     {
-        .commandPool = VulkanContext::Get()->mSwapChain->GetCommandPool(),
-        .level = vk::CommandBufferLevel::ePrimary,
-        .commandBufferCount = 1,
+        VulkanContext::Get()->mSwapChain->GetCommandPool(),
+        vk::CommandBufferLevel::ePrimary,
+        1,
+        //.commandPool = VulkanContext::Get()->mSwapChain->GetCommandPool(),
+        //.level = vk::CommandBufferLevel::ePrimary,
+        //.commandBufferCount = 1,
     };
 
     std::vector<vk::UniqueCommandBuffer> commandBuffer =
@@ -58,24 +67,20 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
 
     vk::CommandBufferBeginInfo beginInfo
     {
-        .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+        vk::CommandBufferUsageFlagBits::eOneTimeSubmit
     };
 
     commandBuffer[0]->begin(beginInfo);
-        vk::BufferCopy copyRegion
-        {
-            .srcOffset = 0,
-            .dstOffset = 0,
-            .size = size,
-        };
+        vk::BufferCopy copyRegion;
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
+        copyRegion.size = size;
         commandBuffer[0]->copyBuffer(srcBuffer.get(), dstBuffer.get(), 1, &copyRegion);
     commandBuffer[0]->end();
 
-    vk::SubmitInfo submitInfo
-    {
-        .commandBufferCount = 1,
-        .pCommandBuffers = &commandBuffer[0].get(),
-    };
+    vk::SubmitInfo submitInfo;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer[0].get();
 
     vk::Queue graphicsQueue = devicePtr->GetGraphicsQueue();
     graphicsQueue.submit(1, &submitInfo, nullptr);
