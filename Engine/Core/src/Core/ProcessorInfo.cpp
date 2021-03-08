@@ -10,7 +10,7 @@
 void ProcessorInfo::Display()
 {
 #ifdef PLATFORM_WINDOWS
-    WindowsProcessorInfo::Display();
+    WindowsProcessorInfo::Display(); //Logical Processor
 #else
     LinuxProcessorInfo::Display():
 #endif
