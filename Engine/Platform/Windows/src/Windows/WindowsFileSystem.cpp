@@ -1,7 +1,6 @@
 #include "Platform/Windows/WindowsFileSystem.h"
 #include <iostream>
 #include <algorithm>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <windows.h>
@@ -353,26 +352,26 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
                                 switch (pNotification->Action)
                                 {
                                     case FILE_ACTION_ADDED:
+                                        CORE_INFO("File added.");
                                         break;
                                     case FILE_ACTION_REMOVED:
+                                        CORE_INFO("File removed.");
                                         break;
                                     case FILE_ACTION_MODIFIED:
+                                        CORE_INFO("File modified.");
                                         break;
                                     case FILE_ACTION_RENAMED_OLD_NAME:
+                                        CORE_INFO("File renamed.");
                                         break;
                                 }
                                 std::wstring fileName(pNotification->FileName, pNotification->FileNameLength);
-                                //unicode gg
                                 CORE_INFO("{0}", WSTRToSTR(fileName).c_str());
                                 //std::string fullFileName = watchDirectory + "/" + WSTRToStr(fileName);
                                 //call callback here
                             }
                             if (pNotification->NextEntryOffset == 0) break;
                             //std::vector<BYTE> buffer(1024*64);
-                            //fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<BYTE*>(fni) + fni->NextEntryOffset);
-                            //pNotification = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<char*>(fni) + fni->NextEntryOffset);
-                            //or this?
-                            pNotification += pNotification->NextEntryOffset;
+                            pNotification = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<char*>(pNotification) + pNotification->NextEntryOffset);
                         
                         } while (true);
                     }
