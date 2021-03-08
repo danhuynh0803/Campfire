@@ -48,7 +48,7 @@ void CommandManager::Clear()
     }
     while (!RedoStack.empty())
     {
-        UndoStack.top().reset();
+        RedoStack.top().reset();
         RedoStack.pop();
     }
 }
