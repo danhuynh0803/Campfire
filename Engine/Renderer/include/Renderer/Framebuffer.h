@@ -9,7 +9,7 @@ struct FramebufferSpec
 {
     uint32_t width;
     uint32_t height;
-    GLint internalFormat;
+    int32_t internalFormat;
     uint32_t attachments = 1; // number of color attachments
     uint32_t samples = 0;
 };

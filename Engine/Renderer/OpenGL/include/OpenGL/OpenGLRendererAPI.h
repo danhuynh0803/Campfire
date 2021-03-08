@@ -2,7 +2,6 @@
 #define OPENGL_RENDERER_API_H
 
 #include "Renderer/RendererAPI.h"
-#include <glad/glad.h>
 
 class OpenGLRendererAPI : public RendererAPI
 {
