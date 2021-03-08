@@ -25,7 +25,9 @@ DWORD CountSetBits(ULONG_PTR bitMask)
 
 void WindowsProcessorInfo::Display()
 {
-    CORE_INFO("ProcessInfo:");
+    CORE_INFO("Processer Info:");
+    CORE_INFO("==================");
+
     LPFN_GLPI glpi;
     BOOL done = 0;
     PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = nullptr;
@@ -59,11 +61,9 @@ void WindowsProcessorInfo::Display()
         {
             if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
             {
-                if (buffer)
-                    free(buffer);
+                if (buffer) free(buffer);
 
-                buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(
-                    returnLength);
+                buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(returnLength);
 
                 if (nullptr == buffer)
                 {
@@ -91,53 +91,58 @@ void WindowsProcessorInfo::Display()
         {
             switch (ptr->Relationship)
             {
-            case RelationNumaNode:
-                // Non-NUMA systems report a single record of this type.
-                numaNodeCount++;
-                break;
+                case RelationNumaNode:
+                    // Non-NUMA systems report a single record of this type.
+                    numaNodeCount++;
+                    break;
 
-            case RelationProcessorCore:
-                processorCoreCount++;
+                case RelationProcessorCore:
+                    processorCoreCount++;
 
-                // A hyperthreaded core supplies more than one logical processor.
-                logicalProcessorCount += CountSetBits(ptr->ProcessorMask);
-                break;
+                    // A hyperthreaded core supplies more than one logical processor.
+                    logicalProcessorCount += CountSetBits(ptr->ProcessorMask);
+                    break;
 
-            case RelationCache:
-                // Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
-                Cache = &ptr->Cache;
-                if (Cache->Level == 1)
-                {
-                    processorL1CacheCount++;
-                    CORE_INFO("L1 Cache Line Size: {0} bytes", Cache->LineSize);
-                    CORE_INFO("L1 Cache Block Size: {0} bytes", Cache->Size);
-                }
-                else if (Cache->Level == 2)
-                {
-                    processorL2CacheCount++;
-                    CORE_INFO("L2 Cache Line Size: {0} bytes", Cache->LineSize);
-                    CORE_INFO("L2 Cache Block Size: {0} bytes", Cache->Size);
-                }
-                else if (Cache->Level == 3)
-                {
-                    processorL3CacheCount++;
-                    CORE_INFO("L3 Cache Line Size: {0} bytes", Cache->LineSize);
-                    CORE_INFO("L3 Cache Block Size: {0} bytes", Cache->Size);
-                }
-                CORE_INFO("==========================");
-                break;
+                case RelationCache:
+                    // Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
+                    Cache = &ptr->Cache;
+                    if (Cache->Level == 1)
+                    {
+                        processorL1CacheCount++;
+                        CORE_INFO("L1 Cache Line Size: {0} bytes", Cache->LineSize);
+                        CORE_INFO("L1 Cache Block Size: {0} bytes", Cache->Size);
+                    }
+                    else if (Cache->Level == 2)
+                    {
+                        processorL2CacheCount++;
+                        CORE_INFO("L2 Cache Line Size: {0} bytes", Cache->LineSize);
+                        CORE_INFO("L2 Cache Block Size: {0} bytes", Cache->Size);
+                    }
+                    else if (Cache->Level == 3)
+                    {
+                        processorL3CacheCount++;
+                        CORE_INFO("L3 Cache Line Size: {0} bytes", Cache->LineSize);
+                        CORE_INFO("L3 Cache Block Size: {0} bytes", Cache->Size);
+                    }
+                    CORE_INFO("==========================");
+                    break;
 
-            case RelationProcessorPackage:
-                // Logical processors share a physical package.
-                processorPackageCount++;
-                break;
+                case RelationProcessorPackage:
+                    // Logical processors share a physical package.
+                    processorPackageCount++;
+                    break;
 
-            default:
-                CORE_INFO("Error: Unsupported LOGICAL_PROCESSOR_RELATIONSHIP value.");
-                break;
+                default:
+                    CORE_INFO("Error: Unsupported LOGICAL_PROCESSOR_RELATIONSHIP value.");
+                    break;
             }
             byteOffset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
             ptr++;
+        }
+        else
+        {
+            free(buffer);
+            return;
         }
     }
 
