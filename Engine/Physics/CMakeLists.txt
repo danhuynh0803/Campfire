@@ -7,6 +7,7 @@ set(PHYSICS_HEADERS
 )
 
 set(PHYSICS_SRC
+    src/BulletDebugDrawer.cpp
     src/Collider.cpp
     src/PhysicsManager.cpp
     src/Rigidbody.cpp

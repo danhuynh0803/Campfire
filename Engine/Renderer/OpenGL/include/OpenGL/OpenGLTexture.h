@@ -27,7 +27,7 @@ private:
     uint32_t renderID;
     uint32_t width, height;
     std::string filepath;
-    GLenum internalFormat, dataFormat;
+    uint32_t internalFormat, dataFormat;
 };
 
 // TODO
