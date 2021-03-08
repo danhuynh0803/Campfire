@@ -1,8 +1,10 @@
+#include "Scene/CameraController.h"
 #include "VulkanLayer.h"
 #include "Core/Input.h"
+
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanRenderer.h"
-#include "Scene/CameraController.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 static SharedPtr<Camera> editorCamera;

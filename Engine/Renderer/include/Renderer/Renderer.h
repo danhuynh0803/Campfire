@@ -1,5 +1,4 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#pragma once
 
 #include "Core/Application.h"
 #include "Renderer/RenderCommand.h"
@@ -42,5 +41,3 @@ private:
     static glm::mat4 viewProjMatrix;
     static SharedPtr<Shader> shader;
 };
-
-#endif // RENDERER_H

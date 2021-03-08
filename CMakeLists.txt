@@ -7,15 +7,14 @@ option(BUILD_SHARED_LIBS OFF)
 find_package(Vulkan)
 #add_subdirectory(Campfire/Vendor/Vulkan-Hpp)
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #if building for IDE, enable folders
 if(MSVC)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 endif()
 
 project(Campfire

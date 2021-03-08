@@ -2,11 +2,12 @@
 
 #include <vector>
 #include <vulkan/vulkan.hpp>
-#include <GLFW/glfw3.h>
 #include "Renderer/Renderer.h"
 #include "VulkanDevice.h"
 #include "VulkanPipeline.h"
 #include "VulkanSwapChain.h"
+
+class GLFWwindow;
 
 class VulkanContext : public GraphicsContext
 {

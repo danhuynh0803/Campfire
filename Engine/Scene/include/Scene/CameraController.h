@@ -1,5 +1,4 @@
-#ifndef CAMERA_CONTROLLER_H
-#define CAMERA_CONTROLLER_H
+#pragma once
 
 #include "Events/ApplicationEvent.h"
 #include "Events/MouseEvent.h"
@@ -49,5 +48,3 @@ private:
     void ProcessKeyboard(CameraMovement direction, float deltaTime);
     void UpdateCameraVectors();
 };
-
-#endif // CAMERA_CONTROLLER_H
