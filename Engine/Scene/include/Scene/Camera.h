@@ -1,8 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
-
 #include "Events/ApplicationEvent.h"
 #include "Events/MouseEvent.h"
 #include "Renderer/VertexArray.h"

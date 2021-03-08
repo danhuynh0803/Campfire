@@ -2,6 +2,7 @@
 #include "Scene/Component.h"
 #include "Renderer/Renderer2D.h"
 #include <freetype/freetype.h>
+#include <glad/glad.h>
 
 // ===================================
 // Font

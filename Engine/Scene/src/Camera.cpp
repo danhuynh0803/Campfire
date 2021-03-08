@@ -1,8 +1,9 @@
+#include <map>
+#include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Core/ResourceManager.h"
 #include "Scene/Camera.h"
 #include "Renderer/Renderer.h"
-#include <map>
 
 static const std::map<std::string, ClearFlag> str2ClearFlagMap
 {

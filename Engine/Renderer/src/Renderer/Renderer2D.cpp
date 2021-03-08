@@ -5,6 +5,7 @@
 #include <array>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glad/glad.h>
 
 // TODO add tiling factor
 glm::mat4 Renderer2D::viewMatrix;
