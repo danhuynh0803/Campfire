@@ -1,5 +1,4 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include <functional>
 #include "Core/Base.h"
@@ -43,5 +42,3 @@ public:
 
     static std::unique_ptr<Window> Create(const WindowProps& props = WindowProps());
 };
-
-#endif // WINDOW_H

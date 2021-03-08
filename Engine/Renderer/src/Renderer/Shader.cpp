@@ -83,7 +83,7 @@ SharedPtr<Shader> ShaderManager::Get(const std::string& tag)
     }
     else
     {
-        CORE_ERROR("No shader named {0} is found");
+        CORE_ERROR("No shader named {0} is found", tag);
     }
 }
 

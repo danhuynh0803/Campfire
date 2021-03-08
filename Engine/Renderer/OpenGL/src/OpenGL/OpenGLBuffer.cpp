@@ -1,6 +1,5 @@
-#include "OpenGL/OpenGLBuffer.h"
-
 #include <glad/glad.h>
+#include "OpenGL/OpenGLBuffer.h"
 #include "Renderer/Shader.h"
 #include "Core/Log.h"
 

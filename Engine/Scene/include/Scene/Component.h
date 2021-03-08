@@ -18,7 +18,7 @@
 #include "Scene/Entity.h"
 #include "Audio/AudioSource.h"
 #include "Core/ResourceManager.h"
-#include "Scripting/Script.h"
+//#include "Scripting/Script.h"
 
 class Entity;
 

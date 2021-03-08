@@ -1,7 +1,7 @@
-#include "OpenGL/OpenGLRendererAPI.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "OpenGL/OpenGLRendererAPI.h"
 
 void OpenGLRendererAPI::Init()
 {

@@ -41,7 +41,6 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 set_target_properties(glfw PROPERTIES FOLDER "Vendor")
-
 #target_compile_definitions(
 #    glfw
 #    PUBLIC

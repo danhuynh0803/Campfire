@@ -46,4 +46,4 @@ target_sources(
 )
 
 add_subdirectory(OpenGL)
-#add_subdirectory(Vulkan)
+add_subdirectory(Vulkan)

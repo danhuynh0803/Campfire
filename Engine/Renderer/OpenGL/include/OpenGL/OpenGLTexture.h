@@ -1,9 +1,7 @@
-#ifndef OPENGL_TEXTURE_H
-#define OPENGL_TEXTURE_H
-
-#include "Renderer/Texture.h"
+#pragma once
 
 #include <glad/glad.h>
+#include "Renderer/Texture.h"
 
 class OpenGLTexture2D : public Texture2D
 {
@@ -59,5 +57,3 @@ private:
     uint32_t width, height;
     std::vector<std::string> filepathList;
 };
-
-#endif // OPENGL_TEXTURE_H

@@ -17,7 +17,7 @@ public:
     {
         None = 0,
         OpenGL,
-        Vulkan
+        Vulkan,
     };
 
 public:

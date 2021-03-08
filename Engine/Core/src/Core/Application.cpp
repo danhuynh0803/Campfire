@@ -1,10 +1,11 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
 #include "Core/Application.h"
 #include "Core/Timer.h"
 #include "ImGui/ImGuiLayer.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
 #include "Core/Log.h"
 #include "Core/Time.h"
 #include "Core/Random.h"
@@ -15,7 +16,7 @@
 
 #include "Audio/AudioSystem.h"
 //#include "JobSystem/JobSystem.h"
-#include "Scripting/LuaManager.h"
+//#include "Scripting/LuaManager.h"
 #include "Core/ProcessorInfo.h"
 #include "Core/RCCpp.h"
 
@@ -23,7 +24,6 @@ Application* Application::instance = nullptr;
 
 Application::Application(const ApplicationProps& props)
 {
-
     Log::Init();
     LogWidget::Init();
     Time::Init();
@@ -37,20 +37,18 @@ Application::Application(const ApplicationProps& props)
     window = Window::Create({props.name, props.width, props.height});
     window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
-    //PushLayer(new VulkanLayer());
-
-    LuaManager::Init();
+    //LuaManager::Init();
     //LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
 
-    Renderer::Init();
+    //Renderer::Init();
     // FIXME physics manager uses a debug shader so for now it needs to be initialized after renderer
-    PhysicsManager::Init();
-    CommandManager::Init();
+    //PhysicsManager::Init();
+    //CommandManager::Init();
 
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
-    imguiLayer = new ImGuiLayer();
-    PushOverlay(imguiLayer);
+    //imguiLayer = new ImGuiLayer();
+    //PushOverlay(imguiLayer);
 }
 
 Application::~Application()
@@ -58,7 +56,7 @@ Application::~Application()
     // TODO move to shutdown
     PhysicsManager::Shutdown();
     Renderer::Shutdown();
-    LuaManager::Shutdown();
+    //LuaManager::Shutdown();
     RCCpp::Shutdown();
     Shutdown();
 }

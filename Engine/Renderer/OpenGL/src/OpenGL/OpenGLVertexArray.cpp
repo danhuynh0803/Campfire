@@ -1,6 +1,5 @@
-#include "OpenGL/OpenGLVertexArray.h"
-
 #include <glad/glad.h>
+#include "OpenGL/OpenGLVertexArray.h"
 #include "Core/Base.h"
 
 static GLenum ConvertShaderDataTypeToGLenum(ShaderDataType type)

@@ -50,7 +50,7 @@ target_link_libraries(
 )
 
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
-set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
+set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype-2.10.4")
 if(MSVC)
     #add_custom_command(
         #TARGET Editor

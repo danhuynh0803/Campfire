@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Application.h"
-#include "Core/ResourceManager.h"
 
 extern Application* CreateApplication();
 

@@ -1,7 +1,6 @@
 #include "Renderer/Buffer.h"
-
 #include "Renderer/RendererAPI.h"
-//#include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanBuffer.h"
 #include "OpenGL/OpenGLBuffer.h"
 #include "Core/Base.h"
 #include <stdint.h>
@@ -58,8 +57,8 @@ SharedPtr<UniformBuffer> UniformBuffer::Create()
             return nullptr;
         case RendererAPI::API::OpenGL:
             return CreateSharedPtr<OpenGLUniformBuffer>();
-        //case RendererAPI::API::Vulkan:
-            //return CreateSharedPtr<VulkanUniformBuffer>();
+        case RendererAPI::API::Vulkan:
+            return CreateSharedPtr<VulkanUniformBuffer>();
     }
 
     return nullptr;

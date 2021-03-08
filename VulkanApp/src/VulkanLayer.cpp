@@ -22,10 +22,6 @@ struct TransformUBO
 };
 static TransformUBO transformUBO;
 
-VulkanLayer::VulkanLayer()
-    : Layer("VulkanLayer")
-{
-}
 
 float vertices[] = {
     // Position           // Color            // UV
@@ -39,6 +35,12 @@ uint32_t indices[] = {
     0, 1, 2,
     2, 3, 0,
 };
+
+
+VulkanLayer::VulkanLayer()
+    : Layer("VulkanLayer")
+{
+}
 
 void VulkanLayer::OnAttach()
 {

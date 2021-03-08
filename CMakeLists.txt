@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 option(BUILD_SHARED_LIBS OFF)
 
 # Vulkan
-#find_package(Vulkan)
+find_package(Vulkan)
 #add_subdirectory(Campfire/Vendor/Vulkan-Hpp)
 
 
@@ -31,6 +31,6 @@ endif()
 
 add_subdirectory(Engine)
 add_subdirectory(Vendor)
-add_subdirectory(Editor)
-add_subdirectory(Game)
-#add_subdirectory(VulkanApp)
+#add_subdirectory(Editor)
+#add_subdirectory(Game)
+add_subdirectory(VulkanApp)

@@ -1,5 +1,5 @@
 #include <glm/gtc/matrix_transform.hpp>
-
+#include "Core/ResourceManager.h"
 #include "Scene/Camera.h"
 #include "Renderer/Renderer.h"
 #include <map>
@@ -36,7 +36,7 @@ Camera::Camera(float w, float h, float nearplane, float farplane)
 
 void Camera::Init()
 {
-    shader = ShaderManager::Get("line");
+    shader = ShaderManager::Create("line", SHADERS + "/line.vert", SHADERS + "/line.frag");
 
     /*
        Frustum vertices:
@@ -66,6 +66,7 @@ void Camera::Init()
         0, 4,   1, 5,   2, 6,   3, 7
     };
 
+    /*
     vertexArray = VertexArray::Create();
     // pos, color, and 8 vertices for frustum
     vertexBuffer = VertexBuffer::Create(3 * 3 * 8 * sizeof(float));
@@ -83,6 +84,7 @@ void Camera::Init()
 
     vertexBuffer->Unbind();
     vertexArray->Unbind();
+    */
 }
 
 void Camera::DrawFrustum(glm::mat4 transform)

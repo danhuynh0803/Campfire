@@ -13,14 +13,14 @@
 #include "Renderer/Renderer2D.h"
 #include "Physics/PhysicsManager.h"
 #include "Particles/ParticleSystem.h"
-#include "Scripting/CameraController.h"
-#include "Scripting/PlayerController.h"
+//#include "Scripting/CameraController.h"
+//#include "Scripting/PlayerController.h"
 
 // Should be moved as a subsystem
 #include "Audio/AudioSystem.h"
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
-#include "Scripting/LuaScript.h"
+//#include "Scripting/LuaScript.h"
 
 Scene::Scene(bool isNewScene)
 {
@@ -41,7 +41,7 @@ void Scene::Init()
     //auto mainCamera = CreateEntity("Camera", false); // false for not setting it as a root object in entityMap
     mainCamera.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 10.0f);
     mainCamera.AddComponent<CameraComponent>();
-    mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
+    //mainCamera.AddComponent<NativeScriptComponent>().Bind<NativeScript::CameraController>();
     mainCamera.AddComponent<AudioComponent>();
     mainCamera.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "/Audio/test.wav";
     mainCamera.GetComponent<AudioComponent>().audioSource->playOnAwake = true;
@@ -58,7 +58,7 @@ void Scene::Init()
         player.AddComponent<RigidbodyComponent>();
         player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
         player.GetComponent<RigidbodyComponent>().rigidbody->useGravity = false;
-        player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
+        //player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
         player.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/test.lua";
         //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
         auto& colliders = player.GetComponent<Colliders>().list;
@@ -94,7 +94,7 @@ void Scene::Init()
         auto collider = Collider::Create(Collider::Shape::BOX);
         collider->isTrigger = true;
         colliders.emplace_back(collider);
-        floor.AddComponent<ScriptComponent>().template Bind<LuaScript>();
+        //floor.AddComponent<ScriptComponent>().template Bind<LuaScript>();
         floor.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/killborder.lua";
     }
 
@@ -215,6 +215,7 @@ void Scene::OnStart()
         }
     });
 
+    /*
     registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
     {
         if (sc.isActive && !sc.filepath.empty())
@@ -232,6 +233,7 @@ void Scene::OnStart()
             sc.instance->Start();
         }
     });
+    */
 
     // Initialize scripts and run their Start()
     //registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
@@ -292,6 +294,7 @@ void Scene::OnUpdate(float dt)
         }
     }
 
+    /*
     // Lua script update
     {
         ZoneScopedN("LuaUpdateScripts");
@@ -347,6 +350,7 @@ void Scene::OnUpdate(float dt)
             }
         });
     }
+    */
 
     // Update with Native C++ scripts
     //{

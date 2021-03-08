@@ -36,22 +36,22 @@ target_link_libraries(
 )
 
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
-set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
+set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype-2.10.4")
 if(MSVC)
-    add_custom_command(
-        TARGET VkApp
-        POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy
-                ${FMOD_DIR}/Windows/core/lib/fmod.dll
-                ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll
-            ${CMAKE_CURRENT_BINARY_DIR}
-    )
-
-    add_custom_command(
-        TARGET VkApp
-        POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy
-                ${FT_DIR}/win64/freetype.dll
-            ${CMAKE_CURRENT_BINARY_DIR}
-    )
+    #    add_custom_command(
+    #        TARGET VkApp
+    #        POST_BUILD COMMAND
+    #            ${CMAKE_COMMAND} -E copy
+    #                ${FMOD_DIR}/Windows/core/lib/fmod.dll
+    #                ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll
+    #            ${CMAKE_CURRENT_BINARY_DIR}
+    #    )
+    #
+    #    add_custom_command(
+    #        TARGET VkApp
+    #        POST_BUILD COMMAND
+    #            ${CMAKE_COMMAND} -E copy
+    #                ${FT_DIR}/win64/freetype.dll
+    #            ${CMAKE_CURRENT_BINARY_DIR}
+    #    )
 endif()

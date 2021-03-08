@@ -1,5 +1,4 @@
-#ifndef BULLET_DEBUG_DRAWER_H
-#define BULLET_DEBUG_DRAWER_H
+#pragma once
 
 #include <glad/glad.h>
 #include <vector>
@@ -97,5 +96,3 @@ public:
     int getDebugMode(void) const { return 3; }
     int m;
 };
-
-#endif // BULLET_DEBUG_DRAWER_H

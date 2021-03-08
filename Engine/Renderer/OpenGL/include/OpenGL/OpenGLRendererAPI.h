@@ -1,5 +1,4 @@
-#ifndef OPENGL_RENDERER_API_H
-#define OPENGL_RENDERER_API_H
+#pragma once
 
 #include "Renderer/RendererAPI.h"
 #include <glad/glad.h>
@@ -16,4 +15,3 @@ class OpenGLRendererAPI : public RendererAPI
     virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
 };
-#endif // OPENGL_RENDERER_API_H

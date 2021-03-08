@@ -1,5 +1,4 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include "Core/Window.h"
 #include "Core/LayerStack.h"
@@ -47,5 +46,3 @@ private:
 };
 
 static Application* CreateApplication();
-
-#endif // APPLICATION_H

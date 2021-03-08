@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Base.h"
 #include <glad/glad.h>
+#include "Core/Base.h"
 
 // TODO Framebuffer should raw gl types values
 // But use for now for testing HDR

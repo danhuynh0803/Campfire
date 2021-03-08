@@ -8,6 +8,7 @@
 
 #include "Core/Input.h"
 #include "Platform/Windows/WindowsFileSystem.h"
+#include "Renderer/RendererAPI.h"
 
 static uint8_t glfwWindowCount = 0;
 
@@ -34,16 +35,24 @@ void WindowsWindow::Init(const WindowProps& props)
         int success = glfwInit();
     }
 
-    {
-        // TODO window hint should vary with rendererAPI
-        #if defined (DEBUG)
-            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-        #endif
+    #if defined (DEBUG)
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    #endif
 
-        //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        window = glfwCreateWindow(data.width, data.height, data.title.c_str(), nullptr, nullptr);
-        ++glfwWindowCount;
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::API::None:
+            // LOG ERROR
+            break;
+        case RendererAPI::API::OpenGL:
+            break;
+        case RendererAPI::API::Vulkan:
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+            break;
     }
+
+    window = glfwCreateWindow(data.width, data.height, data.title.c_str(), nullptr, nullptr);
+    ++glfwWindowCount;
 
     context = GraphicsContext::Create(window);
     context->Init();

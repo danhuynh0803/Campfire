@@ -8,7 +8,7 @@
 #include "Scene/Component.h"
 #include "Scene/Skybox.h"
 #include "Core/Base.h"
-#include "Scripting/LuaScript.h"
+//#include "Scripting/LuaScript.h"
 
 std::string SceneManager::activeScenePath;
 std::string SceneManager::activeSceneName;
@@ -440,7 +440,7 @@ Entity SceneManager::DeserializeEntity(json eJson, Scene* parentScene)
         comp.runOnTriggerStay = cJson["runOnTriggerStay"];
         comp.runOnTriggerExit = cJson["runOnTriggerExit"];
         // TODO bind based on the type of script it is
-        comp.template Bind<LuaScript>();
+        //comp.template Bind<LuaScript>();
     }
 
     if (eJson.contains("TextComponent"))

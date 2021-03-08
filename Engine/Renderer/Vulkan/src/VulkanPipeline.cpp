@@ -2,6 +2,7 @@
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
+#include "Core/ResourceManager.h"
 
 struct PipelineVertex
 {
@@ -48,8 +49,8 @@ struct PipelineVertex
 void VulkanPipeline::RecreatePipeline()
 {
     // Create shader modules
-    VulkanShader vert("../Campfire/Shaders/vert.spv");
-    VulkanShader frag("../Campfire/Shaders/frag.spv");
+    VulkanShader vert("../../../Shaders/vert.spv");
+    VulkanShader frag("../../../Shaders/frag.spv");
 
     // Create pipeline
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo;
@@ -247,8 +248,8 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     : type(pipelineType)
 {
     // Create shader modules
-    VulkanShader vert("../Campfire/Shaders/vert.spv");
-    VulkanShader frag("../Campfire/Shaders/frag.spv");
+    VulkanShader vert(SHADERS + "/vert.spv");
+    VulkanShader frag(SHADERS + "/frag.spv");
 
     // Create pipeline
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo;
