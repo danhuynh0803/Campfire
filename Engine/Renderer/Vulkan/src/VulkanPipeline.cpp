@@ -459,6 +459,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
     subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
+    // Setup render pass
     vk::RenderPassCreateInfo renderPassCreateInfo;
     renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
     renderPassCreateInfo.attachmentCount = 1;

@@ -155,6 +155,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     }
 }
 
+// Creates semaphores and fences related to presenting images
 void VulkanSwapChain::CreateBarriers()
 {
     vk::SemaphoreCreateInfo semaphoreInfo;
@@ -164,7 +165,7 @@ void VulkanSwapChain::CreateBarriers()
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    for (size_t i = 0; i < maxFramesInFlight; ++i)
+    for (size_t i = 0; i < mMaxFramesInFlight; ++i)
     {
         imageAvailableSemaphores.emplace_back(device.createSemaphoreUnique(semaphoreInfo));
         renderFinishedSemaphores.emplace_back(device.createSemaphoreUnique(semaphoreInfo));
@@ -173,6 +174,7 @@ void VulkanSwapChain::CreateBarriers()
 
     imagesInFlight.resize(swapChainImages.size());
 
+    // TODO why is command pool creation here?
     commandPool = CreateCommandPool(static_cast<uint32_t>(VulkanContext::Get()->GetDevice()->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
     commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
 }
@@ -182,9 +184,9 @@ void VulkanSwapChain::Present()
     auto mDevice = VulkanContext::Get()->GetDevice();
     auto device = mDevice->GetVulkanDevice();
 
-    device.waitForFences(inFlightFences[currentFrame].get(), VK_TRUE, UINT64_MAX);
+    device.waitForFences(inFlightFences[mCurrentFrame].get(), VK_TRUE, UINT64_MAX);
 
-    auto& imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
+    auto& imageAvailableSemaphore = imageAvailableSemaphores[mCurrentFrame];
     mImageIndex = device.acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
 
     // Check if previous frame is using this image (wait on its fence)
@@ -193,7 +195,7 @@ void VulkanSwapChain::Present()
         device.waitForFences(imagesInFlight[mImageIndex], VK_TRUE, UINT64_MAX);
     }
     // Mark the image as now being in use by this frame
-    imagesInFlight[mImageIndex] = inFlightFences[currentFrame].get();
+    imagesInFlight[mImageIndex] = inFlightFences[mCurrentFrame].get();
 
     vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore.get() };
     // wait to write colors to the image until it's available
@@ -207,15 +209,50 @@ void VulkanSwapChain::Present()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffers[mImageIndex].get();
 
-    auto& renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
+    // Signal finishing of rendering
+    auto& renderFinishedSemaphore = renderFinishedSemaphores[mCurrentFrame];
     vk::Semaphore signalSemaphores[] = { renderFinishedSemaphore.get() };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    device.resetFences(inFlightFences[currentFrame].get());
+    device.resetFences(inFlightFences[mCurrentFrame].get());
 
     auto graphicsQueue = mDevice->GetGraphicsQueue();
-    graphicsQueue.submit(submitInfo, inFlightFences[currentFrame].get());
+    graphicsQueue.submit(submitInfo, inFlightFences[mCurrentFrame].get());
+
+    // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
+    vk::ImageMemoryBarrier barrier;
+    barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    barrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+    barrier.oldLayout = vk::ImageLayout::eUndefined;
+    barrier.newLayout = vk::ImageLayout::ePresentSrcKHR;
+    barrier.srcQueueFamilyIndex = 0;
+    barrier.dstQueueFamilyIndex = 0;
+    barrier.image = swapChainImages.at(mImageIndex);
+    barrier.subresourceRange = {
+        vk::ImageAspectFlagBits::eColor,    // aspect mast
+        0,                                  // baseMipLevel
+        1,                                  // levelCount
+        0,                                  // baseArrayLayer
+        1                                   // layerCount
+    };
+
+    auto cmdBuffer = VulkanContext::Get()->mSwapChain->GetCurrentCommandBuffer();
+
+    vk::CommandBufferBeginInfo beginInfo;
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
+    beginInfo.pInheritanceInfo = nullptr;
+
+    cmdBuffer.begin(beginInfo);
+        cmdBuffer.pipelineBarrier(
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,
+            vk::PipelineStageFlagBits::eBottomOfPipe,
+            vk::DependencyFlagBits::eViewLocalKHR,
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+        );
+    cmdBuffer.end();
 
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
@@ -229,7 +266,7 @@ void VulkanSwapChain::Present()
     auto presentQueue = mDevice->GetPresentQueue();
     presentQueue.presentKHR(&presentInfo);
 
-    currentFrame = (currentFrame + 1) % maxFramesInFlight;
+    mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
 vk::UniqueCommandPool VulkanSwapChain::CreateCommandPool(uint32_t queueFamilyIndex)

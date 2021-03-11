@@ -1,5 +1,4 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -43,5 +42,3 @@ public:
     //static SharedPtr<TextureCube> Create(const std::string& path); // For single cubemap files that contain list of separate texture paths
     static SharedPtr<TextureCube> Create(const std::vector<std::string>& pathList);
 };
-
-#endif // TEXTURE_H

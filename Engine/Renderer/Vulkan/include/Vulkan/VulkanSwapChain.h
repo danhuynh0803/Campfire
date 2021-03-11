@@ -31,8 +31,8 @@ private:
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
     uint32_t mImageIndex = 0;
-    size_t currentFrame = 0;
-    int maxFramesInFlight = 2;
+    size_t mCurrentFrame = 0;
+    int mMaxFramesInFlight = 2;
 
     uint32_t mWidth;
     uint32_t mHeight;
