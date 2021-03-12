@@ -1,5 +1,5 @@
 #include "Vulkan/VulkanTexture.h"
-#include "Vulkan/VulkanBuffer.h" // CopyBuffer, CreateBuffer functions
+#include "Vulkan/VulkanUtil.h" // CreateBuffer, CopyBuffer, FindMemoryType
 #include "Vulkan/VulkanContext.h" // VulkanContext
 #include "Core/Log.h"
 
