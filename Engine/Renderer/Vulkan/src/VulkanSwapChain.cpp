@@ -237,7 +237,7 @@ void VulkanSwapChain::Present()
         1                                   // layerCount
     };
 
-    auto cmdBuffer = VulkanContext::Get()->mSwapChain->GetCurrentCommandBuffer();
+    auto cmdBuffer = GetCurrentCommandBuffer();
 
     vk::CommandBufferBeginInfo beginInfo;
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;

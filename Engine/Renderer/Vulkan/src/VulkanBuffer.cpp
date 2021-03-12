@@ -18,17 +18,11 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
 {
     vk::Device device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-    vk::BufferCreateInfo bufferInfo
-    {
-        vk::BufferCreateFlags(),
-        size,
-        usageFlags,
-        vk::SharingMode::eExclusive,
-        //.flags = vk::BufferCreateFlags(),
-        //.size = size,
-        //.usage = usageFlags,
-        //.sharingMode = vk::SharingMode::eExclusive,
-    };
+    vk::BufferCreateInfo bufferInfo;
+    bufferInfo.flags = vk::BufferCreateFlags();
+    bufferInfo.size = size;
+    bufferInfo.usage = usageFlags;
+    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
     buffer = device.createBufferUnique(bufferInfo);
 
@@ -50,8 +44,6 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
 
 void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size)
 {
-    auto devicePtr = VulkanContext::Get()->GetDevice();
-
     vk::CommandBufferAllocateInfo allocateInfo
     {
         VulkanContext::Get()->mSwapChain->GetCommandPool(),
@@ -62,6 +54,7 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
         //.commandBufferCount = 1,
     };
 
+    auto devicePtr = VulkanContext::Get()->GetDevice();
     std::vector<vk::UniqueCommandBuffer> commandBuffer =
         devicePtr->GetVulkanDevice().allocateCommandBuffersUnique(allocateInfo);
 
