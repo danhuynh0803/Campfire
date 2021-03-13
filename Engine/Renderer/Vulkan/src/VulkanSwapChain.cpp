@@ -1,5 +1,6 @@
 #include "Vulkan/VulkanSwapChain.h"
 #include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanUtil.h"
 
 VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
 {
@@ -234,13 +235,7 @@ void VulkanSwapChain::Present()
         1                                   // layerCount
     };
 
-    auto cmdBuffer = GetCurrentCommandBuffer();
-
-    vk::CommandBufferBeginInfo beginInfo;
-    beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
-    beginInfo.pInheritanceInfo = nullptr;
-
-    cmdBuffer.begin(beginInfo);
+    auto cmdBuffer = BeginSingleTimeCommands();
         cmdBuffer.pipelineBarrier(
             vk::PipelineStageFlagBits::eColorAttachmentOutput,
             vk::PipelineStageFlagBits::eBottomOfPipe,
@@ -249,7 +244,7 @@ void VulkanSwapChain::Present()
             0, nullptr,
             1, &barrier
         );
-    cmdBuffer.end();
+    EndSingleTimeCommands(cmdBuffer);
 
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
