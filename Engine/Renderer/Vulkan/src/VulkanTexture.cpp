@@ -124,5 +124,21 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         vk::ImageLayout::eShaderReadOnlyOptimal
     );
 
+    // Create texture ImageView
+    vk::ImageViewCreateInfo createInfo {};
+    createInfo.image = mImage.get();
+    createInfo.viewType = vk::ImageViewType::e2D;
+    createInfo.format = vk::Format::eR8G8B8A8Srgb;
+
+    vk::ImageSubresourceRange subresourceRange;
+    subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
+    subresourceRange.baseMipLevel   = 0;
+    subresourceRange.levelCount     = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount     = 1;
+    createInfo.subresourceRange = subresourceRange;
+
+    mImageView = device.createImageViewUnique(createInfo);
+
     // TODO submit image data to graphicsQueue
 }

@@ -116,7 +116,7 @@ void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLa
     if (oldLayout == vk::ImageLayout::eUndefined
         && newLayout == vk::ImageLayout::eTransferDstOptimal)
     {
-        barrier.srcAccessMask = vk::AccessFlagBits::eMemoryRead;
+        barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
         srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
@@ -131,7 +131,9 @@ void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLa
     }
     else
     {
-        CORE_WARN("Image layout transition does not match, using default values");
+        // TODO: how to handle a layout that doesn't match a preset spec?
+        // maybe just use the general flags?
+        //CORE_WARN("Image layout transition does not match, using default values");
     }
 
     auto cmdBuffer = BeginSingleTimeCommands();

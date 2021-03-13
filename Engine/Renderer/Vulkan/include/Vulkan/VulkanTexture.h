@@ -21,6 +21,7 @@ private:
     uint32_t mWidth, mHeight;
     vk::UniqueImage mImage;
     vk::UniqueDeviceMemory mImageMemory;
+    vk::UniqueImageView mImageView;
     vk::ImageLayout mImageLayout;
     std::string mFilePath;
 };
