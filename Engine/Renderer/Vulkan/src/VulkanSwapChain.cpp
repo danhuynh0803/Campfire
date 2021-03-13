@@ -219,32 +219,7 @@ void VulkanSwapChain::Present()
     graphicsQueue.submit(submitInfo, inFlightFences[mCurrentFrame].get());
 
     // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
-    vk::ImageMemoryBarrier barrier;
-    barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-    barrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-    barrier.oldLayout = vk::ImageLayout::eUndefined;
-    barrier.newLayout = vk::ImageLayout::ePresentSrcKHR;
-    barrier.srcQueueFamilyIndex = 0;
-    barrier.dstQueueFamilyIndex = 0;
-    barrier.image = swapChainImages.at(mImageIndex);
-    barrier.subresourceRange = {
-        vk::ImageAspectFlagBits::eColor,    // aspect mast
-        0,                                  // baseMipLevel
-        1,                                  // levelCount
-        0,                                  // baseArrayLayer
-        1                                   // layerCount
-    };
-
-    auto cmdBuffer = BeginSingleTimeCommands();
-        cmdBuffer.pipelineBarrier(
-            vk::PipelineStageFlagBits::eColorAttachmentOutput,
-            vk::PipelineStageFlagBits::eBottomOfPipe,
-            vk::DependencyFlagBits::eViewLocalKHR,
-            0, nullptr,
-            0, nullptr,
-            1, &barrier
-        );
-    EndSingleTimeCommands(cmdBuffer);
+    SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
 
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;

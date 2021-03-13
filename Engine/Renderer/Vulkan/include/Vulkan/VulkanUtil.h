@@ -9,3 +9,5 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
 vk::CommandBuffer BeginSingleTimeCommands();
 
 void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
+
+void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);

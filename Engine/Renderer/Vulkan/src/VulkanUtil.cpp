@@ -90,3 +90,34 @@ void EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
     graphicsQueue.submit(1, &submitInfo, nullptr);
     graphicsQueue.waitIdle();
 }
+
+void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
+    // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
+    vk::ImageMemoryBarrier barrier;
+    barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    barrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = 0;
+    barrier.dstQueueFamilyIndex = 0;
+    barrier.image = image;
+    barrier.subresourceRange = {
+        vk::ImageAspectFlagBits::eColor,    // aspectMask
+        0,                                  // baseMipLevel
+        1,                                  // levelCount
+        0,                                  // baseArrayLayer
+        1                                   // layerCount
+    };
+
+    auto cmdBuffer = BeginSingleTimeCommands();
+        cmdBuffer.pipelineBarrier(
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,
+            vk::PipelineStageFlagBits::eBottomOfPipe,
+            vk::DependencyFlagBits::eViewLocalKHR,
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+        );
+    EndSingleTimeCommands(cmdBuffer);
+}

@@ -79,5 +79,12 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     mImageMemory.get() = device.allocateMemory(allocInfo);
     device.bindImageMemory(mImage.get(), mImageMemory.get(), 0);
 
+    // Transition the image layout
+    auto cmdBuffer = BeginSingleTimeCommands();
+
+    // Copy buffer data to image
+
+    EndSingleTimeCommands(cmdBuffer);
+
     // TODO submit image data to graphicsQueue
 }
