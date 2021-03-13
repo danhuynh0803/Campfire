@@ -78,7 +78,7 @@ vk::UniqueInstance VulkanContext::CreateInstance()
     appInfo.apiVersion = VK_API_VERSION_1_2;
 
 #ifdef NDEBUG
-const bool enableValidationLayers = false;
+    const bool enableValidationLayers = false;
 #else
     const bool enableValidationLayers = true;
 #endif

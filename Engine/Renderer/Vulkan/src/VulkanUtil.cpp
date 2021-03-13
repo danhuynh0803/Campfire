@@ -42,38 +42,51 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
 
 void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size)
 {
-    vk::CommandBufferAllocateInfo allocateInfo
-    {
-        VulkanContext::Get()->GetCommandPool(),
-        vk::CommandBufferLevel::ePrimary,
-        1,
-        //.commandPool = VulkanContext::Get()->mSwapChain->GetCommandPool(),
-        //.level = vk::CommandBufferLevel::ePrimary,
-        //.commandBufferCount = 1,
-    };
-
-    auto devicePtr = VulkanContext::Get()->GetDevice();
-    std::vector<vk::UniqueCommandBuffer> commandBuffer =
-        devicePtr->GetVulkanDevice().allocateCommandBuffersUnique(allocateInfo);
-
-    vk::CommandBufferBeginInfo beginInfo
-    {
-        vk::CommandBufferUsageFlagBits::eOneTimeSubmit
-    };
-
-    commandBuffer[0]->begin(beginInfo);
+    auto commandBuffer = BeginSingleTimeCommands();
         vk::BufferCopy copyRegion;
         copyRegion.srcOffset = 0;
         copyRegion.dstOffset = 0;
         copyRegion.size = size;
-        commandBuffer[0]->copyBuffer(srcBuffer.get(), dstBuffer.get(), 1, &copyRegion);
-    commandBuffer[0]->end();
+        commandBuffer.copyBuffer(
+            srcBuffer.get(),
+            dstBuffer.get(),
+            1,
+            &copyRegion
+        );
+    EndSingleTimeCommands(commandBuffer);
+}
+
+vk::CommandBuffer BeginSingleTimeCommands()
+{
+    auto cmdPool = VulkanContext::Get()->GetCommandPool();
+
+    vk::CommandBufferAllocateInfo allocInfo {};
+    allocInfo.level = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandPool = cmdPool;
+    allocInfo.commandBufferCount = 1;
+
+    // Create a command buffer to process a one time submit command
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    vk::CommandBuffer cmdBuffer;
+    device.allocateCommandBuffers(&allocInfo, &cmdBuffer);
+
+    vk::CommandBufferBeginInfo beginInfo {};
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+    cmdBuffer.begin(beginInfo);
+
+    return cmdBuffer;
+}
+
+void EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
+{
+    commandBuffer.end();
 
     vk::SubmitInfo submitInfo;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer[0].get();
+    submitInfo.pCommandBuffers = &commandBuffer;
 
-    vk::Queue graphicsQueue = devicePtr->GetGraphicsQueue();
+    // TODO maybe optimize by submitting and then batching all data later somehow?
+    auto graphicsQueue = VulkanContext::Get()->GetDevice()->GetGraphicsQueue();
     graphicsQueue.submit(1, &submitInfo, nullptr);
     graphicsQueue.waitIdle();
 }
