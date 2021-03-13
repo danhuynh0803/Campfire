@@ -27,8 +27,12 @@ public:
     static vk::Instance GetInstance() { return sVulkanInstance.get(); }
     //static SharedPtr<VulkanDevice> GetContextDevice() { return Get()->mDevice(); }
     SharedPtr<VulkanDevice> GetDevice() { return mDevice; }
+    vk::CommandPool GetCommandPool() { return commandPool.get(); }
+    vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
+    std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
 private:
+    vk::UniqueCommandPool commandPool;
     vk::UniqueInstance CreateInstance();
     inline static vk::UniqueInstance sVulkanInstance;
     inline static SharedPtr<VulkanContext> sVulkanContextInstance;

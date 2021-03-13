@@ -14,7 +14,6 @@ public:
     vk::CommandBuffer GetCurrentCommandBuffer() { return commandBuffers.at(mImageIndex).get(); }
     vk::Framebuffer GetCurrentFramebuffer() { return swapChainFramebuffers.at(mImageIndex).get(); }
     vk::SurfaceKHR GetSurface() { return mSurface.get(); }
-    vk::CommandPool GetCommandPool() { return commandPool.get(); }
     vk::Format GetFormat() { return swapChainImageFormat; }
     std::vector<vk::Image> GetImages() { return swapChainImages; }
     vk::Extent2D GetExtent() { return swapChainExtent; }
@@ -27,8 +26,6 @@ public:
 
 private:
     vk::UniqueSurfaceKHR CreateSurfaceKHR(GLFWwindow* window);
-    vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
-    std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
     uint32_t mImageIndex = 0;
     size_t mCurrentFrame = 0;
@@ -44,7 +41,6 @@ private:
     vk::Extent2D swapChainExtent;
 
     // Command buffers
-    vk::UniqueCommandPool commandPool;
     std::vector<vk::UniqueCommandBuffer> commandBuffers;
 
     // Framebuffer

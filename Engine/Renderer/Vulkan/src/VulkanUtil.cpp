@@ -44,7 +44,7 @@ void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32
 {
     vk::CommandBufferAllocateInfo allocateInfo
     {
-        VulkanContext::Get()->mSwapChain->GetCommandPool(),
+        VulkanContext::Get()->GetCommandPool(),
         vk::CommandBufferLevel::ePrimary,
         1,
         //.commandPool = VulkanContext::Get()->mSwapChain->GetCommandPool(),

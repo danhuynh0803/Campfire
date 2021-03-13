@@ -173,11 +173,8 @@ void VulkanSwapChain::CreateBarriers()
     }
 
     imagesInFlight.resize(swapChainImages.size());
-
-    // TODO why is command pool creation here?
-    commandPool = CreateCommandPool(static_cast<uint32_t>(VulkanContext::Get()->GetDevice()->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
-    commandBuffers = CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
 }
+
 
 void VulkanSwapChain::Present()
 {
@@ -269,26 +266,6 @@ void VulkanSwapChain::Present()
     mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
-vk::UniqueCommandPool VulkanSwapChain::CreateCommandPool(uint32_t queueFamilyIndex)
-{
-    return VulkanContext::Get()->GetDevice()->GetVulkanDevice().createCommandPoolUnique(
-        vk::CommandPoolCreateInfo {
-            vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-            queueFamilyIndex
-        }
-    );
-}
-
-std::vector<vk::UniqueCommandBuffer> VulkanSwapChain::CreateCommandBuffers(uint32_t size)
-{
-    vk::CommandBufferAllocateInfo commandBufferAllocInfo;
-    commandBufferAllocInfo.commandPool = commandPool.get();
-    commandBufferAllocInfo.level = vk::CommandBufferLevel::ePrimary;
-    commandBufferAllocInfo.commandBufferCount = size;
-
-    return VulkanContext::Get()->GetDevice()->GetVulkanDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
-}
-
 void VulkanSwapChain::CreateFramebuffers()
 {
     swapChainFramebuffers.resize(imageViews.size());
@@ -311,6 +288,9 @@ void VulkanSwapChain::CreateFramebuffers()
 
         swapChainFramebuffers[i] = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createFramebufferUnique(framebufferCreateInfo);
     }
+
+    // Create cmd buffers to process presenting each frame
+    commandBuffers = VulkanContext::Get()->CreateCommandBuffers(static_cast<uint32_t>(swapChainFramebuffers.size()));
 }
 
 vk::UniqueSurfaceKHR VulkanSwapChain::CreateSurfaceKHR(GLFWwindow* window)

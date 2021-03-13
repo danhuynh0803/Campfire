@@ -14,6 +14,8 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
     mGraphicsPipeline = CreateSharedPtr<VulkanPipeline>(PipelineType::GRAPHICS);
 
+    commandPool = CreateCommandPool(static_cast<uint32_t>(GetDevice()->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
+
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();
     mSwapChain->CreateBarriers();
@@ -24,6 +26,27 @@ void VulkanContext::Init()
     glfwMakeContextCurrent(windowHandle);
     LOG_INFO("Vulkan initialized");
 }
+
+vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex)
+{
+    return VulkanContext::Get()->GetDevice()->GetVulkanDevice().createCommandPoolUnique(
+        vk::CommandPoolCreateInfo {
+            vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+            queueFamilyIndex
+        }
+    );
+}
+
+std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_t size)
+{
+    vk::CommandBufferAllocateInfo commandBufferAllocInfo;
+    commandBufferAllocInfo.commandPool = commandPool.get();
+    commandBufferAllocInfo.level = vk::CommandBufferLevel::ePrimary;
+    commandBufferAllocInfo.commandBufferCount = size;
+
+    return GetDevice()->GetVulkanDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
+}
+
 
 void VulkanContext::RecreateSwapChain()
 {

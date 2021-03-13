@@ -27,9 +27,12 @@ public:
         {
             case QueueFamilyType::GRAPHICS: return graphicsQueueFamilyIndex;
             case QueueFamilyType::PRESENT: return presentQueueFamilyIndex;
-            //case QueueFamilyType::TRANSFER: return graphicsQueueFamilyIndex;
+            //case QueueFamilyType::TRANSFER: return ;
+            //case QueueFamilyType::COMPUTE: return ;
         }
     }
+
+    vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
 
 private:
     vk::UniqueDevice CreateLogicalDevice();
