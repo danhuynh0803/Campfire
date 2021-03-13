@@ -1,5 +1,6 @@
 #include "Vulkan/VulkanUtil.h"
 #include "Vulkan/VulkanContext.h"
+#include "Core/Log.h"
 
 uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
 
@@ -93,7 +94,6 @@ void EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
 
 void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
-    // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
     vk::ImageMemoryBarrier barrier;
     barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
     barrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
@@ -110,10 +110,34 @@ void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLa
         1                                   // layerCount
     };
 
+    vk::PipelineStageFlagBits srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    vk::PipelineStageFlagBits dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe;
+
+    if (oldLayout == vk::ImageLayout::eUndefined
+        && newLayout == vk::ImageLayout::eTransferDstOptimal)
+    {
+        barrier.srcAccessMask = vk::AccessFlagBits::eMemoryRead;
+        barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
+    }
+    else if (oldLayout == vk::ImageLayout::eTransferDstOptimal
+            && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+    {
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+        srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
+        dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else
+    {
+        CORE_WARN("Image layout transition does not match, using default values");
+    }
+
     auto cmdBuffer = BeginSingleTimeCommands();
         cmdBuffer.pipelineBarrier(
-            vk::PipelineStageFlagBits::eColorAttachmentOutput,
-            vk::PipelineStageFlagBits::eBottomOfPipe,
+            srcStageFlags,
+            dstStageFlags,
             vk::DependencyFlagBits::eViewLocalKHR,
             0, nullptr,
             0, nullptr,

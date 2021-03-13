@@ -79,12 +79,50 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     mImageMemory.get() = device.allocateMemory(allocInfo);
     device.bindImageMemory(mImage.get(), mImageMemory.get(), 0);
 
-    // Transition the image layout
+    // Transition image to be optimal for transfering
+    // which is vk::ImageLayout::eTransferDstOptimal
+    SwitchImageLayout(
+        mImage.get(),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageLayout::eUndefined,
+        vk::ImageLayout::eTransferDstOptimal
+    );
+
+    // Now ready to copy data from staging buffer to the image
     auto cmdBuffer = BeginSingleTimeCommands();
+        vk::BufferImageCopy region {};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
 
-    // Copy buffer data to image
+        region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
 
+        region.imageOffset = {0, 0, 0};
+        region.imageExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height),
+            1
+        };
+
+        cmdBuffer.copyBufferToImage(
+            stagingBuffer.get(),
+            mImage.get(),
+            vk::ImageLayout::eTransferDstOptimal,
+            1,
+            &region
+        );
     EndSingleTimeCommands(cmdBuffer);
+
+    // After data has been copied over, switch layout so that image is readable by shaders
+    SwitchImageLayout(
+        mImage.get(),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageLayout::eTransferDstOptimal,
+        vk::ImageLayout::eShaderReadOnlyOptimal
+    );
 
     // TODO submit image data to graphicsQueue
 }
