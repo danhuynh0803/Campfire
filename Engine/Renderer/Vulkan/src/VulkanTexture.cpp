@@ -125,20 +125,50 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     );
 
     // Create texture ImageView
-    vk::ImageViewCreateInfo createInfo {};
-    createInfo.image = mImage.get();
-    createInfo.viewType = vk::ImageViewType::e2D;
-    createInfo.format = vk::Format::eR8G8B8A8Srgb;
+    {
+        vk::ImageViewCreateInfo createInfo {};
+        createInfo.image = mImage.get();
+        createInfo.viewType = vk::ImageViewType::e2D;
+        createInfo.format = vk::Format::eR8G8B8A8Srgb;
 
-    vk::ImageSubresourceRange subresourceRange;
-    subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
-    subresourceRange.baseMipLevel   = 0;
-    subresourceRange.levelCount     = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount     = 1;
-    createInfo.subresourceRange = subresourceRange;
+        vk::ImageSubresourceRange subresourceRange;
+        subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
+        subresourceRange.baseMipLevel   = 0;
+        subresourceRange.levelCount     = 1;
+        subresourceRange.baseArrayLayer = 0;
+        subresourceRange.layerCount     = 1;
+        createInfo.subresourceRange = subresourceRange;
 
-    mImageView = device.createImageViewUnique(createInfo);
+        mImageView = device.createImageViewUnique(createInfo);
+    }
+
+    // Create sampler
+    {
+        vk::SamplerCreateInfo createInfo {};
+        createInfo.magFilter = vk::Filter::eLinear;
+        createInfo.minFilter = vk::Filter::eLinear;
+        createInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+        createInfo.mipLodBias = 0.0f;
+        createInfo.minLod = 0.0f;
+        createInfo.maxLod = 0.0f;
+        createInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
+        createInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+        createInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+        createInfo.anisotropyEnable = true;
+
+        // Query max anisotropy limit of GPU
+        auto physicalDevice = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
+        auto properties = physicalDevice.getProperties();
+        createInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+        // The color return when sampling beython the image if using clamp to border address mode
+        createInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        createInfo.unnormalizedCoordinates = false;
+        createInfo.compareEnable = false;
+        createInfo.compareOp = vk::CompareOp::eAlways;
+
+        mSampler = device.createSamplerUnique(createInfo);
+    }
 
     // TODO submit image data to graphicsQueue
 }

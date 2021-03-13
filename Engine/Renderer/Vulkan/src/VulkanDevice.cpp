@@ -30,10 +30,10 @@ vk::PhysicalDevice VulkanDevice::SelectPhysicalDevice()
 bool VulkanDevice::IsDeviceSuitable(vk::PhysicalDevice device)
 {
     vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
-    vk::PhysicalDeviceFeatures deviceFeatures = device.getFeatures();
+    vk::PhysicalDeviceFeatures supportedFeatures = device.getFeatures();
 
     // TODO add various feature checks
-    return true;
+    return supportedFeatures.samplerAnisotropy;
 }
 
 vk::UniqueDevice VulkanDevice::CreateLogicalDevice()
@@ -72,12 +72,16 @@ vk::UniqueDevice VulkanDevice::CreateLogicalDevice()
         "VK_KHR_swapchain"
     };
 
-    vk::DeviceCreateInfo deviceInfo;
+    vk::DeviceCreateInfo deviceInfo {};
     deviceInfo.flags = vk::DeviceCreateFlags();
     deviceInfo.queueCreateInfoCount = 1;
     deviceInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
     deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+    vk::PhysicalDeviceFeatures deviceFeatures {};
+    deviceFeatures.samplerAnisotropy = true;
+    deviceInfo.pEnabledFeatures = &deviceFeatures;
 
     return physicalDevice.createDeviceUnique(deviceInfo);
 }

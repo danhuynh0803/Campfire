@@ -22,6 +22,7 @@ private:
     vk::UniqueImage mImage;
     vk::UniqueDeviceMemory mImageMemory;
     vk::UniqueImageView mImageView;
+    vk::UniqueSampler mSampler;
     vk::ImageLayout mImageLayout;
     std::string mFilePath;
 };
