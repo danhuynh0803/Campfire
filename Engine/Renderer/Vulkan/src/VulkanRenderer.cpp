@@ -25,16 +25,16 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     commandBuffer.begin(beginInfo);
 
     // Clear value
-    vk::ClearValue clearValues;
-    clearValues.color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.3f, 0.3f, 1.0f } }));
-    //clearValues.depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+    std::array<vk::ClearValue, 2> clearValues;
+    clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.3f, 0.3f, 1.0f } }));
+    clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
 
     vk::RenderPassBeginInfo renderPassBeginInfo;
     renderPassBeginInfo.renderPass = graphicsPipeline->GetVulkanRenderPass();
     renderPassBeginInfo.framebuffer = framebuffer;
     renderPassBeginInfo.renderArea = renderArea;
-    renderPassBeginInfo.clearValueCount = 1;
-    renderPassBeginInfo.pClearValues = &clearValues;
+    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
 
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());

@@ -1,6 +1,7 @@
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanUtil.h"
 #include "Core/ResourceManager.h"
 
 struct PipelineVertex
@@ -262,6 +263,9 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup loadOp and StoreOp which determines what to do
     // with the data in the attachment before rendering and
     // after rendering
+
+    // ==============================
+    // Color Attachment
     vk::AttachmentDescription colorAttachment;
     colorAttachment.format = VulkanContext::Get()->mSwapChain->GetFormat();
     colorAttachment.samples = vk::SampleCountFlagBits::e1;
@@ -271,38 +275,63 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
     colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    // ==============================
 
+    // ==============================
+    // Depth Attachment
+    vk::AttachmentDescription depthAttachment;
+    depthAttachment.format = FindDepthFormat();
+    depthAttachment.samples = vk::SampleCountFlagBits::e1;
+    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+    // ==============================
+
+    // ==============================
     // Setup subpasses
     vk::AttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
+    vk::AttachmentReference depthAttachmentRef;
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
     vk::SubpassDescription subpass;
     subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
     // Setup subpass dependencies
     vk::SubpassDependency subpassDependency;
     subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     subpassDependency.dstSubpass = 0;
-    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
     subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
-    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+    // ==============================
 
+    // ==============================
     // Setup render pass
-    vk::RenderPassCreateInfo renderPassCreateInfo;
+    std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    vk::RenderPassCreateInfo renderPassCreateInfo {};
     renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
-    renderPassCreateInfo.attachmentCount = 1;
-    renderPassCreateInfo.pAttachments = &colorAttachment;
+    renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassCreateInfo.pAttachments = attachments.data();
     renderPassCreateInfo.subpassCount = 1;
     renderPassCreateInfo.pSubpasses = &subpass;
     renderPassCreateInfo.dependencyCount = 1;
     renderPassCreateInfo.pDependencies = &subpassDependency;
 
     renderPass = device.createRenderPassUnique(renderPassCreateInfo);
+    // ==============================
 
+    // ==============================
     // Create Graphics pipeline
     vk::GraphicsPipelineCreateInfo pipelineCreateInfo;
     pipelineCreateInfo.flags = vk::PipelineCreateFlags();
@@ -323,4 +352,5 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipelineCreateInfo.basePipelineIndex = -1;
 
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    // ==============================
 }

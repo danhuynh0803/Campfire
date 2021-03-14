@@ -271,16 +271,17 @@ void VulkanSwapChain::CreateFramebuffers()
 
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
-        vk::ImageView attachments[] =
+        std::array<vk::ImageView, 2> attachments =
         {
-            imageViews[i].get()
+            imageViews[i].get(),
+            depthImageView.get(),
         };
 
         vk::FramebufferCreateInfo framebufferCreateInfo;
         framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
         framebufferCreateInfo.renderPass = VulkanContext::Get()->mGraphicsPipeline->GetVulkanRenderPass();
-        framebufferCreateInfo.attachmentCount = 1;
-        framebufferCreateInfo.pAttachments = attachments;
+        framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferCreateInfo.pAttachments = attachments.data();
         framebufferCreateInfo.width = swapChainExtent.width;
         framebufferCreateInfo.height = swapChainExtent.height;
         framebufferCreateInfo.layers = 1;
