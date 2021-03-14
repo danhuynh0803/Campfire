@@ -4,7 +4,7 @@
 #include "Core/Layer.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanBuffer.h"
-
+#include "Vulkan/VulkanTexture.h"
 
 class VulkanLayer : public Layer
 {
@@ -25,4 +25,5 @@ private:
     SharedPtr<VulkanIndexBuffer> indexBufferPtr;
     std::vector<SharedPtr<VulkanUniformBuffer>> cameraUBOs;
     std::vector<SharedPtr<VulkanUniformBuffer>> transformUBOs;
+    std::vector<SharedPtr<VulkanTexture2D>> textures;
 };

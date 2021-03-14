@@ -1,9 +1,12 @@
-#include "Scene/CameraController.h"
 #include "VulkanLayer.h"
-#include "Core/Input.h"
 
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanRenderer.h"
+#include "Vulkan/VulkanTexture.h"
+
+#include "Core/Input.h"
+#include "Core/ResourceManager.h" // ASSETS dir
+#include "Scene/CameraController.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -58,6 +61,12 @@ void VulkanLayer::OnAttach()
 
     auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
 
+    for (size_t i = 0; i < 3; ++i)
+    {
+        textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
+    }
+    //SharedPtr<VulkanTexture2D> texture = CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png");
+
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
     {
@@ -89,6 +98,23 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::MAT4, "model" },
             };
             transformUBOs[i]->SetLayout(transformLayout, 1);
+        }
+
+        { // Submit texture data to descriptorSet
+            vk::DescriptorImageInfo imageInfo{};
+            imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            imageInfo.imageView = textures[i]->GetImageView();
+            imageInfo.sampler = textures[i]->GetSampler();
+
+            vk::WriteDescriptorSet descriptorWrite {};
+            descriptorWrite.dstSet = descriptorSets[i].get();
+            descriptorWrite.dstBinding = 2;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pImageInfo = &imageInfo;
+
+            VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
         }
     }
 }
