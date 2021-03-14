@@ -17,7 +17,7 @@
 //#include "JobSystem/JobSystem.h"
 #include "Scripting/LuaManager.h"
 #include "Core/ProcessorInfo.h"
-#include "Core/RCCpp.h"
+//#include "Core/RCCpp.h"
 
 Application* Application::instance = nullptr;
 
@@ -31,7 +31,7 @@ Application::Application(const ApplicationProps& props)
     //JobSystem::Init();
     AudioSystem::Init();
     ProcessorInfo::Display();
-    RCCpp::Init();
+    //RCCpp::Init();
 
     instance = this;
     window = Window::Create({props.name, props.width, props.height});
@@ -59,7 +59,7 @@ Application::~Application()
     PhysicsManager::Shutdown();
     Renderer::Shutdown();
     LuaManager::Shutdown();
-    RCCpp::Shutdown();
+    //RCCpp::Shutdown();
     Shutdown();
 }
 
@@ -71,8 +71,8 @@ void Application::Run()
     {
         //Timer timer("FrameTime");
         Time::Update();
-        RCCpp::Update(Time::deltaTime);
-
+        //RCCpp::Update(Time::deltaTime);
+        Update(Time::deltaTime);
         for (Layer* layer : layerStack)
         {
             layer->OnUpdate(static_cast<float>(Time::deltaTime));

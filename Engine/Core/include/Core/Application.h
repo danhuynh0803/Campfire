@@ -23,6 +23,7 @@ public:
     virtual void Run();
     virtual void Close();
     virtual void Shutdown() {}
+    virtual void Update(float dt) {}
     virtual void OnInit() {}
 
     void PushLayer(Layer* layer);

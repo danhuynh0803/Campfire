@@ -1,10 +1,17 @@
 set(GAME_HEADERS
     include/GameLayer.h
+    include/RCCpp.h
+    include/RCCppEntry.h
+    include/RCCppSystemTable.h
+    include/StdioLogSystem.h
 )
 
 set(GAME_SRC
     src/GameLayer.cpp
+    src/RCCpp.cpp
     src/GameApplication.cpp
+    src/RCCppEntry.cpp
+    src/StdioLogSystem.cpp
 )
 
 add_executable(
