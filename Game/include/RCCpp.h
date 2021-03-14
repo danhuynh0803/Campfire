@@ -4,11 +4,11 @@
 #include "RCCppSystemTable.h"
 #include "StdioLogSystem.h"
 
-enum PROJECTIDS
-{
-    PROJECTID_DEFAULT = 0,
-    PROJECTID_MODULE_RCC
-};
+//enum PROJECTIDS
+//{
+//    PROJECTID_DEFAULT = 0,
+//    PROJECTID_MODULE_RCC
+//};
 
 struct RCCpp
 {

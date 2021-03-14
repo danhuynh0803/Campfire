@@ -21,10 +21,9 @@ bool RCCpp::Init()
     FileSystemUtils::Path basePath = systemTable.runtimeObjectSystem->FindFile(__FILE__);
     FileSystemUtils::Path includeDir = basePath.ParentPath().ParentPath()/ "include";
     //FileSystemUtils::Path rccDir = basePath.ParentPath().ParentPath().ParentPath() / "vendor"/ "runtimeCompiledCPlusPlus" / "aurora";
-    systemTable.runtimeObjectSystem->AddIncludeDir(includeDir.c_str(),PROJECTID_DEFAULT);
-    //systemTable.runtimeObjectSystem->AddIncludeDir(rccDir.c_str(), PROJECTID_MODULE_RCC);
-    //FileSystemUtils::Path RCCIncludeDir = basePath.ParentPath()/"Vendor"/"RuntimeCompiledCPlusPlus"/"Aurora"/"RuntimeObjectSystem";
-    //systemTable.runtimeObjectSystem->AddIncludeDir(RCCIncludeDir.c_str(), PROJECTID_MODULE_RCC);
+    systemTable.runtimeObjectSystem->AddIncludeDir(includeDir.c_str());
+    FileSystemUtils::Path RCCppIncludeDir = basePath.ParentPath().ParentPath().ParentPath()/"Vendor"/"RuntimeCompiledCPlusPlus"/"Aurora";
+    systemTable.runtimeObjectSystem->AddIncludeDir(RCCppIncludeDir.c_str());
     return true;
 }
 

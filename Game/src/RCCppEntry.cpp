@@ -1,7 +1,6 @@
-#include "../../Vendor/RuntimeCompiledCPlusPlus/Aurora/RuntimeObjectSystem/IObject.h"
-#include "../../Vendor/RuntimeCompiledCPlusPlus/Aurora/RuntimeObjectSystem/ObjectInterfacePerModule.h"
-#include "../../Vendor/RuntimeCompiledCPlusPlus/Aurora/RuntimeObjectSystem/IObjectFactorySystem.h"
-//#include "RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "RuntimeObjectSystem/IObject.h"
+#include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "RCCppEntry.h"
 #include "RCCppSystemTable.h"
 
@@ -31,6 +30,10 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
     void Update(float dt) override
     {
         int i = 0;
+        int j = 0;
+        int x = 4;
+        std::cout << "-";
+        
     }
 };
 
