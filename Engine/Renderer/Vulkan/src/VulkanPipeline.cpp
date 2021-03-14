@@ -374,37 +374,54 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
 
-    // UBO descriptor layout
-    std::vector<vk::DescriptorSetLayoutBinding> uboLayoutBindings;
-    for (size_t i = 0; i < 2; ++i)
-    {
-        vk::DescriptorSetLayoutBinding uboLayoutBinding;
-        uboLayoutBinding.binding = static_cast<uint32_t>(i);
-        uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
-        uboLayoutBinding.pImmutableSamplers = nullptr; // used for image sampling later on
+    std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
+    { // UBO descriptor layout
+        for (size_t i = 0; i < 2; ++i)
+        {
+            vk::DescriptorSetLayoutBinding uboLayoutBinding;
+            uboLayoutBinding.binding = static_cast<uint32_t>(i);
+            uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+            uboLayoutBinding.descriptorCount = 1;
+            uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+            uboLayoutBinding.pImmutableSamplers = nullptr; // used for image sampling later on
 
-        uboLayoutBindings.emplace_back(uboLayoutBinding);
+            layoutBindings.emplace_back(uboLayoutBinding);
+        }
     }
 
+    { // Sampler layout binding
+        vk::DescriptorSetLayoutBinding samplerLayoutBinding {};
+        samplerLayoutBinding.binding = 2;
+        samplerLayoutBinding.descriptorCount = 1;
+        samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        samplerLayoutBinding.pImmutableSamplers = nullptr;
+        samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+        layoutBindings.emplace_back(samplerLayoutBinding);
+    }
+
+
     vk::DescriptorSetLayoutCreateInfo layoutInfo;
-    layoutInfo.bindingCount = 2;
-    layoutInfo.pBindings = uboLayoutBindings.data();
+    layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());
+    layoutInfo.pBindings = layoutBindings.data();
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     descriptorSetLayout = device.createDescriptorSetLayoutUnique(layoutInfo);
-
     auto swapChainImages = VulkanContext::Get()->mSwapChain->GetImages();
-    vk::DescriptorPoolSize poolSize;
-    poolSize.descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
-    vk::DescriptorPoolCreateInfo poolInfo;
-    poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
-    poolInfo.poolSizeCount = 1;
-    poolInfo.pPoolSizes = &poolSize;
+    { // Creating descriptor pools
+        std::array<vk::DescriptorPoolSize, 2> poolSizes {};
+        poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
+        poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
+        poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
-    descriptorPool = device.createDescriptorPoolUnique(poolInfo);
+        vk::DescriptorPoolCreateInfo poolInfo;
+        poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+        poolInfo.pPoolSizes = poolSizes.data();
+
+        descriptorPool = device.createDescriptorPoolUnique(poolInfo);
+    }
 
     // Create list of descriptor sets
     std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout.get());

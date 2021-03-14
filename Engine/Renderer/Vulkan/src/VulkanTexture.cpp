@@ -3,7 +3,8 @@
 #include "Vulkan/VulkanContext.h" // VulkanContext
 #include "Core/Log.h"
 
-#define STB_IMAGE_IMPLEMENTATION
+// Leave this commented out unless OpenGL is not built since
+// #define STB_IMAGE_IMPLEMENTATION already set in OpenGLTexture.cpp
 #include <stb_image.h>
 
 VulkanTexture2D::VulkanTexture2D(const std::string& path)
