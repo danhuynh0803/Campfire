@@ -30,15 +30,55 @@ static TransformUBO transformUBO;
 
 float vertices[] = {
     // Position           // Color            // UV
-    -3.0f,  3.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -3.0f, -3.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     3.0f, -3.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     3.0f,  3.0f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+
+     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+
+     1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+
+    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+    -1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+
+    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+
+    -1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
 };
 
 uint32_t indices[] = {
     0, 1, 2,
     2, 3, 0,
+
+    4, 5, 6,
+    6, 7, 4,
+
+    8, 9, 10,
+    10, 11, 8,
+
+    12, 13, 14,
+    14, 15, 12,
+
+    16, 17, 18,
+    18, 19, 16,
+
+    20, 21, 22,
+    22, 23, 20,
 };
 
 
@@ -135,7 +175,7 @@ void VulkanLayer::OnUpdate(float dt)
     static float rotation = 0;
     rotation += 180 * dt;
     glm::mat4 model = glm::mat4(1.0f);
-    //model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
+    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
     transformUBO.model = model;
     transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
 
