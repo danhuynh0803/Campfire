@@ -11,10 +11,11 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     sVulkanInstance = CreateInstance();
     mDevice = CreateSharedPtr<VulkanDevice>();
     sVulkanContextInstance.reset(this);
-    mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
-    mGraphicsPipeline = CreateSharedPtr<VulkanPipeline>(PipelineType::GRAPHICS);
 
     commandPool = CreateCommandPool(static_cast<uint32_t>(GetDevice()->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
+
+    mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
+    mGraphicsPipeline = CreateSharedPtr<VulkanPipeline>(PipelineType::GRAPHICS);
 
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();

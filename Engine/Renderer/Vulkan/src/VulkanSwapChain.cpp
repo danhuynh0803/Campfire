@@ -153,8 +153,36 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         );
     }
 
-    //depthImage = CreateImage();
-    //depthImageView = CreateUniqueImageView();
+    vk::Format depthFormat = FindDepthFormat();
+    // Depth image
+    depthImage = CreateUniqueImage(
+        GetWidth(),
+        GetHeight(),
+        depthFormat,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment
+    );
+
+    depthImageMemory = CreateUniqueDeviceMemory(
+        depthImage.get(),
+        vk::MemoryPropertyFlagBits::eDeviceLocal
+    );
+    device.bindImageMemory(depthImage.get(), depthImageMemory.get(), 0);
+
+    // Depth imageview
+    depthImageView = CreateUniqueImageView(
+        depthImage.get(),
+        depthFormat,
+        vk::ImageAspectFlagBits::eDepth
+    );
+
+    // Transition depth image to depth stencile optimal layout
+    SwitchImageLayout(
+        depthImage.get(),
+        depthFormat,
+        vk::ImageLayout::eUndefined,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal
+    );
 }
 
 // Creates semaphores and fences related to presenting images

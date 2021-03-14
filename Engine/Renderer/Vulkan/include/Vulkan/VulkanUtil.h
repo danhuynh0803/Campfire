@@ -24,7 +24,11 @@ vk::UniqueDeviceMemory CreateUniqueDeviceMemory(
     vk::MemoryPropertyFlags properties
 );
 
-vk::UniqueImageView CreateUniqueImageView(vk::Image image, vk::Format format, vk::ImageAspectFlagBits aspectFlags);
+vk::UniqueImageView CreateUniqueImageView(
+    vk::Image image,
+    vk::Format format,
+    vk::ImageAspectFlagBits aspectFlags
+);
 
 vk::Format FindSupportedFormat(
     const std::vector<vk::Format>& formats,

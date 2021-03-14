@@ -110,6 +110,19 @@ void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLa
         1                                   // layerCount
     };
 
+    if (newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+    {
+        barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
+        if (HasStencilComponent(format))
+        {
+            barrier.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+        }
+    }
+    else
+    {
+        barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    }
+
     vk::PipelineStageFlagBits srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     vk::PipelineStageFlagBits dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe;
 
@@ -128,6 +141,15 @@ void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLa
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
         srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
         dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+    else if (oldLayout == vk::ImageLayout::eUndefined
+            && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+    {
+        barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead
+                              | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+        srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
     }
     else
     {
