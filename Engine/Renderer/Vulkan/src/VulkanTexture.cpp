@@ -50,34 +50,19 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
     // Create the actual texture image
     vk::UniqueDeviceMemory textureImageMemory;
-    vk::ImageCreateInfo imageInfo;
-    imageInfo.imageType = vk::ImageType::e2D;
-    imageInfo.extent.width = static_cast<uint32_t>(width);
-    imageInfo.extent.height = static_cast<uint32_t>(height);
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
+    mImage = CreateUniqueImage(
+        static_cast<uint32_t>(width),
+        static_cast<uint32_t>(height),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled
+    );
 
-    // TODO match the internal format of the image
-    // hardcode to rgba for now
-    imageInfo.format = vk::Format::eR8G8B8A8Srgb;
-    imageInfo.tiling = vk::ImageTiling::eOptimal;
-    // eUndefined causes texels to be discared at first transition
-    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-    imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
-    imageInfo.sharingMode = vk::SharingMode::eExclusive;
-    // Multisampling spec, TODO so that images can be used with attachements
-    imageInfo.samples = vk::SampleCountFlagBits::e1;
-
-    mImage.get() = device.createImage(imageInfo);
-
-    vk::MemoryRequirements memReqs = device.getImageMemoryRequirements(mImage.get());
-
-    vk::MemoryAllocateInfo allocInfo;
-    allocInfo.allocationSize = memReqs.size;
-    allocInfo.memoryTypeIndex = FindMemoryType(memReqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-    mImageMemory.get() = device.allocateMemory(allocInfo);
+    mImageMemory = CreateUniqueDeviceMemory(
+        mImage.get(),
+        vk::MemoryPropertyFlagBits::eDeviceLocal
+    );
+    // Bind Image memory
     device.bindImageMemory(mImage.get(), mImageMemory.get(), 0);
 
     // Transition image to be optimal for transfering
@@ -125,23 +110,12 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         vk::ImageLayout::eShaderReadOnlyOptimal
     );
 
-    // Create texture ImageView
-    {
-        vk::ImageViewCreateInfo createInfo {};
-        createInfo.image = mImage.get();
-        createInfo.viewType = vk::ImageViewType::e2D;
-        createInfo.format = vk::Format::eR8G8B8A8Srgb;
-
-        vk::ImageSubresourceRange subresourceRange;
-        subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
-        subresourceRange.baseMipLevel   = 0;
-        subresourceRange.levelCount     = 1;
-        subresourceRange.baseArrayLayer = 0;
-        subresourceRange.layerCount     = 1;
-        createInfo.subresourceRange = subresourceRange;
-
-        mImageView = device.createImageViewUnique(createInfo);
-    }
+    // Create ImageView
+    mImageView = CreateUniqueImageView(
+        mImage.get(),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageAspectFlagBits::eColor
+    );
 
     // Create sampler
     {

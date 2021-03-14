@@ -144,16 +144,17 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     vk::ImageSubresourceRange subresourceRange{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 };
     for (auto image : swapChainImages)
     {
-        vk::ImageViewCreateInfo imageViewCreateInfo;
-        imageViewCreateInfo.flags = vk::ImageViewCreateFlags();
-        imageViewCreateInfo.image = image;
-        imageViewCreateInfo.viewType = vk::ImageViewType::e2D;
-        imageViewCreateInfo.format = swapChainImageFormat;
-        imageViewCreateInfo.components = componentMapping;
-        imageViewCreateInfo.subresourceRange = subresourceRange;
-
-        imageViews.emplace_back(device.createImageViewUnique(imageViewCreateInfo));
+        imageViews.emplace_back(
+            CreateUniqueImageView(
+                image,
+                swapChainImageFormat,
+                vk::ImageAspectFlagBits::eColor
+            )
+        );
     }
+
+    //depthImage = CreateImage();
+    //depthImageView = CreateUniqueImageView();
 }
 
 // Creates semaphores and fences related to presenting images

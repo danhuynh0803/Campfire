@@ -147,3 +147,107 @@ void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLa
         );
     EndSingleTimeCommands(cmdBuffer);
 }
+
+vk::UniqueImage CreateUniqueImage(
+    uint32_t width, uint32_t height,
+    vk::Format format,
+    vk::ImageTiling tiling,
+    vk::ImageUsageFlags usage
+)
+{
+    vk::ImageCreateInfo imageInfo;
+    imageInfo.imageType = vk::ImageType::e2D;
+    imageInfo.extent.width = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+
+    imageInfo.format = format;
+    imageInfo.tiling = tiling;
+    // eUndefined causes texels to be discared at first transition
+    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+    imageInfo.usage = usage;
+    imageInfo.sharingMode = vk::SharingMode::eExclusive;
+    // Multisampling spec, TODO so that images can be used with attachements
+    imageInfo.samples = vk::SampleCountFlagBits::e1;
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    return device.createImageUnique(imageInfo);
+}
+
+vk::UniqueDeviceMemory CreateUniqueDeviceMemory(
+    vk::Image image,
+    vk::MemoryPropertyFlags properties
+)
+{
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    vk::MemoryRequirements memReqs = device.getImageMemoryRequirements(image);
+
+    vk::MemoryAllocateInfo allocInfo;
+    allocInfo.allocationSize = memReqs.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(memReqs.memoryTypeBits, properties);
+
+    return device.allocateMemoryUnique(allocInfo);
+}
+
+vk::UniqueImageView CreateUniqueImageView(vk::Image image, vk::Format format, vk::ImageAspectFlagBits aspectFlags)
+{
+    vk::ImageViewCreateInfo createInfo {};
+    createInfo.image = image;
+    createInfo.viewType = vk::ImageViewType::e2D;
+    createInfo.format = format;
+
+    vk::ImageSubresourceRange subresourceRange;
+    subresourceRange.aspectMask     = aspectFlags;
+    subresourceRange.baseMipLevel   = 0;
+    subresourceRange.levelCount     = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount     = 1;
+    createInfo.subresourceRange = subresourceRange;
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
+    return device.createImageViewUnique(createInfo);
+}
+
+vk::Format FindSupportedFormat(
+    const std::vector<vk::Format>& formats,
+    vk::ImageTiling tiling,
+    vk::FormatFeatureFlagBits features
+)
+{
+    auto physicalDevice = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
+
+    for (vk::Format format : formats)
+    {
+        auto props = physicalDevice.getFormatProperties(format);
+
+        if (tiling == vk::ImageTiling::eLinear
+            && (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        else if (tiling == vk::ImageTiling::eOptimal
+            && (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("Failed to find supported format");
+}
+
+vk::Format FindDepthFormat()
+{
+    return FindSupportedFormat(
+        { vk::Format::eD32Sfloat , vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
+        vk::ImageTiling::eOptimal,
+        vk::FormatFeatureFlagBits::eDepthStencilAttachment
+    );
+}
+
+bool HasStencilComponent(vk::Format format)
+{
+    return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+}

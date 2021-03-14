@@ -48,9 +48,14 @@ private:
     std::vector<vk::Image> swapChainImages;
     std::vector<vk::UniqueImageView> imageViews;
 
-    // Barries
+    // Barriers
     std::vector<vk::UniqueSemaphore> imageAvailableSemaphores;
     std::vector<vk::UniqueSemaphore> renderFinishedSemaphores;
     std::vector<vk::UniqueFence> inFlightFences;
     std::vector<vk::Fence> imagesInFlight;
+
+    // Depth buffer related
+    vk::UniqueImage depthImage;
+    vk::UniqueDeviceMemory depthImageMemory;
+    vk::UniqueImageView depthImageView;
 };

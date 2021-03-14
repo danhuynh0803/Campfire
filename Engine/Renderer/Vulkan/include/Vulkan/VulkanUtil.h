@@ -11,3 +11,27 @@ vk::CommandBuffer BeginSingleTimeCommands();
 void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
 void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+
+vk::UniqueImage CreateUniqueImage(
+    uint32_t width, uint32_t height,
+    vk::Format format,
+    vk::ImageTiling tiling,
+    vk::ImageUsageFlags usage
+);
+
+vk::UniqueDeviceMemory CreateUniqueDeviceMemory(
+    vk::Image image,
+    vk::MemoryPropertyFlags properties
+);
+
+vk::UniqueImageView CreateUniqueImageView(vk::Image image, vk::Format format, vk::ImageAspectFlagBits aspectFlags);
+
+vk::Format FindSupportedFormat(
+    const std::vector<vk::Format>& formats,
+    vk::ImageTiling tiling,
+    vk::FormatFeatureFlagBits features
+);
+
+vk::Format FindDepthFormat();
+
+bool HasStencilComponent(vk::Format format);

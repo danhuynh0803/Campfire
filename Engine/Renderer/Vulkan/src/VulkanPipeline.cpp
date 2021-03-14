@@ -47,200 +47,8 @@ struct PipelineVertex
 // Also causes a crash for some reason when trying to set pipeline layout
 void VulkanPipeline::RecreatePipeline()
 {
-    // Create shader modules
-    VulkanShader vert(SHADERS + "/vert.spv");
-    VulkanShader frag(SHADERS + "/frag.spv");
-
-    // Create pipeline
-    vk::PipelineShaderStageCreateInfo vertShaderStageInfo;
-    vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-    vertShaderStageInfo.module = vert.GetShaderModule();
-    vertShaderStageInfo.pName = "main";
-
-    vk::PipelineShaderStageCreateInfo fragShaderStageInfo;
-    fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-    fragShaderStageInfo.module = frag.GetShaderModule();
-    fragShaderStageInfo.pName = "main";
-
-    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-    // Setup fixed function part of pipeline
-
-    // Vertex input
-    // Binds = spacing btw data and whether data is per-vertex or per-instance
-    // Attribute descriptions = type of the attribs passed to vertex shader,
-    // including which binding to load them from and at which offset
-
-    auto bindingDescription = PipelineVertex::GetBindingDescription();
-    auto attributeDescriptions = PipelineVertex::GetAttributeDescriptions();
-
-    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
-    vertexInputStateCreateInfo.flags = vk::PipelineVertexInputStateCreateFlags();
-    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-    vertexInputStateCreateInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-    vertexInputStateCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-
-    // Input assembly
-    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
-    inputAssemblyStateCreateInfo.flags = vk::PipelineInputAssemblyStateCreateFlags();
-    inputAssemblyStateCreateInfo.topology = vk::PrimitiveTopology::eTriangleList;
-    inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
-
-    // Setup viewports and scissor rect
-    auto swapChain = VulkanContext::Get()->mSwapChain;
-    auto swapChainExtent = swapChain->GetExtent();
-    vk::Viewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = static_cast<float>(swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    vk::Rect2D scissors;
-    scissors.offset = {0, 0};
-    scissors.extent = swapChainExtent;
-
-    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo;
-    viewportStateCreateInfo.flags = vk::PipelineViewportStateCreateFlags();
-    viewportStateCreateInfo.viewportCount = 1;
-    viewportStateCreateInfo.pViewports = &viewport;
-    viewportStateCreateInfo.scissorCount = 1;
-    viewportStateCreateInfo.pScissors = &scissors;
-
-    // Setup rasterizer
-    // Note: depthClampEnable: if true, fragments beyond
-    // near and far planes will be clamped instead of being discard
-    vk::PipelineRasterizationStateCreateInfo rasterizationStateCreateInfo;
-    rasterizationStateCreateInfo.flags = vk::PipelineRasterizationStateCreateFlags();
-    rasterizationStateCreateInfo.depthClampEnable = VK_FALSE;
-    rasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
-    rasterizationStateCreateInfo.polygonMode = vk::PolygonMode::eFill;
-    rasterizationStateCreateInfo.cullMode = vk::CullModeFlagBits::eNone;
-    rasterizationStateCreateInfo.frontFace = vk::FrontFace::eCounterClockwise;
-    rasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
-    rasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f;
-    rasterizationStateCreateInfo.depthBiasClamp = 0.0f;
-    rasterizationStateCreateInfo.depthBiasSlopeFactor = 0.0f;
-    rasterizationStateCreateInfo.lineWidth = 1.0f;
-
-    // Enable multisampling
-    vk::PipelineMultisampleStateCreateInfo multisampleCreateInfo;
-    multisampleCreateInfo.flags = vk::PipelineMultisampleStateCreateFlags();
-    multisampleCreateInfo.rasterizationSamples = vk::SampleCountFlagBits::e1;
-    multisampleCreateInfo.sampleShadingEnable = VK_FALSE;
-    multisampleCreateInfo.minSampleShading = 1.0f;
-    multisampleCreateInfo.pSampleMask = nullptr;
-    multisampleCreateInfo.alphaToCoverageEnable = VK_FALSE;
-    multisampleCreateInfo.alphaToOneEnable = VK_FALSE;
-
-    // TODO Setup depth and stencil testing
-    vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo
-    {
-    };
-
-    // Setup color blending
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
-    colorBlendAttachment.blendEnable = VK_FALSE;
-    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;
-    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero;
-    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
-    colorBlendAttachment.colorWriteMask =
-          vk::ColorComponentFlagBits::eR
-        | vk::ColorComponentFlagBits::eG
-        | vk::ColorComponentFlagBits::eB
-        | vk::ColorComponentFlagBits::eA
-    ;
-
-    vk::PipelineColorBlendStateCreateInfo colorBlendCreateInfo;
-    colorBlendCreateInfo.flags = vk::PipelineColorBlendStateCreateFlags();
-    colorBlendCreateInfo.logicOpEnable = VK_FALSE;
-    colorBlendCreateInfo.logicOp = vk::LogicOp::eCopy;
-    colorBlendCreateInfo.attachmentCount = 1;
-    colorBlendCreateInfo.pAttachments = &colorBlendAttachment;
-
-    // Setup dynamic state - these can be changed without recreating the pipeline
-    std::vector<vk::DynamicState> dynamicStates =
-    {
-        vk::DynamicState::eViewport,
-        vk::DynamicState::eLineWidth,
-    };
-
-    vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    dynamicStateCreateInfo.flags = vk::PipelineDynamicStateCreateFlags();
-    dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-    dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
-
-    // ----------- Setup Renderpasses ---------------------
-
-    // Setup loadOp and StoreOp which determines what to do
-    // with the data in the attachment before rendering and
-    // after rendering
-    vk::AttachmentDescription colorAttachment;
-    colorAttachment.format = VulkanContext::Get()->mSwapChain->GetFormat();
-    colorAttachment.samples = vk::SampleCountFlagBits::e1;
-    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear; // Clear the values to a constant at start
-    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore; // Rendered contents store in memory and can be read later
-    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
-
-    // Setup subpasses
-    vk::AttachmentReference colorAttachmentRef;
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
-
-    vk::SubpassDescription subpass;
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-
-    // Setup subpass dependencies
-    vk::SubpassDependency subpassDependency;
-    subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    subpassDependency.dstSubpass = 0;
-    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
-    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-
-    vk::RenderPassCreateInfo renderPassCreateInfo;
-    renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
-    renderPassCreateInfo.attachmentCount = 1;
-    renderPassCreateInfo.pAttachments = &colorAttachment;
-    renderPassCreateInfo.subpassCount = 1;
-    renderPassCreateInfo.pSubpasses = &subpass;
-    renderPassCreateInfo.dependencyCount = 1;
-    renderPassCreateInfo.pDependencies = &subpassDependency;
-
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    renderPass = device.createRenderPassUnique(renderPassCreateInfo);
-
-    // Create Graphics pipeline
-    vk::GraphicsPipelineCreateInfo pipelineCreateInfo;
-    pipelineCreateInfo.flags = vk::PipelineCreateFlags();
-    pipelineCreateInfo.stageCount = 2;
-    pipelineCreateInfo.pStages = shaderStages;
-    pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
-    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
-    pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
-    pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
-    pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
-    pipelineCreateInfo.pDepthStencilState = nullptr;
-    pipelineCreateInfo.pColorBlendState = &colorBlendCreateInfo;
-    pipelineCreateInfo.pDynamicState = nullptr;
-    pipelineCreateInfo.layout = pipelineLayout.get();
-    pipelineCreateInfo.renderPass = renderPass.get();
-    pipelineCreateInfo.subpass = 0;
-    pipelineCreateInfo.basePipelineHandle = nullptr;
-    pipelineCreateInfo.basePipelineIndex = -1;
-
-    pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    // TODO
+    return;
 }
 
 VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
@@ -334,10 +142,17 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     multisampleCreateInfo.alphaToCoverageEnable = VK_FALSE;
     multisampleCreateInfo.alphaToOneEnable = VK_FALSE;
 
-    // TODO Setup depth and stencil testing
-    vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo
-    {
-    };
+    // Depth and stencil operators
+    vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo {};
+    depthStencilCreateInfo.depthTestEnable = true;
+    depthStencilCreateInfo.depthWriteEnable = true;
+    depthStencilCreateInfo.depthCompareOp = vk::CompareOp::eLess;
+    depthStencilCreateInfo.depthBoundsTestEnable = false;
+    depthStencilCreateInfo.minDepthBounds = 0.0f;
+    depthStencilCreateInfo.maxDepthBounds = 1.0f;
+    depthStencilCreateInfo.stencilTestEnable = false;
+    depthStencilCreateInfo.front = {};
+    depthStencilCreateInfo.back = {};
 
     // Setup color blending
     vk::PipelineColorBlendAttachmentState colorBlendAttachment;
@@ -498,7 +313,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
     pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
     pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
-    pipelineCreateInfo.pDepthStencilState = nullptr;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
     pipelineCreateInfo.pColorBlendState = &colorBlendCreateInfo;
     pipelineCreateInfo.pDynamicState = nullptr;
     pipelineCreateInfo.layout = pipelineLayout.get();
