@@ -24,6 +24,9 @@ SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
             case RendererAPI::API::OpenGL:
                 mCachedTextureMap.emplace(path, CreateSharedPtr<OpenGLTexture2D>(path));
                 break;
+                // TODO
+            case RendererAPI::API::Vulkan:
+                return nullptr;
         }
     }
     return mCachedTextureMap.at(path);
