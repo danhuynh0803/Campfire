@@ -95,39 +95,10 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
                 mainGameCamera = selectedCamera;
                 auto& transformComponent = group.get<TransformComponent>(entity);
 
-                auto relationshipComponent = group.get<RelationshipComponent>(entity);
-                // If entity is a child, then apply parents transform to it
-                if (relationshipComponent.parent != entt::null)
-                {
-                    Entity parent(relationshipComponent.parent, activeScene.get());
-                    auto parentTransform = parent.GetComponent<TransformComponent>();
+                mainGameCamera->pos = transformComponent.position;
+                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
+                mainGameCamera->SetProjection();
 
-                    glm::mat4 transform = glm::mat4(1.0f);
-                    transform = glm::mat4(1.0f);
-                    glm::vec3 position = transformComponent.position + parentTransform.position;
-                    glm::vec3 eulerAngles = transformComponent.euler;
-                    glm::vec3 scale = transformComponent.scale * parentTransform.scale;
-
-                    glm::vec3 parentEulerAngles = parentTransform.euler;
-                    glm::quat parentRotation = glm::quat(
-                        glm::vec3(
-                            glm::radians(parentEulerAngles.x),
-                            glm::radians(parentEulerAngles.y),
-                            glm::radians(parentEulerAngles.z)
-                        )
-                    );
-                    glm::vec3 rotationPosition = parentTransform.position + (parentRotation * (position - parentTransform.position));
-
-                    mainGameCamera->pos = rotationPosition;
-                    mainGameCamera->RecalculateViewMatrix(rotationPosition, transformComponent.euler + parentEulerAngles);
-                    mainGameCamera->SetProjection();
-                }
-                else
-                {
-                    mainGameCamera->pos = transformComponent.position;
-                    mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
-                    mainGameCamera->SetProjection();
-                }
                 break;
             }
         }
