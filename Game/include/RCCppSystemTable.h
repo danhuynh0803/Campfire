@@ -5,6 +5,9 @@
 
 static SystemTable*& g_SystemTable = PerModuleInterface::g_pSystemTable;
 
+//We want pure virtual interfaces here
+//Don't neeed to link as much
+//https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Using-the-SystemTable-to-pass-interfaces-to-Runtime-Compiled-Code
 struct SystemTable
 {
     IRuntimeObjectSystem* runtimeObjectSystem = nullptr;

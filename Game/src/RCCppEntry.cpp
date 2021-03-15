@@ -1,4 +1,6 @@
 #include <iostream>
+//#include<XX.h>
+//RUNTIME_MODIFIABLE_INCLUDE;
 #include "RuntimeObjectSystem/IObject.h"
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/IObjectFactorySystem.h"
@@ -12,19 +14,18 @@
 #include "Renderer/SceneRenderer.h"
 #include "Scene/Component.h"
 
+//https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Using-libraries-from-runtime-modifiable-classes
 #include "RuntimeObjectSystem/RuntimeLinkLibrary.h"
 
+RUNTIME_COMPILER_LINKLIBRARY("assimp-vc142-mtd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("luad.lib");
 RUNTIME_COMPILER_LINKLIBRARY("imguid.lib");
 RUNTIME_COMPILER_LINKLIBRARY("gladd.lib");
-
 RUNTIME_COMPILER_LINKLIBRARY("Engined.lib");
 RUNTIME_COMPILER_LINKLIBRARY("tracyd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("glfw3d.lib");
-
 RUNTIME_COMPILER_LINKLIBRARY("fmod_vc.lib");
 RUNTIME_COMPILER_LINKLIBRARY("fmodstudio_vc.lib");
-
 RUNTIME_COMPILER_LINKLIBRARY("Bullet2FileLoaderd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("Bullet3Collisiond.lib");
 RUNTIME_COMPILER_LINKLIBRARY("Bullet3Commond.lib");
@@ -35,7 +36,6 @@ RUNTIME_COMPILER_LINKLIBRARY("BulletCollisiond.lib");
 RUNTIME_COMPILER_LINKLIBRARY("BulletInverseDynamicsd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("BulletSoftBodyd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("LinearMathd.lib");
-RUNTIME_COMPILER_LINKLIBRARY("assimp-vc142-mtd.lib");
 
 #ifdef _WIN32
 RUNTIME_COMPILER_LINKLIBRARY("shell32.lib");//ShellExecuteA
@@ -44,6 +44,7 @@ RUNTIME_COMPILER_LINKLIBRARY("gdi32.lib");//glfw
 RUNTIME_COMPILER_LINKLIBRARY("Advapi32.lib");//tracy
 #endif
 //the complier asked for these source files during the run time for some reason
+//https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Runtime-source-dependencies
 #include "RuntimeObjectSystem/RuntimeSourceDependency.h"
 RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/Dynamics/btRigidBody", ".cpp");
 RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/Dynamics/btDiscreteDynamicsWorld", ".cpp");
@@ -51,69 +52,20 @@ RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/
 RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint", ".cpp");
 RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/ConstraintSolver/btTypedConstraint", ".cpp");
 RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/ConstraintSolver/btConeTwistConstraint", ".cpp");
-//For Windows
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Platform/Windows/src/Windows/WindowsFileSystem", ".cpp");
 
 //RUNTIME_COMPILER_LINKLIBRARY("fmodL_vc.lib");
 //RUNTIME_COMPILER_LINKLIBRARY("fmodLibd.lib");
 //RUNTIME_COMPILER_LINKLIBRARY("zlibstaticd.lib");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/glfw/src/window", ".c"); //
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/glfw/src/init", ".c");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Core/src/Core/Application", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Core/src/Core/FileSystem", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Core/src/Core/Input", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Core/src/Core/Log", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Core/src/Core/LogWidget", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Core/src/Core/ResourceManager", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scene/src/Scene", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scene/src/Camera", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scene/src/Entity", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scene/src/SceneManager", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scene/src/Skybox", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Buffer", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Material", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Mesh", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Renderer", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Renderer2D", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/RendererAPI", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/RenderCommand", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/SceneRenderer", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Shader", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/Texture", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/src/Renderer/VertexArray", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/OpenGl/src/OpenGL/OpenGLBuffer", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/OpenGl/src/OpenGL/OpenGLRendererAPI", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/OpenGl/src/OpenGL/OpenGLShader", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/OpenGl/src/OpenGL/OpenGLTexture", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Renderer/OpenGl/src/OpenGL/OpenGLVertexArray", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/LuaScript", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/LuaManager", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/LuaUtility", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaEntity", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaAudioSource", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaCamera", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaCollider", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaGlobal", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaInput", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaRigidbody", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaTag", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaTransform", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Scripting/src/Lua/LuaVector", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Particles/src/ParticleSystem", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Physics/src/BulletDebugDrawer", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Physics/src/Collider", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Physics/src/PhysicsManager", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Physics/src/Rigidbody", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Physics/src/Trigger", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Audio/src/AudioSource", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Audio/src/AudioSystem", ".cpp");
-//RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Engine/Audio/src/FmodImpl", ".cpp");
 
 static int currDisplay = 0;
 enum InterfaceIDEntryEnum
 {
     IID_IRCCPP_ENTRY = IID_ENDInterfaceID
 };
+
+//This is the runtime modifiable class
+//Ideally I think we would have tons of these, and not just one
+//https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Runtime-Modifiable-Classes
 
 struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
 {
@@ -130,7 +82,7 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
 
     void Update(float dt) override
     {
-        int ssrea = 1225;
+        //int ssrea = 1225;
         activeScene->OnUpdate(dt);
 
         // Setup game camera
@@ -193,5 +145,5 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
     {
     }
 };
-
+//REGISTERCLASS(RCCppEntry)
 REGISTERSINGLETON(RCCppEntry, true);

@@ -6,7 +6,7 @@ StdioLogSystem RCCpp::g_Logger;
 bool RCCpp::Init()
 {
     systemTable.runtimeObjectSystem = new RuntimeObjectSystem;
-    systemTable.pLogger = &g_Logger;
+    systemTable.pLogger = &g_Logger; //RCCpComplier logger(customizable) 
 
     if (!systemTable.runtimeObjectSystem->Initialise(&g_Logger, &systemTable))
     {
@@ -19,13 +19,12 @@ bool RCCpp::Init()
 
     //Complier settings
     {
-
 #ifdef _WIN32
         //entt needs C++17 or higher support
-        //for msvc
+        //for msvc,cl
+        //https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=msvc-160
         systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("/std:c++latest");
-        //systemTable.runtimeObjectSystem->SetAdditionalLinkOptions("shell32.lib");
-        //systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("/std:c++latest /DGLFW_WIN32"");
+        //systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("/std:c++latest /DXX");  // #define _XX matches with /DXX
 #else
         //for gcc or clang
         systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("-std:c++17");
@@ -34,11 +33,9 @@ bool RCCpp::Init()
         FileSystemUtils::Path basePath = systemTable.runtimeObjectSystem->FindFile(__FILE__);
 
         //.lib
-        FileSystemUtils::Path LibDir = basePath.ParentPath().ParentPath().ParentPath() / "Build" / "lib" / "Debug";
-        //FileSystemUtils::Path FmodLibDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "fmod" / "Windows" / "core" / "lib";
+        FileSystemUtils::Path LibDir = basePath.ParentPath().ParentPath().ParentPath() / "Build" / "lib" / "Debug"; //our .libs
         systemTable.runtimeObjectSystem->AddLibraryDir(LibDir.c_str());
-        systemTable.runtimeObjectSystem->AddLibraryDir(basePath.ParentPath().ParentPath().c_str());
-        //systemTable.runtimeObjectSystem->AddLibraryDir(FmodLibDir.c_str());
+        systemTable.runtimeObjectSystem->AddLibraryDir(basePath.ParentPath().ParentPath().c_str());//this is where i put assimp lib for now
         
         //Not sure how these works
         //FileSystemUtils::Path SceneSourceDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Scene" / "src";
