@@ -1,5 +1,7 @@
 #include <Vulkan/vulkan.hpp>
 
+namespace vkUtil {
+
 uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
 void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
@@ -39,3 +41,5 @@ vk::Format FindSupportedFormat(
 vk::Format FindDepthFormat();
 
 bool HasStencilComponent(vk::Format format);
+
+}

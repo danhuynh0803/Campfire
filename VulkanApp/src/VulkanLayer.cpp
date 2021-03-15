@@ -192,6 +192,7 @@ void VulkanLayer::OnUpdate(float dt)
 
 void VulkanLayer::OnImGuiRender()
 {
+
 }
 
 void VulkanLayer::OnEvent(Event& event)

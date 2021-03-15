@@ -31,6 +31,9 @@ public:
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
+    SharedPtr<VulkanPipeline> GetPipeline() { return mGraphicsPipeline; }
+    SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
+
 private:
     vk::UniqueCommandPool commandPool;
     vk::UniqueInstance CreateInstance();
@@ -39,7 +42,6 @@ private:
     GLFWwindow* windowHandle;
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
-public:
     SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanPipeline> mGraphicsPipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;

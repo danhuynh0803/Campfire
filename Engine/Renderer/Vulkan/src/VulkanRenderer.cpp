@@ -4,10 +4,10 @@
 
 void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
 {
-    auto graphicsPipeline = VulkanContext::Get()->mGraphicsPipeline;
-    auto commandBuffer = VulkanContext::Get()->mSwapChain->GetCurrentCommandBuffer();
-    auto framebuffer = VulkanContext::Get()->mSwapChain->GetCurrentFramebuffer();
-    uint32_t imageIndex = VulkanContext::Get()->mSwapChain->GetCurrentImageIndex();
+    auto graphicsPipeline = VulkanContext::Get()->GetPipeline();
+    auto commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentCommandBuffer();
+    auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentFramebuffer();
+    uint32_t imageIndex = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
 
     vk::CommandBufferBeginInfo beginInfo;
         // TODO: investigate if simulataneous use is faster or slower?
@@ -15,8 +15,8 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     beginInfo.pInheritanceInfo = nullptr;
 
     vk::Extent2D extent;
-    extent.width = VulkanContext::Get()->mSwapChain->GetWidth();
-    extent.height = VulkanContext::Get()->mSwapChain->GetHeight();
+    extent.width = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    extent.height = VulkanContext::Get()->GetSwapChain()->GetHeight();
 
     vk::Rect2D renderArea;
     renderArea.offset = {0, 0};

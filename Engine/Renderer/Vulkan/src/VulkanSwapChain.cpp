@@ -145,7 +145,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     for (auto image : swapChainImages)
     {
         imageViews.emplace_back(
-            CreateUniqueImageView(
+            vkUtil::CreateUniqueImageView(
                 image,
                 swapChainImageFormat,
                 vk::ImageAspectFlagBits::eColor
@@ -153,9 +153,9 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         );
     }
 
-    vk::Format depthFormat = FindDepthFormat();
+    vk::Format depthFormat = vkUtil::FindDepthFormat();
     // Depth image
-    depthImage = CreateUniqueImage(
+    depthImage = vkUtil::CreateUniqueImage(
         GetWidth(),
         GetHeight(),
         depthFormat,
@@ -163,21 +163,21 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         vk::ImageUsageFlagBits::eDepthStencilAttachment
     );
 
-    depthImageMemory = CreateUniqueDeviceMemory(
+    depthImageMemory = vkUtil::CreateUniqueDeviceMemory(
         depthImage.get(),
         vk::MemoryPropertyFlagBits::eDeviceLocal
     );
     device.bindImageMemory(depthImage.get(), depthImageMemory.get(), 0);
 
     // Depth imageview
-    depthImageView = CreateUniqueImageView(
+    depthImageView = vkUtil::CreateUniqueImageView(
         depthImage.get(),
         depthFormat,
         vk::ImageAspectFlagBits::eDepth
     );
 
     // Transition depth image to depth stencile optimal layout
-    SwitchImageLayout(
+    vkUtil::SwitchImageLayout(
         depthImage.get(),
         depthFormat,
         vk::ImageLayout::eUndefined,
@@ -248,7 +248,7 @@ void VulkanSwapChain::Present()
     graphicsQueue.submit(submitInfo, inFlightFences[mCurrentFrame].get());
 
     // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
-    SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
+    vkUtil::SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
 
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
@@ -279,7 +279,7 @@ void VulkanSwapChain::CreateFramebuffers()
 
         vk::FramebufferCreateInfo framebufferCreateInfo;
         framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
-        framebufferCreateInfo.renderPass = VulkanContext::Get()->mGraphicsPipeline->GetVulkanRenderPass();
+        framebufferCreateInfo.renderPass = VulkanContext::Get()->GetPipeline()->GetVulkanRenderPass();
         framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferCreateInfo.pAttachments = attachments.data();
         framebufferCreateInfo.width = swapChainExtent.width;

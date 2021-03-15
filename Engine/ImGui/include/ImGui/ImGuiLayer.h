@@ -1,5 +1,4 @@
-#ifndef IMGUI_LAYER_H
-#define IMGUI_LAYER_H
+#pragma once
 
 #include "Core/Layer.h"
 
@@ -38,5 +37,3 @@ public:
 private:
     static void Theming(ImVec3 color_for_text, ImVec3 color_for_head, ImVec3 color_for_area, ImVec3 color_for_body, ImVec3 color_for_pops);
 };
-
-#endif // IMGUI_LAYER_H

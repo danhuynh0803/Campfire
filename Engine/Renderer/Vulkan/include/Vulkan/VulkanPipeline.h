@@ -17,6 +17,7 @@ public:
     vk::Pipeline GetVulkanPipeline() { return pipeline.get(); }
     vk::PipelineLayout GetVulkanPipelineLayout() { return pipelineLayout.get(); }
     vk::RenderPass GetVulkanRenderPass() { return renderPass.get(); }
+    vk::RenderPass GetImGuiRenderPass() { return mImGuiRenderPass.get(); }
 
     // TODO: figure out a better way to bind the descriptorSet during draw call
     // maybe have this handled behind the scenes in renderer?
@@ -30,4 +31,5 @@ private:
     vk::UniqueDescriptorSetLayout descriptorSetLayout;
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
+    vk::UniqueRenderPass mImGuiRenderPass;
 };

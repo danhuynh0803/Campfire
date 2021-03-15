@@ -13,7 +13,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
 
     vk::BufferUsageFlags stagingUsage = vk::BufferUsageFlagBits::eTransferSrc;
     vk::MemoryPropertyFlags stagingMemoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-    CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
+    vkUtil::CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
 
     // Copy data over
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -23,9 +23,9 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
 
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
+    vkUtil::CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
 
-    CopyBuffer(stagingBuffer, buffer, size);
+    vkUtil::CopyBuffer(stagingBuffer, buffer, size);
 }
 
 //=====================================================================
@@ -39,7 +39,7 @@ VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
     uint32_t size = sizeof(uint32_t) * count;
     vk::BufferUsageFlags stagingUsage = vk::BufferUsageFlagBits::eTransferSrc;
     vk::MemoryPropertyFlags stagingMemoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-    CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
+    vkUtil::CreateBuffer(size, stagingUsage, stagingMemoryProperties, stagingBuffer, stagingBufferMemory);
 
     // Copy data over
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -49,9 +49,9 @@ VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
 
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
+    vkUtil::CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
 
-    CopyBuffer(stagingBuffer, buffer, size);
+    vkUtil::CopyBuffer(stagingBuffer, buffer, size);
 }
 
 //=====================================================================
@@ -62,7 +62,7 @@ VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size, vk::DescriptorSet descri
 {
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eUniformBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-    CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
+    vkUtil::CreateBuffer(size, usage, memoryProperties, buffer, bufferMemory);
 }
 
 void VulkanUniformBuffer::Bind() const

@@ -96,7 +96,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
 
     // Setup viewports and scissor rect
-    auto swapChain = VulkanContext::Get()->mSwapChain;
+    auto swapChain = VulkanContext::Get()->GetSwapChain();
     auto swapChainExtent = swapChain->GetExtent();
     vk::Viewport viewport;
     viewport.x = 0.0f;
@@ -222,7 +222,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     descriptorSetLayout = device.createDescriptorSetLayoutUnique(layoutInfo);
-    auto swapChainImages = VulkanContext::Get()->mSwapChain->GetImages();
+    auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
     { // Creating descriptor pools
         std::array<vk::DescriptorPoolSize, 2> poolSizes {};
@@ -267,20 +267,20 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // ==============================
     // Color Attachment
     vk::AttachmentDescription colorAttachment;
-    colorAttachment.format = VulkanContext::Get()->mSwapChain->GetFormat();
+    colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
     colorAttachment.samples = vk::SampleCountFlagBits::e1;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear; // Clear the values to a constant at start
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore; // Rendered contents store in memory and can be read later
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
     // ==============================
 
     // ==============================
     // Depth Attachment
     vk::AttachmentDescription depthAttachment;
-    depthAttachment.format = FindDepthFormat();
+    depthAttachment.format = vkUtil::FindDepthFormat();
     depthAttachment.samples = vk::SampleCountFlagBits::e1;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;

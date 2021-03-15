@@ -2,6 +2,8 @@
 #include "Vulkan/VulkanContext.h"
 #include "Core/Log.h"
 
+namespace vkUtil {
+
 uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
 
     vk::PhysicalDeviceMemoryProperties memProperties = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice().getMemoryProperties();
@@ -28,13 +30,9 @@ void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryProp
     // Set memory requirements
     vk::MemoryRequirements memoryReqs = device.getBufferMemoryRequirements(buffer.get());
 
-    vk::MemoryAllocateInfo allocInfo
-    {
-        memoryReqs.size,
-        FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags),
-        //.allocationSize = memoryReqs.size,
-        //.memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags),
-    };
+    vk::MemoryAllocateInfo allocInfo;
+    allocInfo.allocationSize = memoryReqs.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags);
 
     bufferMemory = device.allocateMemoryUnique(allocInfo);
 
@@ -272,4 +270,6 @@ vk::Format FindDepthFormat()
 bool HasStencilComponent(vk::Format format)
 {
     return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+}
+
 }
