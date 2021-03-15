@@ -308,13 +308,19 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
         return;
     }
 
-    char notify[1024];
+    char notify[1024]; //must be less than 64 KB
     ZeroMemory(notify, sizeof(notify));
     bool reading = true;
     bool bPending = false;
     OVERLAPPED overlap{0};
     DWORD dwBytesReturned = 0;
     DWORD dwOverlapBytesReturned = 0;
+
+    //Be sure to set the hEvent member of the OVERLAPPED structure to a unique event.
+    overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    if (!overlap.hEvent) {
+        //assert
+    }
 
     while (reading)
     {
@@ -331,15 +337,17 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
         else if (GetLastError() == ERROR_NOTIFY_ENUM_DIR) continue;
         else if (!bPending)
         {
-            DWORD dwErr = GetLastError();
-            //CrAssert(0, CrWin32ErrorString());
-            break;
+            //assert
         }
         else
         {
+            //For asynchronous completion
             while (reading)
             {
-                if (GetOverlappedResult(hDirectory, &overlap, &dwBytesReturned, false))
+                //make sure don't call ReadDirectoryChangesW() again 
+                //until GetOverlappedResult() has reported the previous I/O operation has completed first.
+                //completed = !bPending
+                if (GetOverlappedResult(hDirectory, &overlap, &dwBytesReturned, FALSE))
                 {
                     bPending = false;
                     if (dwBytesReturned != 0)
@@ -369,19 +377,22 @@ void WindowsFileSystem::RunFileDirectoryWatcher(const char* watchDirectory)
                                 //std::string fullFileName = watchDirectory + "/" + WSTRToStr(fileName);
                                 //call callback here
                             }
-                            if (pNotification->NextEntryOffset == 0) break;
-                            //std::vector<BYTE> buffer(1024*64);
+                            if (pNotification->NextEntryOffset == 0) break; //no more notification to read
+
+                            //read next memory region
                             pNotification = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<char*>(pNotification) + pNotification->NextEntryOffset);
-                        
-                        } while (true);
+                        }
+                        while (true);
                     }
+                    break;
                 }
                 if (GetLastError() != ERROR_IO_INCOMPLETE)
                 {
-                    //CrAssert(0, CrWin32ErrorString());
+                    //assert
                 }
                 Sleep(10);
             }
+
             if (bPending)
             {
                 CancelIo(hDirectory);
