@@ -14,6 +14,18 @@ target_sources(
         EntryPoint.h
 )
 
+set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
+if(MSVC)
+    add_custom_command(
+        TARGET Engine
+        POST_BUILD COMMAND 
+            ${CMAKE_COMMAND} -E copy 
+                ${FMOD_DIR}/Windows/core/lib/fmod_vc.lib 
+                ${FMOD_DIR}/Windows/studio/lib/fmodstudio_vc.lib 
+            ${CMAKE_BINARY_DIR}/lib/Debug
+    )
+endif()
+
 if(NOT MSVC)
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
