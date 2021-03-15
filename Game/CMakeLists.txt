@@ -45,14 +45,14 @@ target_link_libraries(
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")
 set(FT_DIR "${CMAKE_SOURCE_DIR}/Vendor/freetype")
 if(MSVC)
-#    add_custom_command(
-#        TARGET Game
-#        POST_BUILD COMMAND
-#            ${CMAKE_COMMAND} -E copy
-#                ${FMOD_DIR}/Windows/core/lib/fmod.dll
-#               ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll
-#            ${CMAKE_CURRENT_BINARY_DIR}
-#    )
+    add_custom_command(
+        TARGET Game
+        POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy
+                ${FMOD_DIR}/Windows/core/lib/fmod.dll
+               ${FMOD_DIR}/Windows/studio/lib/fmodstudio.dll
+            ${CMAKE_CURRENT_BINARY_DIR}
+    )
 
 #    add_custom_command(
 #        TARGET Game
