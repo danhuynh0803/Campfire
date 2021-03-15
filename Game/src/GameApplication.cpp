@@ -15,7 +15,7 @@ public:
 
     virtual void OnInit() override
     {
-        PushLayer(new GameLayer());
+        //PushLayer(new GameLayer());
         RCCpp::Init();
     }
     virtual void Update(float dt) override

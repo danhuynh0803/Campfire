@@ -296,8 +296,8 @@ void LuaScript::LuaPushVectorTables()
     }
 
     {
-        char* vec2MetaTableName = "LuaVec2MetaTable";
-        luaL_newmetatable(L, vec2MetaTableName);
+
+        luaL_newmetatable(L, "LuaVec2MetaTable");
         lua_pushstring(L, "__add");
         lua_pushcfunction(L, LuaVector::LuaVec2Add);
         lua_settable(L, -3);
@@ -308,8 +308,7 @@ void LuaScript::LuaPushVectorTables()
     }
 
     {
-        char* vec3MetaTableName = "LuaVec3MetaTable";
-        luaL_newmetatable(L, vec3MetaTableName);
+        luaL_newmetatable(L, "LuaVec3MetaTable");
         lua_pushstring(L, "__add");
         lua_pushcfunction(L, LuaVector::LuaVec3Add);
         lua_settable(L, -3);
@@ -320,8 +319,7 @@ void LuaScript::LuaPushVectorTables()
     }
 
     {
-        char* vec4MetaTableName = "LuaVec4MetaTable";
-        luaL_newmetatable(L, vec4MetaTableName);
+        luaL_newmetatable(L, "LuaVec4MetaTable");
         lua_pushstring(L, "__add");
         lua_pushcfunction(L, LuaVector::LuaVec4Add);
         lua_settable(L, -3);
