@@ -8,6 +8,7 @@ set(EDITOR_HEADERS
     include/Widgets/TransformWidget.h
     include/Widgets/AssetBrowser.h
     include/EditorLayer.h
+    include/RCCpSystemTable.h
 )
 
 set(EDITOR_SRC
