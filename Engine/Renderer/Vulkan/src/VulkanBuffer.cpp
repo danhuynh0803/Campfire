@@ -6,7 +6,7 @@
 //=====================================================================
 //------------------------- Vertex Buffers ----------------------------
 //=====================================================================
-VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
+VulkanVertexBuffer::VulkanVertexBuffer(void* vertices, uint32_t size)
 {
     vk::UniqueBuffer stagingBuffer;
     vk::UniqueDeviceMemory stagingBufferMemory;
@@ -31,7 +31,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
 //=====================================================================
 //------------------------- Index Buffers -----------------------------
 //=====================================================================
-VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, uint32_t count)
+VulkanIndexBuffer::VulkanIndexBuffer(void* indices, uint32_t count)
 {
     vk::UniqueBuffer stagingBuffer;
     vk::UniqueDeviceMemory stagingBufferMemory;

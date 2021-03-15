@@ -41,31 +41,23 @@ void VulkanImGuiLayer::OnAttach()
 
     ImGui_ImplGlfw_InitForVulkan(window, true);
 
-    auto deviceImpl = VulkanContext::Get()->GetDevice();
-    ImGui_ImplVulkan_InitInfo initInfo{};
-    initInfo.Instance = VulkanContext::GetInstance();
-    initInfo.PhysicalDevice = deviceImpl->GetVulkanPhysicalDevice();
-    initInfo.Device = deviceImpl->GetVulkanDevice();
-    initInfo.QueueFamily = deviceImpl->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
-    initInfo.Queue = deviceImpl->GetGraphicsQueue();
-    initInfo.PipelineCache = nullptr; // TODO pass my pipeline here after I convert to pipelineCache
+    //auto deviceImpl = VulkanContext::Get()->GetDevice();
+    //ImGui_ImplVulkan_InitInfo initInfo{};
+    //initInfo.Instance = VulkanContext::GetInstance();
+    //initInfo.PhysicalDevice = deviceImpl->GetVulkanPhysicalDevice();
+    //initInfo.Device = deviceImpl->GetVulkanDevice();
+    //initInfo.QueueFamily = deviceImpl->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
+    //initInfo.Queue = deviceImpl->GetGraphicsQueue();
+    //initInfo.PipelineCache = mImGuiImpl->mPipelineCache.get();
+    //initInfo.DescriptorPool = mImGuiImpl->mDescriptorPool.get();
+    //initInfo.Allocator = nullptr;
+    //initInfo.MinImageCount = 2;
+    //initInfo.ImageCount = 1;
+    //initInfo.CheckVkResultFn = nullptr;
 
-    auto swapchainImpl = VulkanContext::Get()->GetSwapChain();
-    vk::DescriptorPoolCreateInfo poolInfo{};
-    uint32_t imageCount = static_cast<uint32_t>(swapchainImpl->GetImages().size());
-    poolInfo.maxSets = imageCount;
-    //poolInfo.poolSizeCount = 11;
-    //poolInfo.pPoolSizes = poolSizes;
+    //ImGui_ImplVulkan_Init(&initInfo, mImGuiImpl->GetImGuiRenderPass());
 
-    //vk::UniqueDescriptorPool descriptorPool = device.createDescriptorPoolUnique(poolInfo);
-    //initInfo.DescriptorPool = descriptorPool.get();
-    initInfo.Allocator = nullptr;
-    initInfo.MinImageCount = 2;
-    initInfo.ImageCount = imageCount;
-    initInfo.CheckVkResultFn = nullptr;
-
-
-    //ImGui_ImplVulkan_Init(&initInfo, pipelineImpl->GetImGuiRenderPass());
+    mImGuiImpl = CreateSharedPtr<VulkanImGuiImpl>();
 }
 
 void VulkanImGuiLayer::OnEvent(Event& e)
@@ -98,8 +90,12 @@ void VulkanImGuiLayer::Begin()
 void VulkanImGuiLayer::End()
 {
     ImGui::Render();
+
+    mImGuiImpl->UpdateBuffers();
+
     auto cmdBuffer = vkUtil::BeginSingleTimeCommands();
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
+        //ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
+        mImGuiImpl->DrawFrame(cmdBuffer);
     vkUtil::EndSingleTimeCommands(cmdBuffer);
 
     /*

@@ -10,12 +10,23 @@ public:
     VulkanImGuiImpl();
     //~VulkanImgui() = default;
 
-private:
     void InitResources();
+    void UpdateBuffers();
+    void DrawFrame(vk::CommandBuffer cmdBuffer);
 
-private:
+    struct PushConstBlock {
+        glm::vec2 scale;
+        glm::vec2 translate;
+    } mPushConstBlock;
+
+public:
+    uint32_t mVertexCount;
+    uint32_t mIndexCount;
+
     SharedPtr<VulkanVertexBuffer> mVertexBuffer;
     SharedPtr<VulkanIndexBuffer> mIndexBuffer;
+    //vk::UniqueBuffer mVertexBuffer;
+    //vk::UniqueBuffer mIndexBuffer;
 
     vk::UniqueImage mFontImage;
     vk::UniqueDeviceMemory mFontMemory;
@@ -25,11 +36,12 @@ private:
     vk::UniquePipelineCache mPipelineCache;
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
+    vk::UniqueRenderPass mRenderPass;
 
     vk::UniqueDescriptorPool mDescriptorPool;
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 
-    vk::Device* mDevicePtr;
+    vk::Device* mDevicePtr = nullptr;
 
 } typedef VulkanImGui;

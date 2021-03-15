@@ -2,6 +2,7 @@
 
 #include "Core/Layer.h"
 #include "ImGui/VulkanImGui.h"
+#include "ImGui/ImGuiLayer.h"
 
 class VulkanImGuiLayer : public Layer
 {
@@ -18,5 +19,5 @@ public:
     void End();   // End of frame
 
 private:
-    VulkanImGuiImpl* mImGuiImpl;
+    SharedPtr<VulkanImGuiImpl> mImGuiImpl = nullptr;
 };

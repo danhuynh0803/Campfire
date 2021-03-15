@@ -8,7 +8,7 @@ class VulkanVertexBuffer
 {
 public:
     //VulkanVertexBuffer(uint32_t size);
-    VulkanVertexBuffer(float* vertices, uint32_t size);
+    VulkanVertexBuffer(void* vertices, uint32_t size);
     //virtual ~VulkanVertexBuffer();
 
     //virtual void Bind() const override;
@@ -29,7 +29,7 @@ private:
 class VulkanIndexBuffer
 {
 public:
-    VulkanIndexBuffer(uint32_t* indices, uint32_t count);
+    VulkanIndexBuffer(void* indices, uint32_t count);
 
     vk::Buffer GetBuffer() { return buffer.get(); }
 

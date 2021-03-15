@@ -19,6 +19,7 @@
 //#include "Scripting/LuaManager.h"
 #include "Core/ProcessorInfo.h"
 #include "Core/RCCpp.h"
+#include "ImGui/VulkanImGuiLayer.h"
 
 Application* Application::instance = nullptr;
 
@@ -47,8 +48,8 @@ Application::Application(const ApplicationProps& props)
 
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
-    //imguiLayer = new ImGuiLayer();
-    //PushOverlay(imguiLayer);
+    imguiLayer = new VulkanImGuiLayer();
+    PushOverlay(imguiLayer);
 }
 
 Application::~Application()

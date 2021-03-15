@@ -99,7 +99,7 @@ void VulkanLayer::OnAttach()
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 
-    auto& descriptorSets = VulkanContext::Get()->mGraphicsPipeline->descriptorSets;
+    auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
     for (size_t i = 0; i < 3; ++i)
     {
@@ -166,7 +166,7 @@ void VulkanLayer::OnDetach()
 void VulkanLayer::OnUpdate(float dt)
 {
     // Current frame in flight
-    auto frameIdx = VulkanContext::Get()->mSwapChain->GetCurrentImageIndex();
+    auto frameIdx = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
 
     // Update camera
     cameraController.OnUpdate(dt);

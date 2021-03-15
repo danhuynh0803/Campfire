@@ -6,6 +6,91 @@
 
 VulkanImGuiImpl::VulkanImGuiImpl()
 {
+    InitResources();
+}
+
+void VulkanImGuiImpl::UpdateBuffers()
+{
+    ImDrawData* imDrawData = ImGui::GetDrawData();
+
+    vk::DeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+    vk::DeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+    if ((vertexBufferSize == 0) || (indexBufferSize == 0))
+    {
+        return;
+    }
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    // Update buffers only if vertex or index count has been changed compared to current buffer size
+    if ((mVertexBuffer == nullptr)
+        || (mVertexCount != imDrawData->TotalVtxCount)
+    ) {
+        mVertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
+        mVertexCount = imDrawData->TotalVtxCount;
+    }
+
+    if ((mIndexBuffer == nullptr)
+        || (mIndexCount != imDrawData->TotalIdxCount)
+    ) {
+        mIndexBuffer = CreateSharedPtr<VulkanIndexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
+        mIndexCount = imDrawData->TotalIdxCount;
+    }
+
+    // Upload data
+    //mVertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
+    //mIndexBuffer = CreateSharedPtr<VulkanIndexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
+}
+
+void VulkanImGuiImpl::DrawFrame(vk::CommandBuffer cmdBuffer)
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, 1, &mDescriptorSets.at(0).get(), 0, nullptr);
+    cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
+
+    vk::Viewport viewport = {
+        io.DisplaySize.x,   // width
+        io.DisplaySize.y,   // height
+        0.0f,               // minDepth
+        1.0f                // maxDepth
+    };
+    cmdBuffer.setViewport(0, 1, &viewport);
+
+    // UI scale and translate via push constants
+    mPushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+    mPushConstBlock.translate = glm::vec2(-1.0f);
+    cmdBuffer.pushConstants(mPipelineLayout.get(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstBlock), &mPushConstBlock);
+
+    // Render commands
+    ImDrawData* imDrawData = ImGui::GetDrawData();
+    int32_t vertexOffset = 0;
+    int32_t indexOffset = 0;
+
+    if (imDrawData->CmdListsCount > 0) {
+
+        VkDeviceSize offsets[1] = { 0 };
+        cmdBuffer.bindVertexBuffers(0, 1, &mVertexBuffer->GetBuffer(), offsets);
+        cmdBuffer.bindIndexBuffer(mIndexBuffer->GetBuffer(), 0, vk::IndexType::eUint16);
+
+        for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
+        {
+            const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+            for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++)
+            {
+                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+                vk::Rect2D scissorRect;
+                scissorRect.offset.x = std::max((int32_t)(pcmd->ClipRect.x), 0);
+                scissorRect.offset.y = std::max((int32_t)(pcmd->ClipRect.y), 0);
+                scissorRect.extent.width = (uint32_t)(pcmd->ClipRect.z - pcmd->ClipRect.x);
+                scissorRect.extent.height = (uint32_t)(pcmd->ClipRect.w - pcmd->ClipRect.y);
+                cmdBuffer.setScissor(0, 1, &scissorRect);
+                cmdBuffer.drawIndexed(pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+                indexOffset += pcmd->ElemCount;
+            }
+            vertexOffset += cmd_list->VtxBuffer.Size;
+        }
+    }
 }
 
 void VulkanImGuiImpl::InitResources()
@@ -26,6 +111,7 @@ void VulkanImGuiImpl::InitResources()
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst
     );
+
 
     // Allocate memory to image
     mFontMemory = vkUtil::CreateUniqueDeviceMemory(
@@ -124,7 +210,7 @@ void VulkanImGuiImpl::InitResources()
             { vk::DescriptorType::eCombinedImageSampler, 1},
         };
         vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
-        //descriptorPoolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+        descriptorPoolInfo.maxSets = 3;
         descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         descriptorPoolInfo.pPoolSizes = poolSizes.data();
         mDescriptorPool = device.createDescriptorPoolUnique(descriptorPoolInfo);
@@ -164,8 +250,9 @@ void VulkanImGuiImpl::InitResources()
         vk::WriteDescriptorSet writeDescriptorSet{};
         writeDescriptorSet.dstSet = mDescriptorSets.at(0).get();
         writeDescriptorSet.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        writeDescriptorSet.dstBinding = 1;
+        writeDescriptorSet.dstBinding = 0;
         writeDescriptorSet.pImageInfo = &imageInfo;
+        writeDescriptorSet.descriptorCount = 1;
 
         writeDescriptorSets.emplace_back(writeDescriptorSet);
 
@@ -269,6 +356,8 @@ void VulkanImGuiImpl::InitResources()
     pipelineCreateInfo.pDynamicState = &dynamicStateInfo;
     pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStageInfos.size());
     pipelineCreateInfo.pStages = shaderStageInfos.data();
+    pipelineCreateInfo.layout = mPipelineLayout.get();
+    pipelineCreateInfo.renderPass = VulkanContext::Get()->GetPipeline()->GetVulkanRenderPass();
 
     // Setup vertex bindings
     vk::VertexInputBindingDescription vertexInputBinding = {};
@@ -317,12 +406,12 @@ void VulkanImGuiImpl::InitResources()
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo;
     vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
     vertShaderStageInfo.module = vert.GetShaderModule();
-    vertShaderStageInfo.pName = "ui";
+    vertShaderStageInfo.pName = "main";
 
     vk::PipelineShaderStageCreateInfo fragShaderStageInfo;
     fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
     fragShaderStageInfo.module = frag.GetShaderModule();
-    fragShaderStageInfo.pName = "ui";
+    fragShaderStageInfo.pName = "main";
 
     shaderStageInfos[0] = vertShaderStageInfo;
     shaderStageInfos[1] = fragShaderStageInfo;

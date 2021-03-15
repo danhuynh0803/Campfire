@@ -5,6 +5,7 @@
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
 #include "ImGui/ImGuiLayer.h"
+#include "ImGui/VulkanImGuiLayer.h"
 
 struct ApplicationProps
 {
@@ -40,7 +41,8 @@ protected:
     static Application* instance;
 private:
     bool isRunning = true;
-    ImGuiLayer* imguiLayer;
+    //ImGuiLayer* imguiLayer;
+    VulkanImGuiLayer* imguiLayer;
     LayerStack layerStack;
     std::unique_ptr<Window> window;
 };
