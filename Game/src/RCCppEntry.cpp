@@ -37,12 +37,12 @@ RUNTIME_COMPILER_LINKLIBRARY("BulletSoftBodyd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("LinearMathd.lib");
 RUNTIME_COMPILER_LINKLIBRARY("assimp-vc142-mtd.lib");
 
-//Win32 libs
+#ifdef _WIN32
 RUNTIME_COMPILER_LINKLIBRARY("shell32.lib");//ShellExecuteA
-RUNTIME_COMPILER_LINKLIBRARY("Comdlg32.lib");//FileOpenA
+RUNTIME_COMPILER_LINKLIBRARY("Comdlg32.lib");//FileOpenA etc
 RUNTIME_COMPILER_LINKLIBRARY("gdi32.lib");//glfw
 RUNTIME_COMPILER_LINKLIBRARY("Advapi32.lib");//tracy
-
+#endif
 //the complier asked for these source files during the run time for some reason
 #include "RuntimeObjectSystem/RuntimeSourceDependency.h"
 RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/Dynamics/btRigidBody", ".cpp");
@@ -130,7 +130,7 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
 
     void Update(float dt) override
     {
-        int ssrea = 0;
+        int ssrea = 1225;
         activeScene->OnUpdate(dt);
 
         // Setup game camera
@@ -187,6 +187,10 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
             SceneRenderer::EndScene();
         }
 
+    }
+
+    void Shutdown() override
+    {
     }
 };
 

@@ -26,6 +26,7 @@ public:
 
     virtual void Shutdown() override
     {
+        RCCpp::systemTable.RCCppEntry->Shutdown();
         RCCpp::Shutdown();
     }
 
