@@ -3,6 +3,7 @@ set(GAME_HEADERS
     include/RCCpp.h
     include/RCCppEntry.h
     include/RCCppSystemTable.h
+    include/RCCppEngine
     include/StdioLogSystem.h
     include/TestX.h
 )

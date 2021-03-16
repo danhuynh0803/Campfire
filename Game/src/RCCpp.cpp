@@ -8,6 +8,7 @@ bool RCCpp::Init()
 {
     systemTable.activeScene = std::make_shared<Scene>();
     systemTable.activeScene->OnStart();
+    systemTable.sceneRenderer = SceneRenderer::Get();
     //Test a;
     //systemTable.tests = { new Test() };
     systemTable.runtimeObjectSystem = new RuntimeObjectSystem;
