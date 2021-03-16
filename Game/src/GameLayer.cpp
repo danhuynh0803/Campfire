@@ -86,9 +86,9 @@ void GameLayer::OnUpdate(float dt)
     if (mainGameCamera)
     {
         //gameCamFBO->Bind();
-        SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+        SceneRenderer::Get()->BeginScene(activeScene, *mainGameCamera);
         activeScene->OnRender(dt, *mainGameCamera);
-        SceneRenderer::EndScene();
+        SceneRenderer::Get()->EndScene();
         //gameCamFBO->Unbind();
     }
     else

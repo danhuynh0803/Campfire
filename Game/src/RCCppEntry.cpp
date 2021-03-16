@@ -105,9 +105,9 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
 
         if (mainGameCamera)
         {
-            SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+            SceneRenderer::Get()->BeginScene(activeScene, *mainGameCamera);
             activeScene->OnRender(dt, *mainGameCamera);
-            SceneRenderer::EndScene();
+            SceneRenderer::Get()->EndScene();
         }
 
     }

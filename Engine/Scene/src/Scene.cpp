@@ -24,7 +24,8 @@
 
 Scene::Scene(bool isNewScene)
 {
-    SceneRenderer::Init();
+    //SceneRenderer::Init();
+    sceneRenderer = CreateSharedPtr<SceneRenderer>();
     // Default objects within each new scene
     // if not loading object via scene file
     if (isNewScene) { Init(); }
@@ -476,11 +477,11 @@ void Scene::OnRender(float dt, const Camera& camera)
 
                     transform = glm::scale(transform, scale);
 
-                    SceneRenderer::SubmitMesh(meshComponent, transform);
+                    SceneRenderer::Get()->SubmitMesh(meshComponent, transform);
                 }
                 else
                 {
-                    SceneRenderer::SubmitMesh(meshComponent, transformComponent);
+                    SceneRenderer::Get()->SubmitMesh(meshComponent, transformComponent);
                 }
             }
         }

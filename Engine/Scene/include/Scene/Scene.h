@@ -40,6 +40,8 @@ public:
     SharedPtr<Skybox> skybox;
 
 private:
+    SharedPtr<SceneRenderer> sceneRenderer;
+
     friend class Entity;
     friend class Skybox;
     friend class SceneRenderer;

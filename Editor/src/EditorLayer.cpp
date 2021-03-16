@@ -364,11 +364,11 @@ void EditorLayer::OnUpdate(float dt)
             {
                 default:
                 case ClearFlag::SKYBOX:
-                    SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+                    SceneRenderer::Get()->BeginScene(activeScene, *mainGameCamera);
                     activeScene->skybox->DrawSkybox();
                     break;
                 case ClearFlag::COLOR:
-                    SceneRenderer::BeginScene(activeScene, *mainGameCamera);
+                    SceneRenderer::Get()->BeginScene(activeScene, *mainGameCamera);
                     RenderCommand::SetClearColor(mainGameCamera->backgroundColor);
                     RenderCommand::Clear();
                     break;
@@ -379,7 +379,7 @@ void EditorLayer::OnUpdate(float dt)
             }
 
             activeScene->OnRender(deltaTime, *mainGameCamera);
-            SceneRenderer::EndScene();
+            SceneRenderer::Get()->EndScene();
         gameCamFBO->Unbind();
     }
     else
@@ -394,7 +394,7 @@ void EditorLayer::OnUpdate(float dt)
     {
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
-        SceneRenderer::BeginScene(activeScene, *editorCamera);
+        SceneRenderer::Get()->BeginScene(activeScene, *editorCamera);
         RenderCommand::SetDrawMode(drawMode);
         activeScene->OnRender(deltaTime, *editorCamera);
     }
@@ -408,7 +408,7 @@ void EditorLayer::OnUpdate(float dt)
         // Set editor cam to perspective just to draw the skybox
         bool isPerspective = editorCamera->isPerspective;
         editorCamera->isPerspective = true;
-        SceneRenderer::BeginScene(activeScene, *editorCamera);
+        SceneRenderer::Get()->BeginScene(activeScene, *editorCamera);
         editorCamera->isPerspective = isPerspective;
 
         if (drawSkybox) {
@@ -422,7 +422,7 @@ void EditorLayer::OnUpdate(float dt)
 
         RenderCommand::SetDrawMode(drawMode);
 
-        SceneRenderer::BeginSceneWithoutClear(activeScene, *editorCamera);
+        SceneRenderer::Get()->BeginSceneWithoutClear(activeScene, *editorCamera);
 
         if (allowViewportCameraEvents)
         {
@@ -580,7 +580,7 @@ void EditorLayer::OnUpdate(float dt)
         //    Renderer::DrawLines(lineShader, VAO, glm::mat4(1.0f));
         //}
 
-        SceneRenderer::EndScene();
+        SceneRenderer::Get()->EndScene();
     }
     editorCamFBO->Unbind();
 

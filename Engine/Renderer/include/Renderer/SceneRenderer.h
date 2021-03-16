@@ -14,22 +14,27 @@ class Scene;
 class SceneRenderer
 {
 public:
-    static void Init();
-    static void Shutdown();
-    static void OnWindowResize(uint32_t width, uint32_t height);
+    SceneRenderer();
+    static SharedPtr<SceneRenderer> instance;
 
-    static void BeginSceneWithoutClear(const SharedPtr<Scene>& scene, const Camera& camera);
-    static void BeginScene(const SharedPtr<Scene>& scene, const Camera& camera);
-    static void EndScene();
+    static SharedPtr<SceneRenderer> Get() { return instance; }
 
-    static void SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), SharedPtr<MaterialInstance> overrideMaterial = nullptr);
+    void Init();
+    void Shutdown();
+    void OnWindowResize(uint32_t width, uint32_t height);
+
+    void BeginSceneWithoutClear(const SharedPtr<Scene>& scene, const Camera& camera);
+    void BeginScene(const SharedPtr<Scene>& scene, const Camera& camera);
+    void EndScene();
+
+    void SubmitMesh(const SharedPtr<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), SharedPtr<MaterialInstance> overrideMaterial = nullptr);
 
 private:
-    static void SubmitCamera(const Camera& camera);
-    static void SubmitLights(const SharedPtr<Scene>& scene);
+    void SubmitCamera(const Camera& camera);
+    void SubmitLights(const SharedPtr<Scene>& scene);
 
 private:
-    static SharedPtr<UniformBuffer> uboCamera;
-    static SharedPtr<UniformBuffer> uboLights;
-    static SharedPtr<Shader> shader;
+    SharedPtr<UniformBuffer> uboCamera;
+    SharedPtr<UniformBuffer> uboLights;
+    SharedPtr<Shader> shader;
 };

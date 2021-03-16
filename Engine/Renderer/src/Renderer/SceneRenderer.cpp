@@ -7,9 +7,13 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-SharedPtr<UniformBuffer> SceneRenderer::uboCamera;
-SharedPtr<UniformBuffer> SceneRenderer::uboLights;
-SharedPtr<Shader> SceneRenderer::shader;
+SharedPtr<SceneRenderer> SceneRenderer::instance = nullptr;
+
+SceneRenderer::SceneRenderer()
+{
+    Init();
+    instance.reset(this);
+}
 
 void SceneRenderer::Init()
 {
