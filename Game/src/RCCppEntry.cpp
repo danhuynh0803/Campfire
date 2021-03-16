@@ -4,6 +4,7 @@
 #include "RuntimeObjectSystem/IObject.h"
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "RuntimeObjectSystem/IRuntimeObjectSystem.h"
 #include "RCCppEntry.h"
 #include "RCCppSystemTable.h"
 
@@ -58,31 +59,33 @@ RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE("../../Vendor/bullet3/src/BulletDynamics/
 //RUNTIME_COMPILER_LINKLIBRARY("zlibstaticd.lib");
 
 static int currDisplay = 0;
-enum InterfaceIDEntryEnum
-{
-    IID_IRCCPP_ENTRY = IID_ENDInterfaceID
-};
 
 //This is the runtime modifiable class
 //Ideally I think we would have tons of these, and not just one
 //https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Runtime-Modifiable-Classes
 
+enum InterfaceIDEntryEnum
+{
+    IID_IRCCPP_ENTRY = IID_ENDInterfaceID
+};
+
 struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
 {
     SharedPtr<Scene> activeScene = nullptr;
     SharedPtr<Camera> mainGameCamera = nullptr;
+    SharedPtr<SceneRenderer> sceneRenderer = nullptr;
 
     RCCppEntry()
     {
         g_SystemTable->RCCppEntry = this;
         g_SystemTable->runtimeObjectSystem->GetObjectFactorySystem()->SetObjectConstructorHistorySize(10);
-        activeScene = CreateSharedPtr<Scene>();
-        activeScene->OnStart();
     }
 
     void Update(float dt) override
     {
-        //int ssrea = 1225;
+        //int i = 5;
+        activeScene = g_SystemTable->activeScene;
+        sceneRenderer = SceneRenderer::Get();
         activeScene->OnUpdate(dt);
 
         // Setup game camera
@@ -102,18 +105,19 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
                 break;
             }
         }
-
         if (mainGameCamera)
         {
-            SceneRenderer::Get()->BeginScene(activeScene, *mainGameCamera);
+            sceneRenderer->BeginScene(activeScene, *mainGameCamera);
             activeScene->OnRender(dt, *mainGameCamera);
-            SceneRenderer::Get()->EndScene();
+            sceneRenderer->EndScene();
         }
-
     }
 
     void Shutdown() override
     {
+        activeScene->OnStop();
+        activeScene.reset();
+        //delete activeScene;
     }
 };
 //REGISTERCLASS(RCCppEntry)

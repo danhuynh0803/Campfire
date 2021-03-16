@@ -1,10 +1,15 @@
 #include "RCCpp.h"
+#include "RuntimeObjectSystem/RuntimeObjectSystem.h"
 
 SystemTable RCCpp::systemTable;
 StdioLogSystem RCCpp::g_Logger;
 
 bool RCCpp::Init()
 {
+    systemTable.activeScene = std::make_shared<Scene>();
+    systemTable.activeScene->OnStart();
+    //Test a;
+    //systemTable.tests = { new Test() };
     systemTable.runtimeObjectSystem = new RuntimeObjectSystem;
     systemTable.pLogger = &g_Logger; //RCCpComplier logger(customizable) 
 

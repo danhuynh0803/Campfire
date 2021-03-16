@@ -56,48 +56,49 @@ void Scene::Init()
         auto player = CreateEntity("Player");
         player.AddComponent<MeshComponent>(MeshComponent::Geometry::SPHERE);
         player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-        player.AddComponent<RigidbodyComponent>();
-        player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
-        player.GetComponent<RigidbodyComponent>().rigidbody->useGravity = false;
-        player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
-        player.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/test.lua";
-        //player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
-        auto& colliders = player.GetComponent<Colliders>().list;
-        colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
-        colliders.at(0)->isTrigger = true;
+        //player.AddComponent<NativeScriptComponent>().Bind<PlayerController>();
+        //player.AddComponent<RigidbodyComponent>();
+        //player.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
+        //player.GetComponent<RigidbodyComponent>().rigidbody->useGravity = false;
+        //player.AddComponent<ScriptComponent>().template Bind<LuaScript>();
+        //player.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/test.lua";
+        ////player.GetComponent<TransformComponent>().eulerAngles = glm::vec3(-90.0f, 0.0f, 0.0f);
+        //auto& colliders = player.GetComponent<Colliders>().list;
+        //colliders.emplace_back(Collider::Create(Collider::Shape::SPHERE));
+        //colliders.at(0)->isTrigger = true;
         //player.AddComponent<TriggerComponent>();
         //player.AddComponent<AudioComponent>();
         //player.GetComponent<AudioComponent>().audioSource->clipPath = ASSETS + "Audio/metal.mp3";
         //player.AddChild(mainCamera);
     }
 
-    {
-        auto cube = CreateEntity("Cube");
-        cube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
-        cube.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 5.0f, 0.0f);
-        cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
-        cube.AddComponent<RigidbodyComponent>();
-        cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
-        auto& colliders = cube.GetComponent<Colliders>().list;
-        colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
-    }
+    //{
+    //    auto cube = CreateEntity("Cube");
+    //    cube.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+    //    cube.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 5.0f, 0.0f);
+    //    cube.GetComponent<TransformComponent>().euler = glm::vec3(-90.0f, 0.0f, 0.0f);
+    //    cube.AddComponent<RigidbodyComponent>();
+    //    cube.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::DYNAMIC;
+    //    auto& colliders = cube.GetComponent<Colliders>().list;
+    //    colliders.emplace_back(Collider::Create(Collider::Shape::BOX));
+    //}
 
-    {
-        auto floor = CreateEntity("Floor");
-        //floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
-        floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -10.0f, 0.0f);
-        floor.GetComponent<TransformComponent>().scale = glm::vec3(20.0f, 0.2f, 20.0f);
-        floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
-        floor.AddComponent<RigidbodyComponent>();
-        floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
-        //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
-        auto& colliders = floor.GetComponent<Colliders>().list;
-        auto collider = Collider::Create(Collider::Shape::BOX);
-        collider->isTrigger = true;
-        colliders.emplace_back(collider);
-        floor.AddComponent<ScriptComponent>().template Bind<LuaScript>();
-        floor.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/killborder.lua";
-    }
+    //{
+    //    auto floor = CreateEntity("Floor");
+    //    //floor.AddComponent<MeshComponent>(MeshComponent::Geometry::CUBE);
+    //    floor.GetComponent<TransformComponent>().position = glm::vec3(0.0f, -10.0f, 0.0f);
+    //    floor.GetComponent<TransformComponent>().scale = glm::vec3(20.0f, 0.2f, 20.0f);
+    //    floor.GetComponent<TransformComponent>().euler = glm::vec3(0.0f, 0.0f, 0.0f);
+    //    floor.AddComponent<RigidbodyComponent>();
+    //    floor.GetComponent<RigidbodyComponent>().rigidbody->type = Rigidbody::BodyType::STATIC;
+    //    //floor.AddComponent<ColliderComponent>(ColliderComponent::Shape::Box);
+    //    auto& colliders = floor.GetComponent<Colliders>().list;
+    //    auto collider = Collider::Create(Collider::Shape::BOX);
+    //    collider->isTrigger = true;
+    //    colliders.emplace_back(collider);
+    //    floor.AddComponent<ScriptComponent>().template Bind<LuaScript>();
+    //    floor.GetComponent<ScriptComponent>().filepath = ASSETS + "/Scripts/killborder.lua";
+    //}
 
     // TODO replace with HDR skybox
     // Setup default skybox
@@ -207,14 +208,14 @@ void Scene::OnStart()
     }
 
     // Play all OnAwake sounds
-    registry.view<AudioComponent>().each([=](auto entity, auto &audioComp)
-    {
-        auto audioSource = audioComp.audioSource;
-        if (audioSource->playOnAwake)
-        {
-            audioSource->Play();
-        }
-    });
+    //registry.view<AudioComponent>().each([=](auto entity, auto &audioComp)
+    //{
+    //    auto audioSource = audioComp.audioSource;
+    //    if (audioSource->playOnAwake)
+    //    {
+    //        audioSource->Play();
+    //    }
+    //});
 
     registry.view<ScriptComponent>().each([=](auto entity, auto& sc)
     {
@@ -250,7 +251,7 @@ void Scene::OnStart()
 
 void Scene::OnStop()
 {
-    AudioSystem::StopAllChannels();
+    //AudioSystem::StopAllChannels();
 }
 
 void Scene::OnUpdate(float dt)
@@ -264,8 +265,8 @@ void Scene::OnUpdate(float dt)
         });
     }
 
-    AudioSystem::OnUpdate(dt);
-    PhysicsManager::OnUpdate(dt);
+    //AudioSystem::OnUpdate(dt);
+    //PhysicsManager::OnUpdate(dt);
 
     // Update rigidbodies
     {
@@ -352,10 +353,15 @@ void Scene::OnUpdate(float dt)
     // Update with Native C++ scripts
     //{
     //    //ZoneScopedN("UpdateNativeScripts");
-    //    registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-    //    {
-    //        nsc.instance->Update(dt);
-
+          //for (auto X : systemable.script)
+          //{
+          //    x->Update(dt);
+          //}
+    //      registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+    //      {
+    //        //g_systemtable.XXX[entity]->update
+    //        snsc.instance->Update(dt);
+    //
     //        Entity thisEntity = nsc.instance->entity;
     //        if (thisEntity.HasComponent<TriggerComponent>())
     //        {

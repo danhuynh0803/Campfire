@@ -4,6 +4,7 @@ set(GAME_HEADERS
     include/RCCppEntry.h
     include/RCCppSystemTable.h
     include/StdioLogSystem.h
+    include/TestX.h
 )
 
 set(GAME_SRC
@@ -12,6 +13,7 @@ set(GAME_SRC
     src/GameApplication.cpp
     src/RCCppEntry.cpp
     src/StdioLogSystem.cpp
+    src/TestX.cpp
 )
 
 add_executable(

@@ -39,7 +39,8 @@ Application::Application(const ApplicationProps& props)
 
     //PushLayer(new VulkanLayer());
 
-    LuaManager::Init();
+    //LuaManager::Init();
+    
     //LuaManager::SetEventCallback(std::bind(&Application::OnLuaEvent, this, std::placeholders::_1));
 
     Renderer::Init();
@@ -58,7 +59,7 @@ Application::~Application()
     // TODO move to shutdown
     PhysicsManager::Shutdown();
     Renderer::Shutdown();
-    LuaManager::Shutdown();
+    //LuaManager::Shutdown();
     //RCCpp::Shutdown();
     Shutdown();
 }

@@ -6,41 +6,42 @@ target_include_directories(
 
 set(SCRIPTING_HEADERS
     #include/Scripting/ArenaAllocator.h
-    include/Scripting/Script.h
-    include/Scripting/LuaScript.h
-    #include/Scripting/ScriptEngine.h
-    #include/Scripting/LuaCall.h
-    include/Scripting/LuaManager.h
-    include/Scripting/LuaUtility.h
-    include/Scripting/Lua/LuaTransform.h
-    include/Scripting/Lua/LuaTag.h
-    include/Scripting/Lua/LuaEntity.h
-    include/Scripting/Lua/LuaInput.h
-    include/Scripting/Lua/LuaRigidbody.h
-    include/Scripting/Lua/LuaAudioSource.h
-    include/Scripting/Lua/LuaVector.h
-    include/Scripting/Lua/LuaCollider.h
-    include/Scripting/Lua/LuaGlobal.h
-    include/Scripting/Lua/LuaCamera.h
+    #include/Scripting/PlayerController.h
+    #include/Scripting/Script.h
+    # include/Scripting/LuaScript.h
+    # include/Scripting/ScriptEngine.h
+    # include/Scripting/LuaCall.h
+    # include/Scripting/LuaManager.h
+    # include/Scripting/LuaUtility.h
+    # include/Scripting/Lua/LuaTransform.h
+    # include/Scripting/Lua/LuaTag.h
+    # include/Scripting/Lua/LuaEntity.h
+    # include/Scripting/Lua/LuaInput.h
+    # include/Scripting/Lua/LuaRigidbody.h
+    # include/Scripting/Lua/LuaAudioSource.h
+    # include/Scripting/Lua/LuaVector.h
+    # include/Scripting/Lua/LuaCollider.h
+    # include/Scripting/Lua/LuaGlobal.h
+    # include/Scripting/Lua/LuaCamera.h
 )
 
 set(SCRIPTING_SRC
-    src/Script.cpp
+    #src/Script.cpp
     #src/ScriptEngine.cpp
-    src/LuaScript.cpp
-    src/LuaManager.cpp
-    src/LuaUtility.cpp
+    #src/LuaScript.cpp
+    #src/LuaManager.cpp
+    #src/LuaUtility.cpp
     #src/LuaCall.cpp
-    src/Lua/LuaTransform.cpp
-    src/Lua/LuaTag.cpp
-    src/Lua/LuaEntity.cpp
-    src/Lua/LuaInput.cpp
-    src/Lua/LuaRigidbody.cpp
-    src/Lua/LuaAudioSource.cpp
-    src/Lua/LuaVector.cpp
-    src/Lua/LuaCollider.cpp
-    src/Lua/LuaGlobal.cpp
-    src/Lua/LuaCamera.cpp
+    #src/Lua/LuaTransform.cpp
+    #src/Lua/LuaTag.cpp
+    #src/Lua/LuaEntity.cpp
+    #src/Lua/LuaInput.cpp
+    #src/Lua/LuaRigidbody.cpp
+    #src/Lua/LuaAudioSource.cpp
+    #src/Lua/LuaVector.cpp
+    #src/Lua/LuaCollider.cpp
+    #src/Lua/LuaGlobal.cpp
+    #src/Lua/LuaCamera.cpp
 )
 
 target_sources(
