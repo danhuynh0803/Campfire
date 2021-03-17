@@ -11,61 +11,23 @@ struct PipelineVertex
     glm::vec3 pos;
     glm::vec3 color;
     glm::vec2 uv;
-
-    static vk::VertexInputBindingDescription GetBindingDescription()
-    {
-        vk::VertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(PipelineVertex);
-        bindingDescription.inputRate = vk::VertexInputRate::eVertex;
-
-        return bindingDescription;
-    }
-
-    static std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions()
-    {
-        std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
-
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[0].offset = offsetof(PipelineVertex, pos);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[1].offset = offsetof(PipelineVertex, color);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = vk::Format::eR32G32Sfloat;;
-        attributeDescriptions[2].offset = offsetof(PipelineVertex, uv);
-
-        return attributeDescriptions;
-    }
 };
-
-// FIXME, pretty much the pipeline constructor code
-// but removes the descriptor layout setting which isnt needed when remaking on resize
-// Also causes a crash for some reason when trying to set pipeline layout
-void VulkanPipeline::RecreatePipeline()
-{
-    // TODO
-    return;
-}
 
 VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     : type(pipelineType)
 {
-   // Setup fixed function part of pipeline
+    // Setup fixed function part of pipeline
 
     // Vertex input
     // Binds = spacing btw data and whether data is per-vertex or per-instance
     // Attribute descriptions = type of the attribs passed to vertex shader,
     // including which binding to load them from and at which offset
+    auto bindingDescription = vk::initializers::VertexInputBindingDescription(0, sizeof(PipelineVertex), vk::VertexInputRate::eVertex);
 
-    auto bindingDescription = PipelineVertex::GetBindingDescription();
-    auto attributeDescriptions = PipelineVertex::GetAttributeDescriptions();
+    std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
+    attributeDescriptions[0] = vk::initializers::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, pos));
+    attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, color));
+    attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, uv));
 
     vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
     vertexInputStateCreateInfo.flags = vk::PipelineVertexInputStateCreateFlags();
@@ -344,3 +306,14 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
     // ==============================
 }
+
+// FIXME, pretty much the pipeline constructor code
+// but removes the descriptor layout setting which isnt needed when remaking on resize
+// Also causes a crash for some reason when trying to set pipeline layout
+void VulkanPipeline::RecreatePipeline()
+{
+    // TODO
+    return;
+}
+
+
