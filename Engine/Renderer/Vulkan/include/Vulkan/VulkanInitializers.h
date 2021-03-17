@@ -35,6 +35,14 @@ namespace vk
             return description;
         }
 
+        inline vk::PipelineVertexInputStateCreateInfo PipelineVertexInputStateCreateInfo(
+            uint32_t descriptionCount,
+            vk::PipelineVertexInputStateCreateFlags flags = vk::PipelineVertexInputStateCreateFlags())
+        {
+            vk::PipelineVertexInputStateCreateInfo info;
+            info.flags = flags;
+        }
+
         inline vk::ShaderModule LoadShaderModule(const std::string& filepath)
         {
             std::ifstream file(filepath, std::ios::ate | std::ios::binary);

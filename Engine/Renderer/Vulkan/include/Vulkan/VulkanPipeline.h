@@ -26,6 +26,7 @@ public:
 private:
     void CreateDescriptorSets();
     void CreateDescriptorPool();
+    void SetupRenderPass();
 
 
 private:

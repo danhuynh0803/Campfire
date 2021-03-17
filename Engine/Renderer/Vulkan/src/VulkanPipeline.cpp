@@ -205,78 +205,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
-    // ----------- Setup Renderpasses ---------------------
-
-    // Setup loadOp and StoreOp which determines what to do
-    // with the data in the attachment before rendering and
-    // after rendering
-
-    // ==============================
-    // Color Attachment
-    vk::AttachmentDescription colorAttachment;
-    colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
-    colorAttachment.samples = vk::SampleCountFlagBits::e1;
-    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear; // Clear the values to a constant at start
-    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore; // Rendered contents store in memory and can be read later
-    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
-    // ==============================
-
-    // ==============================
-    // Depth Attachment
-    vk::AttachmentDescription depthAttachment;
-    depthAttachment.format = vkUtil::FindDepthFormat();
-    depthAttachment.samples = vk::SampleCountFlagBits::e1;
-    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-    // ==============================
-
-    // ==============================
-    // Setup subpasses
-    vk::AttachmentReference colorAttachmentRef;
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
-
-    vk::AttachmentReference depthAttachmentRef;
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-    vk::SubpassDescription subpass;
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-    // Setup subpass dependencies
-    vk::SubpassDependency subpassDependency;
-    subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    subpassDependency.dstSubpass = 0;
-    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
-    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-    // ==============================
-
-    // ==============================
-    // Setup render pass
-    std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-    vk::RenderPassCreateInfo renderPassCreateInfo {};
-    renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
-    renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassCreateInfo.pAttachments = attachments.data();
-    renderPassCreateInfo.subpassCount = 1;
-    renderPassCreateInfo.pSubpasses = &subpass;
-    renderPassCreateInfo.dependencyCount = 1;
-    renderPassCreateInfo.pDependencies = &subpassDependency;
-
-    renderPass = device.createRenderPassUnique(renderPassCreateInfo);
-    // ==============================
+    SetupRenderPass();
 
     // Shaders
     auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/vert.spv", vk::ShaderStageFlagBits::eVertex);
@@ -306,6 +235,71 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
     // ==============================
 }
+
+void VulkanPipeline::SetupRenderPass()
+{
+    // Color Attachment
+    vk::AttachmentDescription colorAttachment;
+    colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
+    colorAttachment.samples = vk::SampleCountFlagBits::e1;
+    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear; // Clear the values to a constant at start
+    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore; // Rendered contents store in memory and can be read later
+    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+    vk::AttachmentReference colorAttachmentRef;
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    // Depth Attachment
+    vk::AttachmentDescription depthAttachment;
+    depthAttachment.format = vkUtil::FindDepthFormat();
+    depthAttachment.samples = vk::SampleCountFlagBits::e1;
+    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    vk::AttachmentReference depthAttachmentRef;
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    // Setup subpasses
+    vk::SubpassDescription subpass;
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+    // Setup subpass dependencies
+    vk::SubpassDependency subpassDependency;
+    subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    subpassDependency.dstSubpass = 0;
+    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
+    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+    // Setup render pass
+    std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    vk::RenderPassCreateInfo renderPassCreateInfo {};
+    renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
+    renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassCreateInfo.pAttachments = attachments.data();
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpass;
+    renderPassCreateInfo.dependencyCount = 1;
+    renderPassCreateInfo.pDependencies = &subpassDependency;
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    renderPass = device.createRenderPassUnique(renderPassCreateInfo);
+    // ==============================
+}
+
 
 // FIXME, pretty much the pipeline constructor code
 // but removes the descriptor layout setting which isnt needed when remaking on resize
