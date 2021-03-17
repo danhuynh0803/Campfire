@@ -85,6 +85,28 @@ namespace vk
             return info;
         }
 
+        inline vk::PipelineRasterizationStateCreateInfo PipelineRasterizationStateCreateInfo(
+            vk::PolygonMode polygonMode,
+            vk::CullModeFlagBits cullMode,
+            vk::FrontFace frontFace,
+            vk::PipelineRasterizationStateCreateFlags flags = vk::PipelineRasterizationStateCreateFlags())
+        {
+            vk::PipelineRasterizationStateCreateInfo info;
+            info.polygonMode = polygonMode;
+            info.cullMode = cullMode;
+            info.frontFace = frontFace;
+            info.depthClampEnable = VK_FALSE;
+            info.rasterizerDiscardEnable = VK_FALSE;
+            info.depthBiasEnable = VK_FALSE;
+            info.depthBiasConstantFactor = 0.0f;
+            info.depthBiasClamp = 0.0f;
+            info.depthBiasSlopeFactor = 0.0f;
+            info.lineWidth = 1.0f;
+            info.flags = flags;
+
+            return info;
+        }
+
         inline vk::PipelineMultisampleStateCreateInfo PipelineMultisampleStateCreateInfo(
             vk::SampleCountFlagBits rasterizationSamples,
             vk::PipelineMultisampleStateCreateFlags flags = vk::PipelineMultisampleStateCreateFlags())

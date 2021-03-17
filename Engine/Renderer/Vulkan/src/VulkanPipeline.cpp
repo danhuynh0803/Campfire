@@ -44,9 +44,10 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     auto swapChainExtent = swapChain->GetExtent();
     auto viewport =
         vk::initializers::Viewport(
-            0.0f, 0.0f,
-            swapChainExtent.width, swapChainExtent.height,
-            0.0f, 1.0f
+            0.0f, 0.0f,                 // x, y
+            swapChainExtent.width,      // width
+            swapChainExtent.height,     // height
+            0.0f, 1.0f                  // min, maxDepth
         );
 
     vk::Rect2D scissors;
@@ -60,18 +61,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup rasterizer
     // Note: depthClampEnable: if true, fragments beyond
     // near and far planes will be clamped instead of being discard
-    vk::PipelineRasterizationStateCreateInfo rasterizationStateCreateInfo;
-    rasterizationStateCreateInfo.flags = vk::PipelineRasterizationStateCreateFlags();
-    rasterizationStateCreateInfo.depthClampEnable = VK_FALSE;
-    rasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
-    rasterizationStateCreateInfo.polygonMode = vk::PolygonMode::eFill;
-    rasterizationStateCreateInfo.cullMode = vk::CullModeFlagBits::eNone;
-    rasterizationStateCreateInfo.frontFace = vk::FrontFace::eCounterClockwise;
-    rasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
-    rasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f;
-    rasterizationStateCreateInfo.depthBiasClamp = 0.0f;
-    rasterizationStateCreateInfo.depthBiasSlopeFactor = 0.0f;
-    rasterizationStateCreateInfo.lineWidth = 1.0f;
+    auto rasterizationStateCreateInfo = vk::initializers::PipelineRasterizationStateCreateInfo(vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise);
 
     // Enable multisampling
     auto multisampleCreateInfo = vk::initializers::PipelineMultisampleStateCreateInfo(vk::SampleCountFlagBits::e1);
