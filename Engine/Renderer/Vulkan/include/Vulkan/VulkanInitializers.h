@@ -85,6 +85,23 @@ namespace vk
             return info;
         }
 
+        inline vk::PipelineMultisampleStateCreateInfo PipelineMultisampleStateCreateInfo(
+            vk::SampleCountFlagBits rasterizationSamples,
+            vk::PipelineMultisampleStateCreateFlags flags = vk::PipelineMultisampleStateCreateFlags())
+        {
+            vk::PipelineMultisampleStateCreateInfo info;
+            info.rasterizationSamples = rasterizationSamples;
+            info.flags = flags;
+
+            // TODO expose later, but not gonna use for a while
+            //info.sampleShadingEnable = VK_FALSE;
+            //info.minSampleShading = 1.0f;
+            //info.pSampleMask = nullptr;
+            //info.alphaToCoverageEnable = VK_FALSE;
+            //info.alphaToOneEnable = VK_FALSE;
+
+            return info;
+        }
 
         inline vk::ShaderModule LoadShaderModule(const std::string& filepath)
         {

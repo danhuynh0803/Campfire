@@ -74,14 +74,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     rasterizationStateCreateInfo.lineWidth = 1.0f;
 
     // Enable multisampling
-    vk::PipelineMultisampleStateCreateInfo multisampleCreateInfo;
-    multisampleCreateInfo.flags = vk::PipelineMultisampleStateCreateFlags();
-    multisampleCreateInfo.rasterizationSamples = vk::SampleCountFlagBits::e1;
-    multisampleCreateInfo.sampleShadingEnable = VK_FALSE;
-    multisampleCreateInfo.minSampleShading = 1.0f;
-    multisampleCreateInfo.pSampleMask = nullptr;
-    multisampleCreateInfo.alphaToCoverageEnable = VK_FALSE;
-    multisampleCreateInfo.alphaToOneEnable = VK_FALSE;
+    auto multisampleCreateInfo = vk::initializers::PipelineMultisampleStateCreateInfo(vk::SampleCountFlagBits::e1);
 
     // Depth and stencil operators
     vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo {};
