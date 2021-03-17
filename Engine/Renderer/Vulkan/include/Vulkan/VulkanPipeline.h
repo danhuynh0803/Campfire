@@ -24,6 +24,11 @@ public:
     std::vector<vk::UniqueDescriptorSet> descriptorSets;
 
 private:
+    void CreateDescriptorSets();
+    void CreateDescriptorPool();
+
+
+private:
     vk::UniquePipeline pipeline;
     PipelineType type;
 

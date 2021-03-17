@@ -2,7 +2,9 @@
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanUtil.h"
-#include "Core/ResourceManager.h"
+#include "Vulkan/VulkanInitializers.h"
+
+#include "Core/ResourceManager.h" // For asset directory macros
 
 struct PipelineVertex
 {
@@ -55,24 +57,7 @@ void VulkanPipeline::RecreatePipeline()
 VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     : type(pipelineType)
 {
-    // Create shader modules
-    VulkanShader vert(SHADERS + "/vert.spv");
-    VulkanShader frag(SHADERS + "/frag.spv");
-
-    // Create pipeline
-    vk::PipelineShaderStageCreateInfo vertShaderStageInfo;
-    vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-    vertShaderStageInfo.module = vert.GetShaderModule();
-    vertShaderStageInfo.pName = "main";
-
-    vk::PipelineShaderStageCreateInfo fragShaderStageInfo;
-    fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-    fragShaderStageInfo.module = frag.GetShaderModule();
-    fragShaderStageInfo.pName = "main";
-
-    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-    // Setup fixed function part of pipeline
+   // Setup fixed function part of pipeline
 
     // Vertex input
     // Binds = spacing btw data and whether data is per-vertex or per-instance
@@ -330,6 +315,11 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     renderPass = device.createRenderPassUnique(renderPassCreateInfo);
     // ==============================
+
+    // Shaders
+    auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/vert.spv", vk::ShaderStageFlagBits::eVertex);
+    auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/frag.spv", vk::ShaderStageFlagBits::eFragment);
+    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
     // ==============================
     // Create Graphics pipeline

@@ -33,7 +33,7 @@ void VulkanImGuiImpl::UpdateBuffers()
     if ((mIndexBuffer == nullptr)
         || (mIndexCount != imDrawData->TotalIdxCount)
     ) {
-        mIndexBuffer = CreateSharedPtr<VulkanIndexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
+        mIndexBuffer = CreateSharedPtr<VulkanIndexBuffer>(imDrawData, imDrawData->TotalIdxCount);
         mIndexCount = imDrawData->TotalIdxCount;
     }
 

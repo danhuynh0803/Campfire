@@ -20,6 +20,7 @@ set(VULKAN_HEADERS
     include/Vulkan/VulkanTexture.h
     #include/Vulkan/VulkanVertexArray.h
     include/Vulkan/VulkanUtil.h
+    include/Vulkan/VulkanInitializers.h
 )
 
 set(VULKAN_SRC
