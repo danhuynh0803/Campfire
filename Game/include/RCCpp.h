@@ -1,8 +1,9 @@
 #pragma once
-
-#include "RCCppEntry.h"
+#ifndef RCCPP_H
+#define RCCPP_H
 #include "RCCppSystemTable.h"
 #include "StdioLogSystem.h"
+#include "TestY.h"
 
 //enum PROJECTIDS
 //{
@@ -18,3 +19,4 @@ struct RCCpp
     static SystemTable systemTable;
     static StdioLogSystem g_Logger;
 };
+#endif // !RCCPP_H

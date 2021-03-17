@@ -2,8 +2,6 @@
 
 //#include<XX.h>
 //RUNTIME_MODIFIABLE_INCLUDE;
-
-#include "RuntimeObjectSystem/IObject.h"
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "RuntimeObjectSystem/IRuntimeObjectSystem.h"
@@ -33,12 +31,7 @@ static int currDisplay = 0;
 //Ideally I think we would have tons of these, and not just one
 //https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Runtime-Modifiable-Classes
 
-enum InterfaceIDEntryEnum
-{
-    IID_IRCCPP_ENTRY = IID_ENDInterfaceID
-};
-
-struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
+struct RCCppEntry : IRCCppEntry
 {
     SharedPtr<Scene> activeScene = nullptr;
     SharedPtr<Camera> mainGameCamera = nullptr;
@@ -46,48 +39,59 @@ struct RCCppEntry : IRCCppEntry, TInterface<IID_IRCCPP_ENTRY, IObject>
 
     RCCppEntry()
     {
-        g_SystemTable->RCCppEntry = this;
-        g_SystemTable->runtimeObjectSystem->GetObjectFactorySystem()->SetObjectConstructorHistorySize(10);
+        PerModuleInterface::g_pSystemTable->RCCppEntry = this;
+        PerModuleInterface::g_pSystemTable->runtimeObjectSystem->GetObjectFactorySystem()->SetObjectConstructorHistorySize(10);
         activeScene = PerModuleInterface::g_pSystemTable->activeScene;
         sceneRenderer = PerModuleInterface::g_pSystemTable->sceneRenderer;
     }
 
+    //virtual Update(float dt)
+    //{
+
+    //}
+
     void Update(float dt) override
     {
-        //int i = 5;
-        activeScene->OnUpdate(dt);
-
-        // Setup game camera
-        auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
-        for (auto entity : group)
+        for (auto it = PerModuleInterface::g_pSystemTable->tests.begin(); it!= PerModuleInterface::g_pSystemTable->tests.end(); ++it)
         {
-            SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
-            if (selectedCamera->targetDisplay == currDisplay)
-            {
-                mainGameCamera = selectedCamera;
-                auto& transformComponent = group.get<TransformComponent>(entity);
-
-                mainGameCamera->pos = transformComponent.position;
-                mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
-                mainGameCamera->SetProjection();
-
-                break;
-            }
+            (*it)->OnUpdate(dt);
         }
-        if (mainGameCamera)
-        {
-            sceneRenderer->BeginScene(activeScene, *mainGameCamera);
-            activeScene->OnRender(dt, *mainGameCamera);
-            sceneRenderer->EndScene();
-        }
+        //activeScene->OnUpdate(dt);
+
+        //// Setup game camera
+        //auto group = activeScene->GetAllEntitiesWith<CameraComponent, TransformComponent, RelationshipComponent>();
+        //for (auto entity : group)
+        //{
+        //    SharedPtr<Camera> selectedCamera = group.get<CameraComponent>(entity);
+        //    if (selectedCamera->targetDisplay == currDisplay)
+        //    {
+        //        mainGameCamera = selectedCamera;
+        //        auto& transformComponent = group.get<TransformComponent>(entity);
+
+        //        mainGameCamera->pos = transformComponent.position;
+        //        mainGameCamera->RecalculateViewMatrix(transformComponent.position, transformComponent.euler);
+        //        mainGameCamera->SetProjection();
+
+        //        break;
+        //    }
+        //}
+        //if (mainGameCamera)
+        //{
+        //    sceneRenderer->BeginScene(activeScene, *mainGameCamera);
+        //    activeScene->OnRender(dt, *mainGameCamera);
+        //    sceneRenderer->EndScene();
+        //}
     }
 
     void Shutdown() override
     {
         activeScene->OnStop();
         activeScene.reset();
+        mainGameCamera.reset();
+        sceneRenderer.reset();
         //delete activeScene;
     }
 };
 //REGISTERCLASS(RCCppEntry)
+//set to true for automatically set to true to have the class automatically constructed and initialized 
 REGISTERSINGLETON(RCCppEntry, true);

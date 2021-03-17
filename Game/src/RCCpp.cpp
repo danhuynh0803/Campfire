@@ -1,5 +1,6 @@
 #include "RCCpp.h"
 #include "RuntimeObjectSystem/RuntimeObjectSystem.h"
+#include "TestY.h"
 
 SystemTable RCCpp::systemTable;
 StdioLogSystem RCCpp::g_Logger;
@@ -9,8 +10,7 @@ bool RCCpp::Init()
     systemTable.activeScene = std::make_shared<Scene>();
     systemTable.activeScene->OnStart();
     systemTable.sceneRenderer = SceneRenderer::Get();
-    //Test a;
-    //systemTable.tests = { new Test() };
+    //systemTable.tests.emplace_back(new Test());
     systemTable.runtimeObjectSystem = new RuntimeObjectSystem;
     systemTable.pLogger = &g_Logger; //RCCpComplier logger(customizable) 
 

@@ -1,6 +1,6 @@
-#pragma once
-
-struct ITest
-{
-	virtual void OnUpdate(float dt) = 0;
-};
+//#pragma once
+//
+//struct ITest
+//{
+//	virtual void OnUpdate(float dt) = 0;
+//};

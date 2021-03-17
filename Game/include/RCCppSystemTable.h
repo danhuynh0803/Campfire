@@ -1,14 +1,19 @@
 #pragma once
+#ifndef RCCPP_SYSTEMABLE_H
+#define RCCPP_SYSTEMABLE_H
+
+#include "RuntimeObjectSystem/IObject.h" 
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/IRuntimeObjectSystem.h"
 #include "RCCppEntry.h"
-#include "TestX.h"
+#include <vector>
 #include "Scene/Scene.h"
 #include "Core/Base.h"
 #include "Scene/Entity.h"
 #include "Renderer/SceneRenderer.h"
+#include "TestY.h"
+
 //#include "Scripting/Script.h"
-//#include <vector>
 //#include "entt.hpp"
 
 static SystemTable*& g_SystemTable = PerModuleInterface::g_pSystemTable;
@@ -23,7 +28,7 @@ struct SystemTable
     //ITest* test = nullptr;
     SharedPtr<Scene> activeScene = nullptr;
     SharedPtr<SceneRenderer> sceneRenderer = nullptr;
-    //std::vector<ITest> tests;
-    //std::map<int, ISomething>* hotreload
+    std::vector<ITest*> tests;
     ICompilerLogger* pLogger = nullptr;
 };
+#endif // !RCCPP_SYSTEMABLE.H
