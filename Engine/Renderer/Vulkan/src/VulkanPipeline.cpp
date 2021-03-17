@@ -37,31 +37,24 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     vertexInputStateCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     // Input assembly
-    vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
-    inputAssemblyStateCreateInfo.flags = vk::PipelineInputAssemblyStateCreateFlags();
-    inputAssemblyStateCreateInfo.topology = vk::PrimitiveTopology::eTriangleList;
-    inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
+    auto inputAssemblyStateCreateInfo = vk::initializers::PipelineInputAssemblyStateCreateInfo(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
 
     // Setup viewports and scissor rect
     auto swapChain = VulkanContext::Get()->GetSwapChain();
     auto swapChainExtent = swapChain->GetExtent();
-    vk::Viewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = static_cast<float>(swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    auto viewport =
+        vk::initializers::Viewport(
+            0.0f, 0.0f,
+            swapChainExtent.width, swapChainExtent.height,
+            0.0f, 1.0f
+        );
 
     vk::Rect2D scissors;
     scissors.offset = {0, 0};
     scissors.extent = swapChainExtent;
 
-    vk::PipelineViewportStateCreateInfo viewportStateCreateInfo;
-    viewportStateCreateInfo.flags = vk::PipelineViewportStateCreateFlags();
-    viewportStateCreateInfo.viewportCount = 1;
+    auto viewportStateCreateInfo = vk::initializers::PipelineViewportStateCreateInfo(1, 1);
     viewportStateCreateInfo.pViewports = &viewport;
-    viewportStateCreateInfo.scissorCount = 1;
     viewportStateCreateInfo.pScissors = &scissors;
 
     // Setup rasterizer

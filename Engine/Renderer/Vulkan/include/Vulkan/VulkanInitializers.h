@@ -43,6 +43,49 @@ namespace vk
             info.flags = flags;
         }
 
+        inline vk::PipelineInputAssemblyStateCreateInfo PipelineInputAssemblyStateCreateInfo(
+            vk::PrimitiveTopology topology,
+            vk::Bool32 primitiveRestartEnable,
+            vk::PipelineInputAssemblyStateCreateFlags flags = vk::PipelineInputAssemblyStateCreateFlags())
+        {
+            vk::PipelineInputAssemblyStateCreateInfo info;
+            info.topology = topology;
+            info.primitiveRestartEnable = primitiveRestartEnable;
+            info.flags = flags;
+
+            return info;
+        }
+
+        inline vk::Viewport Viewport(
+            float x, float y,
+            float width, float height,
+            float minDepth, float maxDepth)
+        {
+            vk::Viewport viewport;
+            viewport.x = x;
+            viewport.y = y;
+            viewport.width = width;
+            viewport.height = height;
+            viewport.minDepth = minDepth;
+            viewport.maxDepth = maxDepth;
+
+            return viewport;
+        }
+
+        inline vk::PipelineViewportStateCreateInfo PipelineViewportStateCreateInfo(
+            uint32_t viewportCount,
+            uint32_t scissorCount,
+            vk::PipelineViewportStateCreateFlags flags = vk::PipelineViewportStateCreateFlags())
+        {
+            vk::PipelineViewportStateCreateInfo info;
+            info.viewportCount = viewportCount;
+            info.scissorCount = scissorCount;
+            info.flags = flags;
+
+            return info;
+        }
+
+
         inline vk::ShaderModule LoadShaderModule(const std::string& filepath)
         {
             std::ifstream file(filepath, std::ios::ate | std::ios::binary);
