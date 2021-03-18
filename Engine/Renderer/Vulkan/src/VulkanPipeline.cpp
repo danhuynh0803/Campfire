@@ -16,6 +16,8 @@ struct PipelineVertex
 VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     : type(pipelineType)
 {
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
     // Setup fixed function part of pipeline
 
     // Vertex input
@@ -29,12 +31,10 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, color));
     attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, uv));
 
-    vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
-    vertexInputStateCreateInfo.flags = vk::PipelineVertexInputStateCreateFlags();
-    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-    vertexInputStateCreateInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-    vertexInputStateCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    auto vertexInputStateCreateInfo = vk::initializers::PipelineVertexInputStateCreateInfo(
+        1, &bindingDescription,
+        static_cast<uint32_t>(attributeDescriptions.size()), attributeDescriptions.data()
+    );
 
     // Input assembly
     auto inputAssemblyStateCreateInfo = vk::initializers::PipelineInputAssemblyStateCreateInfo(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
@@ -42,64 +42,27 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup viewports and scissor rect
     auto swapChain = VulkanContext::Get()->GetSwapChain();
     auto swapChainExtent = swapChain->GetExtent();
-    auto viewport =
-        vk::initializers::Viewport(
-            0.0f, 0.0f,                 // x, y
-            swapChainExtent.width,      // width
-            swapChainExtent.height,     // height
-            0.0f, 1.0f                  // min, maxDepth
-        );
+    auto viewport = vk::initializers::Viewport(0.0f, 0.0f, swapChainExtent.width, swapChainExtent.height, 0.0f, 1.0);
 
     vk::Rect2D scissors;
     scissors.offset = {0, 0};
     scissors.extent = swapChainExtent;
 
-    auto viewportStateCreateInfo = vk::initializers::PipelineViewportStateCreateInfo(1, 1);
-    viewportStateCreateInfo.pViewports = &viewport;
-    viewportStateCreateInfo.pScissors = &scissors;
+    auto viewportStateCreateInfo = vk::initializers::PipelineViewportStateCreateInfo(1, &viewport, 1, &scissors);
 
     // Setup rasterizer
-    // Note: depthClampEnable: if true, fragments beyond
-    // near and far planes will be clamped instead of being discard
     auto rasterizationStateCreateInfo = vk::initializers::PipelineRasterizationStateCreateInfo(vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise);
 
-    // Enable multisampling
+    // Multisampling
     auto multisampleCreateInfo = vk::initializers::PipelineMultisampleStateCreateInfo(vk::SampleCountFlagBits::e1);
 
     // Depth and stencil operators
-    vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo {};
-    depthStencilCreateInfo.depthTestEnable = true;
-    depthStencilCreateInfo.depthWriteEnable = true;
-    depthStencilCreateInfo.depthCompareOp = vk::CompareOp::eLess;
-    depthStencilCreateInfo.depthBoundsTestEnable = false;
-    depthStencilCreateInfo.minDepthBounds = 0.0f;
-    depthStencilCreateInfo.maxDepthBounds = 1.0f;
-    depthStencilCreateInfo.stencilTestEnable = false;
-    depthStencilCreateInfo.front = {};
-    depthStencilCreateInfo.back = {};
+    auto depthStencilCreateInfo = vk::initializers::PipelineDepthStencilStateCreateInfo(VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
 
     // Setup color blending
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
-    colorBlendAttachment.blendEnable = VK_FALSE;
-    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;
-    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero;
-    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
-    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
-    colorBlendAttachment.colorWriteMask =
-        vk::ColorComponentFlagBits::eR
-        | vk::ColorComponentFlagBits::eG
-        | vk::ColorComponentFlagBits::eB
-        | vk::ColorComponentFlagBits::eA
-    ;
-
-    vk::PipelineColorBlendStateCreateInfo colorBlendCreateInfo;
-    colorBlendCreateInfo.flags = vk::PipelineColorBlendStateCreateFlags();
-    colorBlendCreateInfo.logicOpEnable = VK_FALSE;
-    colorBlendCreateInfo.logicOp = vk::LogicOp::eCopy;
-    colorBlendCreateInfo.attachmentCount = 1;
-    colorBlendCreateInfo.pAttachments = &colorBlendAttachment;
+    auto colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    auto colorBlendAttachment = vk::initializers::PipelineColorBlendAttachmentState(colorWriteMask, VK_FALSE);
+    auto colorBlendState = vk::initializers::PipelineColorBlendStateCreateInfo(1, &colorBlendAttachment);
 
     // Setup dynamic state - these can be changed without recreating the pipeline
     std::vector<vk::DynamicState> dynamicStates =
@@ -113,6 +76,44 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
 
+    // Setup descriptors (doesnt have to be part of pipeline creation)
+    SetupDescriptors();
+
+    // Setup pipeline layout
+    auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(1, &descriptorSetLayout.get());
+    pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+
+    SetupRenderPass();
+
+    // Shaders
+    auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/vert.spv", vk::ShaderStageFlagBits::eVertex);
+    auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/frag.spv", vk::ShaderStageFlagBits::eFragment);
+    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+    // Create Graphics pipeline
+    vk::GraphicsPipelineCreateInfo pipelineCreateInfo;
+    pipelineCreateInfo.flags = vk::PipelineCreateFlags();
+    pipelineCreateInfo.stageCount = 2;
+    pipelineCreateInfo.pStages = shaderStages;
+    pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
+    pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
+    pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
+    pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
+    pipelineCreateInfo.pColorBlendState = &colorBlendState;
+    pipelineCreateInfo.pDynamicState = nullptr;
+    pipelineCreateInfo.layout = pipelineLayout.get();
+    pipelineCreateInfo.renderPass = renderPass.get();
+    pipelineCreateInfo.subpass = 0;
+    pipelineCreateInfo.basePipelineHandle = nullptr;
+    pipelineCreateInfo.basePipelineIndex = -1;
+
+    pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+}
+
+void VulkanPipeline::SetupDescriptors()
+{
     std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
     { // UBO descriptor layout
         for (size_t i = 0; i < 2; ++i)
@@ -171,45 +172,6 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     descriptorSets.resize(swapChainImages.size());
     descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
-
-    // Setup pipeline layout
-    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-    pipelineLayoutCreateInfo.setLayoutCount = 1;
-    pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout.get();
-    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-    pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-
-    pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
-
-    SetupRenderPass();
-
-    // Shaders
-    auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/vert.spv", vk::ShaderStageFlagBits::eVertex);
-    auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/frag.spv", vk::ShaderStageFlagBits::eFragment);
-    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-    // ==============================
-    // Create Graphics pipeline
-    vk::GraphicsPipelineCreateInfo pipelineCreateInfo;
-    pipelineCreateInfo.flags = vk::PipelineCreateFlags();
-    pipelineCreateInfo.stageCount = 2;
-    pipelineCreateInfo.pStages = shaderStages;
-    pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
-    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
-    pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
-    pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
-    pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
-    pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
-    pipelineCreateInfo.pColorBlendState = &colorBlendCreateInfo;
-    pipelineCreateInfo.pDynamicState = nullptr;
-    pipelineCreateInfo.layout = pipelineLayout.get();
-    pipelineCreateInfo.renderPass = renderPass.get();
-    pipelineCreateInfo.subpass = 0;
-    pipelineCreateInfo.basePipelineHandle = nullptr;
-    pipelineCreateInfo.basePipelineIndex = -1;
-
-    pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
-    // ==============================
 }
 
 void VulkanPipeline::SetupRenderPass()

@@ -36,11 +36,20 @@ namespace vk
         }
 
         inline vk::PipelineVertexInputStateCreateInfo PipelineVertexInputStateCreateInfo(
-            uint32_t descriptionCount,
+            uint32_t vertexBindingDescriptionCount,
+            vk::VertexInputBindingDescription* pVertexBindingDescriptions,
+            uint32_t vertexAttributeDescriptionCount,
+            vk::VertexInputAttributeDescription* pVertexAttributeDescriptions,
             vk::PipelineVertexInputStateCreateFlags flags = vk::PipelineVertexInputStateCreateFlags())
         {
             vk::PipelineVertexInputStateCreateInfo info;
+            info.vertexBindingDescriptionCount = vertexBindingDescriptionCount;
+            info.pVertexBindingDescriptions = pVertexBindingDescriptions;
+            info.vertexAttributeDescriptionCount = vertexAttributeDescriptionCount;
+            info.pVertexAttributeDescriptions = pVertexAttributeDescriptions;
             info.flags = flags;
+
+            return info;
         }
 
         inline vk::PipelineInputAssemblyStateCreateInfo PipelineInputAssemblyStateCreateInfo(
@@ -74,15 +83,19 @@ namespace vk
 
         inline vk::PipelineViewportStateCreateInfo PipelineViewportStateCreateInfo(
             uint32_t viewportCount,
+            vk::Viewport* pViewports,
             uint32_t scissorCount,
+            vk::Rect2D* pScissors,
             vk::PipelineViewportStateCreateFlags flags = vk::PipelineViewportStateCreateFlags())
         {
-            vk::PipelineViewportStateCreateInfo info;
-            info.viewportCount = viewportCount;
-            info.scissorCount = scissorCount;
-            info.flags = flags;
+            vk::PipelineViewportStateCreateInfo pipelineViewportStateCreateInfo {};
+            pipelineViewportStateCreateInfo.viewportCount = viewportCount;
+            pipelineViewportStateCreateInfo.pViewports = pViewports;
+            pipelineViewportStateCreateInfo.scissorCount = scissorCount;
+            pipelineViewportStateCreateInfo.pScissors = pScissors;
+            pipelineViewportStateCreateInfo.flags = flags;
 
-            return info;
+            return pipelineViewportStateCreateInfo;
         }
 
         inline vk::PipelineRasterizationStateCreateInfo PipelineRasterizationStateCreateInfo(
@@ -111,18 +124,75 @@ namespace vk
             vk::SampleCountFlagBits rasterizationSamples,
             vk::PipelineMultisampleStateCreateFlags flags = vk::PipelineMultisampleStateCreateFlags())
         {
-            vk::PipelineMultisampleStateCreateInfo info;
+            vk::PipelineMultisampleStateCreateInfo info {};
             info.rasterizationSamples = rasterizationSamples;
             info.flags = flags;
 
-            // TODO expose later, but not gonna use for a while
-            //info.sampleShadingEnable = VK_FALSE;
-            //info.minSampleShading = 1.0f;
-            //info.pSampleMask = nullptr;
-            //info.alphaToCoverageEnable = VK_FALSE;
-            //info.alphaToOneEnable = VK_FALSE;
+            info.sampleShadingEnable = VK_FALSE;
+            info.minSampleShading = 1.0f;
+            info.pSampleMask = nullptr;
+            info.alphaToCoverageEnable = VK_FALSE;
+            info.alphaToOneEnable = VK_FALSE;
 
             return info;
+        }
+
+        inline vk::PipelineColorBlendAttachmentState PipelineColorBlendAttachmentState(
+            vk::ColorComponentFlags colorWriteMask,
+            vk::Bool32 blendEnable)
+        {
+            vk::PipelineColorBlendAttachmentState state {};
+            state.colorWriteMask = colorWriteMask;
+            state.blendEnable = blendEnable;
+
+            return state;
+        }
+
+        inline vk::PipelineColorBlendStateCreateInfo PipelineColorBlendStateCreateInfo(
+            uint32_t attachmentCount,
+            vk::PipelineColorBlendAttachmentState* pAttachments,
+            vk::PipelineColorBlendStateCreateFlags flags = vk::PipelineColorBlendStateCreateFlags())
+        {
+            vk::PipelineColorBlendStateCreateInfo info {};
+            info.attachmentCount = attachmentCount;
+            info.pAttachments = pAttachments;
+            info.flags = flags;
+            info.logicOpEnable = VK_FALSE;
+            //info.logicOp = vk::LogicOp::eCopy;
+
+            return info;
+        }
+
+
+        inline vk::PipelineDepthStencilStateCreateInfo PipelineDepthStencilStateCreateInfo(
+            vk::Bool32 depthTestEnable,
+            vk::Bool32 depthWriteEnable,
+            vk::CompareOp depthCompareOp)
+        {
+            vk::PipelineDepthStencilStateCreateInfo info {};
+            info.depthTestEnable = depthTestEnable;
+            info.depthWriteEnable = depthWriteEnable;
+
+            info.depthCompareOp = depthCompareOp;
+            info.depthBoundsTestEnable = false;
+            info.minDepthBounds = 0.0f;
+            info.maxDepthBounds = 1.0f;
+            info.stencilTestEnable = false;
+            info.front = {};
+            info.back = {};
+
+            return info;
+        }
+
+        inline vk::PipelineLayoutCreateInfo PipelineLayoutCreateInfo(
+            uint32_t setLayoutCount,
+            vk::DescriptorSetLayout* pSetLayouts)
+        {
+            vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
+            pipelineLayoutCreateInfo.setLayoutCount = setLayoutCount;
+            pipelineLayoutCreateInfo.pSetLayouts = pSetLayouts;
+
+            return pipelineLayoutCreateInfo;
         }
 
         inline vk::ShaderModule LoadShaderModule(const std::string& filepath)

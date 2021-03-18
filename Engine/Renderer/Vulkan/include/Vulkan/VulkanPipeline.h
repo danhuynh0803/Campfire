@@ -27,7 +27,7 @@ private:
     void CreateDescriptorSets();
     void CreateDescriptorPool();
     void SetupRenderPass();
-
+    void SetupDescriptors();
 
 private:
     vk::UniquePipeline pipeline;
