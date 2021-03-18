@@ -23,20 +23,25 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//============================Modified version=====================================
+
 #pragma once
 
 #ifndef IOBJECTUTILS_INCLUDED
 #define IOBJECTUTILS_INCLUDED
 
-#include "../../RuntimeObjectSystem/IObject.h"
-#include "InterfaceIds.h"
+#include "RuntimeObjectSystem/IObject.h"
+#include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "RuntimeObjectSystem/ISimpleSerializer.h"
+
+#include "RCCppInterfaceID.h"
+#include "RCCppSystemTable.h"
+#include "IEntitySystem.h"
+#include "Core/Log.h"
 //#include "IEntityObject.h"
-#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
-#include "../../Systems/SystemTable.h"
-#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
-#include "../../Systems/IEntitySystem.h"
-#include "../../Systems/ILogSystem.h"
+//#include "ILogSystem.h"
+
 
 
 #define SERIALIZEIOBJPTR(objPtr) SerializeIObjectPtr(pSerializer, #objPtr, &objPtr);
@@ -127,8 +132,9 @@ struct IObjectUtils
 		}
 		else
 		{
-			PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObjectAndEntity: Could not find constructor: %s\n", objectType  );
-			pObj = 0;
+			CORE_ERROR("CreateObjectAndEntity: Could not find constructor : {0}\n", objectType);
+			//PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObjectAndEntity: Could not find constructor: %s\n", objectType  );
+			pObj = nullptr;
 		}
 		return pObj;
 	}
@@ -144,7 +150,8 @@ struct IObjectUtils
 		}
 		else
 		{
-			PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: Could not find constructor: %s\n", objectType  );
+			CORE_ERROR("CreateObject: Could not find constructor : {0}\n", objectType);
+			//PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: Could not find constructor: %s\n", objectType  );
 			pObj = 0;
 		}
 		return pObj;
@@ -186,7 +193,8 @@ struct IObjectUtils
 		}
 		else
 		{
-			PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: Could not find constructor\n"  );
+			CORE_ERROR("CreateObject: Could not find constructor");
+			//PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: Could not find constructor\n"  );
 		}
 		return pObj;
 	}
@@ -200,7 +208,8 @@ struct IObjectUtils
 			if( 0 == *pInterface )
 			{
 				//mismatched type
-				PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: requested objectType does not support interface\n"  );
+				CORE_ERROR("CreateObject: requested objectType does not support interface.");
+				//PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: requested objectType does not support interface\n"  );
 				delete pObj;
 			}
 		}
@@ -252,7 +261,8 @@ struct IObjectUtils
 			}
 			else
 			{
-				PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateUniqueObject: Could not find constructor: %s\n", objectType  );
+				CORE_ERROR("CreateUniqueObject: Could not find constructor : {0}", objectType);
+				//PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateUniqueObject: Could not find constructor: %s\n", objectType  );
 			}
 		}
 		return pObj;

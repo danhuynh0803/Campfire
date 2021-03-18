@@ -9,6 +9,15 @@ set(GAME_HEADERS
     include/TestX.h
     include/TestY.h
     include/TestZ.h
+    include/IEntity.h
+    include/IEntityObject.h
+    include/IEntitySystem.h
+    include/ILogSystem.h
+    include/IObjectUtils.h
+    include/ISystem.h
+    include/IUpdateable.h
+    include/Definition.inl
+    include/IGameObject.h
 )
 
 set(GAME_SRC
@@ -19,6 +28,7 @@ set(GAME_SRC
     src/StdioLogSystem.cpp
     src/TestX.cpp
     src/TestY.cpp
+    src/GameObject.cpp
 )
 
 add_executable(

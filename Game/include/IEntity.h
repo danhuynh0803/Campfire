@@ -15,14 +15,15 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+//============================Modified version=====================================
 #pragma once
 
 #ifndef IAUENTITY_INCLUDED
 #define IAUENTITY_INCLUDED
 
-#include "Definitions.inl"
-#include "../Common/AUOrientation3D.inl"
-#include "../Common/AUVec3f.inl"
+#include "Definition.inl"
+//#include "../Common/AUOrientation3D.inl"
+//#include "../Common/AUVec3f.inl"
 
 #define AU_ENTITY_NAME_LENGTH 32
 
@@ -43,13 +44,13 @@ struct IAUEntity
 		virtual IEntityObject * GetObject() = 0;
 		virtual void SetObject(IEntityObject *pObject) = 0;
 
-		virtual const IAURenderable * GetRenderable() const = 0;
+		virtual const IAUUpdateable* GetUpdateable() const = 0;
+		virtual IAUUpdateable* GetUpdateable() = 0;
+		virtual void SetUpdateable(IAUUpdateable* pUpdateable) = 0;
+
+		/*virtual const IAURenderable * GetRenderable() const = 0;
 		virtual IAURenderable * GetRenderable() = 0;
 		virtual void SetRenderable(IAURenderable *pRenderable) = 0;
-
-		virtual const IAUUpdateable * GetUpdateable() const = 0;
-		virtual IAUUpdateable * GetUpdateable() = 0;
-		virtual void SetUpdateable(IAUUpdateable *pUpdateable) = 0;
 
 		virtual const AUVec3f& GetPosition() const = 0;
 		virtual AUVec3f& GetPosition() = 0;
@@ -64,7 +65,7 @@ struct IAUEntity
 		virtual const AUOrientation3D& GetOrientation() const = 0;
 		virtual AUOrientation3D& GetOrientation() = 0;
 		virtual void SetOrientation(const AUOrientation3D& vOrientation) = 0;
-		virtual void SetOrientation(float xForward, float yForward, float zForward, float xUp, float yUp, float zUp) = 0;
+		virtual void SetOrientation(float xForward, float yForward, float zForward, float xUp, float yUp, float zUp) = 0;*/
     
         virtual ~IAUEntity() {}
 };

@@ -5,30 +5,33 @@
 #include "RuntimeObjectSystem/IObject.h" 
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/IRuntimeObjectSystem.h"
+#include "RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "RCCppEntry.h"
-#include <vector>
 #include "Scene/Scene.h"
-#include "Core/Base.h"
 #include "Scene/Entity.h"
+#include "Core/Base.h"
 #include "Renderer/SceneRenderer.h"
-#include "TestY.h"
 
+#include "TestY.h"
+#include "IEntitySystem.h"
+
+#include <vector>
 //#include "Scripting/Script.h"
 //#include "entt.hpp"
 
 static SystemTable*& g_SystemTable = PerModuleInterface::g_pSystemTable;
 
 //We want pure virtual interfaces here
-//Don't neeed to link as much
 //https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Using-the-SystemTable-to-pass-interfaces-to-Runtime-Compiled-Code
 struct SystemTable
 {
+    IObjectFactorySystem* pObjectFactorySystem = nullptr;
     IRuntimeObjectSystem* runtimeObjectSystem = nullptr;
     IRCCppEntry* RCCppEntry = nullptr;
-    //ITest* test = nullptr;
+    IEntitySystem* pEntitySystem = nullptr;
+    ICompilerLogger* pLogger = nullptr;
     SharedPtr<Scene> activeScene = nullptr;
     SharedPtr<SceneRenderer> sceneRenderer = nullptr;
     std::vector<ITest*> tests;
-    ICompilerLogger* pLogger = nullptr;
 };
 #endif // !RCCPP_SYSTEMABLE.H

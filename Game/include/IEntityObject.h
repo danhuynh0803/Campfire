@@ -24,18 +24,20 @@
 // for correct serialization, and saves having to reimplement the same boilerplate in every object class
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//============================Modified version=====================================
 #pragma once
 
 #ifndef IENTITYOBJECT_INCLUDED
 #define IENTITYOBJECT_INCLUDED
 
-#include "InterfaceIds.h"
-#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
-#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
-#include "../../RuntimeObjectSystem/IObject.h"
-#include "../../Systems/SystemTable.h"
-#include "../../Systems/IEntity.h"
-#include "../../Systems/IEntitySystem.h"
+#include "RCCppInterfaceID.h"
+#include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "RuntimeObjectSystem/ISimpleSerializer.h"
+#include "RuntimeObjectSystem/IObject.h"
+#include "RCCppSystemTable.h"
+#include "Systems/IEntity.h"
+#include "Systems/IEntitySystem.h"
 #include <assert.h>
 
 

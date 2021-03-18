@@ -15,6 +15,8 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+//============================Modified version=====================================
+
 #pragma once
 
 #ifndef IENTITYSYSTEM_INCLUDED
@@ -25,9 +27,8 @@
 // Position seems somehow special. Lots of things care about positions and positions without physics can make sense.
 // Entities include static geometry, Pneumata, some interface elements? 
 
-
-#include "../Common/AUVec3f.inl"
-#include "../RuntimeCompiler/AUArray.h"
+//#include "../Common/AUVec3f.inl"
+#include "RuntimeCompiler/AUArray.h"
 #include "ISystem.h"
 #include "IEntity.h"
 
