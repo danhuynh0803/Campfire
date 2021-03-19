@@ -18,6 +18,7 @@ public:
     void Begin(); // Start of frame
     void End();   // End of frame
 
-private:
     SharedPtr<VulkanImGui> mImGuiImpl = nullptr;
+
+private:
 };

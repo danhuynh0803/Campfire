@@ -48,8 +48,8 @@ Application::Application(const ApplicationProps& props)
 
     // TODO should be part of the overlay thats handled by each application instead of in the core engine
     // Imgui overlay
-    //imguiLayer = new VulkanImGuiLayer();
-    //PushOverlay(imguiLayer);
+    imguiLayer = new VulkanImGuiLayer();
+    PushOverlay(imguiLayer);
 }
 
 Application::~Application()
@@ -77,15 +77,15 @@ void Application::Run()
             layer->OnUpdate(static_cast<float>(Time::deltaTime));
         }
 
-        if (enableImgui)
-        {
-            imguiLayer->Begin();
-            for (Layer* layer : layerStack)
-            {
-                layer->OnImGuiRender();
-            }
-            imguiLayer->End();
-        }
+        //if (enableImgui)
+        //{
+        //    imguiLayer->Begin();
+        //    for (Layer* layer : layerStack)
+        //    {
+        //        layer->OnImGuiRender();
+        //    }
+        //    imguiLayer->End();
+        //}
 
         window->OnUpdate();
     }

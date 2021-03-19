@@ -81,20 +81,28 @@ void VulkanImGuiLayer::Begin()
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGuizmo::BeginFrame();
+
+    ImVec4 clear_color = ImColor(114, 144, 154);
+    static float f = 0.0f;
+    ImGui::TextUnformatted("ImGui Vulkan");
+    ImGui::Begin("Example Window");
+    ImGui::Text("Test Text");
+    ImGui::End();
+
+    //ImGui::TextUnformatted(device->properties.deviceName); // TODO
+
+    //ImGuizmo::BeginFrame();
 
     ImGui::ShowDemoWindow();
+    ImGui::Render();
 }
 
 // End of frame
 void VulkanImGuiLayer::End()
 {
-    ImGui::Render();
-
     mImGuiImpl->UpdateBuffers();
 
     auto cmdBuffer = vk::util::BeginSingleTimeCommands();
-        //ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
         mImGuiImpl->DrawFrame(cmdBuffer);
     vk::util::EndSingleTimeCommands(cmdBuffer);
 

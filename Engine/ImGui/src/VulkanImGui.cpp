@@ -33,7 +33,6 @@ void VulkanImGui::UpdateBuffers()
             vertexBufferSize,
             vk::SharingMode::eExclusive);
         mVertexCount = imDrawData->TotalVtxCount;
-        mVertexBuffer->Map();
     }
 
     if (!mIndexBuffer || !mIndexBuffer->mBuffer
@@ -45,12 +44,11 @@ void VulkanImGui::UpdateBuffers()
             indexBufferSize,
             vk::SharingMode::eExclusive);
         mIndexCount = imDrawData->TotalIdxCount;
-        mIndexBuffer->Map();
     }
 
     // Upload data
-    ImDrawVert* vertData = (ImDrawVert*)mVertexBuffer->mMappedRegion;
-    ImDrawIdx* idxData = (ImDrawIdx*)mIndexBuffer->mMappedRegion;
+    ImDrawVert* vertData = (ImDrawVert*)mVertexBuffer->Map();
+    ImDrawIdx* idxData = (ImDrawIdx*)mIndexBuffer->Map();
 
     for (int i = 0; i < imDrawData->CmdListsCount; ++i)
     {
@@ -60,20 +58,47 @@ void VulkanImGui::UpdateBuffers()
         vertData += cmdList->VtxBuffer.Size;
         idxData += cmdList->IdxBuffer.Size;
     }
+
+    mVertexBuffer->Unmap();
+    mIndexBuffer->Unmap();
 }
 
 void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, 1, &mDescriptorSets.at(0).get(), 0, nullptr);
+    // Setup renderpass
+    // TODO move this to a beginFrame func
+    //vk::Extent2D extent;
+    //extent.width = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    //extent.height = VulkanContext::Get()->GetSwapChain()->GetHeight();
+
+    //vk::Rect2D renderArea;
+    //renderArea.offset = {0, 0};
+    //renderArea.extent = extent;
+
+    //std::array<vk::ClearValue, 2> clearValues;
+    //clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.3f, 0.3f, 1.0f } }));
+    //clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+
+    //auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentFramebuffer();
+
+    //vk::RenderPassBeginInfo renderPassBeginInfo;
+    //renderPassBeginInfo.renderPass = VulkanContext::Get()->GetPipeline()->GetVulkanRenderPass();
+    //renderPassBeginInfo.framebuffer = framebuffer;
+    //renderPassBeginInfo.renderArea = renderArea;
+    //renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    //renderPassBeginInfo.pClearValues = clearValues.data();
+
+    //cmdBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline.get());
+    cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout.get(), 0, 1, &mDescriptorSets.at(0).get(), 0, nullptr);
 
     vk::Viewport viewport = {
+        0, 0,               // x, y
         io.DisplaySize.x,   // width
         io.DisplaySize.y,   // height
-        0.0f,               // minDepth
-        1.0f                // maxDepth
+        0.0f, 1.0f          // min, maxDepth
     };
     cmdBuffer.setViewport(0, 1, &viewport);
 
@@ -292,10 +317,10 @@ void VulkanImGui::InitResources()
     { // Pipeline layout
         vk::PushConstantRange pushConstantRange = {};
         pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-        pushConstantRange.size = sizeof(vk::PushConstantRange);
+        pushConstantRange.size = sizeof(PushConstBlock);
         pushConstantRange.offset = 0;
 
-        vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
+        vk::PipelineLayoutCreateInfo pipelineLayoutInfo = vk::initializers::PipelineLayoutCreateInfo(1, &mDescriptorSetLayout.get());
         pipelineLayoutInfo.pushConstantRangeCount = 1;
         pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
         mPipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutInfo);

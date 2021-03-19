@@ -9,7 +9,7 @@ public:
     VulkanApplication(const ApplicationProps& props)
         : Application(props)
     {
-        enableImgui = false;
+        //enableImgui = false;
     }
 
     virtual void OnInit() override

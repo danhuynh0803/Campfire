@@ -36,13 +36,15 @@ public:
     bool OnWindowMinimize(WindowMinimizeEvent& event);
     Window& GetWindow() { return *window; }
 
+    VulkanImGuiLayer* imguiLayer;
+
 protected:
     bool enableImgui = true;
     static Application* instance;
 private:
     bool isRunning = true;
     //ImGuiLayer* imguiLayer;
-    VulkanImGuiLayer* imguiLayer;
+    //VulkanImGuiLayer* imguiLayer;
     LayerStack layerStack;
     std::unique_ptr<Window> window;
 };

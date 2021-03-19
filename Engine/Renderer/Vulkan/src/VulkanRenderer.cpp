@@ -8,12 +8,14 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     auto commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentCommandBuffer();
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentFramebuffer();
     uint32_t imageIndex = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
+    VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
     vk::CommandBufferBeginInfo beginInfo;
         // TODO: investigate if simulataneous use is faster or slower?
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
     beginInfo.pInheritanceInfo = nullptr;
 
+    // TODO move this to a beginFrame func
     vk::Extent2D extent;
     extent.width = VulkanContext::Get()->GetSwapChain()->GetWidth();
     extent.height = VulkanContext::Get()->GetSwapChain()->GetHeight();
@@ -21,6 +23,9 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     vk::Rect2D renderArea;
     renderArea.offset = {0, 0};
     renderArea.extent = extent;
+
+    vkImguiLayer->Begin();
+    vkImguiLayer->mImGuiImpl->UpdateBuffers();
 
     commandBuffer.begin(beginInfo);
 
@@ -49,6 +54,9 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
         commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
 
         commandBuffer.drawIndexed(count, 1, 0, 0, 0);
+
+        vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+
     commandBuffer.endRenderPass();
 
     commandBuffer.end();
