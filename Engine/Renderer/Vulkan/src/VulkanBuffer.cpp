@@ -5,9 +5,9 @@
 #include "Vulkan/VulkanInitializers.h"
 
 VulkanBuffer::VulkanBuffer(
-    uint32_t size,
     vk::BufferUsageFlags usage,
     vk::MemoryPropertyFlags propertyFlags,
+    uint32_t size,
     vk::SharingMode sharingMode)
     : mSize(size)
 {
@@ -21,9 +21,14 @@ VulkanBuffer::VulkanBuffer(
     vk::MemoryAllocateInfo allocInfo;
     allocInfo.allocationSize = memoryReqs.size;
     allocInfo.memoryTypeIndex = vk::util::FindMemoryType(memoryReqs.memoryTypeBits, propertyFlags);
-
     mBufferMemory = mDevice.allocateMemoryUnique(allocInfo);
-    mDevice.bindBufferMemory(mBuffer.get(), mBufferMemory.get(), 0);
+
+    Bind();
+}
+
+void VulkanBuffer::Bind(vk::DeviceSize offset)
+{
+    mDevice.bindBufferMemory(mBuffer.get(), mBufferMemory.get(), offset);
 }
 
 void* VulkanBuffer::Map()
@@ -34,7 +39,16 @@ void* VulkanBuffer::Map()
 
 void VulkanBuffer::Unmap()
 {
-    mDevice.unmapMemory(mBufferMemory.get());
+    if (mMappedRegion)
+    {
+        mDevice.unmapMemory(mBufferMemory.get());
+        mMappedRegion = nullptr;
+    }
+}
+
+void VulkanBuffer::Flush()
+{
+
 }
 
 //=====================================================================

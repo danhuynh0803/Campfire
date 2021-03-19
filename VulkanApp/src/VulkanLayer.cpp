@@ -99,20 +99,18 @@ void VulkanLayer::OnAttach()
 
     //vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     VulkanBuffer stagingBuffer(
-        sizeof(vertices),
         vk::BufferUsageFlagBits::eTransferSrc,
         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        vk::SharingMode::eExclusive);
+        sizeof(vertices));
 
     auto dataRegion = stagingBuffer.Map();
         memcpy(dataRegion, vertices, sizeof(vertices));
     stagingBuffer.Unmap();
 
     pVertexBuffer = CreateSharedPtr<VulkanBuffer>(
-        sizeof(vertices),
         vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
         vk::MemoryPropertyFlagBits::eDeviceLocal,
-        vk::SharingMode::eExclusive);
+        sizeof(vertices));
 
     auto commandBuffer = vk::util::BeginSingleTimeCommands();
         vk::BufferCopy region;

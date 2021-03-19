@@ -57,7 +57,7 @@ void VulkanImGuiLayer::OnAttach()
 
     //ImGui_ImplVulkan_Init(&initInfo, mImGuiImpl->GetImGuiRenderPass());
 
-    mImGuiImpl = CreateSharedPtr<VulkanImGuiImpl>();
+    mImGuiImpl = CreateSharedPtr<VulkanImGui>();
 }
 
 void VulkanImGuiLayer::OnEvent(Event& e)

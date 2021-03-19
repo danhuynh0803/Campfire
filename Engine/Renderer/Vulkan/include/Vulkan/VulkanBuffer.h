@@ -4,23 +4,25 @@
 
 #include <glm/glm.hpp>
 
-class VulkanBuffer
+struct VulkanBuffer
 {
-public:
+    VulkanBuffer() = default;
     VulkanBuffer(
-        uint32_t size,
         vk::BufferUsageFlags usage,
         vk::MemoryPropertyFlags propertyFlags,
-        vk::SharingMode sharingMode
+        uint32_t size,
+        vk::SharingMode sharingMode = vk::SharingMode::eExclusive
     );
 
+    void Bind(vk::DeviceSize offset = 0);
     void* Map();
     void Unmap();
+    void Flush();
     vk::Buffer Get() { return mBuffer.get(); }
-private:
+
     vk::UniqueBuffer mBuffer;
     vk::UniqueDeviceMemory mBufferMemory;
-    void* mMappedRegion;
+    void* mMappedRegion = nullptr;
     uint32_t mSize;
     vk::Device mDevice;
 };

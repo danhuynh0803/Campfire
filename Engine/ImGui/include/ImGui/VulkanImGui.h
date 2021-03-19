@@ -4,10 +4,10 @@
 #include "Vulkan/VulkanBuffer.h"
 //#include "Vulkan/VulkanDevice.h"
 
-class VulkanImGuiImpl
+class VulkanImGui
 {
 public:
-    VulkanImGuiImpl();
+    VulkanImGui();
     //~VulkanImgui() = default;
 
     void InitResources();
@@ -23,10 +23,8 @@ public:
     uint32_t mVertexCount;
     uint32_t mIndexCount;
 
-    SharedPtr<VulkanVertexBuffer> mVertexBuffer;
-    SharedPtr<VulkanIndexBuffer> mIndexBuffer;
-    //vk::UniqueBuffer mVertexBuffer;
-    //vk::UniqueBuffer mIndexBuffer;
+    VulkanBuffer mVertexBuffer;
+    VulkanBuffer mIndexBuffer;
 
     vk::UniqueImage mFontImage;
     vk::UniqueDeviceMemory mFontMemory;
@@ -43,5 +41,4 @@ public:
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 
     vk::Device* mDevicePtr = nullptr;
-
-} typedef VulkanImGui;
+};

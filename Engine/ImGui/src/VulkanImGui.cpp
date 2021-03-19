@@ -4,12 +4,12 @@
 #include "Vulkan/VulkanShader.h"
 #include "Core/ResourceManager.h"
 
-VulkanImGuiImpl::VulkanImGuiImpl()
+VulkanImGui::VulkanImGui()
 {
     InitResources();
 }
 
-void VulkanImGuiImpl::UpdateBuffers()
+void VulkanImGui::UpdateBuffers()
 {
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
@@ -23,26 +23,22 @@ void VulkanImGuiImpl::UpdateBuffers()
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     // Update buffers only if vertex or index count has been changed compared to current buffer size
-    if ((mVertexBuffer == nullptr)
+    if (!mVertexBuffer.mBuffer
         || (mVertexCount != imDrawData->TotalVtxCount)
     ) {
-        mVertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
         mVertexCount = imDrawData->TotalVtxCount;
     }
 
-    if ((mIndexBuffer == nullptr)
+    if (!mIndexBuffer.mBuffer
         || (mIndexCount != imDrawData->TotalIdxCount)
     ) {
-        mIndexBuffer = CreateSharedPtr<VulkanIndexBuffer>(imDrawData, imDrawData->TotalIdxCount);
         mIndexCount = imDrawData->TotalIdxCount;
     }
 
     // Upload data
-    //mVertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
-    //mIndexBuffer = CreateSharedPtr<VulkanIndexBuffer>(imDrawData, imDrawData->TotalVtxCount * sizeof(ImDrawData));
 }
 
-void VulkanImGuiImpl::DrawFrame(vk::CommandBuffer cmdBuffer)
+void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -70,8 +66,8 @@ void VulkanImGuiImpl::DrawFrame(vk::CommandBuffer cmdBuffer)
     if (imDrawData->CmdListsCount > 0) {
 
         VkDeviceSize offsets[1] = { 0 };
-        cmdBuffer.bindVertexBuffers(0, 1, &mVertexBuffer->GetBuffer(), offsets);
-        cmdBuffer.bindIndexBuffer(mIndexBuffer->GetBuffer(), 0, vk::IndexType::eUint16);
+        cmdBuffer.bindVertexBuffers(0, 1, &mVertexBuffer.Get(), offsets);
+        cmdBuffer.bindIndexBuffer(mIndexBuffer.Get(), 0, vk::IndexType::eUint16);
 
         for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
         {
@@ -93,7 +89,7 @@ void VulkanImGuiImpl::DrawFrame(vk::CommandBuffer cmdBuffer)
     }
 }
 
-void VulkanImGuiImpl::InitResources()
+void VulkanImGui::InitResources()
 {
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     ImGuiIO& io = ImGui::GetIO();
