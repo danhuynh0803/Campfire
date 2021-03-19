@@ -71,10 +71,10 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
         vk::DynamicState::eLineWidth,
     };
 
-    vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    dynamicStateCreateInfo.flags = vk::PipelineDynamicStateCreateFlags();
-    dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-    dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
+    auto dynamicState = vk::initializers::PipelineDynamicStateCreateInfo(
+        static_cast<uint32_t>(dynamicStates.size()),
+        dynamicStates.data()
+    );
 
     // Setup descriptors (doesnt have to be part of pipeline creation)
     SetupDescriptors();
@@ -193,7 +193,7 @@ void VulkanPipeline::SetupRenderPass()
 
     // Depth Attachment
     vk::AttachmentDescription depthAttachment;
-    depthAttachment.format = vkUtil::FindDepthFormat();
+    depthAttachment.format = vk::util::FindDepthFormat();
     depthAttachment.samples = vk::SampleCountFlagBits::e1;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
@@ -235,7 +235,6 @@ void VulkanPipeline::SetupRenderPass()
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     renderPass = device.createRenderPassUnique(renderPassCreateInfo);
-    // ==============================
 }
 
 

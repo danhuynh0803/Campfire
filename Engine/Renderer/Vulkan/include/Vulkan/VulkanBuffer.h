@@ -4,6 +4,27 @@
 
 #include <glm/glm.hpp>
 
+class VulkanBuffer
+{
+public:
+    VulkanBuffer(
+        uint32_t size,
+        vk::BufferUsageFlags usage,
+        vk::MemoryPropertyFlags propertyFlags,
+        vk::SharingMode sharingMode
+    );
+
+    void* Map();
+    void Unmap();
+    vk::Buffer Get() { return mBuffer.get(); }
+private:
+    vk::UniqueBuffer mBuffer;
+    vk::UniqueDeviceMemory mBufferMemory;
+    void* mMappedRegion;
+    uint32_t mSize;
+    vk::Device mDevice;
+};
+
 class VulkanVertexBuffer
 {
 public:

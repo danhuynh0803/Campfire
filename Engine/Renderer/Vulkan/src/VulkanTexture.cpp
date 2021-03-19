@@ -32,7 +32,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         | vk::MemoryPropertyFlagBits::eHostCoherent
     ;
 
-    vkUtil::CreateBuffer(
+    vk::util::CreateBuffer(
         imageSize,
         stagingUsage,
         stagingMemoryProperties,
@@ -50,7 +50,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
     // Create the actual texture image
     vk::UniqueDeviceMemory textureImageMemory;
-    mImage = vkUtil::CreateUniqueImage(
+    mImage = vk::util::CreateUniqueImage(
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
         vk::Format::eR8G8B8A8Srgb,
@@ -58,7 +58,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled
     );
 
-    mImageMemory = vkUtil::CreateUniqueDeviceMemory(
+    mImageMemory = vk::util::CreateUniqueDeviceMemory(
         mImage.get(),
         vk::MemoryPropertyFlagBits::eDeviceLocal
     );
@@ -67,7 +67,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
     // Transition image to be optimal for transfering
     // which is vk::ImageLayout::eTransferDstOptimal
-    vkUtil::SwitchImageLayout(
+    vk::util::SwitchImageLayout(
         mImage.get(),
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eUndefined,
@@ -75,7 +75,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     );
 
     // Now ready to copy data from staging buffer to the image
-    auto cmdBuffer = vkUtil::BeginSingleTimeCommands();
+    auto cmdBuffer = vk::util::BeginSingleTimeCommands();
         vk::BufferImageCopy region {};
         region.bufferOffset = 0;
         region.bufferRowLength = 0;
@@ -100,10 +100,10 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
             1,
             &region
         );
-    vkUtil::EndSingleTimeCommands(cmdBuffer);
+    vk::util::EndSingleTimeCommands(cmdBuffer);
 
     // After data has been copied over, switch layout so that image is readable by shaders
-    vkUtil::SwitchImageLayout(
+    vk::util::SwitchImageLayout(
         mImage.get(),
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eTransferDstOptimal,
@@ -111,7 +111,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     );
 
     // Create ImageView
-    mImageView = vkUtil::CreateUniqueImageView(
+    mImageView = vk::util::CreateUniqueImageView(
         mImage.get(),
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageAspectFlagBits::eColor

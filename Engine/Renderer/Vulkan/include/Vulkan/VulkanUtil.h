@@ -1,45 +1,45 @@
 #include <Vulkan/vulkan.hpp>
 
-namespace vkUtil {
+namespace vk::util {
 
-uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+    uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
-void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
+    void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
 
-void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);
+    void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);
 
-vk::CommandBuffer BeginSingleTimeCommands();
+    vk::CommandBuffer BeginSingleTimeCommands();
 
-void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
+    void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
-void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+    void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
-vk::UniqueImage CreateUniqueImage(
-    uint32_t width, uint32_t height,
-    vk::Format format,
-    vk::ImageTiling tiling,
-    vk::ImageUsageFlags usage
-);
+    vk::UniqueImage CreateUniqueImage(
+        uint32_t width, uint32_t height,
+        vk::Format format,
+        vk::ImageTiling tiling,
+        vk::ImageUsageFlags usage
+    );
 
-vk::UniqueDeviceMemory CreateUniqueDeviceMemory(
-    vk::Image image,
-    vk::MemoryPropertyFlags properties
-);
+    vk::UniqueDeviceMemory CreateUniqueDeviceMemory(
+        vk::Image image,
+        vk::MemoryPropertyFlags properties
+    );
 
-vk::UniqueImageView CreateUniqueImageView(
-    vk::Image image,
-    vk::Format format,
-    vk::ImageAspectFlagBits aspectFlags
-);
+    vk::UniqueImageView CreateUniqueImageView(
+        vk::Image image,
+        vk::Format format,
+        vk::ImageAspectFlagBits aspectFlags
+    );
 
-vk::Format FindSupportedFormat(
-    const std::vector<vk::Format>& formats,
-    vk::ImageTiling tiling,
-    vk::FormatFeatureFlagBits features
-);
+    vk::Format FindSupportedFormat(
+        const std::vector<vk::Format>& formats,
+        vk::ImageTiling tiling,
+        vk::FormatFeatureFlagBits features
+    );
 
-vk::Format FindDepthFormat();
+    vk::Format FindDepthFormat();
 
-bool HasStencilComponent(vk::Format format);
+    bool HasStencilComponent(vk::Format format);
 
 }

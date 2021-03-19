@@ -105,7 +105,7 @@ void VulkanImGuiImpl::InitResources()
     vk::DeviceSize size = texWidth * texHeight * 4 * sizeof(char);
 
     // Create target image for copy
-    mFontImage = vkUtil::CreateUniqueImage(
+    mFontImage = vk::util::CreateUniqueImage(
         texWidth, texHeight,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageTiling::eOptimal,
@@ -114,14 +114,14 @@ void VulkanImGuiImpl::InitResources()
 
 
     // Allocate memory to image
-    mFontMemory = vkUtil::CreateUniqueDeviceMemory(
+    mFontMemory = vk::util::CreateUniqueDeviceMemory(
         mFontImage.get(),
         vk::MemoryPropertyFlagBits::eDeviceLocal
     );
     device.bindImageMemory(mFontImage.get(), mFontMemory.get(), 0);
 
     // Create image view
-    mFontImageView = vkUtil::CreateUniqueImageView(
+    mFontImageView = vk::util::CreateUniqueImageView(
         mFontImage.get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
@@ -137,7 +137,7 @@ void VulkanImGuiImpl::InitResources()
     vk::MemoryRequirements memoryReqs = device.getBufferMemoryRequirements(stagingBuffer.get());
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memoryReqs.size;
-    allocInfo.memoryTypeIndex = vkUtil::FindMemoryType(
+    allocInfo.memoryTypeIndex = vk::util::FindMemoryType(
         memoryReqs.memoryTypeBits,
         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
     );
@@ -150,7 +150,7 @@ void VulkanImGuiImpl::InitResources()
     device.unmapMemory(stagingBufferMemory.get());
 
     // Prepare for transfer, switch image layout
-    vkUtil::SwitchImageLayout(
+    vk::util::SwitchImageLayout(
         mFontImage.get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eUndefined,
@@ -158,7 +158,7 @@ void VulkanImGuiImpl::InitResources()
     );
 
     // Copy data from stagingBuffer to font image
-    auto cmdBuffer = vkUtil::BeginSingleTimeCommands();
+    auto cmdBuffer = vk::util::BeginSingleTimeCommands();
         vk::BufferImageCopy region{};
         region.bufferOffset = 0;
         region.bufferRowLength = 0;
@@ -182,10 +182,10 @@ void VulkanImGuiImpl::InitResources()
             1,
             &region
         );
-    vkUtil::EndSingleTimeCommands(cmdBuffer);
+    vk::util::EndSingleTimeCommands(cmdBuffer);
 
     // Transition image for shader read
-    vkUtil::SwitchImageLayout(
+    vk::util::SwitchImageLayout(
         mFontImage.get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eTransferDstOptimal,

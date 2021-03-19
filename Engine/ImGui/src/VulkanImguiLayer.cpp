@@ -93,10 +93,10 @@ void VulkanImGuiLayer::End()
 
     mImGuiImpl->UpdateBuffers();
 
-    auto cmdBuffer = vkUtil::BeginSingleTimeCommands();
+    auto cmdBuffer = vk::util::BeginSingleTimeCommands();
         //ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
         mImGuiImpl->DrawFrame(cmdBuffer);
-    vkUtil::EndSingleTimeCommands(cmdBuffer);
+    vk::util::EndSingleTimeCommands(cmdBuffer);
 
     /*
     ImGuiIO& io = ImGui::GetIO();

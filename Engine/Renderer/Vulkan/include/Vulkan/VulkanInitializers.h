@@ -7,6 +7,21 @@ namespace vk
 {
     namespace initializers
     {
+        inline vk::BufferCreateInfo BufferCreateInfo(
+            uint32_t size,
+            vk::BufferUsageFlags usage,
+            vk::SharingMode sharingMode,
+            vk::BufferCreateFlags flags = vk::BufferCreateFlags())
+        {
+            vk::BufferCreateInfo bufferCreateInfo {};
+            bufferCreateInfo.size = size;
+            bufferCreateInfo.usage = usage;
+            bufferCreateInfo.sharingMode = sharingMode;
+            bufferCreateInfo.flags = flags;
+
+            return bufferCreateInfo;
+        }
+
         inline vk::VertexInputBindingDescription VertexInputBindingDescription(
                 uint32_t binding,
                 uint32_t stride,
@@ -161,6 +176,19 @@ namespace vk
             //info.logicOp = vk::LogicOp::eCopy;
 
             return info;
+        }
+
+        inline vk::PipelineDynamicStateCreateInfo PipelineDynamicStateCreateInfo(
+            uint32_t dynamicStateCount,
+            vk::DynamicState* pDynamicStates,
+            vk::PipelineDynamicStateCreateFlags flags = vk::PipelineDynamicStateCreateFlags())
+        {
+            vk::PipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo {};
+            pipelineDynamicStateCreateInfo.dynamicStateCount = dynamicStateCount;
+            pipelineDynamicStateCreateInfo.pDynamicStates = pDynamicStates;
+            pipelineDynamicStateCreateInfo.flags = flags;
+
+            return pipelineDynamicStateCreateInfo;
         }
 
 

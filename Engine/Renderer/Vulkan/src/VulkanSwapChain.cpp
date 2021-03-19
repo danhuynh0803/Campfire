@@ -145,7 +145,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     for (auto image : swapChainImages)
     {
         imageViews.emplace_back(
-            vkUtil::CreateUniqueImageView(
+            vk::util::CreateUniqueImageView(
                 image,
                 swapChainImageFormat,
                 vk::ImageAspectFlagBits::eColor
@@ -153,9 +153,9 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         );
     }
 
-    vk::Format depthFormat = vkUtil::FindDepthFormat();
+    vk::Format depthFormat = vk::util::FindDepthFormat();
     // Depth image
-    depthImage = vkUtil::CreateUniqueImage(
+    depthImage = vk::util::CreateUniqueImage(
         GetWidth(),
         GetHeight(),
         depthFormat,
@@ -163,21 +163,21 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         vk::ImageUsageFlagBits::eDepthStencilAttachment
     );
 
-    depthImageMemory = vkUtil::CreateUniqueDeviceMemory(
+    depthImageMemory = vk::util::CreateUniqueDeviceMemory(
         depthImage.get(),
         vk::MemoryPropertyFlagBits::eDeviceLocal
     );
     device.bindImageMemory(depthImage.get(), depthImageMemory.get(), 0);
 
     // Depth imageview
-    depthImageView = vkUtil::CreateUniqueImageView(
+    depthImageView = vk::util::CreateUniqueImageView(
         depthImage.get(),
         depthFormat,
         vk::ImageAspectFlagBits::eDepth
     );
 
     // Transition depth image to depth stencile optimal layout
-    vkUtil::SwitchImageLayout(
+    vk::util::SwitchImageLayout(
         depthImage.get(),
         depthFormat,
         vk::ImageLayout::eUndefined,
@@ -248,7 +248,7 @@ void VulkanSwapChain::Present()
     graphicsQueue.submit(submitInfo, inFlightFences[mCurrentFrame].get());
 
     // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
-    vkUtil::SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
+    vk::util::SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
 
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;

@@ -3,6 +3,7 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanTexture.h"
+#include "Vulkan/VulkanUtil.h"
 
 #include "Core/Input.h"
 #include "Core/ResourceManager.h" // ASSETS dir
@@ -96,7 +97,31 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
+    //vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
+    VulkanBuffer stagingBuffer(
+        sizeof(vertices),
+        vk::BufferUsageFlagBits::eTransferSrc,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        vk::SharingMode::eExclusive);
+
+    auto dataRegion = stagingBuffer.Map();
+        memcpy(dataRegion, vertices, sizeof(vertices));
+    stagingBuffer.Unmap();
+
+    pVertexBuffer = CreateSharedPtr<VulkanBuffer>(
+        sizeof(vertices),
+        vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        vk::SharingMode::eExclusive);
+
+    auto commandBuffer = vk::util::BeginSingleTimeCommands();
+        vk::BufferCopy region;
+        region.srcOffset = 0;
+        region.dstOffset = 0;
+        region.size = sizeof(vertices);
+        commandBuffer.copyBuffer(stagingBuffer.Get(), pVertexBuffer->Get(), 1, &region);
+    vk::util::EndSingleTimeCommands(commandBuffer);
+
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
@@ -187,7 +212,7 @@ void VulkanLayer::OnUpdate(float dt)
     cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
 
     // Draw
-    VulkanRenderer::DrawIndexed(vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
+    VulkanRenderer::DrawIndexed(pVertexBuffer->Get(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
 }
 
 void VulkanLayer::OnImGuiRender()

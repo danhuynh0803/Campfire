@@ -1,10 +1,10 @@
 #include "Vulkan/VulkanUtil.h"
 #include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanInitializers.h"
 #include "Core/Log.h"
 
-namespace vkUtil
+namespace vk::util
 {
-
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
 
         vk::PhysicalDeviceMemoryProperties memProperties = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice().getMemoryProperties();
@@ -20,12 +20,7 @@ namespace vkUtil
     {
         vk::Device device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-        vk::BufferCreateInfo bufferInfo;
-        bufferInfo.flags = vk::BufferCreateFlags();
-        bufferInfo.size = size;
-        bufferInfo.usage = usageFlags;
-        bufferInfo.sharingMode = vk::SharingMode::eExclusive;
-
+        auto bufferInfo = vk::initializers::BufferCreateInfo(size, usageFlags, vk::SharingMode::eExclusive);
         buffer = device.createBufferUnique(bufferInfo);
 
         // Set memory requirements
