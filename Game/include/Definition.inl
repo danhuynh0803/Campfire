@@ -19,8 +19,8 @@
 
 #pragma once
 
-#ifndef DEFINITIONS_DEFINED
-#define DEFINITIONS_DEFINED
+#ifndef DEFINITION_DEFINED
+#define DEFINITION_DEFINED
 
 #ifndef _WIN32
 	//the following won't work with the templated variety
@@ -35,11 +35,13 @@ typedef int AUEntityId;           // (Will be a) salted id for uniquely identify
 struct IRuntimeObjectSystem;
 struct IEntitySystem;
 struct ILogSystem;
+struct ICompilerLogger;
 struct IAUEntity;
 struct IAUUpdateable;
 struct ISimpleSerializer;
 struct IObjectFactorySystem;
 struct IFileChangeNotifier;
+struct IRCCppEntry;
 
 //struct IAURenderable;
 //struct IAURenderableMesh;
@@ -49,4 +51,4 @@ struct IFileChangeNotifier;
 //struct IGame;
 //class CalSound;
 
-#endif // DEFINITIONS_DEFINED
+#endif // DEFINITION_DEFINED

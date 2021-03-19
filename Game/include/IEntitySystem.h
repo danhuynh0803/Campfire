@@ -16,18 +16,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 //============================Modified version=====================================
-
 #pragma once
 
-#ifndef IENTITYSYSTEM_INCLUDED
-#define IENTITYSYSTEM_INCLUDED
+#ifndef IENTITYSYSTEM2_INCLUDED
+#define IENTITYSYSTEM2_INCLUDED
 
-// What is an entity?
-// I define it to be the glue that holds all the useful components that might be present together
-// Position seems somehow special. Lots of things care about positions and positions without physics can make sense.
-// Entities include static geometry, Pneumata, some interface elements? 
+	// What is an entity?
+	// I define it to be the glue that holds all the useful components that might be present together
+	// Position seems somehow special. Lots of things care about positions and positions without physics can make sense.
+	// Entities include static geometry, Pneumata, some interface elements? 
 
-//#include "../Common/AUVec3f.inl"
+	//#include "../Common/AUVec3f.inl"
 #include "RuntimeCompiler/AUArray.h"
 #include "ISystem.h"
 #include "IEntity.h"
@@ -35,22 +34,22 @@
 #include <vector>
 
 
-struct IEntitySystem : public ISystem
-{
-	/// ISystem interface
-	//SErrorDescriptor UnitTest(ILogSystem *pLog);         // Giving a logger is optional
+	struct IEntitySystem : public ISystem
+	{
+		/// ISystem interface
+		//SErrorDescriptor UnitTest(ILogSystem *pLog);         // Giving a logger is optional
 
-	/// New methods
-	virtual ~IEntitySystem() {};
+		/// New methods
+		virtual ~IEntitySystem() {};
 
-	virtual void Reset() = 0;
+		virtual void Reset() = 0;
 
-	// Consider renaming with Entity in there?
-	virtual AUEntityId Create(const char * sName = NULL) = 0;  // Create a new, empty entity of this type
-	virtual bool Destroy(AUEntityId nId) = 0;              // Cleanup and destroy an existing entity. Returns false iff no such id.
-	virtual IAUEntity * Get(AUEntityId id) = 0;
-	virtual IAUEntity * Get(const char * sName) = 0;  // Get first entity that matches this name (not sure if we want to enforce name uniqueness?)
-	virtual void GetAll(IAUDynArray<AUEntityId> &entities) const = 0;
-};
+		// Consider renaming with Entity in there?
+		virtual AUEntityId Create(const char* sName = NULL) = 0;  // Create a new, empty entity of this type
+		virtual bool Destroy(AUEntityId nId) = 0;              // Cleanup and destroy an existing entity. Returns false iff no such id.
+		virtual IAUEntity* Get(AUEntityId id) = 0;
+		virtual IAUEntity* Get(const char* sName) = 0;  // Get first entity that matches this name (not sure if we want to enforce name uniqueness?)
+		virtual void GetAll(IAUDynArray<AUEntityId>& entities) const = 0;
+	};
 
 #endif // IENTITYSYSTEM_INCLUDED

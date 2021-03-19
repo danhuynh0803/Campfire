@@ -17,8 +17,7 @@
 
 //============================Modified version=====================================
 
-#include "IGameObject.h"
-#include "IObjectUtils.h"
+
 //#include "IBehaviorTreeManager.h"
 //#include "IBehaviorTree.h"
 //#include "IBehavior.h"
@@ -32,7 +31,9 @@
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/ISimpleSerializer.h"
 #include "RCCppSystemTable.h"
-
+#include "IGameObject.h"
+#include "IObjectUtils.h"
+#include "IGameManager.h"
 
 //#include "IEntitySystem.h"
 //#include "ILogSystem.h"
@@ -129,8 +130,14 @@ public:
 			DoInit(isFirstInit);
 		}
 	}
-	virtual void Init()
+	virtual void Init(EGameObject type)
 	{
+		assert(type < EGO_COUNT);
+		if (type < EGO_COUNT)
+		{
+			//Initial load, set up some values for the first time
+			m_gameObjectType = type;
+		}
 		DoInit(true);
 	}
 	//virtual void Init( EGameObject type, const AUVec3f& spawnPosition )
@@ -174,10 +181,10 @@ public:
 
 	// IGameObject
 
-	//virtual EGameObject GetGameObjectType() const
-	//{
-	//	return m_gameObjectType;
-	//}
+	virtual EGameObject GetGameObjectType() const
+	{
+		return m_gameObjectType;
+	}
 
 	//virtual EGameTeam GetGameTeam() const
 	//{
@@ -397,7 +404,7 @@ private:
 
 	// Private Members
 
-	//EGameObject m_gameObjectType;
+	EGameObject m_gameObjectType;
 	//EGameTeam m_gameTeam;
 	//IBehaviorTree* m_pBehaviorTree;
 	//IBehavior* m_pBehavior;

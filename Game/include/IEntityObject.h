@@ -36,10 +36,12 @@
 #include "RuntimeObjectSystem/ISimpleSerializer.h"
 #include "RuntimeObjectSystem/IObject.h"
 #include "RCCppSystemTable.h"
-#include "Systems/IEntity.h"
-#include "Systems/IEntitySystem.h"
+#include "IEntity.h"
+#include "IEntitySystem.h"
 #include <assert.h>
-
+#ifdef GetObject
+#undef GetObject
+#endif
 
 class IEntityObject : public  TInterface<IID_IENTITYOBJECT,IObject>
 {

@@ -18,13 +18,15 @@
 //============================Modified version=====================================
 #pragma once
 
-#ifndef IAUENTITY_INCLUDED
-#define IAUENTITY_INCLUDED
+#ifndef IAUENTITY2_INCLUDED
+#define IAUENTITY2_INCLUDED
 
 #include "Definition.inl"
 //#include "../Common/AUOrientation3D.inl"
 //#include "../Common/AUVec3f.inl"
-
+#ifdef GetObject
+#undef GetObject
+#endif
 #define AU_ENTITY_NAME_LENGTH 32
 
 class IEntityObject;

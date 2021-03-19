@@ -29,7 +29,9 @@
 
 #ifndef IOBJECTUTILS_INCLUDED
 #define IOBJECTUTILS_INCLUDED
-
+#ifdef GetObject
+#undef GetObject
+#endif 
 #include "RuntimeObjectSystem/IObject.h"
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/IObjectFactorySystem.h"
@@ -39,6 +41,7 @@
 #include "RCCppSystemTable.h"
 #include "IEntitySystem.h"
 #include "Core/Log.h"
+#include "IEntity.h"
 //#include "IEntityObject.h"
 //#include "ILogSystem.h"
 

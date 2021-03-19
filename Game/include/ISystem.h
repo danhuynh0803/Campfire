@@ -17,8 +17,8 @@
 
 #pragma once
 
-#ifndef ISYSTEM_INCLUDED
-#define ISYSTEM_INCLUDED
+#ifndef ISYSTEM2_INCLUDED
+#define ISYSTEM2_INCLUDED
 
 // Skeleton of common interface across all system interfaces
 // Should eventually encompass memory statistics etc

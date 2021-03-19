@@ -1,6 +1,8 @@
 #include "RCCpp.h"
 #include "RuntimeObjectSystem/RuntimeObjectSystem.h"
+#include "RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "TestY.h"
+#include "EntitySystem.h"
 
 SystemTable RCCpp::systemTable;
 StdioLogSystem RCCpp::g_Logger;
@@ -12,8 +14,13 @@ bool RCCpp::Init()
     systemTable.sceneRenderer = SceneRenderer::Get();
     //systemTable.tests.emplace_back(new Test());
     systemTable.runtimeObjectSystem = new RuntimeObjectSystem;
+    systemTable.pObjectFactorySystem = systemTable.runtimeObjectSystem->GetObjectFactorySystem();
+    systemTable.pObjectFactorySystem->SetObjectConstructorHistorySize(10);
     systemTable.pLogger = &g_Logger; //RCCpComplier logger(customizable) 
+    systemTable.pEntitySystem = new EntitySystem();
 
+    //sys->pRuntimeObjectSystem->GetFileChangeNotifier();
+    
     if (!systemTable.runtimeObjectSystem->Initialise(&g_Logger, &systemTable))
     {
         delete systemTable.runtimeObjectSystem;

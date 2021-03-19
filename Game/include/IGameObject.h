@@ -22,9 +22,9 @@
 #ifndef IGAMEOBJECT_INCLUDED
 #define IGAMEOBJECT_INCLUDED
 
-#include "IEntityObject.h"
-//#include "IGameManager.h"
 //#include "../../Common/AUColor.inl"
+#include "IEntityObject.h"
+#include "IGameManager.h"
 #include "IUpdateable.h" 
 #include "RCCppInterfaceID.h"
 
@@ -38,9 +38,8 @@ struct IGameObject : public  TInterface<IID_IGAMEOBJECT,IEntityObject>, public I
 
 	// This version of Init must be called to properly initialize the object
 	//virtual void Init( EGameObject type, const AUVec3f& spawnPosition ) = 0;
-	virtual void Init()= 0;
-
-	//virtual EGameObject GetGameObjectType() const = 0;
+	virtual void Init(EGameObject type)= 0;
+	virtual EGameObject GetGameObjectType() const = 0;
 	//virtual EGameTeam GetGameTeam() const = 0;
 	//virtual const AUColor& GetColor() const = 0;
 	//virtual IBehaviorTree* GetBehaviorTree() = 0;

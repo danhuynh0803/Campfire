@@ -3,7 +3,6 @@
 //#include<XX.h>
 //RUNTIME_MODIFIABLE_INCLUDE;
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
-#include "RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "RuntimeObjectSystem/IRuntimeObjectSystem.h"
 #include "RCCppEntry.h"
 #include "RCCppSystemTable.h"
@@ -40,9 +39,11 @@ struct RCCppEntry : IRCCppEntry
     RCCppEntry()
     {
         PerModuleInterface::g_pSystemTable->RCCppEntry = this;
-        PerModuleInterface::g_pSystemTable->runtimeObjectSystem->GetObjectFactorySystem()->SetObjectConstructorHistorySize(10);
+        //PerModuleInterface::g_pSystemTable->runtimeObjectSystem->GetObjectFactorySystem()->SetObjectConstructorHistorySize(10);
         activeScene = PerModuleInterface::g_pSystemTable->activeScene;
         sceneRenderer = PerModuleInterface::g_pSystemTable->sceneRenderer;
+
+
     }
 
     //virtual Update(float dt)
@@ -52,10 +53,10 @@ struct RCCppEntry : IRCCppEntry
 
     void Update(float dt) override
     {
-        for (auto it = PerModuleInterface::g_pSystemTable->tests.begin(); it!= PerModuleInterface::g_pSystemTable->tests.end(); ++it)
-        {
-            (*it)->OnUpdate(dt);
-        }
+        //for (auto it = PerModuleInterface::g_pSystemTable->tests.begin(); it!= PerModuleInterface::g_pSystemTable->tests.end(); ++it)
+        //{
+        //    (*it)->OnUpdate(dt);
+        //}
         //activeScene->OnUpdate(dt);
 
         //// Setup game camera
