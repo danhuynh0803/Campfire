@@ -8,9 +8,9 @@ namespace vk
     namespace initializers
     {
         inline vk::BufferCreateInfo BufferCreateInfo(
-            uint32_t size,
             vk::BufferUsageFlags usage,
             vk::SharingMode sharingMode,
+            uint32_t size,
             vk::BufferCreateFlags flags = vk::BufferCreateFlags())
         {
             vk::BufferCreateInfo bufferCreateInfo {};

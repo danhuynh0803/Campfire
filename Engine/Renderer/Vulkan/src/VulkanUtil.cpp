@@ -20,7 +20,7 @@ namespace vk::util
     {
         vk::Device device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-        auto bufferInfo = vk::initializers::BufferCreateInfo(size, usageFlags, vk::SharingMode::eExclusive);
+        auto bufferInfo = vk::initializers::BufferCreateInfo(usageFlags, vk::SharingMode::eExclusive, size);
         buffer = device.createBufferUnique(bufferInfo);
 
         // Set memory requirements

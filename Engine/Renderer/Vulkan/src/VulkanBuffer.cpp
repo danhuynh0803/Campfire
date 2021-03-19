@@ -13,7 +13,7 @@ VulkanBuffer::VulkanBuffer(
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-    auto bufferInfo = vk::initializers::BufferCreateInfo(size, usage, sharingMode);
+    auto bufferInfo = vk::initializers::BufferCreateInfo(usage, sharingMode, size);
     mBuffer = mDevice.createBufferUnique(bufferInfo);
 
     vk::MemoryRequirements memoryReqs = mDevice.getBufferMemoryRequirements(mBuffer.get());
