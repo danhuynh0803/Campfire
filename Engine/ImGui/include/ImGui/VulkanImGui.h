@@ -23,8 +23,8 @@ public:
     uint32_t mVertexCount;
     uint32_t mIndexCount;
 
-    VulkanBuffer mVertexBuffer;
-    VulkanBuffer mIndexBuffer;
+    SharedPtr<VulkanBuffer> mVertexBuffer;
+    SharedPtr<VulkanBuffer> mIndexBuffer;
 
     vk::UniqueImage mFontImage;
     vk::UniqueDeviceMemory mFontMemory;

@@ -10,7 +10,7 @@ namespace vk
         inline vk::BufferCreateInfo BufferCreateInfo(
             vk::BufferUsageFlags usage,
             vk::SharingMode sharingMode,
-            uint32_t size,
+            vk::DeviceSize size,
             vk::BufferCreateFlags flags = vk::BufferCreateFlags())
         {
             vk::BufferCreateInfo bufferCreateInfo {};

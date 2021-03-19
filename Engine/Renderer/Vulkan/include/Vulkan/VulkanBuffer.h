@@ -10,7 +10,7 @@ struct VulkanBuffer
     VulkanBuffer(
         vk::BufferUsageFlags usage,
         vk::MemoryPropertyFlags propertyFlags,
-        uint32_t size,
+        vk::DeviceSize size,
         vk::SharingMode sharingMode = vk::SharingMode::eExclusive
     );
 

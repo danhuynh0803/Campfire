@@ -3,6 +3,7 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanShader.h"
 #include "Core/ResourceManager.h"
+#include "Vulkan/VulkanInitializers.h"
 
 VulkanImGui::VulkanImGui()
 {
@@ -23,19 +24,42 @@ void VulkanImGui::UpdateBuffers()
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     // Update buffers only if vertex or index count has been changed compared to current buffer size
-    if (!mVertexBuffer.mBuffer
+    if (!mVertexBuffer || !mVertexBuffer->mBuffer
         || (mVertexCount != imDrawData->TotalVtxCount)
     ) {
+        mVertexBuffer = CreateSharedPtr<VulkanBuffer>(
+            vk::BufferUsageFlagBits::eVertexBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            vertexBufferSize,
+            vk::SharingMode::eExclusive);
         mVertexCount = imDrawData->TotalVtxCount;
+        mVertexBuffer->Map();
     }
 
-    if (!mIndexBuffer.mBuffer
+    if (!mIndexBuffer || !mIndexBuffer->mBuffer
         || (mIndexCount != imDrawData->TotalIdxCount)
     ) {
+        mIndexBuffer = CreateSharedPtr<VulkanBuffer>(
+            vk::BufferUsageFlagBits::eIndexBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            indexBufferSize,
+            vk::SharingMode::eExclusive);
         mIndexCount = imDrawData->TotalIdxCount;
+        mIndexBuffer->Map();
     }
 
     // Upload data
+    ImDrawVert* vertData = (ImDrawVert*)mVertexBuffer->mMappedRegion;
+    ImDrawIdx* idxData = (ImDrawIdx*)mIndexBuffer->mMappedRegion;
+
+    for (int i = 0; i < imDrawData->CmdListsCount; ++i)
+    {
+        const ImDrawList* cmdList = imDrawData->CmdLists[i];
+        memcpy(vertData, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+        memcpy(idxData, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+        vertData += cmdList->VtxBuffer.Size;
+        idxData += cmdList->IdxBuffer.Size;
+    }
 }
 
 void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
@@ -66,8 +90,8 @@ void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
     if (imDrawData->CmdListsCount > 0) {
 
         VkDeviceSize offsets[1] = { 0 };
-        cmdBuffer.bindVertexBuffers(0, 1, &mVertexBuffer.Get(), offsets);
-        cmdBuffer.bindIndexBuffer(mIndexBuffer.Get(), 0, vk::IndexType::eUint16);
+        cmdBuffer.bindVertexBuffers(0, 1, &mVertexBuffer->Get(), offsets);
+        cmdBuffer.bindIndexBuffer(mIndexBuffer->Get(), 0, vk::IndexType::eUint16);
 
         for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
         {
