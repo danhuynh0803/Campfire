@@ -3,6 +3,7 @@
 #include "RuntimeCompiler/IFileChangeNotifier.h"
 #include "IUpdateable.h"
 #include "IObjectUtils.h"
+
 bool Game::Init()
 {
 	m_RCCpp = new RCCpp(this);
@@ -11,6 +12,7 @@ bool Game::Init()
 	return true;
 }
 
+//All the Updateable object will call Update here
 void Game::EntityUpdateProtector::ProtectedFunc()
 {
 	for (size_t i = 0; i < entities.Size(); ++i)
@@ -47,8 +49,9 @@ void Game::Update(float dt)
 
 	if (bLoadModule)
 	{
-		// load module when compile complete, and notify console - TODO replace with event system 
 		bool bSuccess = m_RCCpp->systemTable->runtimeObjectSystem->LoadCompiledModule();
+	
+		// load module when compile complete, and notify console - TODO replace with event system 
 		//m_pConsole->OnCompileDone(bSuccess);
 		//if (bSuccess)
 		//{

@@ -297,33 +297,33 @@ private:
 	//	return position;
 	//}
 
-	void UpdateSpawning( float deltaTime )
-	{
-		//for (int i=0; i<EGO_COUNT; ++i)
-		//{
-		//	m_NextSpawnTimes[i] -= deltaTime;
-		//	if (m_GlobalParameters.go[i].spawn_rate > 0.0f && m_NextSpawnTimes[i] < 0.0f)
-		//	{
-		//		m_NextSpawnTimes[i] += m_GlobalParameters.go[i].spawn_rate;
-		//		if (m_GameObjects[i].size() < (size_t)m_GlobalParameters.go[i].max_count)
-		//		{
-		//			DoSpawnGameObject( GameObjectSpawnParams( (EGameObject)i ) );
-		//		}
-		//	}
-		//}
-	}
+	//void UpdateSpawning( float deltaTime )
+	//{
+	//	//for (int i=0; i<EGO_COUNT; ++i)
+	//	//{
+	//	//	m_NextSpawnTimes[i] -= deltaTime;
+	//	//	if (m_GlobalParameters.go[i].spawn_rate > 0.0f && m_NextSpawnTimes[i] < 0.0f)
+	//	//	{
+	//	//		m_NextSpawnTimes[i] += m_GlobalParameters.go[i].spawn_rate;
+	//	//		if (m_GameObjects[i].size() < (size_t)m_GlobalParameters.go[i].max_count)
+	//	//		{
+	//	//			DoSpawnGameObject( GameObjectSpawnParams( (EGameObject)i ) );
+	//	//		}
+	//	//	}
+	//	//}
+	//}
 
-	void SpawnPendingObjects()
-	{
-		//TSpawnParams::iterator it = m_GameObjectsToSpawn.begin();
-		//TSpawnParams::iterator itEnd = m_GameObjectsToSpawn.end();
-		//while (it != itEnd)
-		//{
-		//	DoSpawnGameObject( *it );
-		//	++it;
-		//}
-		//m_GameObjectsToSpawn.clear();
-	}
+	//void SpawnPendingObjects()
+	//{
+	//	//TSpawnParams::iterator it = m_GameObjectsToSpawn.begin();
+	//	//TSpawnParams::iterator itEnd = m_GameObjectsToSpawn.end();
+	//	//while (it != itEnd)
+	//	//{
+	//	//	DoSpawnGameObject( *it );
+	//	//	++it;
+	//	//}
+	//	//m_GameObjectsToSpawn.clear();
+	//}
 
 	void DestroyPendingObjects()
 	{
@@ -400,6 +400,7 @@ private:
 			IObjectUtils::DestroyObjectAndEntity(pGameObject->GetEntityId());
 		}
 	}
+
 	//IGameObject* DoSpawnGameObject( const GameObjectSpawnParams& params )
 	//{
 	//	IGameObject* pGameObject = 0;
@@ -494,26 +495,26 @@ private:
 	//	//}
 	//}
 
-	void CreateSplashScreen( const char* file, float fMinTime, float fFadeInTime, float fFadeOutTime, bool bAutoClose )
-	{
-		DestroySplashScreen();
+	//void CreateSplashScreen( const char* file, float fMinTime, float fFadeInTime, float fFadeOutTime, bool bAutoClose )
+	//{
+	//	DestroySplashScreen();
 
-		//IObject* pObj = IObjectUtils::CreateObjectAndEntity( "SplashScreen", "SplashScreen" );
-		//IObjectUtils::GetObject( &m_pSplashScreen, pObj->GetObjectId() );
-		//m_pSplashScreen->SetImage(file);
-		//m_pSplashScreen->SetMinViewTime(fMinTime);
-		//m_pSplashScreen->SetFadeInTime(fFadeInTime);
-		//m_pSplashScreen->SetFadeOutTime(fFadeOutTime);
-		//m_pSplashScreen->SetAutoClose(bAutoClose);
-	}
+	//	//IObject* pObj = IObjectUtils::CreateObjectAndEntity( "SplashScreen", "SplashScreen" );
+	//	//IObjectUtils::GetObject( &m_pSplashScreen, pObj->GetObjectId() );
+	//	//m_pSplashScreen->SetImage(file);
+	//	//m_pSplashScreen->SetMinViewTime(fMinTime);
+	//	//m_pSplashScreen->SetFadeInTime(fFadeInTime);
+	//	//m_pSplashScreen->SetFadeOutTime(fFadeOutTime);
+	//	//m_pSplashScreen->SetAutoClose(bAutoClose);
+	//}
 
-	void UpdateSplashScreen()
-	{
-		//if (m_pSplashScreen && m_pSplashScreen->ReadyToClose())
-		//{
-		//	DestroySplashScreen();
-		//}
-	}
+	//void UpdateSplashScreen()
+	//{
+	//	//if (m_pSplashScreen && m_pSplashScreen->ReadyToClose())
+	//	//{
+	//	//	DestroySplashScreen();
+	//	//}
+	//}
 
 	void DestroyGameObjects()
 	{
@@ -536,30 +537,30 @@ private:
 		}
 	}
 	
-	void DestroySplashScreen()
-	{
+	//void DestroySplashScreen()
+	//{
 		//if (m_pSplashScreen)
 		//{
 		//	IObjectUtils::DestroyObjectAndEntity( m_pSplashScreen->GetEntityId() );
 		//	m_pSplashScreen = 0;
 		//}
-	}
+	//}
 
-	void PreloadModels()
-	{
-	//	IAssetSystem* pAssetSystem = PerModuleInterface::g_pSystemTable->pAssetSystem;
-	//
-	//	for (int i=0; i<EGO_COUNT; ++i)
-	//	{
-	//		std::string path = "/Models/"; //directories relative to asset dir
-	//		path += m_GlobalParameters.go[i].model;
-	//		IAURenderableMesh* pMesh = pAssetSystem->CreateRenderableMeshFromFile( path.c_str() );
-	//		if (pMesh)
-	//		{
-	//			pAssetSystem->DestroyRenderableMesh(pMesh);
-	//		}
-	//	}
-	}
+	//void PreloadModels()
+	//{
+	////	IAssetSystem* pAssetSystem = PerModuleInterface::g_pSystemTable->pAssetSystem;
+	////
+	////	for (int i=0; i<EGO_COUNT; ++i)
+	////	{
+	////		std::string path = "/Models/"; //directories relative to asset dir
+	////		path += m_GlobalParameters.go[i].model;
+	////		IAURenderableMesh* pMesh = pAssetSystem->CreateRenderableMeshFromFile( path.c_str() );
+	////		if (pMesh)
+	////		{
+	////			pAssetSystem->DestroyRenderableMesh(pMesh);
+	////		}
+	////	}
+	//}
 
 	void SetGameState( EGameState state )
 	{
@@ -575,33 +576,33 @@ private:
 		}
 	}
 
-	void UpdateGlobalBlackboard( float deltaTime )
-	{
-		////m_pBBGlobal->gameTimeElapsed += deltaTime;
+	//void UpdateGlobalBlackboard( float deltaTime )
+	//{
+	//	////m_pBBGlobal->gameTimeElapsed += deltaTime;
 
-		//// Calculate Immune team strength (we don't count RBCs here, since they don't actively fight)
-		//m_pBBGlobal->immune_team_strength = GetStrengthSum( m_GameObjects[EGO_WBC] );
+	//	//// Calculate Immune team strength (we don't count RBCs here, since they don't actively fight)
+	//	//m_pBBGlobal->immune_team_strength = GetStrengthSum( m_GameObjects[EGO_WBC] );
 
-		//// Calculate Infection team strength
-		//m_pBBGlobal->infection_team_strength = GetStrengthSum( m_GameObjects[EGO_VIRUS] );
-		//m_pBBGlobal->infection_team_strength += GetStrengthSum( m_GameObjects[EGO_INFECTED] );
-	}
+	//	//// Calculate Infection team strength
+	//	//m_pBBGlobal->infection_team_strength = GetStrengthSum( m_GameObjects[EGO_VIRUS] );
+	//	//m_pBBGlobal->infection_team_strength += GetStrengthSum( m_GameObjects[EGO_INFECTED] );
+	//}
 
-	float GetStrengthSum( const TGameObjects& objects ) const
-	{
-		//float sum = 0;
-		//TGameObjects::const_iterator it = objects.begin();
-		//TGameObjects::const_iterator itEnd = objects.end();
-		//while (it != itEnd)
-		//{
-		//	IGameObject* pGameObject = *it;
-		//	sum += pGameObject->GetThreatRating();
+	//float GetStrengthSum( const TGameObjects& objects ) const
+	//{
+	//	//float sum = 0;
+	//	//TGameObjects::const_iterator it = objects.begin();
+	//	//TGameObjects::const_iterator itEnd = objects.end();
+	//	//while (it != itEnd)
+	//	//{
+	//	//	IGameObject* pGameObject = *it;
+	//	//	sum += pGameObject->GetThreatRating();
 
-		//	++it;
-		//}
+	//	//	++it;
+	//	//}
 
-		//return sum;
-	}
+	//	//return sum;
+	//}
 
 	void SerializeObjectsList( ISimpleSerializer *pSerializer )
 	{
