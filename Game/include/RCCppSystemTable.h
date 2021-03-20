@@ -9,17 +9,18 @@
 #include "RCCppEntry.h"
 #include "Scene/Entity.h"
 
-static SystemTable*& g_SystemTable = PerModuleInterface::g_pSystemTable;
+//static SystemTable*& g_SystemTable = PerModuleInterface::g_pSystemTable;
 
 //We want pure virtual interfaces here
 //https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Using-the-SystemTable-to-pass-interfaces-to-Runtime-Compiled-Code
 struct SystemTable
 {
+    IGame* pGame = nullptr;
     IObjectFactorySystem* pObjectFactorySystem = nullptr;
     IRuntimeObjectSystem* runtimeObjectSystem = nullptr;
-    IRCCppEntry* RCCppEntry = nullptr;
     IEntitySystem* pEntitySystem = nullptr;
-    ICompilerLogger* pLogger = nullptr;
+    IRCCppEntry* RCCppEntry = nullptr;
+    
     std::shared_ptr<Scene> activeScene = nullptr;
     std::shared_ptr<SceneRenderer> sceneRenderer = nullptr;
 };

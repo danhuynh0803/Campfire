@@ -1,34 +1,34 @@
 #include "RCCpp.h"
 #include "RuntimeObjectSystem/RuntimeObjectSystem.h"
 #include "RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "TestY.h"
 #include "EntitySystem.h"
+#include "StdioLogSystem.h"
+#include "Systems.h"
 
-SystemTable RCCpp::systemTable;
-StdioLogSystem RCCpp::g_Logger;
-
-bool RCCpp::Init()
+RCCpp::RCCpp(IGame* game)
 {
-    systemTable.activeScene = std::make_shared<Scene>();
-    systemTable.activeScene->OnStart();
-    systemTable.sceneRenderer = SceneRenderer::Get();
-    //systemTable.tests.emplace_back(new Test());
-    systemTable.runtimeObjectSystem = new RuntimeObjectSystem;
-    systemTable.pObjectFactorySystem = systemTable.runtimeObjectSystem->GetObjectFactorySystem();
-    systemTable.pObjectFactorySystem->SetObjectConstructorHistorySize(10);
-    systemTable.pLogger = &g_Logger; //RCCpComplier logger(customizable) 
-    systemTable.pEntitySystem = new EntitySystem();
+    systemTable = new SystemTable();
+    //PerModuleInterface::g_pSystemTable = systemTable; //How come auora doesnt need this?
+    
+    g_Logger = new StdioLogSystem();//RCCpComplier logger(customizable)
+
+    // Set the systems library to refer to this system table
+    // Not sure why Auora had this
+    gSys = systemTable;
+
+    systemTable->pGame = game;
+
+
+    //systemTable->activeScene = std::make_shared<Scene>();
+    //systemTable->activeScene->OnStart();
+    //systemTable->sceneRenderer = SceneRenderer::Get();
+
+    systemTable->runtimeObjectSystem = new RuntimeObjectSystem();
+    systemTable->pObjectFactorySystem = systemTable->runtimeObjectSystem->GetObjectFactorySystem();
+    systemTable->pObjectFactorySystem->SetObjectConstructorHistorySize(10);
+    systemTable->pEntitySystem = new EntitySystem();
 
     //sys->pRuntimeObjectSystem->GetFileChangeNotifier();
-    
-    if (!systemTable.runtimeObjectSystem->Initialise(&g_Logger, &systemTable))
-    {
-        delete systemTable.runtimeObjectSystem;
-        systemTable.runtimeObjectSystem = nullptr;
-        return false;
-    }
-
-    systemTable.runtimeObjectSystem->CleanObjectFiles();
 
     //Complier settings
     {
@@ -36,20 +36,20 @@ bool RCCpp::Init()
         //entt needs C++17 or higher support
         //for msvc,cl
         //https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=msvc-160
-        systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("/std:c++latest");
+        systemTable->runtimeObjectSystem->SetAdditionalCompileOptions("/std:c++latest");
         //systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("/std:c++latest /DXX");  // #define _XX matches with /DXX
 #else
         //for gcc or clang
         systemTable.runtimeObjectSystem->SetAdditionalCompileOptions("-std:c++17");
 #endif // _WIN32
 
-        FileSystemUtils::Path basePath = systemTable.runtimeObjectSystem->FindFile(__FILE__);
+        FileSystemUtils::Path basePath = systemTable->runtimeObjectSystem->FindFile(__FILE__);
 
         //.lib
         FileSystemUtils::Path LibDir = basePath.ParentPath().ParentPath().ParentPath() / "Build" / "lib" / "Debug"; //our .libs
-        systemTable.runtimeObjectSystem->AddLibraryDir(LibDir.c_str());
-        systemTable.runtimeObjectSystem->AddLibraryDir(basePath.ParentPath().ParentPath().c_str());//this is where i put assimp lib for now
-        
+        systemTable->runtimeObjectSystem->AddLibraryDir(LibDir.c_str());
+        systemTable->runtimeObjectSystem->AddLibraryDir(basePath.ParentPath().ParentPath().c_str());//this is where i put assimp lib for now
+
         //Not sure how these works
         //FileSystemUtils::Path SceneSourceDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Scene" / "src";
         //FileSystemUtils::Path CoreSourceDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Core" / "src";
@@ -83,51 +83,62 @@ bool RCCpp::Init()
         FileSystemUtils::Path jsonIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "nlohmann" / "include";
         FileSystemUtils::Path bullet3IncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "bullet3" / "src";
         FileSystemUtils::Path tracyIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "tracy";
-        FileSystemUtils::Path luaIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "lua-5.4.0"/ "include" / "Lua";
-        FileSystemUtils::Path glfwIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor"/ "glfw" / "include";
+        FileSystemUtils::Path luaIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "lua-5.4.0" / "include" / "Lua";
+        FileSystemUtils::Path glfwIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "glfw" / "include";
         FileSystemUtils::Path OpenGLIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Renderer" / "OpenGL" / "include";
         FileSystemUtils::Path stbIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "stb";
         FileSystemUtils::Path CommandIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Command" / "include";
 #ifdef _WIN32
         FileSystemUtils::Path FileSystemIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Platform" / "Windows" / "include";
         FileSystemUtils::Path fmodIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "fmod" / "Windows" / "core" / "inc";
-        FileSystemUtils::Path fmodStudioIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "fmod" / "Windows" / "studio" / "inc" ;
+        FileSystemUtils::Path fmodStudioIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "fmod" / "Windows" / "studio" / "inc";
 #else
         FileSystemUtils::Path FileSystemIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Engine" / "Platform" / "Linux" / "include";
         FileSystemUtils::Path fmodIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "fmod" / "Linux" / "core" / "inc";
         FileSystemUtils::Path fmodStudioIncludeDir = basePath.ParentPath().ParentPath().ParentPath() / "Vendor" / "fmod" / "Linux" / "studio" / "inc";
 #endif // _WIN32
 
-        systemTable.runtimeObjectSystem->AddIncludeDir(includeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(RCCppIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(SceneIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(CoreIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(enttIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(spdlogIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(imguiIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(ImguiIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(RendererIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(AudioIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(ScriptingIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(PhysicsIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(ParticlesIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(glmIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(assimpIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(assimpBuildIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(UtilIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(gladIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(EventsIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(jsonIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(bullet3IncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(tracyIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(luaIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(glfwIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(OpenGLIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(FileSystemIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(fmodIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(fmodStudioIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(stbIncludeDir.c_str());
-        systemTable.runtimeObjectSystem->AddIncludeDir(CommandIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(includeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(RCCppIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(SceneIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(CoreIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(enttIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(spdlogIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(imguiIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(ImguiIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(RendererIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(AudioIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(ScriptingIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(PhysicsIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(ParticlesIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(glmIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(assimpIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(assimpBuildIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(UtilIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(gladIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(EventsIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(jsonIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(bullet3IncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(tracyIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(luaIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(glfwIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(OpenGLIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(FileSystemIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(fmodIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(fmodStudioIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(stbIncludeDir.c_str());
+        systemTable->runtimeObjectSystem->AddIncludeDir(CommandIncludeDir.c_str());
+    }
+}
+
+bool RCCpp::Init()
+{
+    //Environment init
+    if (!systemTable->runtimeObjectSystem->Initialise(g_Logger, systemTable))
+    {
+        delete systemTable->runtimeObjectSystem;
+        systemTable->runtimeObjectSystem = nullptr;
+        return false;
     }
 
     return true;
@@ -135,24 +146,21 @@ bool RCCpp::Init()
 
 void RCCpp::Shutdown()
 {
-    delete systemTable.runtimeObjectSystem;
+    systemTable->RCCppEntry->Shutdown();
 }
 
-void RCCpp::Update(float dt)
+RCCpp::~RCCpp()
 {
-    //check status of any compile
-    if (systemTable.runtimeObjectSystem->GetIsCompiledComplete())
-    {
-        // load module when compile complete
-        systemTable.runtimeObjectSystem->LoadCompiledModule();
-    }
+    delete systemTable->RCCppEntry;
 
-    if (!systemTable.runtimeObjectSystem->GetIsCompiling())
-    {
-        systemTable.runtimeObjectSystem->GetFileChangeNotifier()->Update(dt);
-    }
-    //else
-    //{
-    //    ResetPowerSaveCountDown();
-    //}
+    delete systemTable->pEntitySystem;
+    delete systemTable->runtimeObjectSystem;
+    delete g_Logger;
+    delete systemTable;
+    
+    //ObjectFactorySystem's lifecycle is controlled by RCCpp.
+
+    //delete systemTable.RCCppEntry;
+    //delete sys->pTimeSystem;
+    //delete systemTable.pLogSystem;
 }

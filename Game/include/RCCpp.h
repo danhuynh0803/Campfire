@@ -1,9 +1,10 @@
 #pragma once
 #ifndef RCCPP_H
 #define RCCPP_H
+#include "RuntimeObjectSystem/RuntimeProtector.h"
 #include "RCCppSystemTable.h"
 #include "StdioLogSystem.h"
-#include "TestY.h"
+#include "IGame.h"
 
 //enum PROJECTIDS
 //{
@@ -13,10 +14,12 @@
 
 struct RCCpp
 {
-    static bool Init();
-    static void Update(float dt);
-    static void Shutdown();
-    static SystemTable systemTable;
-    static StdioLogSystem g_Logger;
+    RCCpp(IGame* game);
+    bool Init();
+    //void Update(float dt);
+    void Shutdown();
+    SystemTable* systemTable;
+    StdioLogSystem* g_Logger;
+    ~RCCpp();
 };
 #endif // !RCCPP_H

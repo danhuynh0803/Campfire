@@ -24,10 +24,11 @@
 //#include "IBlackboardManager.h"
 //#include "IGameManager.h"
 //#include "GlobalParameters.h"
-
 //#include "BB_Individual_Common.h"
 
-
+#include <assert.h>
+#include <vector>
+#include <stdio.h>
 #include "RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "RuntimeObjectSystem/ISimpleSerializer.h"
 #include "RCCppSystemTable.h"
@@ -40,10 +41,6 @@
 //#include "../../Common/Math.inl"
 //#include "IAssetSystem.h"
 //#include "../../Renderer/IAURenderable.h"
-
-#include <assert.h>
-#include <vector>
-#include <stdio.h>
 
 //const AUVec3f ZERO(0,0,0);
 
@@ -82,7 +79,6 @@ public:
 	{
 	}
 
-
 	virtual ~GameObject()
 	{		
 		//if (m_pRenMesh)
@@ -102,9 +98,7 @@ public:
 		}
 	}
 
-
 	// IEntityObject
-
 	virtual void Serialize(ISimpleSerializer *pSerializer)
 	{
 		IEntityObject::Serialize(pSerializer);
@@ -158,9 +152,11 @@ public:
 	// ~IEntityObject
 
 	// IAUUpdateable
-
 	virtual void Update( float deltaTime )
 	{	
+		//int i = 0;
+		//std::cout << "--";
+		//std::cout << "2";
 		//AU_ASSERT(m_pBehaviorTree);
 		//m_pBehaviorTree->Execute(this);
 		//
@@ -176,11 +172,9 @@ public:
 
 		//SetRotation((float)M_PI_4 * 0.5f * deltaTime); // Demo
 	}
-
 	// ~IAUUpdateable
 
 	// IGameObject
-
 	virtual EGameObject GetGameObjectType() const
 	{
 		return m_gameObjectType;
@@ -261,7 +255,6 @@ public:
 	//	}
 	}
 
-
 	virtual void OnSelect()
 	{
 		//SetColor( m_pGameObjectParams->color_highlight );
@@ -332,7 +325,6 @@ public:
 			m_pBehavior ? m_pBehavior->GetTypeName() : "none"
 			);*/
 	}
-
 	// ~IGameObject
 
 
@@ -378,7 +370,6 @@ private:
 
 		m_pEntity->SetUpdateable( this );
 	}
-
 	//* Demo
 	void SetRotation(float fRotation)
 	{
@@ -387,7 +378,6 @@ private:
 		//m_pEntity->SetOrientation(orientation);
 	}
 	//*/
-
 	void UpdateScale()
 	{
 		//BB_Individual_Common* pBB = (BB_Individual_Common*)m_pBlackboardManager->GetBlackboardIndividualCommon( this );
@@ -400,9 +390,6 @@ private:
 
 		//m_collisionRadius = scale * m_pGameObjectParams->collision_radius;
 	}
-
-
-	// Private Members
 
 	EGameObject m_gameObjectType;
 	//EGameTeam m_gameTeam;

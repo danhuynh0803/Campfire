@@ -73,7 +73,7 @@ public:
 	//	m_NextGameObjectNumber.resize(EGO_COUNT);
 	//}
 
-	GameManager() : m_CurrentState(EGS_STARTUP)
+	GameManager() : m_CurrentState(EGS_STARTUP),spawned(false)
 	{
 		m_GameObjects.resize(EGO_COUNT);
 		//m_NextSpawnTimes.resize(EGO_COUNT);
@@ -96,7 +96,6 @@ public:
 
 
 	// IEntityObject
-
 	virtual void Serialize(ISimpleSerializer *pSerializer)
 	{
 		IEntityObject::Serialize(pSerializer);
@@ -123,15 +122,12 @@ public:
 		
 		m_pEntity->SetUpdateable( this );
 	}
-
 	// ~IEntityObject
 
 	// IAUUpdateable
-
 	virtual void Update( float deltaTime )
 	{
 		//UpdateSplashScreen();
-
 		CheckAndUpdateGameState();
 		
 		/*if (EGS_PLAYING == m_CurrentState)
@@ -144,11 +140,9 @@ public:
 		DestroyPendingObjects();
 		//SpawnPendingObjects();
 	}
-
 	// ~IAUUpdateable
 
 	// IGameManager
-
 	virtual void ResetGame()
 	{
 		DestroyGameObjects();
@@ -250,7 +244,6 @@ public:
 	//		m_Listeners.erase(it);
 	//	}
 	//}
-
 	// ~IGameManager
 
 
@@ -679,7 +672,3 @@ private:
 };
 
 REGISTERCLASS(GameManager);
-
-
-
-

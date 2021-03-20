@@ -39,11 +39,8 @@ struct RCCppEntry : IRCCppEntry
     RCCppEntry()
     {
         PerModuleInterface::g_pSystemTable->RCCppEntry = this;
-        //PerModuleInterface::g_pSystemTable->runtimeObjectSystem->GetObjectFactorySystem()->SetObjectConstructorHistorySize(10);
         activeScene = PerModuleInterface::g_pSystemTable->activeScene;
         sceneRenderer = PerModuleInterface::g_pSystemTable->sceneRenderer;
-
-
     }
 
     //virtual Update(float dt)
@@ -95,4 +92,5 @@ struct RCCppEntry : IRCCppEntry
 };
 //REGISTERCLASS(RCCppEntry)
 //set to true for automatically set to true to have the class automatically constructed and initialized 
-REGISTERSINGLETON(RCCppEntry, true);
+REGISTERCLASS(RCCppEntry)
+//REGISTERSINGLETON(RCCppEntry, true);

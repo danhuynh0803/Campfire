@@ -15,41 +15,27 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+
 //============================Modified version=====================================
 
 #pragma once
 
-#ifndef DEFINITION_DEFINED
-#define DEFINITION_DEFINED
+#ifndef SYSTEMS_INCLUDED
+#define SYSTEMS_INCLUDED
 
-#ifndef _WIN32
-	//the following won't work with the templated variety
-    #define _snprintf_s(a,b,c,...) snprintf(a,b,__VA_ARGS__)
-#endif
-
-// All typedefs, defines and macros start AU_ to avoid conflicts
+#include "RCCppSystemTable.h"
 
 
-//typedef int AUEntityId;           // (Will be a) salted id for uniquely identifying entities
+// Actually creating a system table and initialising the systems can have many
+// configurations, so we leave this to client code external to this static lib
+// However some of the systems do need to refer to each other - the primary
+// example being for logging. Hence, the client code should set this pointer
+// as soon as it has created a SystemsTable instance and before initialising
+// the subsystems.
 
-struct IGame;
-struct IRuntimeObjectSystem;
-struct IEntitySystem;
-struct ILogSystem;
-struct IAUEntity;
-struct IAUUpdateable;
-struct ISimpleSerializer;
-struct IObjectFactorySystem;
-struct IFileChangeNotifier;
-struct IRCCppEntry;
+// If you want to pass around a SystemsTable without having this variable
+// directly accessible, prefer to include just SystemsTable.h
 
-//struct ICompilerLogger;
-//struct IAURenderable;
-//struct IAURenderableMesh;
-//struct IAssetSystem;
-//struct ITimeSystem;
-//struct IGUISystem;
-//struct IGame;
-//class CalSound;
+extern SystemTable * gSys;
 
-#endif // DEFINITION_DEFINED
+#endif // SYSTEMS_INCLUDED

@@ -6,9 +6,6 @@ set(GAME_HEADERS
     include/RCCppInterfaceID.h
     include/RCCppEngine
     include/StdioLogSystem.h
-    include/TestX.h
-    include/TestY.h
-    include/TestZ.h
     include/IEntity.h
     include/IEntityObject.h
     include/IEntitySystem.h
@@ -20,6 +17,10 @@ set(GAME_HEADERS
     include/Definition.inl
     include/IGameObject.h
     include/IGameManager.h
+    include/IGame.h
+    include/Game.h
+    include/RCCppSingleton.h
+    include/Systems.h
 )
 
 set(GAME_SRC
@@ -28,11 +29,11 @@ set(GAME_SRC
     src/GameApplication.cpp
     src/RCCppEntry.cpp
     src/StdioLogSystem.cpp
-    src/TestX.cpp
-    src/TestY.cpp
     src/GameObject.cpp
     src/GameManager.cpp
     src/EntitySystem.cpp
+    src/Game.cpp
+    src/Systems.cpp
 )
 
 add_executable(

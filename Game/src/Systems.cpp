@@ -15,41 +15,6 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-//============================Modified version=====================================
+#include "Systems.h"
 
-#pragma once
-
-#ifndef DEFINITION_DEFINED
-#define DEFINITION_DEFINED
-
-#ifndef _WIN32
-	//the following won't work with the templated variety
-    #define _snprintf_s(a,b,c,...) snprintf(a,b,__VA_ARGS__)
-#endif
-
-// All typedefs, defines and macros start AU_ to avoid conflicts
-
-
-//typedef int AUEntityId;           // (Will be a) salted id for uniquely identifying entities
-
-struct IGame;
-struct IRuntimeObjectSystem;
-struct IEntitySystem;
-struct ILogSystem;
-struct IAUEntity;
-struct IAUUpdateable;
-struct ISimpleSerializer;
-struct IObjectFactorySystem;
-struct IFileChangeNotifier;
-struct IRCCppEntry;
-
-//struct ICompilerLogger;
-//struct IAURenderable;
-//struct IAURenderableMesh;
-//struct IAssetSystem;
-//struct ITimeSystem;
-//struct IGUISystem;
-//struct IGame;
-//class CalSound;
-
-#endif // DEFINITION_DEFINED
+SystemTable * gSys = 0;

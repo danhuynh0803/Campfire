@@ -42,7 +42,7 @@
 #include "IEntitySystem.h"
 #include "Core/Log.h"
 #include "IEntity.h"
-//#include "IEntityObject.h"
+#include "IEntityObject.h"
 //#include "ILogSystem.h"
 
 
@@ -168,7 +168,8 @@ struct IObjectUtils
 			if( 0 == *pInterface )
 			{
 				//mismatched type
-				PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: requested objectType does not support interface %s\n", objectType  );
+				CORE_ERROR("CreateObject: requested objectType does not support interface {0}", objectType);
+				//PerModuleInterface::g_pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: requested objectType does not support interface %s\n", objectType  );
 				delete pObj;
 			}
 		}

@@ -28,7 +28,7 @@
 #undef GetObject
 #endif
 #define AU_ENTITY_NAME_LENGTH 32
-
+typedef int AUEntityId;
 class IEntityObject;
 
 struct IAUEntity
