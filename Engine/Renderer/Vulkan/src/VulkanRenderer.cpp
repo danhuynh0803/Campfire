@@ -2,16 +2,16 @@
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
 
-void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
+vk::CommandBuffer& VulkanRenderer::BeginScene()
 {
     auto graphicsPipeline = VulkanContext::Get()->GetPipeline();
-    auto commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentCommandBuffer();
+    auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentCommandBuffer();
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetCurrentFramebuffer();
     uint32_t imageIndex = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
     vk::CommandBufferBeginInfo beginInfo;
-        // TODO: investigate if simulataneous use is faster or slower?
+    // TODO: investigate if simulataneous use is faster or slower?
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
     beginInfo.pInheritanceInfo = nullptr;
 
@@ -42,22 +42,27 @@ void VulkanRenderer::DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer
     renderPassBeginInfo.pClearValues = clearValues.data();
 
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
+    auto& descriptorSets = graphicsPipeline->descriptorSets;
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
 
-        vk::Buffer vertexBuffers[] = { vertexBuffer };
-        vk::DeviceSize offsets[] = { 0 };
-        commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
+    return commandBuffer;
+}
 
-        auto& descriptorSets = graphicsPipeline->descriptorSets;
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
 
-        commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
-
-        commandBuffer.drawIndexed(count, 1, 0, 0, 0);
-
-        vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
-
+void VulkanRenderer::EndScene(vk::CommandBuffer& commandBuffer)
+{
     commandBuffer.endRenderPass();
-
     commandBuffer.end();
+}
+
+void VulkanRenderer::DrawIndexed(vk::CommandBuffer& commandBuffer, vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
+{
+    vk::Buffer vertexBuffers[] = { vertexBuffer };
+    vk::DeviceSize offsets[] = { 0 };
+    commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
+
+    commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
+
+    commandBuffer.drawIndexed(count, 1, 0, 0, 0);
 }

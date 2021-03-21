@@ -128,7 +128,6 @@ void VulkanLayer::OnAttach()
     {
         textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
     }
-    //SharedPtr<VulkanTexture2D> texture = CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png");
 
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
@@ -209,8 +208,19 @@ void VulkanLayer::OnUpdate(float dt)
     cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
     cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
 
-    // Draw
-    VulkanRenderer::DrawIndexed(pVertexBuffer->Get(), indexBufferPtr->GetBuffer(), sizeof(indices)/sizeof(uint32_t));
+    VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
+    vkImguiLayer->Begin();
+    vkImguiLayer->mImGuiImpl->UpdateBuffers();
+
+    auto commandBuffer = VulkanRenderer::BeginScene();
+        VulkanRenderer::DrawIndexed(
+            commandBuffer,
+            pVertexBuffer->Get(),
+            indexBufferPtr->GetBuffer(),
+            sizeof(indices)/sizeof(uint32_t)
+        );
+        vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+    VulkanRenderer::EndScene(commandBuffer);
 }
 
 void VulkanLayer::OnImGuiRender()

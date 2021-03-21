@@ -82,13 +82,6 @@ void VulkanImGuiLayer::Begin()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImVec4 clear_color = ImColor(114, 144, 154);
-    static float f = 0.0f;
-    ImGui::TextUnformatted("ImGui Vulkan");
-    ImGui::Begin("Example Window");
-    ImGui::Text("Test Text");
-    ImGui::End();
-
     //ImGui::TextUnformatted(device->properties.deviceName); // TODO
 
     //ImGuizmo::BeginFrame();

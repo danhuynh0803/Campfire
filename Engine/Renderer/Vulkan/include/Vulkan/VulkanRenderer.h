@@ -5,5 +5,7 @@
 class VulkanRenderer
 {
 public:
-    static void DrawIndexed(vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
+    static vk::CommandBuffer& BeginScene();
+    static void EndScene(vk::CommandBuffer& cmdBuffer);
+    static void DrawIndexed(vk::CommandBuffer& commandBuffer, vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count);
 };
