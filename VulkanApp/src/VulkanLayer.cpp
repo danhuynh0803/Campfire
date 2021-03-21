@@ -4,8 +4,7 @@
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanUtil.h"
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
+#include "Vulkan/VulkanMesh.h"
 
 #include "Core/Input.h"
 #include "Core/ResourceManager.h" // ASSETS dir
@@ -31,61 +30,6 @@ struct TransformUBO
 };
 static TransformUBO transformUBO;
 
-
-float vertices[] = {
-    // Position             // UV           // Normal
-    -1.0f,  1.0f,  1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
-    -1.0f, -1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-     1.0f, -1.0f,  1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
-     1.0f,  1.0f,  1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
-
-     1.0f,  1.0f,  1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
-     1.0f, -1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-     1.0f, -1.0f, -1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
-     1.0f,  1.0f, -1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
-
-     1.0f,  1.0f, -1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
-     1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-    -1.0f, -1.0f, -1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
-    -1.0f,  1.0f, -1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
-
-    -1.0f,  1.0f, -1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
-    -1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-    -1.0f, -1.0f,  1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
-    -1.0f,  1.0f,  1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
-
-    -1.0f,  1.0f, -1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
-    -1.0f,  1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-     1.0f,  1.0f,  1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
-     1.0f,  1.0f, -1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
-
-    -1.0f, -1.0f,  1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
-    -1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-     1.0f, -1.0f, -1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
-     1.0f, -1.0f,  1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
-};
-
-uint32_t indices[] = {
-    0, 1, 2,
-    2, 3, 0,
-
-    4, 5, 6,
-    6, 7, 4,
-
-    8, 9, 10,
-    10, 11, 8,
-
-    12, 13, 14,
-    14, 15, 12,
-
-    16, 17, 18,
-    18, 19, 16,
-
-    20, 21, 22,
-    22, 23, 20,
-};
-
-
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
 {
@@ -100,30 +44,8 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    //vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
-    VulkanBuffer stagingBuffer(
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        sizeof(vertices));
-
-    auto dataRegion = stagingBuffer.Map();
-        memcpy(dataRegion, vertices, sizeof(vertices));
-    stagingBuffer.Unmap();
-
-    pVertexBuffer = CreateSharedPtr<VulkanBuffer>(
-        vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-        vk::MemoryPropertyFlagBits::eDeviceLocal,
-        sizeof(vertices));
-
-    auto commandBuffer = vk::util::BeginSingleTimeCommands();
-        vk::BufferCopy region;
-        region.srcOffset = 0;
-        region.dstOffset = 0;
-        region.size = sizeof(vertices);
-        commandBuffer.copyBuffer(stagingBuffer.Get(), pVertexBuffer->Get(), 1, &region);
-    vk::util::EndSingleTimeCommands(commandBuffer);
-
-    indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices)/sizeof(uint32_t));
+    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
@@ -180,10 +102,10 @@ void VulkanLayer::OnUpdate(float dt)
     cameraController.OnUpdate(dt);
 
     // Update transform ubo
-    static float rotation = 0;
-    rotation += 180 * dt;
+    //static float rotation = 0;
+    //rotation += 180 * dt;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
+    //model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
     transformUBO.model = model;
     transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
 
@@ -202,12 +124,9 @@ void VulkanLayer::OnUpdate(float dt)
 
     // Render scene and imgui
     auto commandBuffer = VulkanRenderer::BeginScene();
-        VulkanRenderer::DrawIndexed(
-            commandBuffer,
-            pVertexBuffer->Get(),
-            indexBufferPtr->GetBuffer(),
-            sizeof(indices) / sizeof(uint32_t)
-        );
+
+        // Draw mesh
+        meshPtr->Draw(commandBuffer);
 
         vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
     VulkanRenderer::EndScene(commandBuffer);

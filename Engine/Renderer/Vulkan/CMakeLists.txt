@@ -21,6 +21,7 @@ set(VULKAN_HEADERS
     #include/Vulkan/VulkanVertexArray.h
     include/Vulkan/VulkanUtil.h
     include/Vulkan/VulkanInitializers.h
+    include/Vulkan/VulkanMesh.h
 )
 
 set(VULKAN_SRC
@@ -37,6 +38,7 @@ set(VULKAN_SRC
     src/VulkanTexture.cpp
     #src/VulkanVertexArray.cpp
     src/VulkanUtil.cpp
+    src/VulkanMesh.cpp
 )
 
 target_sources(

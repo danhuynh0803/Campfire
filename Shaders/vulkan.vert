@@ -28,5 +28,5 @@ void main()
     gl_Position = camera.viewProj * transform.model * vec4(aPos, 1.0);
 
     outUV = aUV;
-    outNormal = aNormal;
+    outNormal = mat3(transpose(inverse(transform.model))) * aNormal;
 }

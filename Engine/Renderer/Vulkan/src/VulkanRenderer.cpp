@@ -38,10 +38,10 @@ vk::CommandBuffer& VulkanRenderer::BeginScene()
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
-    commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
     auto& descriptorSets = graphicsPipeline->descriptorSets;
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
+    commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
 
     return commandBuffer;
 }
@@ -58,8 +58,12 @@ void VulkanRenderer::DrawIndexed(vk::CommandBuffer& commandBuffer, vk::Buffer ve
     vk::Buffer vertexBuffers[] = { vertexBuffer };
     vk::DeviceSize offsets[] = { 0 };
     commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-
     commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
+
+    auto graphicsPipeline = VulkanContext::Get()->GetPipeline();
+    auto& descriptorSets = graphicsPipeline->descriptorSets;
+    uint32_t imageIndex = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
+    //commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
 
     commandBuffer.drawIndexed(count, 1, 0, 0, 0);
 }

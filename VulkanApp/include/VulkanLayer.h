@@ -5,6 +5,7 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanTexture.h"
+#include "Vulkan/VulkanMesh.h"
 
 class VulkanLayer : public Layer
 {
@@ -21,6 +22,7 @@ public:
     bool OnWindowResize(WindowResizeEvent& e);
 
 private:
+    SharedPtr<vk::VulkanMesh> meshPtr;
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanBuffer> pVertexBuffer;
     SharedPtr<VulkanIndexBuffer> indexBufferPtr;
