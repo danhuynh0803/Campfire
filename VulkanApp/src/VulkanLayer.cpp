@@ -12,6 +12,7 @@
 #include "Scene/CameraController.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include "Core/FileSystem.h"
 
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
@@ -126,11 +127,6 @@ void VulkanLayer::OnAttach()
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
-    for (size_t i = 0; i < 3; ++i)
-    {
-        textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
-    }
-
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
     {
@@ -165,6 +161,7 @@ void VulkanLayer::OnAttach()
         }
 
         { // Setup texture binding
+            textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
             textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
         }
     }
@@ -219,6 +216,23 @@ void VulkanLayer::OnUpdate(float dt)
 void VulkanLayer::OnImGuiRender()
 {
     ImGui::Begin("Texture Select");
+
+    if (ImGui::Button(textures.at(0)->GetName().c_str()))
+    {
+        std::string path = FileSystem::OpenFile("*.png");
+        if (path.compare("") != 0) // No file selected
+        {
+            auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
+            textures.clear();
+            for (size_t i = 0; i < 3; ++i)
+            {
+                textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(path));
+                textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
+            }
+        }
+    }
+    ImGui::SameLine(); ImGui::Text("Texture");
+
     ImGui::End();
 }
 

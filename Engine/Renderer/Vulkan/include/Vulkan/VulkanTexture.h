@@ -15,6 +15,7 @@ public:
     //virtual uint32_t GetWidth() const override { return mWidth; }
     //virtual uint32_t GetHeight() const override { return mHeight; }
     //virtual std::string GetName() const override { return mFilePath; }
+    std::string GetName() { return mFilePath; }
     //virtual void Bind(uint32_t unit = 0) const override;
     //virtual void SetData(void* data, uint32_t size);
 
