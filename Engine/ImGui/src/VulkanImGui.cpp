@@ -87,6 +87,8 @@ void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
     //renderPassBeginInfo.renderPass = VulkanContext::Get()->GetPipeline()->GetVulkanRenderPass();
     //renderPassBeginInfo.framebuffer = framebuffer;
     //renderPassBeginInfo.renderArea = renderArea;
+    //renderPassBeginInfo.clearValueCount = 0;
+    //renderPassBeginInfo.pClearValues = nullptr;
     //renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     //renderPassBeginInfo.pClearValues = clearValues.data();
 
@@ -136,6 +138,8 @@ void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
             vertexOffset += cmd_list->VtxBuffer.Size;
         }
     }
+
+    //cmdBuffer.endRenderPass();
 }
 
 void VulkanImGui::InitResources()
@@ -387,6 +391,9 @@ void VulkanImGui::InitResources()
     dynamicStateInfo.pDynamicStates = dynamicStateEnables.data();
     dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
 
+    // Render pass
+    SetupRenderPass();
+
     // shader stages
     std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfos{};
 
@@ -403,6 +410,7 @@ void VulkanImGui::InitResources()
     pipelineCreateInfo.pStages = shaderStageInfos.data();
     pipelineCreateInfo.layout = mPipelineLayout.get();
     pipelineCreateInfo.renderPass = VulkanContext::Get()->GetPipeline()->GetVulkanRenderPass();
+    //pipelineCreateInfo.renderPass = mRenderPass.get();
 
     // Setup vertex bindings
     vk::VertexInputBindingDescription vertexInputBinding = {};
@@ -465,4 +473,67 @@ void VulkanImGui::InitResources()
         mPipelineCache.get(),
         pipelineCreateInfo
     );
+}
+
+void VulkanImGui::SetupRenderPass()
+{
+    // Color Attachment
+    vk::AttachmentDescription colorAttachment;
+    colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
+    colorAttachment.samples = vk::SampleCountFlagBits::e1;
+    colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+    vk::AttachmentReference colorAttachmentRef;
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    // Depth Attachment
+    vk::AttachmentDescription depthAttachment;
+    depthAttachment.format = vk::util::FindDepthFormat();
+    depthAttachment.samples = vk::SampleCountFlagBits::e1;
+    depthAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    vk::AttachmentReference depthAttachmentRef;
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    // Setup subpasses
+    vk::SubpassDescription subpass;
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+    // Setup subpass dependencies
+    vk::SubpassDependency subpassDependency;
+    subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    subpassDependency.dstSubpass = 0;
+    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
+    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+    // Setup render pass
+    std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    vk::RenderPassCreateInfo renderPassCreateInfo {};
+    renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
+    renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassCreateInfo.pAttachments = attachments.data();
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpass;
+    renderPassCreateInfo.dependencyCount = 1;
+    renderPassCreateInfo.pDependencies = &subpassDependency;
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    mRenderPass = device.createRenderPassUnique(renderPassCreateInfo);
 }

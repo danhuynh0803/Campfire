@@ -285,4 +285,3 @@ void Mesh::OnImGuiRender()
         ImGui::TreePop();
     }
 }
-

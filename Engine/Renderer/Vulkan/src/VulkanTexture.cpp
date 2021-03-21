@@ -147,3 +147,22 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
     // TODO submit image data to graphicsQueue
 }
+
+void VulkanTexture2D::UpdateDescriptors(vk::DescriptorSet dstSet, uint32_t dstBinding)
+{
+    // Submit texture data to descriptorSet
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    imageInfo.imageView = mImageView.get();
+    imageInfo.sampler = mSampler.get();
+
+    vk::WriteDescriptorSet descriptorWrite {};
+    descriptorWrite.dstSet = dstSet;
+    descriptorWrite.dstBinding = dstBinding;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pImageInfo = &imageInfo;
+
+    VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+}

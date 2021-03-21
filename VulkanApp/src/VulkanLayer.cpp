@@ -30,36 +30,36 @@ static TransformUBO transformUBO;
 
 
 float vertices[] = {
-    // Position           // Color            // UV
-    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    // Position             // UV           // Normal
+    -1.0f,  1.0f,  1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
+     1.0f,  1.0f,  1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
 
-     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-     1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+     1.0f,  1.0f,  1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
+     1.0f,  1.0f, -1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
 
-     1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-     1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+     1.0f,  1.0f, -1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
 
-    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-    -1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
 
-    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -1.0f,  1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
+     1.0f,  1.0f,  1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
+     1.0f,  1.0f, -1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
 
-    -1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,    0.0f, 1.0f,     0.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,    1.0f, 0.0f,     1.0f, 0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,    1.0f, 1.0f,     1.0f, 1.0f, 1.0f,
 };
 
 uint32_t indices[] = {
@@ -162,21 +162,8 @@ void VulkanLayer::OnAttach()
             transformUBOs[i]->SetLayout(transformLayout, 1);
         }
 
-        { // Submit texture data to descriptorSet
-            vk::DescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-            imageInfo.imageView = textures[i]->GetImageView();
-            imageInfo.sampler = textures[i]->GetSampler();
-
-            vk::WriteDescriptorSet descriptorWrite {};
-            descriptorWrite.dstSet = descriptorSets[i].get();
-            descriptorWrite.dstBinding = 2;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pImageInfo = &imageInfo;
-
-            VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+        { // Setup texture binding
+            textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
         }
     }
 }
@@ -212,12 +199,13 @@ void VulkanLayer::OnUpdate(float dt)
     vkImguiLayer->Begin();
     vkImguiLayer->mImGuiImpl->UpdateBuffers();
 
+    // Render scene and imgui
     auto commandBuffer = VulkanRenderer::BeginScene();
         VulkanRenderer::DrawIndexed(
             commandBuffer,
             pVertexBuffer->Get(),
             indexBufferPtr->GetBuffer(),
-            sizeof(indices)/sizeof(uint32_t)
+            sizeof(indices) / sizeof(uint32_t)
         );
         vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
     VulkanRenderer::EndScene(commandBuffer);

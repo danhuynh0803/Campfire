@@ -11,6 +11,7 @@ public:
     //~VulkanImgui() = default;
 
     void InitResources();
+    void SetupRenderPass();
     void UpdateBuffers();
     void DrawFrame(vk::CommandBuffer cmdBuffer);
 
@@ -18,6 +19,8 @@ public:
         glm::vec2 scale;
         glm::vec2 translate;
     } mPushConstBlock;
+
+private:
 
 public:
     uint32_t mVertexCount;

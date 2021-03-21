@@ -9,8 +9,8 @@
 struct PipelineVertex
 {
     glm::vec3 pos;
-    glm::vec3 color;
     glm::vec2 uv;
+    glm::vec3 normal;
 };
 
 VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
@@ -28,8 +28,8 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
     attributeDescriptions[0] = vk::initializers::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, pos));
-    attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, color));
-    attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, uv));
+    attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, uv));
+    attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, normal));
 
     auto vertexInputStateCreateInfo = vk::initializers::PipelineVertexInputStateCreateInfo(
         1, &bindingDescription,
@@ -185,7 +185,7 @@ void VulkanPipeline::SetupRenderPass()
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
     vk::AttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;

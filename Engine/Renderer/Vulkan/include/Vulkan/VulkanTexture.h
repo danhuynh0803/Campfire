@@ -10,6 +10,8 @@ public:
     VulkanTexture2D(uint32_t width, uint32_t height);
     VulkanTexture2D(uint32_t textureID);
 
+    void UpdateDescriptors(vk::DescriptorSet dstSet, uint32_t dstBinding);
+
     //virtual uint32_t GetWidth() const override { return mWidth; }
     //virtual uint32_t GetHeight() const override { return mHeight; }
     //virtual std::string GetName() const override { return mFilePath; }

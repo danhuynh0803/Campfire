@@ -41,22 +41,6 @@ void VulkanImGuiLayer::OnAttach()
 
     ImGui_ImplGlfw_InitForVulkan(window, true);
 
-    //auto deviceImpl = VulkanContext::Get()->GetDevice();
-    //ImGui_ImplVulkan_InitInfo initInfo{};
-    //initInfo.Instance = VulkanContext::GetInstance();
-    //initInfo.PhysicalDevice = deviceImpl->GetVulkanPhysicalDevice();
-    //initInfo.Device = deviceImpl->GetVulkanDevice();
-    //initInfo.QueueFamily = deviceImpl->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS);
-    //initInfo.Queue = deviceImpl->GetGraphicsQueue();
-    //initInfo.PipelineCache = mImGuiImpl->mPipelineCache.get();
-    //initInfo.DescriptorPool = mImGuiImpl->mDescriptorPool.get();
-    //initInfo.Allocator = nullptr;
-    //initInfo.MinImageCount = 2;
-    //initInfo.ImageCount = 1;
-    //initInfo.CheckVkResultFn = nullptr;
-
-    //ImGui_ImplVulkan_Init(&initInfo, mImGuiImpl->GetImGuiRenderPass());
-
     mImGuiImpl = CreateSharedPtr<VulkanImGui>();
 }
 
@@ -84,7 +68,7 @@ void VulkanImGuiLayer::Begin()
 
     //ImGui::TextUnformatted(device->properties.deviceName); // TODO
 
-    //ImGuizmo::BeginFrame();
+    ImGuizmo::BeginFrame();
 
     ImGui::ShowDemoWindow();
     ImGui::Render();
