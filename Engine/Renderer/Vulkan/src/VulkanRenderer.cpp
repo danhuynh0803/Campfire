@@ -24,9 +24,6 @@ vk::CommandBuffer& VulkanRenderer::BeginScene()
     renderArea.offset = {0, 0};
     renderArea.extent = extent;
 
-    vkImguiLayer->Begin();
-    vkImguiLayer->mImGuiImpl->UpdateBuffers();
-
     commandBuffer.begin(beginInfo);
 
     // Clear value

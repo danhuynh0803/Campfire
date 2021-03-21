@@ -4,6 +4,8 @@
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanUtil.h"
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
 
 #include "Core/Input.h"
 #include "Core/ResourceManager.h" // ASSETS dir
@@ -196,8 +198,10 @@ void VulkanLayer::OnUpdate(float dt)
     cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
 
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
+
     vkImguiLayer->Begin();
-    vkImguiLayer->mImGuiImpl->UpdateBuffers();
+    OnImGuiRender();
+    vkImguiLayer->End();
 
     // Render scene and imgui
     auto commandBuffer = VulkanRenderer::BeginScene();
@@ -207,13 +211,15 @@ void VulkanLayer::OnUpdate(float dt)
             indexBufferPtr->GetBuffer(),
             sizeof(indices) / sizeof(uint32_t)
         );
+
         vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
     VulkanRenderer::EndScene(commandBuffer);
 }
 
 void VulkanLayer::OnImGuiRender()
 {
-
+    ImGui::Begin("Texture Select");
+    ImGui::End();
 }
 
 void VulkanLayer::OnEvent(Event& event)

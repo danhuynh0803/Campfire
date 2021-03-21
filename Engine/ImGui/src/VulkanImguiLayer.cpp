@@ -65,23 +65,21 @@ void VulkanImGuiLayer::Begin()
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
+    ImGuizmo::BeginFrame();
     //ImGui::TextUnformatted(device->properties.deviceName); // TODO
 
-    ImGuizmo::BeginFrame();
-
     ImGui::ShowDemoWindow();
-    ImGui::Render();
 }
 
 // End of frame
 void VulkanImGuiLayer::End()
 {
+    ImGui::Render();
     mImGuiImpl->UpdateBuffers();
 
-    auto cmdBuffer = vk::util::BeginSingleTimeCommands();
-        mImGuiImpl->DrawFrame(cmdBuffer);
-    vk::util::EndSingleTimeCommands(cmdBuffer);
+    //auto cmdBuffer = vk::util::BeginSingleTimeCommands();
+    //    mImGuiImpl->DrawFrame(cmdBuffer);
+    //vk::util::EndSingleTimeCommands(cmdBuffer);
 
     /*
     ImGuiIO& io = ImGui::GetIO();
