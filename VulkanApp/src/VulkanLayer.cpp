@@ -44,8 +44,7 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
+    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
@@ -134,23 +133,16 @@ void VulkanLayer::OnUpdate(float dt)
 
 void VulkanLayer::OnImGuiRender()
 {
-    ImGui::Begin("Texture Select");
+    ImGui::Begin("Controls");
 
-    if (ImGui::Button(textures.at(0)->GetName().c_str()))
+    if (ImGui::Button("Load Mesh"))
     {
-        std::string path = FileSystem::OpenFile("*.png");
+        std::string path = FileSystem::OpenFile();
         if (path.compare("") != 0) // No file selected
         {
-            auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
-            textures.clear();
-            for (size_t i = 0; i < 3; ++i)
-            {
-                textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(path));
-                textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
-            }
+            meshPtr = CreateSharedPtr<vk::VulkanMesh>(path);
         }
     }
-    ImGui::SameLine(); ImGui::Text("Texture");
 
     ImGui::End();
 }
