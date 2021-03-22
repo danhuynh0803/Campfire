@@ -28,8 +28,8 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
     std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
     attributeDescriptions[0] = vk::initializers::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, pos));
-    attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, uv));
-    attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, normal));
+    attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, uv));
+    attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, normal));
 
     auto vertexInputStateCreateInfo = vk::initializers::PipelineVertexInputStateCreateInfo(
         1, &bindingDescription,
