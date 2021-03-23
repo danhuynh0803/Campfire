@@ -27,18 +27,18 @@ struct VulkanBuffer
     vk::Device mDevice;
 };
 
-class VulkanVertexBuffer
+class VulkanVertexBuffer : public VertexBuffer
 {
 public:
     //VulkanVertexBuffer(uint32_t size);
     VulkanVertexBuffer(void* vertices, uint32_t size);
-    //virtual ~VulkanVertexBuffer();
+    virtual ~VulkanVertexBuffer() {}
 
-    //virtual void Bind() const override;
-    //virtual void Unbind() const override;
-    //virtual void SetData(void* data, uint32_t size) override;
-    //virtual void SetLayout(const BufferLayout& _layout) override { layout = _layout; }
-    //virtual const BufferLayout& GetLayout() const override { return layout; }
+    virtual void Bind() const override {}
+    virtual void Unbind() const override {}
+    virtual void SetData(void* data, uint32_t size) override {}
+    virtual void SetLayout(const BufferLayout& _layout) override {}
+    virtual const BufferLayout& GetLayout() const override { BufferLayout layout; return layout; }
 
     vk::Buffer GetBuffer() { return buffer.get(); }
 
@@ -49,14 +49,20 @@ private:
     //BufferLayout layout;
 };
 
-class VulkanIndexBuffer
+class VulkanIndexBuffer : public IndexBuffer
 {
 public:
     VulkanIndexBuffer(void* indices, uint32_t count);
 
+    virtual ~VulkanIndexBuffer() {}
+    virtual void Bind() const {}
+    virtual void Unbind() const {}
+    virtual uint32_t GetCount() const { return mCount; }
+
     vk::Buffer GetBuffer() { return buffer.get(); }
 
 private:
+    uint32_t mCount;
     vk::UniqueBuffer buffer;
     vk::UniqueDeviceMemory bufferMemory;
 };

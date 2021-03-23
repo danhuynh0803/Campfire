@@ -1,5 +1,4 @@
-#ifndef OPENGL_BUFFER_H
-#define OPENGL_BUFFER_H
+#pragma once
 
 #include <stdint.h>
 #include "Renderer/Buffer.h"
@@ -53,5 +52,3 @@ private:
     uint32_t renderID;
     BufferLayout layout;
 };
-
-#endif // OPENGL_BUFFER_H

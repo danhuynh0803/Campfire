@@ -7,6 +7,10 @@
 // #define STB_IMAGE_IMPLEMENTATION already set in OpenGLTexture.cpp
 #include <stb_image.h>
 
+void VulkanTexture2D::SetData(void* data, uint32_t size)
+{
+}
+
 VulkanTexture2D::VulkanTexture2D(const std::string& path)
     : mFilePath(path)
 {
