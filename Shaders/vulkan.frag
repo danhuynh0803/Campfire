@@ -10,7 +10,7 @@ layout (binding = 2) uniform sampler2D uSampler;
 
 void main()
 {
-    //vec4 texColor = texture(uSampler, vec2(inUV.x, -inUV.y));
-    //outColor = texColor;
-    outColor = vec4(inNormal, 1.0f);
+    vec4 texColor = texture(uSampler, vec2(inUV.x, 1.0f-inUV.y));
+    outColor = texColor;
+    //outColor = vec4(inNormal, 1.0f);
 }

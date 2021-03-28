@@ -47,7 +47,9 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/ganon/scene.gltf");
+    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/cyborg/cyborg.obj");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 

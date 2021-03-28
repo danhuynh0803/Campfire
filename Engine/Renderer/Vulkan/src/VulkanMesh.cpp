@@ -1,9 +1,13 @@
-#include "Vulkan/VulkanMesh.h"
 #include "Core/ResourceManager.h"
 #include "Util/AABB.h"
 #include "Renderer/Material.h"
-#include <glm/glm.hpp>
+
 #include "Vulkan/VulkanRenderer.h"
+#include "Vulkan/VulkanTexture.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanMesh.h"
+
+#include <glm/glm.hpp>
 
 namespace vk
 {
@@ -33,8 +37,18 @@ namespace vk
 
     void VulkanMesh::Draw(vk::CommandBuffer commandBuffer)
     {
+        auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
+
         for (auto& submesh : submeshes)
         {
+            // update descriptor with
+            auto texture = submesh.textures.at(0);
+            SharedPtr<VulkanTexture2D> vkTexture = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
+            for (int i = 0; i < 3; ++i)
+            {
+                vkTexture->UpdateDescriptors(descriptorSets[i].get(), 2);
+            }
+
             VulkanRenderer::DrawIndexed(
                 commandBuffer,
                 submesh.vertexBuffer->GetBuffer(),
@@ -90,7 +104,8 @@ namespace vk
     {
         std::vector<vk::Vertex> vertices;
         std::vector<uint32_t> indices;
-        std::vector<SharedPtr<VulkanTexture2D>> textures;
+        //std::vector<SharedPtr<VulkanTexture2D>> textures;
+        std::vector<SharedPtr<Texture2D>> textures;
         AABB aabb;
         aabb.mMin = { FLT_MAX, FLT_MAX, FLT_MAX };
         aabb.mMax = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
@@ -165,13 +180,7 @@ namespace vk
             }
 
             { // Diffuse
-                //std::vector<SharedPtr<VulkanTexture2D>> textures =
-                    //LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE);
-                //if (textures.size() > 0)
-                //{
-                //    mat->albedoMap = textures.at(0);
-                //    mat->useAlbedoMap = true;
-                //}
+                textures = LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE);
             }
 
             { // Displacement
@@ -245,39 +254,39 @@ namespace vk
         return submesh;
     }
 
-    //std::vector<SharedPtr<Texture2D>> VulkanMesh::LoadMaterialTextures(aiMaterial* mat, aiTextureType type)
-    //{
-    //    std::vector<SharedPtr<Texture2D>> textures;
-    //
-    //    SharedPtr<Texture2D> texture;
-    //    for (size_t i = 0; i < mat->GetTextureCount(type); ++i)
-    //    {
-    //        aiString str;
-    //        mat->GetTexture(type, i, &str);
-    //        std::string path(directory + '/' + str.C_Str());
-    //
-    //        bool inCache = false;
-    //        for (auto tex : textureCache)
-    //        {
-    //            if (path.compare(tex->GetName()) == 0)
-    //            {
-    //                inCache = true;
-    //                texture = tex;
-    //                break;
-    //            }
-    //        }
-    //        if (!inCache)
-    //        {
-    //            CORE_INFO("Loading Texture from {0}", path);
-    //            texture = Texture2D::Create(path.c_str());
-    //            textureCache.push_back(texture);
-    //        }
-    //
-    //        textures.push_back(texture);
-    //    }
-    //
-    //    return textures;
-    //}
+    std::vector<SharedPtr<Texture2D>> VulkanMesh::LoadMaterialTextures(aiMaterial* mat, aiTextureType type)
+    {
+        std::vector<SharedPtr<Texture2D>> textures;
+
+        SharedPtr<Texture2D> texture;
+        for (size_t i = 0; i < mat->GetTextureCount(type); ++i)
+        {
+            aiString str;
+            mat->GetTexture(type, i, &str);
+            std::string path(directory + '/' + str.C_Str());
+
+            bool inCache = false;
+            for (auto tex : textureCache)
+            {
+                if (path.compare(tex->GetName()) == 0)
+                {
+                    inCache = true;
+                    texture = tex;
+                    break;
+                }
+            }
+            if (!inCache)
+            {
+                CORE_INFO("Loading Texture from {0}", path);
+                texture = Texture2D::Create(path.c_str());
+                textureCache.push_back(texture);
+            }
+
+            textures.push_back(texture);
+        }
+
+        return textures;
+    }
 
     void VulkanMesh::OnImGuiRender()
     {

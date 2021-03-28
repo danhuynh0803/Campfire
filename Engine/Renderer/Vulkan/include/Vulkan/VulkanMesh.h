@@ -8,10 +8,12 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Renderer/Texture.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Core/Base.h"
 #include "Util/AABB.h"
+
 
 class MaterialInstance;
 
@@ -28,7 +30,7 @@ namespace vk
 
     struct VulkanSubmesh
     {
-        VulkanSubmesh(std::vector<vk::Vertex> v, std::vector<uint32_t> i, std::vector<SharedPtr<VulkanTexture2D>> t)
+        VulkanSubmesh(std::vector<vk::Vertex> v, std::vector<uint32_t> i, std::vector<SharedPtr<Texture2D>> t)
             : vertices(v), indices(i), textures(t)
         {
             vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(vk::Vertex) * vertices.size());
@@ -46,7 +48,8 @@ namespace vk
         SharedPtr<VulkanIndexBuffer> indexBuffer;
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        std::vector<SharedPtr<VulkanTexture2D>> textures;
+        //std::vector<SharedPtr<VulkanTexture2D>> textures;
+        std::vector<SharedPtr<Texture2D>> textures;
         AABB boundingBox;
     };
 

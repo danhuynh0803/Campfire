@@ -1,6 +1,7 @@
 #include "Core/ResourceManager.h"
 #include "Renderer/RendererAPI.h"
 #include "OpenGL/OpenGLTexture.h"
+#include "Vulkan/VulkanTexture.h"
 #include "Scene/Entity.h"
 
 std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
@@ -24,9 +25,8 @@ SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
             case RendererAPI::API::OpenGL:
                 mCachedTextureMap.emplace(path, CreateSharedPtr<OpenGLTexture2D>(path));
                 break;
-                // TODO
             case RendererAPI::API::Vulkan:
-                return nullptr;
+                mCachedTextureMap.emplace(path, CreateSharedPtr<VulkanTexture2D>(path));
         }
     }
     return mCachedTextureMap.at(path);
