@@ -125,7 +125,7 @@ namespace vk::util
         {
             barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
             barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-            srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+            srcStageFlags = vk::PipelineStageFlagBits::eHost;
             dstStageFlags = vk::PipelineStageFlagBits::eTransfer;
         }
         else if (oldLayout == vk::ImageLayout::eTransferDstOptimal
@@ -142,7 +142,7 @@ namespace vk::util
             barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
             barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead
                                   | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-            srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+            srcStageFlags = vk::PipelineStageFlagBits::eHost;
             dstStageFlags = vk::PipelineStageFlagBits::eEarlyFragmentTests;
         }
         else
