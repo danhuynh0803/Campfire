@@ -35,6 +35,18 @@ namespace vk
         {
             vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(vk::Vertex) * vertices.size());
             indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
+
+            auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
+
+            if (textures.size() > 0)
+            {
+                auto texture = textures.at(0);
+                SharedPtr<VulkanTexture2D> vkTexture = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
+                for (int i = 0; i < 3; ++i)
+                {
+                    vkTexture->UpdateDescriptors(descriptorSets[i].get(), 2);
+                }
+            }
         }
 
         uint32_t baseVertex;

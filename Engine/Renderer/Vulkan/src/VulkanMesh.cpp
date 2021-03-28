@@ -37,18 +37,8 @@ namespace vk
 
     void VulkanMesh::Draw(vk::CommandBuffer commandBuffer)
     {
-        auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
-
         for (auto& submesh : submeshes)
         {
-            // update descriptor with
-            auto texture = submesh.textures.at(0);
-            SharedPtr<VulkanTexture2D> vkTexture = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
-            for (int i = 0; i < 3; ++i)
-            {
-                vkTexture->UpdateDescriptors(descriptorSets[i].get(), 2);
-            }
-
             VulkanRenderer::DrawIndexed(
                 commandBuffer,
                 submesh.vertexBuffer->GetBuffer(),

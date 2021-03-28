@@ -87,8 +87,8 @@ void VulkanLayer::OnAttach()
         }
 
         { // Setup texture binding
-            textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
-            textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
+            //textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
+            //textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
         }
     }
 }
@@ -162,7 +162,7 @@ void VulkanLayer::OnImGuiRender()
         std::string path = FileSystem::OpenFile();
         if (path.compare("") != 0) // No file selected
         {
-            meshPtr = CreateSharedPtr<vk::VulkanMesh>(path);
+            meshPtr.reset(new vk::VulkanMesh(path));
         }
     }
     ImGui::End();
