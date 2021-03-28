@@ -2,6 +2,7 @@
 
 #include "Renderer/Buffer.h"
 #include "Core/Layer.h"
+#include "Core/Timer.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanTexture.h"
@@ -29,4 +30,5 @@ private:
     std::vector<SharedPtr<VulkanUniformBuffer>> cameraUBOs;
     std::vector<SharedPtr<VulkanUniformBuffer>> transformUBOs;
     std::vector<SharedPtr<VulkanTexture2D>> textures;
+    Timer timer;
 };

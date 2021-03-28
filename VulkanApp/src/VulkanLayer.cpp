@@ -7,6 +7,7 @@
 #include "Vulkan/VulkanMesh.h"
 
 #include "Core/Input.h"
+#include "Core/Timer.h"
 #include "Core/ResourceManager.h" // ASSETS dir
 #include "Scene/CameraController.h"
 
@@ -15,6 +16,8 @@
 
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
+double frameTime = 0;
+float metricTimer = 0.0;
 
 struct CameraUBO
 {
@@ -94,6 +97,10 @@ void VulkanLayer::OnDetach()
 
 void VulkanLayer::OnUpdate(float dt)
 {
+    metricTimer -= dt;
+
+    timer.Reset();
+
     // Current frame in flight
     auto frameIdx = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
 
@@ -129,12 +136,25 @@ void VulkanLayer::OnUpdate(float dt)
 
         vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
     VulkanRenderer::EndScene(commandBuffer);
+
+    if (metricTimer <= 0.0)
+    {
+        frameTime = timer.GetTime();
+        metricTimer = 1.0f;
+    }
 }
 
 void VulkanLayer::OnImGuiRender()
 {
-    ImGui::Begin("Controls");
+    ImGui::Begin("Metrics");
+    auto gpu = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
+    auto props = gpu.getProperties();
+    ImGui::Text(props.deviceName);
+    std::string timerText(std::to_string(frameTime) + " ms/frame");
+    ImGui::Text(timerText.c_str());
+    ImGui::End();
 
+    ImGui::Begin("Controls");
     if (ImGui::Button("Load Mesh"))
     {
         std::string path = FileSystem::OpenFile();
@@ -143,7 +163,6 @@ void VulkanLayer::OnImGuiRender()
             meshPtr = CreateSharedPtr<vk::VulkanMesh>(path);
         }
     }
-
     ImGui::End();
 }
 

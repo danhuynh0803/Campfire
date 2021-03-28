@@ -10,7 +10,7 @@ struct Timer
     std::chrono::duration<float> duration;
     std::string msg;
 
-    Timer(std::string msg)
+    Timer(std::string msg = "")
     {
         this->msg = msg;
         start = std::chrono::high_resolution_clock::now();
