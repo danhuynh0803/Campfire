@@ -130,14 +130,17 @@ void VulkanLayer::OnUpdate(float dt)
     OnImGuiRender();
     vkImguiLayer->End();
 
-    // Render scene and imgui
-    auto commandBuffer = VulkanRenderer::BeginScene();
 
-        // Draw mesh
-        meshPtr->Draw(commandBuffer);
+    for (size_t i = 0; i < 3; ++i)
+    {
+        // Render scene and imgui
+        auto commandBuffer = VulkanRenderer::BeginScene(i);
+            // Draw mesh
+            meshPtr->Draw(commandBuffer);
 
-        vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
-    VulkanRenderer::EndScene(commandBuffer);
+            vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+        VulkanRenderer::EndScene(commandBuffer);
+    }
 
     if (metricTimer <= 0.0)
     {

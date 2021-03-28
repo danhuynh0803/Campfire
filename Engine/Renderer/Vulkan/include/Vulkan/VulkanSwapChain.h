@@ -12,7 +12,10 @@ public:
 
     uint32_t GetCurrentImageIndex() { return mImageIndex; }
     vk::CommandBuffer GetCurrentCommandBuffer() { return commandBuffers.at(mImageIndex).get(); }
+    vk::CommandBuffer GetCommandBuffer(uint32_t index) { return commandBuffers.at(index).get(); }
+
     vk::Framebuffer GetCurrentFramebuffer() { return swapChainFramebuffers.at(mImageIndex).get(); }
+    vk::Framebuffer GetFramebuffer(uint32_t index) { return swapChainFramebuffers.at(index).get(); }
     vk::SurfaceKHR GetSurface() { return mSurface.get(); }
     vk::Format GetFormat() { return swapChainImageFormat; }
     std::vector<vk::Image> GetImages() { return swapChainImages; }
