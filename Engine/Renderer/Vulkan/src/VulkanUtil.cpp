@@ -84,6 +84,9 @@ namespace vk::util
         auto graphicsQueue = VulkanContext::Get()->GetDevice()->GetGraphicsQueue();
         graphicsQueue.submit(1, &submitInfo, nullptr);
         graphicsQueue.waitIdle();
+
+        auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+        device.freeCommandBuffers(VulkanContext::Get()->GetCommandPool(), 1, &commandBuffer);
     }
 
     void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
