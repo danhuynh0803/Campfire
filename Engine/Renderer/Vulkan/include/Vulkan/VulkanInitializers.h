@@ -212,6 +212,22 @@ namespace vk
             return info;
         }
 
+        inline vk::DescriptorSetLayoutBinding DescriptorSetLayoutBinding(
+            vk::DescriptorType descriptorType,
+            vk::ShaderStageFlags stageFlags,
+            uint32_t binding,
+            uint32_t descriptorCount = 1)
+        {
+            vk::DescriptorSetLayoutBinding descriptorSetLayout {};
+            descriptorSetLayout.binding = binding;
+            descriptorSetLayout.descriptorType = descriptorType;
+            descriptorSetLayout.descriptorCount = descriptorCount;
+            descriptorSetLayout.stageFlags = stageFlags;
+            descriptorSetLayout.pImmutableSamplers = nullptr;
+
+            return descriptorSetLayout;
+        }
+
         inline vk::PipelineLayoutCreateInfo PipelineLayoutCreateInfo(
             uint32_t setLayoutCount,
             vk::DescriptorSetLayout* pSetLayouts)

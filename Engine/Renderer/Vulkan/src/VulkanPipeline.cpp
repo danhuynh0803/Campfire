@@ -115,30 +115,33 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 void VulkanPipeline::SetupDescriptors()
 {
     std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
-    { // UBO descriptor layout
-        for (size_t i = 0; i < 2; ++i)
-        {
-            vk::DescriptorSetLayoutBinding uboLayoutBinding;
-            uboLayoutBinding.binding = static_cast<uint32_t>(i);
-            uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-            uboLayoutBinding.descriptorCount = 1;
-            uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
-            uboLayoutBinding.pImmutableSamplers = nullptr; // used for image sampling later on
 
-            layoutBindings.emplace_back(uboLayoutBinding);
-        }
+    { // Camera
+        auto cameraDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eVertex,
+            0);
+
+        layoutBindings.emplace_back(cameraDescriptor);
+    }
+
+    { // Transform UBO
+        auto transformDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eVertex,
+            1);
+
+        layoutBindings.emplace_back(transformDescriptor);
     }
 
     { // Sampler layout binding
-        vk::DescriptorSetLayoutBinding samplerLayoutBinding {};
-        samplerLayoutBinding.binding = 2;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-        layoutBindings.emplace_back(samplerLayoutBinding);
-    }
+        auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            2);
 
+        layoutBindings.emplace_back(samplerDescriptor);
+    }
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo;
     layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());
