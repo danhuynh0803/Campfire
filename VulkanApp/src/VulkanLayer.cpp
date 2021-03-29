@@ -35,9 +35,9 @@ static TransformUBO transformUBO;
 
 struct LightUBO
 {
-    glm::vec4 pos = glm::vec4(0, 0, 2.5f, 0);
+    glm::vec4 pos = glm::vec4(30, 30, 2.5f, 0);
     glm::vec4 color = glm::vec4(1, 1, 1, 1);
-    glm::vec4 dir = glm::vec4(0, 1, 0, 0);
+    glm::vec4 dir = glm::vec4(1, -1, 0, 0);
 };
 static LightUBO lightUBO;
 
@@ -49,6 +49,9 @@ VulkanLayer::VulkanLayer()
 void VulkanLayer::OnAttach()
 {
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
+    editorCamera->nearPlane = 0.001f;
+    editorCamera->farPlane = 10000.0f;
+    cameraController.normalSpeed = 15;
     cameraController.SetActiveCamera(
         editorCamera,
         glm::vec3(0.0f, 0.0f, 10.0f), // position
@@ -58,9 +61,9 @@ void VulkanLayer::OnAttach()
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/ganon/scene.gltf");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/cyborg/cyborg.obj");
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/Sponza/glTF/Sponza.gltf");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
-    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
+    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/Sponza/glTF/Sponza.gltf");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
 
@@ -140,6 +143,7 @@ void VulkanLayer::OnUpdate(float dt)
     //static float rotation = 0;
     //rotation += 180 * dt;
     glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.1f));
     //model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
     transformUBO.model = model;
     transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
@@ -190,6 +194,9 @@ void VulkanLayer::OnImGuiRender()
     ImGui::End();
 
     ImGui::Begin("Controls");
+
+    ImGui::Separator();
+
     if (ImGui::Button("Load Mesh"))
     {
         std::string path = FileSystem::OpenFile();
@@ -198,6 +205,15 @@ void VulkanLayer::OnImGuiRender()
             meshPtr.reset(new vk::VulkanMesh(path));
         }
     }
+
+    ImGui::Separator();
+
+    ImGui::Text("Camera");
+    ImGui::DragFloat("Speed", &cameraController.normalSpeed);
+    ImGui::DragFloat("Near", &editorCamera->nearPlane);
+    ImGui::DragFloat("Far", &editorCamera->farPlane);
+
+    ImGui::Separator();
 
     // Light Controls
     ImGui::DragFloat4("Light Pos", (float*)&lightUBO.pos, 0.01f);

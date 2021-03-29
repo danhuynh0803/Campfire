@@ -24,7 +24,7 @@ layout (set = 1, binding = 1) uniform sampler2D uNormalMap;
 float constant = 1.0f;
 float linear = 0.09f;
 float quadratic = 0.032f;
-float intensity = 3.0f;
+float intensity = 100.0f;
 
 // =========================================
 vec3 GetNormalFromMap()
@@ -60,7 +60,7 @@ vec3 PhongLighting(vec3 normal)
     color = intensity * attenuation * (ambient + diff*albedo);
 
     // Dir lighting
-    //vec3 lightDir = normalize(lights.dir).xyz;
+    //vec3 lightDir = normalize(-lights.dir).xyz;
     //vec3 diff = max(0., dot(normal, lightDir)) * lights.color.rgb;
     //color = (ambient + diff*albedo);
 
@@ -73,6 +73,6 @@ void main()
     vec4 texColor = texture(uAlbedoMap, uv);
     vec3 normal = GetNormalFromMap();
 
-    //outColor = vec4(PhongLighting(normal), 1.0f);
-    outColor = texColor;
+    outColor = vec4(PhongLighting(normal), 1.0f);
+    //outColor = texColor;
 }

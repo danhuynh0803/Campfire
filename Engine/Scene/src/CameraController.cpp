@@ -67,7 +67,8 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 {
     if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
-        normalSpeed = std::clamp(normalSpeed += e.GetYOffset(), 0.1f, 50.0f);
+        //normalSpeed = std::clamp(normalSpeed += e.GetYOffset(), 0.1f, 1000.0f);
+        normalSpeed = std::max(normalSpeed += e.GetYOffset(), 0.1f);
     }
     else
     {

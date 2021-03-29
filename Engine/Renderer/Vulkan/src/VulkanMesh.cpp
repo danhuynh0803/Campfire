@@ -38,8 +38,23 @@ namespace vk
 
     void VulkanMesh::Draw(vk::CommandBuffer commandBuffer)
     {
+        auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+        auto pipeline = VulkanContext::Get()->GetPipeline();
         for (auto& submesh : submeshes)
         {
+            //for (int i = 0; i < 3; ++i)
+            {
+                // Bind descriptor of material
+                commandBuffer.bindDescriptorSets(
+                    vk::PipelineBindPoint::eGraphics,
+                    pipeline->GetVulkanPipelineLayout(),
+                    1,
+                    1,
+                    &submesh.material->descriptorSets[0].get(),
+                    0, nullptr
+                );
+            }
+
             VulkanRenderer::DrawIndexed(
                 commandBuffer,
                 submesh.vertexBuffer->GetBuffer(),
@@ -251,10 +266,8 @@ namespace vk
         }
 
         //materials.emplace_back(material);
-        VulkanSubmesh submesh(vertices, indices, submeshTextures);
+        VulkanSubmesh submesh(vertices, indices, mat);
         submesh.boundingBox = aabb;
-        submesh.material = mat;
-        submesh.UpdateDescriptors();
 
         return submesh;
     }

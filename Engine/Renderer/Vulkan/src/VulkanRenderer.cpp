@@ -39,10 +39,16 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t index)
 
     std::vector<vk::DescriptorSet> descriptorSets {
         graphicsPipeline->uniformDescriptorSets[index].get(),
-        graphicsPipeline->materialDescriptorSets[index].get(),
+        //graphicsPipeline->materialDescriptorSets[index].get(),
     };
 
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 2, descriptorSets.data(), 0, nullptr);
+    commandBuffer.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        graphicsPipeline->GetVulkanPipelineLayout(),
+        0,
+        static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
+        0, nullptr
+    );
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
 
