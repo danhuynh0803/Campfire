@@ -10,6 +10,15 @@ layout (location = 0) out vec4 outColor;
 layout (binding = 2) uniform sampler2D uAlbedoMap;
 layout (binding = 3) uniform sampler2D uNormalMap;
 
+vec3 lightPos = vec3(0, 0, 0.5);
+vec3 lightCol = vec3(0, 1, 1);
+
+layout (binding = 2) uniform Lights
+{
+    vec3 pos;
+    vec3 color;
+} lights;
+
 vec3 GetNormalFromMap()
 {
     vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
@@ -27,12 +36,27 @@ vec3 GetNormalFromMap()
 
     return normalize(TBN * tangentNormal);
 }
+
+vec3 PhongLighting(vec3 normal)
+{
+    vec3 color = vec3(0.0f);
+    vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
+    vec3 albedo = texture(uAlbedoMap, uv).rgb;
+    vec3 ambient = 0.1f * albedo;
+
+    vec3 lightDir = normalize(lightPos - inPos);
+    vec3 diff = max(0., dot(normal, lightDir)) * lightCol;
+
+    color = ambient + diff*albedo;
+
+    return color;
+}
+
 void main()
 {
     vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
     vec4 texColor = texture(uAlbedoMap, uv);
     vec3 normal = GetNormalFromMap();
 
-    outColor = texColor;
-    outColor = vec4(normal, 1.0f);
+    outColor = vec4(PhongLighting(normal), 1.0f);
 }

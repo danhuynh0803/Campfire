@@ -11,6 +11,7 @@
 #include "Renderer/Texture.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanMaterial.h"
 #include "Core/Base.h"
 #include "Util/AABB.h"
 
@@ -48,17 +49,19 @@ namespace vk
                 auto texture = textures.at(0);
 
                 SharedPtr<VulkanTexture2D> albedo = std::dynamic_pointer_cast<VulkanTexture2D>(
-                    ResourceManager::GetTexture(albedoIndex)
+                    material->albedoMap
                 );
 
                 SharedPtr<VulkanTexture2D> normal = std::dynamic_pointer_cast<VulkanTexture2D>(
-                    ResourceManager::GetTexture(normalIndex)
+                    material->normalMap
                 );
 
                 for (int i = 0; i < 3; ++i)
                 {
-                    albedo->UpdateDescriptors(descriptorSets[i].get(), 2);
-                    normal->UpdateDescriptors(descriptorSets[i].get(), 3);
+                    if (albedo && material->useAlbedoMap)
+                        albedo->UpdateDescriptors(descriptorSets[i].get(), 2);
+                    if (normal && material->useNormalMap)
+                        normal->UpdateDescriptors(descriptorSets[i].get(), 3);
                 }
             }
         }
@@ -67,14 +70,12 @@ namespace vk
         uint32_t baseIndex;
         uint32_t materialIndex;
         uint32_t indexCount;
-        // TODO move to a material
-        uint32_t albedoIndex;
-        uint32_t normalIndex;
 
         glm::mat4 transform;
         std::string nodeName, meshName;
         SharedPtr<VulkanVertexBuffer> vertexBuffer;
         SharedPtr<VulkanIndexBuffer> indexBuffer;
+        SharedPtr<VulkanMaterial> material;
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         //std::vector<SharedPtr<VulkanTexture2D>> textures;

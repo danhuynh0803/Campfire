@@ -6,6 +6,7 @@
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanMesh.h"
+#include "Vulkan/VulkanMaterial.h"
 
 #include <glm/glm.hpp>
 
@@ -102,6 +103,8 @@ namespace vk
         uint32_t albedoIndex = 0;
         uint32_t normalIndex = 0;
 
+        SharedPtr<VulkanMaterial> mat = CreateSharedPtr<VulkanMaterial>();
+
         // Process vertex info
         for (size_t i = 0; i < mesh->mNumVertices; ++i)
         {
@@ -177,10 +180,8 @@ namespace vk
                 if (textures.size() > 0)
                 {
                     submeshTextures.emplace_back(textures.at(0));
-                    //mat->normalMap = textures.at(0);
-                    //mat->useNormalMap = true;
-                    auto size = ResourceManager::GetTextureMaster().size();
-                    albedoIndex = static_cast<uint32_t>(size - 1);
+                    mat->albedoMap = textures.at(0);
+                    mat->useAlbedoMap = true;
                 }
             }
 
@@ -218,9 +219,8 @@ namespace vk
                 if (textures.size() > 0)
                 {
                     submeshTextures.emplace_back(textures.at(0));
-                    //mat->normalMap = textures.at(0);
-                    //mat->useNormalMap = true;
-                    normalIndex = static_cast<uint32_t>(ResourceManager::GetTextureMaster().size() - 1);
+                    mat->normalMap = textures.at(0);
+                    mat->useNormalMap = true;
                 }
             }
 
@@ -253,8 +253,7 @@ namespace vk
         //materials.emplace_back(material);
         VulkanSubmesh submesh(vertices, indices, submeshTextures);
         submesh.boundingBox = aabb;
-        submesh.albedoIndex = albedoIndex;
-        submesh.normalIndex = normalIndex;
+        submesh.material = mat;
         submesh.UpdateDescriptors();
 
         return submesh;
