@@ -23,6 +23,9 @@ public:
     // maybe have this handled behind the scenes in renderer?
     std::vector<vk::UniqueDescriptorSet> uniformDescriptorSets;
     std::vector<vk::UniqueDescriptorSet> materialDescriptorSets;
+    vk::UniqueDescriptorSetLayout uboDescriptorSetLayout;
+    vk::UniqueDescriptorSetLayout materialDescriptorSetLayout;
+    vk::UniqueDescriptorPool descriptorPool;
 
 private:
     void CreateDescriptorSets();
@@ -36,9 +39,6 @@ private:
     vk::UniquePipeline pipeline;
     PipelineType type;
 
-    vk::UniqueDescriptorPool descriptorPool;
-    vk::UniqueDescriptorSetLayout uboDescriptorSetLayout;
-    vk::UniqueDescriptorSetLayout materialDescriptorSetLayout;
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
     vk::UniqueRenderPass mImGuiRenderPass;

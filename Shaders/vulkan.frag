@@ -73,5 +73,6 @@ void main()
     vec4 texColor = texture(uAlbedoMap, uv);
     vec3 normal = GetNormalFromMap();
 
-    outColor = vec4(PhongLighting(normal), 1.0f);
+    //outColor = vec4(PhongLighting(normal), 1.0f);
+    outColor = texColor;
 }

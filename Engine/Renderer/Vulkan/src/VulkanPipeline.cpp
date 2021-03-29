@@ -195,7 +195,8 @@ void VulkanPipeline::SetupDescriptors()
         poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
         vk::DescriptorPoolCreateInfo poolInfo;
-        poolInfo.maxSets = 2 * static_cast<uint32_t>(swapChainImages.size());
+        // TODO have poolsize be configurable
+        poolInfo.maxSets = 100 * static_cast<uint32_t>(swapChainImages.size());
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 
@@ -209,10 +210,10 @@ void VulkanPipeline::SetupDescriptors()
         SetupUboDescriptor();
 
         std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), uboDescriptorSetLayout.get());
-        vk::DescriptorSetAllocateInfo allocInfo;
-        allocInfo.descriptorPool = descriptorPool.get();
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
-        allocInfo.pSetLayouts = layouts.data();
+        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+            descriptorPool.get(),
+            static_cast<uint32_t>(layouts.size()),
+            layouts.data());
 
         uniformDescriptorSets.resize(swapChainImages.size());
         uniformDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
@@ -223,10 +224,10 @@ void VulkanPipeline::SetupDescriptors()
         SetupMaterialDescriptor();
 
         std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), materialDescriptorSetLayout.get());
-        vk::DescriptorSetAllocateInfo allocInfo;
-        allocInfo.descriptorPool = descriptorPool.get();
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
-        allocInfo.pSetLayouts = layouts.data();
+        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+            descriptorPool.get(),
+            static_cast<uint32_t>(layouts.size()),
+            layouts.data());
 
         materialDescriptorSets.resize(swapChainImages.size());
         materialDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);

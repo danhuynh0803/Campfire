@@ -228,6 +228,19 @@ namespace vk
             return descriptorSetLayout;
         }
 
+        inline vk::DescriptorSetAllocateInfo DescriptorSetAllocateInfo(
+            vk::DescriptorPool pool,
+            uint32_t descriptorSetCount,
+            vk::DescriptorSetLayout* pSetLayouts)
+        {
+            vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo {};
+            descriptorSetAllocateInfo.descriptorPool = pool;
+            descriptorSetAllocateInfo.descriptorSetCount = descriptorSetCount;
+            descriptorSetAllocateInfo.pSetLayouts = pSetLayouts;
+
+            return descriptorSetAllocateInfo;
+        }
+
         inline vk::DescriptorSetLayoutCreateInfo DescriptorSetLayoutCreateInfo(
             uint32_t bindingCount,
             vk::DescriptorSetLayoutBinding* pBindings)
