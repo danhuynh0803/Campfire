@@ -1,27 +1,32 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+// =========================================
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inNormal;
 
+// =========================================
 layout (location = 0) out vec4 outColor;
 
-layout (binding = 3) uniform sampler2D uAlbedoMap;
-layout (binding = 4) uniform sampler2D uNormalMap;
-
-layout (binding = 2) uniform Lights
+// =========================================
+layout (set = 0, binding = 2) uniform Lights
 {
     vec4 pos;
     vec4 color;
     vec4 dir;
 } lights;
 
+layout (set = 1, binding = 0) uniform sampler2D uAlbedoMap;
+layout (set = 1, binding = 1) uniform sampler2D uNormalMap;
+
+// =========================================
 float constant = 1.0f;
 float linear = 0.09f;
 float quadratic = 0.032f;
 float intensity = 3.0f;
 
+// =========================================
 vec3 GetNormalFromMap()
 {
     vec2 uv = vec2(inUV.x, 1.0f-inUV.y);

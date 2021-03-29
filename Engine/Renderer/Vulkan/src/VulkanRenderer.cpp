@@ -37,8 +37,12 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t index)
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
-    auto& descriptorSets = graphicsPipeline->descriptorSets;
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[index].get(), 0, nullptr);
+    std::vector<vk::DescriptorSet> descriptorSets {
+        graphicsPipeline->uniformDescriptorSets[index].get(),
+        graphicsPipeline->materialDescriptorSets[index].get(),
+    };
+
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 2, descriptorSets.data(), 0, nullptr);
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
 
@@ -82,7 +86,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene()
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
-    auto& descriptorSets = graphicsPipeline->descriptorSets;
+    auto& descriptorSets = graphicsPipeline->uniformDescriptorSets;
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
@@ -105,7 +109,7 @@ void VulkanRenderer::DrawIndexed(vk::CommandBuffer& commandBuffer, vk::Buffer ve
     commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
 
     auto graphicsPipeline = VulkanContext::Get()->GetPipeline();
-    auto& descriptorSets = graphicsPipeline->descriptorSets;
+    auto& descriptorSets = graphicsPipeline->uniformDescriptorSets;
     uint32_t imageIndex = VulkanContext::Get()->GetSwapChain()->GetCurrentImageIndex();
     //commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipelineLayout(), 0, 1, &descriptorSets[imageIndex].get(), 0, nullptr);
 

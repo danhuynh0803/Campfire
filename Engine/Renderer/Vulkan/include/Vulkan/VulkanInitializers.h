@@ -228,6 +228,17 @@ namespace vk
             return descriptorSetLayout;
         }
 
+        inline vk::DescriptorSetLayoutCreateInfo DescriptorSetLayoutCreateInfo(
+            uint32_t bindingCount,
+            vk::DescriptorSetLayoutBinding* pBindings)
+        {
+            vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo {};
+            descriptorSetLayoutCreateInfo.bindingCount = bindingCount;
+            descriptorSetLayoutCreateInfo.pBindings = pBindings;
+
+            return descriptorSetLayoutCreateInfo;
+        }
+
         inline vk::PipelineLayoutCreateInfo PipelineLayoutCreateInfo(
             uint32_t setLayoutCount,
             vk::DescriptorSetLayout* pSetLayouts)

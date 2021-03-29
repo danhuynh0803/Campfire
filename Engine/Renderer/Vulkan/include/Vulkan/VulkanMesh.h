@@ -41,7 +41,7 @@ namespace vk
 
         void UpdateDescriptors()
         {
-            auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
+            auto& descriptorSets = VulkanContext::Get()->GetPipeline()->materialDescriptorSets;
 
             // TODO refactor this to be handled by materials
             if (textures.size() > 0)
@@ -59,9 +59,9 @@ namespace vk
                 for (int i = 0; i < 3; ++i)
                 {
                     if (albedo && material->useAlbedoMap)
-                        albedo->UpdateDescriptors(descriptorSets[i].get(), 3);
+                        albedo->UpdateDescriptors(descriptorSets[i].get(), 0);
                     if (normal && material->useNormalMap)
-                        normal->UpdateDescriptors(descriptorSets[i].get(), 4);
+                        normal->UpdateDescriptors(descriptorSets[i].get(), 1);
                 }
             }
         }

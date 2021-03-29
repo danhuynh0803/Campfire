@@ -79,8 +79,14 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup descriptors (doesnt have to be part of pipeline creation)
     SetupDescriptors();
 
+    std::vector<vk::DescriptorSetLayout> descriptorLayouts{
+        uboDescriptorSetLayout.get(),
+        materialDescriptorSetLayout.get(),
+    };
     // Setup pipeline layout
-    auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(1, &descriptorSetLayout.get());
+    auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
+        static_cast<uint32_t>(descriptorLayouts.size()),
+        descriptorLayouts.data());
     pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     SetupRenderPass();
@@ -112,11 +118,9 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
-void VulkanPipeline::SetupDescriptors()
+void VulkanPipeline::SetupUboDescriptor()
 {
-    // TODO update to use set value
     std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
-
     { // Camera
         auto cameraDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eUniformBuffer,
@@ -144,11 +148,21 @@ void VulkanPipeline::SetupDescriptors()
         layoutBindings.emplace_back(lightDescriptor);
     }
 
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+        static_cast<uint32_t>(layoutBindings.size()),
+        layoutBindings.data());
+    uboDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
+}
+
+void VulkanPipeline::SetupMaterialDescriptor()
+{
+    std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
     { // Albedo map
         auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
-            3);
+            0);
 
         layoutBindings.emplace_back(samplerDescriptor);
     }
@@ -157,20 +171,22 @@ void VulkanPipeline::SetupDescriptors()
         auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
-            4);
+            1);
 
         layoutBindings.emplace_back(samplerDescriptor);
     }
 
-
-    vk::DescriptorSetLayoutCreateInfo layoutInfo;
-    layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());
-    layoutInfo.pBindings = layoutBindings.data();
-
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    descriptorSetLayout = device.createDescriptorSetLayoutUnique(layoutInfo);
-    auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
+    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+        static_cast<uint32_t>(layoutBindings.size()),
+        layoutBindings.data());
+    materialDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
+}
 
+void VulkanPipeline::SetupDescriptors()
+{
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
     { // Creating descriptor pools
         std::array<vk::DescriptorPoolSize, 2> poolSizes {};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
@@ -179,22 +195,42 @@ void VulkanPipeline::SetupDescriptors()
         poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
         vk::DescriptorPoolCreateInfo poolInfo;
-        poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+        poolInfo.maxSets = 2 * static_cast<uint32_t>(swapChainImages.size());
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 
         descriptorPool = device.createDescriptorPoolUnique(poolInfo);
     }
 
-    // Create list of descriptor sets
-    std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout.get());
-    vk::DescriptorSetAllocateInfo allocInfo;
-    allocInfo.descriptorPool = descriptorPool.get();
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
-    allocInfo.pSetLayouts = layouts.data();
+    // Create list of descriptor sets for uniform data, which will be
+    // consistent for all objects
+    // e.g view, lights, etc
+    {
+        SetupUboDescriptor();
 
-    descriptorSets.resize(swapChainImages.size());
-    descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+        std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), uboDescriptorSetLayout.get());
+        vk::DescriptorSetAllocateInfo allocInfo;
+        allocInfo.descriptorPool = descriptorPool.get();
+        allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+        allocInfo.pSetLayouts = layouts.data();
+
+        uniformDescriptorSets.resize(swapChainImages.size());
+        uniformDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+    }
+
+    // Unique data like transforms, materials, etc will have its own descriptor set
+    {
+        SetupMaterialDescriptor();
+
+        std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), materialDescriptorSetLayout.get());
+        vk::DescriptorSetAllocateInfo allocInfo;
+        allocInfo.descriptorPool = descriptorPool.get();
+        allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+        allocInfo.pSetLayouts = layouts.data();
+
+        materialDescriptorSets.resize(swapChainImages.size());
+        materialDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+    }
 }
 
 void VulkanPipeline::SetupRenderPass()

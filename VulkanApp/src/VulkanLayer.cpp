@@ -62,7 +62,7 @@ void VulkanLayer::OnAttach()
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
     meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
 
-    auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
+    auto& descriptorSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
 
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)

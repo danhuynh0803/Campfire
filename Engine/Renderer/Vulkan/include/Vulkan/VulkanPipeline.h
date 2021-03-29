@@ -21,20 +21,24 @@ public:
 
     // TODO: figure out a better way to bind the descriptorSet during draw call
     // maybe have this handled behind the scenes in renderer?
-    std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    std::vector<vk::UniqueDescriptorSet> uniformDescriptorSets;
+    std::vector<vk::UniqueDescriptorSet> materialDescriptorSets;
 
 private:
     void CreateDescriptorSets();
     void CreateDescriptorPool();
     void SetupRenderPass();
     void SetupDescriptors();
+    void SetupUboDescriptor();
+    void SetupMaterialDescriptor();
 
 private:
     vk::UniquePipeline pipeline;
     PipelineType type;
 
     vk::UniqueDescriptorPool descriptorPool;
-    vk::UniqueDescriptorSetLayout descriptorSetLayout;
+    vk::UniqueDescriptorSetLayout uboDescriptorSetLayout;
+    vk::UniqueDescriptorSetLayout materialDescriptorSetLayout;
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
     vk::UniqueRenderPass mImGuiRenderPass;

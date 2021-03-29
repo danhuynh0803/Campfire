@@ -11,14 +11,14 @@ layout (location = 1) out vec2 outUV;
 layout (location = 2) out vec3 outNormal;
 
 // =========================================
-layout (binding = 0) uniform Camera
+layout (set = 0, binding = 0) uniform Camera
 {
     mat4 view;
     mat4 proj;
     mat4 viewProj;
 } camera;
 
-layout (binding = 1) uniform Transform
+layout (set = 0, binding = 1) uniform Transform
 {
     mat4 model;
 } transform;
