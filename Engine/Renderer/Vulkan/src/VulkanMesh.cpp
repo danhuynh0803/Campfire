@@ -94,11 +94,13 @@ namespace vk
     {
         std::vector<vk::Vertex> vertices;
         std::vector<uint32_t> indices;
-        //std::vector<SharedPtr<VulkanTexture2D>> textures;
-        std::vector<SharedPtr<Texture2D>> textures;
+        std::vector<SharedPtr<Texture2D>> submeshTextures;
         AABB aabb;
         aabb.mMin = { FLT_MAX, FLT_MAX, FLT_MAX };
         aabb.mMax = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+        uint32_t albedoIndex = 0;
+        uint32_t normalIndex = 0;
 
         // Process vertex info
         for (size_t i = 0; i < mesh->mNumVertices; ++i)
@@ -170,7 +172,16 @@ namespace vk
             }
 
             { // Diffuse
-                textures = LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE);
+                std::vector<SharedPtr<Texture2D>> textures =
+                    LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE);
+                if (textures.size() > 0)
+                {
+                    submeshTextures.emplace_back(textures.at(0));
+                    //mat->normalMap = textures.at(0);
+                    //mat->useNormalMap = true;
+                    auto size = ResourceManager::GetTextureMaster().size();
+                    albedoIndex = static_cast<uint32_t>(size - 1);
+                }
             }
 
             { // Displacement
@@ -201,15 +212,17 @@ namespace vk
             //    }
             //}
 
-            //{ // Normal
-            //    std::vector<SharedPtr<Texture2D>> textures =
-            //        LoadMaterialTextures(meshMaterial, aiTextureType_NORMALS);
-            //    if (textures.size() > 0)
-            //    {
-            //        mat->normalMap = textures.at(0);
-            //        mat->useNormalMap = true;
-            //    }
-            //}
+            { // Normal
+                std::vector<SharedPtr<Texture2D>> textures =
+                    LoadMaterialTextures(meshMaterial, aiTextureType_NORMALS);
+                if (textures.size() > 0)
+                {
+                    submeshTextures.emplace_back(textures.at(0));
+                    //mat->normalMap = textures.at(0);
+                    //mat->useNormalMap = true;
+                    normalIndex = static_cast<uint32_t>(ResourceManager::GetTextureMaster().size() - 1);
+                }
+            }
 
             { // Opacity
 
@@ -238,8 +251,11 @@ namespace vk
         }
 
         //materials.emplace_back(material);
-        VulkanSubmesh submesh(vertices, indices, textures);
+        VulkanSubmesh submesh(vertices, indices, submeshTextures);
         submesh.boundingBox = aabb;
+        submesh.albedoIndex = albedoIndex;
+        submesh.normalIndex = normalIndex;
+        submesh.UpdateDescriptors();
 
         return submesh;
     }

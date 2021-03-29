@@ -14,6 +14,7 @@
 #include "Core/Base.h"
 #include "Util/AABB.h"
 
+#include "Core/ResourceManager.h"
 
 class MaterialInstance;
 
@@ -35,16 +36,29 @@ namespace vk
         {
             vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(vk::Vertex) * vertices.size());
             indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
+        }
 
+        void UpdateDescriptors()
+        {
             auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
+            // TODO refactor this to be handled by materials
             if (textures.size() > 0)
             {
                 auto texture = textures.at(0);
-                SharedPtr<VulkanTexture2D> vkTexture = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
+
+                SharedPtr<VulkanTexture2D> albedo = std::dynamic_pointer_cast<VulkanTexture2D>(
+                    ResourceManager::GetTexture(albedoIndex)
+                );
+
+                SharedPtr<VulkanTexture2D> normal = std::dynamic_pointer_cast<VulkanTexture2D>(
+                    ResourceManager::GetTexture(normalIndex)
+                );
+
                 for (int i = 0; i < 3; ++i)
                 {
-                    vkTexture->UpdateDescriptors(descriptorSets[i].get(), 2);
+                    albedo->UpdateDescriptors(descriptorSets[i].get(), 2);
+                    normal->UpdateDescriptors(descriptorSets[i].get(), 3);
                 }
             }
         }
@@ -53,6 +67,9 @@ namespace vk
         uint32_t baseIndex;
         uint32_t materialIndex;
         uint32_t indexCount;
+        // TODO move to a material
+        uint32_t albedoIndex;
+        uint32_t normalIndex;
 
         glm::mat4 transform;
         std::string nodeName, meshName;

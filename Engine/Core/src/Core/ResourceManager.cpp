@@ -4,6 +4,7 @@
 #include "Vulkan/VulkanTexture.h"
 #include "Scene/Entity.h"
 
+std::vector<SharedPtr<Texture2D>> ResourceManager::mTextureMaster;
 std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
 std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
 std::unordered_map<std::string, Entity> ResourceManager::mCachedEntityMap;
@@ -16,6 +17,7 @@ std::string ResourceManager::mFontsPath = "../../Assets/Fonts";
 SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
 {
     auto it = mCachedTextureMap.find(path);
+    SharedPtr<Texture2D> addedTexture;
     if (it == mCachedTextureMap.end())
     {
         switch (RendererAPI::GetAPI())
@@ -23,12 +25,16 @@ SharedPtr<Texture2D> ResourceManager::GetTexture2D(const std::string& path)
             case RendererAPI::API::None:
                 return nullptr;
             case RendererAPI::API::OpenGL:
-                mCachedTextureMap.emplace(path, CreateSharedPtr<OpenGLTexture2D>(path));
+                addedTexture = CreateSharedPtr<OpenGLTexture2D>(path);
                 break;
             case RendererAPI::API::Vulkan:
-                mCachedTextureMap.emplace(path, CreateSharedPtr<VulkanTexture2D>(path));
+                addedTexture = CreateSharedPtr<VulkanTexture2D>(path);
         }
+
+        mCachedTextureMap.emplace(path, addedTexture);
+        mTextureMaster.emplace_back(addedTexture);
     }
+
     return mCachedTextureMap.at(path);
 }
 

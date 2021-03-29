@@ -134,7 +134,7 @@ void VulkanPipeline::SetupDescriptors()
         layoutBindings.emplace_back(transformDescriptor);
     }
 
-    { // Sampler layout binding
+    { // Albedo map
         auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
@@ -142,6 +142,16 @@ void VulkanPipeline::SetupDescriptors()
 
         layoutBindings.emplace_back(samplerDescriptor);
     }
+
+    { // Normal map
+        auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            3);
+
+        layoutBindings.emplace_back(samplerDescriptor);
+    }
+
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo;
     layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());

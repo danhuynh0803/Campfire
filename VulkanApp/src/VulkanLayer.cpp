@@ -49,7 +49,9 @@ void VulkanLayer::OnAttach()
 
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/ganon/scene.gltf");
-    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/cyborg/cyborg.obj");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/cyborg/cyborg.obj");
+    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
@@ -140,7 +142,7 @@ void VulkanLayer::OnUpdate(float dt)
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
         VulkanRenderer::EndScene(commandBuffer);
-    }
+}
 
     if (metricTimer <= 0.0)
     {

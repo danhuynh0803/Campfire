@@ -18,6 +18,7 @@ set(VULKAN_HEADERS
     include/Vulkan/VulkanSwapChain.h
     #include/Vulkan/VulkanText.h
     include/Vulkan/VulkanTexture.h
+    include/Vulkan/VulkanMaterial.h
     #include/Vulkan/VulkanVertexArray.h
     include/Vulkan/VulkanUtil.h
     include/Vulkan/VulkanInitializers.h
