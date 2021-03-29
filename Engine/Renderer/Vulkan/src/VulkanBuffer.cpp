@@ -142,7 +142,7 @@ void VulkanUniformBuffer::SetLayout(const BufferLayout& layout, uint32_t blockIn
     descriptorWrite.dstBinding = blockIndex;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.descriptorCount = count;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
     VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);

@@ -45,7 +45,7 @@ public:
     bool isPerspective = true;
     float vFov = 60.0f;
     float nearPlane = 0.1f;
-    float farPlane = 100.0f;
+    float farPlane = 1000.0f;
     float depth = 0.0f;
     // viewport rect
     float x = 0, y = 0, width = 1920.0f, height = 1080.0f;

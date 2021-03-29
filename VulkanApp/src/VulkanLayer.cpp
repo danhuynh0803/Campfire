@@ -33,6 +33,14 @@ struct TransformUBO
 };
 static TransformUBO transformUBO;
 
+struct LightUBO
+{
+    glm::vec4 pos = glm::vec4(0, 0, 2.5f, 0);
+    glm::vec4 color = glm::vec4(1, 1, 1, 1);
+    glm::vec4 dir = glm::vec4(0, 1, 0, 0);
+};
+static LightUBO lightUBO;
+
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
 {
@@ -50,8 +58,9 @@ void VulkanLayer::OnAttach()
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/ganon/scene.gltf");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/cyborg/cyborg.obj");
-    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
+    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/Sponza/glTF/Sponza.gltf");
     //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
+    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->descriptorSets;
 
@@ -86,6 +95,22 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::MAT4, "model" },
             };
             transformUBOs[i]->SetLayout(transformLayout, 1);
+        }
+
+        { // Create Light UBOs
+            lightUBOs.emplace_back(
+                CreateSharedPtr<VulkanUniformBuffer>(
+                    sizeof(LightUBO),
+                    descriptorSets[i].get()
+                )
+            );
+            BufferLayout lightLayout =
+            {
+                { ShaderDataType::FLOAT4, "pos" },
+                { ShaderDataType::FLOAT4, "color" },
+                { ShaderDataType::FLOAT4, "dir" },
+            };
+            lightUBOs[i]->SetLayout(lightLayout, 2);
         }
 
         { // Setup texture binding
@@ -125,6 +150,9 @@ void VulkanLayer::OnUpdate(float dt)
     cameraUBO.proj[1][1] *= -1;
     cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
     cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
+
+    // Update light ubo
+    lightUBOs[frameIdx]->SetData(&lightUBO, 0, sizeof(LightUBO));
 
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
@@ -170,6 +198,12 @@ void VulkanLayer::OnImGuiRender()
             meshPtr.reset(new vk::VulkanMesh(path));
         }
     }
+
+    // Light Controls
+    ImGui::DragFloat4("Light Pos", (float*)&lightUBO.pos, 0.01f);
+    ImGui::ColorEdit4("Light Color", (float*)&lightUBO.color, 0.01f);
+    ImGui::DragFloat4("Light Dir", (float*)&lightUBO.dir, 0.01f);
+
     ImGui::End();
 }
 

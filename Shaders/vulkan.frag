@@ -7,17 +7,20 @@ layout (location = 2) in vec3 inNormal;
 
 layout (location = 0) out vec4 outColor;
 
-layout (binding = 2) uniform sampler2D uAlbedoMap;
-layout (binding = 3) uniform sampler2D uNormalMap;
-
-vec3 lightPos = vec3(0, 0, 0.5);
-vec3 lightCol = vec3(0, 1, 1);
+layout (binding = 3) uniform sampler2D uAlbedoMap;
+layout (binding = 4) uniform sampler2D uNormalMap;
 
 layout (binding = 2) uniform Lights
 {
-    vec3 pos;
-    vec3 color;
+    vec4 pos;
+    vec4 color;
+    vec4 dir;
 } lights;
+
+float constant = 1.0f;
+float linear = 0.09f;
+float quadratic = 0.032f;
+float intensity = 3.0f;
 
 vec3 GetNormalFromMap()
 {
@@ -44,10 +47,17 @@ vec3 PhongLighting(vec3 normal)
     vec3 albedo = texture(uAlbedoMap, uv).rgb;
     vec3 ambient = 0.1f * albedo;
 
-    vec3 lightDir = normalize(lightPos - inPos);
-    vec3 diff = max(0., dot(normal, lightDir)) * lightCol;
+    // Point lighting
+    vec3 lightDir = normalize(lights.pos.xyz - inPos);
+    float distance = length(lights.pos.xyz - inPos);
+    float attenuation = 1.0f / (constant + linear*distance + quadratic*(distance*distance));
+    vec3 diff = max(0., dot(normal, lightDir)) * lights.color.rgb;
+    color = intensity * attenuation * (ambient + diff*albedo);
 
-    color = ambient + diff*albedo;
+    // Dir lighting
+    //vec3 lightDir = normalize(lights.dir).xyz;
+    //vec3 diff = max(0., dot(normal, lightDir)) * lights.color.rgb;
+    //color = (ambient + diff*albedo);
 
     return color;
 }

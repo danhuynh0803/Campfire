@@ -114,6 +114,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
 void VulkanPipeline::SetupDescriptors()
 {
+    // TODO update to use set value
     std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
 
     { // Camera
@@ -134,11 +135,20 @@ void VulkanPipeline::SetupDescriptors()
         layoutBindings.emplace_back(transformDescriptor);
     }
 
+    { // Light UBO
+        auto lightDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            2);
+
+        layoutBindings.emplace_back(lightDescriptor);
+    }
+
     { // Albedo map
         auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
-            2);
+            3);
 
         layoutBindings.emplace_back(samplerDescriptor);
     }
@@ -147,7 +157,7 @@ void VulkanPipeline::SetupDescriptors()
         auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
-            3);
+            4);
 
         layoutBindings.emplace_back(samplerDescriptor);
     }
