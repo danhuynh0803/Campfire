@@ -50,6 +50,7 @@ vec3 PhongLighting(vec3 normal)
     vec3 color = vec3(0.0f);
     vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
     vec3 albedo = texture(uAlbedoMap, uv).rgb;
+
     vec3 ambient = 0.1f * albedo;
 
     // Point lighting
@@ -72,6 +73,11 @@ void main()
     vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
     vec4 texColor = texture(uAlbedoMap, uv);
     vec3 normal = GetNormalFromMap();
+
+    if (texColor.a <= 0.01f)
+    {
+        discard;
+    }
 
     outColor = vec4(PhongLighting(normal), 1.0f);
     //outColor = texColor;
