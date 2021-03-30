@@ -33,12 +33,6 @@ struct CameraUBO
 };
 static CameraUBO cameraUBO;
 
-struct TransformUBO
-{
-    glm::mat4 model;
-};
-static std::array<TransformUBO, 2> transformUboArray;
-
 struct LightUBO
 {
     glm::vec4 pos = glm::vec4(30, 30, 2.5f, 0);
@@ -61,14 +55,14 @@ void VulkanLayer::OnAttach()
     scene = CreateSharedPtr<Scene>();
     e = scene->CreateEntity("Environment");
     e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, 0.0f);
-    //env.GetComponent<TransformComponent>().scale = glm::vec3(0.1f, 0.1f, 0.1f);
+    e.GetComponent<TransformComponent>().scale = glm::vec3(0.1f, 0.1f, 0.1f);
     e.AddComponent<VulkanMeshComponent>(
         //ASSETS + "/Models/primitives/sphere.fbx"
         //ASSETS + "/Models/ganon/scene.gltf"
-        ASSETS + "/Models/cyborg/cyborg.obj"
+        //ASSETS + "/Models/cyborg/cyborg.obj"
         //ASSETS + "/Models/nanosuit/nanosuit.obj"
         //ASSETS + "/Models/helmet/scene.gltf"
-        //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
+        ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
 
     f = scene->CreateEntity("helmet");
@@ -134,7 +128,7 @@ void VulkanLayer::OnAttach()
         { // Create Transform UBOs
             transformUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(TransformUBO),
+                    sizeof(glm::mat4),
                     transformSets[i].get()
                 )
             );
@@ -188,11 +182,11 @@ void VulkanLayer::OnUpdate(float dt)
             {
                 static int count = 0;
                 auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
-                //CORE_INFO("Count = {0}, Tag = {1}", count++, tagComponent.tag);
 
+                // TODO move transform UBOs to component?
                 auto idx = count % 2;
-                transformUboArray[idx].model = transformComponent;
-                transformUBOs[idx]->SetData(&transformUboArray[idx], 0, sizeof(TransformUBO));
+                glm::mat4 model = transformComponent;
+                transformUBOs[idx]->SetData(&model, 0, sizeof(glm::mat4));
 
                 // Update transforms
                 commandBuffer.bindDescriptorSets(
@@ -235,6 +229,7 @@ void VulkanLayer::OnImGuiRender()
 
     ImGui::Separator();
 
+    // TODO display all entities in registry
     if (e.HasComponent<TransformComponent>())
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
