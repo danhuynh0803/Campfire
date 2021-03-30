@@ -10,7 +10,7 @@ layout (location = 2) in vec3 inNormal;
 layout (location = 0) out vec4 outColor;
 
 // =========================================
-layout (set = 0, binding = 2) uniform Lights
+layout (set = 0, binding = 1) uniform Lights
 {
     vec4 pos;
     vec4 color;

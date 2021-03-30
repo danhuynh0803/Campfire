@@ -79,9 +79,9 @@ public:
     virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count = 1) override;
 
     vk::Buffer GetBuffer() { return buffer.get(); }
+    vk::DescriptorSet mDescriptorSet;
 
 private:
     vk::UniqueBuffer buffer;
     vk::UniqueDeviceMemory bufferMemory;
-    vk::DescriptorSet mDescriptorSet;
 };

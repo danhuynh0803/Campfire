@@ -23,8 +23,10 @@ public:
     // maybe have this handled behind the scenes in renderer?
     std::vector<vk::UniqueDescriptorSet> uniformDescriptorSets;
     std::vector<vk::UniqueDescriptorSet> materialDescriptorSets;
+    std::vector<vk::UniqueDescriptorSet> transformDescriptorSets;
     vk::UniqueDescriptorSetLayout uboDescriptorSetLayout;
     vk::UniqueDescriptorSetLayout materialDescriptorSetLayout;
+    vk::UniqueDescriptorSetLayout transformDescriptorSetLayout;
     vk::UniqueDescriptorPool descriptorPool;
 
 private:

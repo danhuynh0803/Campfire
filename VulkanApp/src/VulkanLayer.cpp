@@ -50,24 +50,29 @@ VulkanLayer::VulkanLayer()
 {
 }
 
+Entity e;
+Entity f;
+
 void VulkanLayer::OnAttach()
 {
     // initial scene
     scene = CreateSharedPtr<Scene>();
-    auto player = scene->CreateEntity("Environment");
-    player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-    player.AddComponent<VulkanMeshComponent>(
+    e = scene->CreateEntity("Environment");
+    e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, 0.0f);
+    //env.GetComponent<TransformComponent>().scale = glm::vec3(0.1f, 0.1f, 0.1f);
+    e.AddComponent<VulkanMeshComponent>(
         //ASSETS + "/Models/primitives/sphere.fbx"
         //ASSETS + "/Models/ganon/scene.gltf"
-        //ASSETS + "/Models/cyborg/cyborg.obj"
+        ASSETS + "/Models/cyborg/cyborg.obj"
         //ASSETS + "/Models/nanosuit/nanosuit.obj"
         //ASSETS + "/Models/helmet/scene.gltf"
-        ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
+        //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
 
-    auto e = scene->CreateEntity("Player");
-    e.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
-    e.AddComponent<VulkanMeshComponent>(
+    f = scene->CreateEntity("helmet");
+    f.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
+    //e.GetComponent<TransformComponent>().scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    f.AddComponent<VulkanMeshComponent>(
         //ASSETS + "/Models/primitives/sphere.fbx"
         //ASSETS + "/Models/ganon/scene.gltf"
         //ASSETS + "/Models/cyborg/cyborg.obj"
@@ -86,7 +91,8 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    auto& descriptorSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
+    auto& environmentSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
+    auto& transformSets = VulkanContext::Get()->GetPipeline()->transformDescriptorSets;
 
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
@@ -95,7 +101,7 @@ void VulkanLayer::OnAttach()
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(CameraUBO),
-                    descriptorSets[i].get()
+                    environmentSets[i].get()
                 )
             );
             BufferLayout cameraLayout =
@@ -107,25 +113,11 @@ void VulkanLayer::OnAttach()
             cameraUBOs[i]->SetLayout(cameraLayout, 0);
         }
 
-        { // Create Transform UBOs
-            transformUBOs.emplace_back(
-                CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(TransformUBO),
-                    descriptorSets[i].get()
-                )
-            );
-            BufferLayout transformLayout =
-            {
-                { ShaderDataType::MAT4, "model" },
-            };
-            transformUBOs[i]->SetLayout(transformLayout, 1);
-        }
-
         { // Create Light UBOs
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(LightUBO),
-                    descriptorSets[i].get()
+                    environmentSets[i].get()
                 )
             );
             BufferLayout lightLayout =
@@ -134,7 +126,21 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::FLOAT4, "color" },
                 { ShaderDataType::FLOAT4, "dir" },
             };
-            lightUBOs[i]->SetLayout(lightLayout, 2);
+            lightUBOs[i]->SetLayout(lightLayout, 1);
+        }
+
+        { // Create Transform UBOs
+            transformUBOs.emplace_back(
+                CreateSharedPtr<VulkanUniformBuffer>(
+                    sizeof(TransformUBO),
+                    transformSets[i].get()
+                )
+            );
+            BufferLayout transformLayout =
+            {
+                { ShaderDataType::MAT4, "model" },
+            };
+            transformUBOs[i]->SetLayout(transformLayout, 0);
         }
     }
 }
@@ -161,8 +167,8 @@ void VulkanLayer::OnUpdate(float dt)
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(0.1f));
     //model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
-    transformUBO.model = model;
-    transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
+    //transformUBO.model = model;
+    //transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
 
     // Update camera ubo
     cameraUBO.view = editorCamera->GetViewMatrix();
@@ -187,10 +193,21 @@ void VulkanLayer::OnUpdate(float dt)
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent>);
             for (auto entity : group)
             {
-                // Draw mesh
                 auto [transformComponent, meshComponent] = group.get<TransformComponent, VulkanMeshComponent>(entity);
 
-                // TODO update Transforms
+                transformUBO.model = transformComponent;
+                transformUBOs[i]->SetData(&transformUBO, 0, sizeof(TransformUBO));
+                auto& transformDescriptors = VulkanContext::Get()->GetPipeline()->transformDescriptorSets;
+                // Update transforms
+                commandBuffer.bindDescriptorSets(
+                    vk::PipelineBindPoint::eGraphics,
+                    VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
+                    2,
+                    1, &transformUBOs[i]->mDescriptorSet,
+                    0, nullptr
+                );
+
+                //// Draw mesh
                 SharedPtr<vk::VulkanMesh> mesh = meshComponent;
                 mesh->Draw(commandBuffer);
             }
@@ -220,12 +237,39 @@ void VulkanLayer::OnImGuiRender()
 
     ImGui::Separator();
 
-    if (ImGui::Button("Load Mesh"))
+    if (e.HasComponent<TransformComponent>())
     {
-        std::string path = FileSystem::OpenFile();
-        if (path.compare("") != 0) // No file selected
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Transform"))
         {
-            meshPtr.reset(new vk::VulkanMesh(path));
+            auto& transform = e.GetComponent<TransformComponent>();
+
+            ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
+            ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
+            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
+
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+
+    }
+
+    if (e.HasComponent<VulkanMeshComponent>())
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::TreeNode("Mesh"))
+        {
+            if (ImGui::Button("Load Mesh"))
+            {
+                SharedPtr<vk::VulkanMesh> mesh = e.GetComponent<VulkanMeshComponent>();
+                std::string path = FileSystem::OpenFile();
+                if (path.compare("") != 0) // No file selected
+                {
+                    mesh.reset(new vk::VulkanMesh(path));
+                }
+            }
+
+            ImGui::TreePop();
         }
     }
 

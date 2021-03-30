@@ -76,13 +76,15 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
         dynamicStates.data()
     );
 
-    // Setup descriptors (doesnt have to be part of pipeline creation)
+    // Setup descriptorlayout and descriptor sets (doesnt have to be part of pipeline creation)
     SetupDescriptors();
 
     std::vector<vk::DescriptorSetLayout> descriptorLayouts{
         uboDescriptorSetLayout.get(),
         materialDescriptorSetLayout.get(),
+        transformDescriptorSetLayout.get(),
     };
+
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
         static_cast<uint32_t>(descriptorLayouts.size()),
@@ -120,39 +122,45 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
 
 void VulkanPipeline::SetupUboDescriptor()
 {
-    std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
-    { // Camera
-        auto cameraDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    { // Set 0
+        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
+        { // Camera
+            auto cameraDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+                vk::DescriptorType::eUniformBuffer,
+                vk::ShaderStageFlagBits::eVertex,
+                0);
+
+            layoutBindings.emplace_back(cameraDescriptor);
+        }
+
+        { // Light UBO
+            auto lightDescriptor = vk::initializers::DescriptorSetLayoutBinding(
+                vk::DescriptorType::eUniformBuffer,
+                vk::ShaderStageFlagBits::eFragment,
+                1);
+
+            layoutBindings.emplace_back(lightDescriptor);
+        }
+
+        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            static_cast<uint32_t>(layoutBindings.size()),
+            layoutBindings.data());
+        uboDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
+    }
+
+    { // Set 2
+        // Transform UBO
+        auto transformDescriptor = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eUniformBuffer,
             vk::ShaderStageFlagBits::eVertex,
             0);
 
-        layoutBindings.emplace_back(cameraDescriptor);
+        auto transformLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            1,
+            &transformDescriptor);
+        transformDescriptorSetLayout = device.createDescriptorSetLayoutUnique(transformLayoutInfo);
     }
-
-    { // Transform UBO
-        auto transformDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eUniformBuffer,
-            vk::ShaderStageFlagBits::eVertex,
-            1);
-
-        layoutBindings.emplace_back(transformDescriptor);
-    }
-
-    { // Light UBO
-        auto lightDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eUniformBuffer,
-            vk::ShaderStageFlagBits::eFragment,
-            2);
-
-        layoutBindings.emplace_back(lightDescriptor);
-    }
-
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-        static_cast<uint32_t>(layoutBindings.size()),
-        layoutBindings.data());
-    uboDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
 }
 
 void VulkanPipeline::SetupMaterialDescriptor()
@@ -203,11 +211,8 @@ void VulkanPipeline::SetupDescriptors()
         descriptorPool = device.createDescriptorPoolUnique(poolInfo);
     }
 
-    // Create list of descriptor sets for uniform data, which will be
-    // consistent for all objects
-    // e.g view, lights, etc
-    {
-        SetupUboDescriptor();
+    SetupUboDescriptor();
+    { // Environment descriptors - Camera view, lights, etc
 
         std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), uboDescriptorSetLayout.get());
         auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
@@ -219,8 +224,7 @@ void VulkanPipeline::SetupDescriptors()
         uniformDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
     }
 
-    // Unique data like transforms, materials, etc will have its own descriptor set
-    {
+    { // Material descriptors
         SetupMaterialDescriptor();
 
         std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), materialDescriptorSetLayout.get());
@@ -231,6 +235,17 @@ void VulkanPipeline::SetupDescriptors()
 
         materialDescriptorSets.resize(swapChainImages.size());
         materialDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+    }
+
+    { // Transform descriptors
+        std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), transformDescriptorSetLayout.get());
+        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+            descriptorPool.get(),
+            static_cast<uint32_t>(layouts.size()),
+            layouts.data());
+
+        transformDescriptorSets.resize(swapChainImages.size());
+        transformDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
     }
 }
 
