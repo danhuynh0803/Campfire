@@ -9,10 +9,14 @@
 #include "Core/Input.h"
 #include "Core/Timer.h"
 #include "Core/ResourceManager.h" // ASSETS dir
+#include "Core/FileSystem.h"
+
+#include "Scene/Scene.h"
+#include "Scene/Entity.h"
+#include "Scene/Component.h"
 #include "Scene/CameraController.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include "Core/FileSystem.h"
 
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
@@ -48,6 +52,16 @@ VulkanLayer::VulkanLayer()
 
 void VulkanLayer::OnAttach()
 {
+    // initial scene
+    scene = CreateSharedPtr<Scene>();
+    auto player = scene->CreateEntity("Player");
+    player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
+    //player.AddComponent<VulkanMeshComponent>(ASSETS + "/Models/helmet/scene.gltf");
+
+    auto e = scene->CreateEntity("E");
+    e.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
+    //e.AddComponent<VulkanMeshComponent>(ASSETS + "/Models/helmet/scene.gltf");
+
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
     editorCamera->farPlane = 10000.0f;

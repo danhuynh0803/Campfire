@@ -8,6 +8,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "Vulkan/VulkanMesh.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
 #include "Renderer/Text.h"
@@ -112,6 +113,21 @@ struct CameraComponent
     }
 
     operator SharedPtr<Camera>& () { return camera; }
+    bool isActive = true;
+};
+
+// TODO integrate into MeshComponent and rewrite
+// Just for quick testing
+struct VulkanMeshComponent
+{
+    VulkanMeshComponent() = default;
+    VulkanMeshComponent(const std::string& meshPath)
+    {
+        mesh = CreateSharedPtr<vk::VulkanMesh>(meshPath);
+    }
+
+    SharedPtr<vk::VulkanMesh> mesh;
+    operator SharedPtr<vk::VulkanMesh>& () { return mesh; }
     bool isActive = true;
 };
 

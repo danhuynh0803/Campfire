@@ -1,8 +1,9 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include "Core/Window.h"
 #include "Renderer/GraphicsContext.h"
+
+struct GLFWwindow;
 
 // Window for Linux platform
 class LinuxWindow : public Window

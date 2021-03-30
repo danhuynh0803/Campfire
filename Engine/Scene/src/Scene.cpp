@@ -24,10 +24,10 @@
 
 Scene::Scene(bool isNewScene)
 {
-    SceneRenderer::Init();
+    //SceneRenderer::Init();
     // Default objects within each new scene
     // if not loading object via scene file
-    if (isNewScene) { Init(); }
+    //if (isNewScene) { Init(); }
 }
 
 void Scene::Init()
@@ -542,11 +542,12 @@ Entity Scene::CreateEntity(const std::string& name, bool isRootEntity)
     uint64_t ID = static_cast<uint64_t>(entt::entity(entity));
     entity.AddComponent<IDComponent>(ID);
     std::string tag = GetUniqueTag(name);
-    entity.AddComponent<ActiveComponent>();
+
+    //entity.AddComponent<ActiveComponent>();
     entity.AddComponent<TagComponent>(tag);
     entity.AddComponent<TransformComponent>();
-    entity.AddComponent<RelationshipComponent>();
-    entity.AddComponent<Colliders>();
+    //entity.AddComponent<RelationshipComponent>();
+    //entity.AddComponent<Colliders>();
 
     if (isRootEntity)
     {

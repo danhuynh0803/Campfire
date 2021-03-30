@@ -3,9 +3,9 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 #include "Renderer/Renderer.h"
-#include "VulkanDevice.h"
-#include "VulkanPipeline.h"
-#include "VulkanSwapChain.h"
+#include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanSwapChain.h"
 
 class GLFWwindow;
 

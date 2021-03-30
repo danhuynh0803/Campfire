@@ -1,12 +1,14 @@
+#include <GLFW/glfw3.h>
+
+#include "Core/Input.h"
+#include "Core/Log.h"
+
 #include "Platform/Linux/LinuxWindow.h"
 #include "Renderer/GraphicsContext.h"
-#include "Core/Log.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/KeyEvent.h"
-
-#include "Core/Input.h"
 
 static uint8_t glfwWindowCount = 0;
 

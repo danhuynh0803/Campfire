@@ -1,5 +1,4 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -155,5 +154,3 @@ struct UniformBuffer
 
     static SharedPtr<UniformBuffer> Create();
 };
-
-#endif // BUFFER_H

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
 #include "Core/Base.h"
 
 // TODO Framebuffer should raw gl types values

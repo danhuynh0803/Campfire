@@ -1,14 +1,16 @@
-#include "Platform/Windows/WindowsWindow.h"
-#include "Renderer/GraphicsContext.h"
+#include <GLFW/glfw3.h>
+
+#include "Core/Input.h"
 #include "Core/Log.h"
+
+#include "Platform/Windows/WindowsWindow.h"
+#include "Platform/Windows/WindowsFileSystem.h"
+#include "Renderer/RendererAPI.h"
+#include "Renderer/GraphicsContext.h"
 
 #include "Events/ApplicationEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/KeyEvent.h"
-
-#include "Core/Input.h"
-#include "Platform/Windows/WindowsFileSystem.h"
-#include "Renderer/RendererAPI.h"
 
 static uint8_t glfwWindowCount = 0;
 

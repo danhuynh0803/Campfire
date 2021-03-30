@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Renderer/GraphicsContext.h"
-#include "GLFW/glfw3.h"
+
+struct GLFWwindow;
 
 class OpenGLContext : public GraphicsContext
 {

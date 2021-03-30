@@ -5,6 +5,8 @@
 #include <vector>
 #include <fstream>
 
+#include <GLFW/glfw3.h>
+
 VulkanContext::VulkanContext(GLFWwindow* window)
     : windowHandle(window)
 {

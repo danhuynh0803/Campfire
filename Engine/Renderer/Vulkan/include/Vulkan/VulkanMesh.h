@@ -8,18 +8,14 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Renderer/Texture.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanTexture.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanMaterial.h"
-#include "Vulkan/VulkanInitializers.h"
-#include "Core/Base.h"
+#include <vulkan/vulkan.hpp>
 #include "Util/AABB.h"
 
-#include "Core/ResourceManager.h"
-
+struct VulkanMaterial;
+class VulkanVertexBuffer;
+class VulkanIndexBuffer;
 class MaterialInstance;
+class Texture2D;
 
 namespace vk
 {
@@ -34,60 +30,8 @@ namespace vk
 
     struct VulkanSubmesh
     {
-        VulkanSubmesh(std::vector<vk::Vertex> v, std::vector<uint32_t> i, SharedPtr<VulkanMaterial> m)
-            : vertices(v), indices(i), material(m)
-        {
-            vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(vk::Vertex) * vertices.size());
-            indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
-            auto pipeline = VulkanContext::Get()->GetPipeline();
-            // TODO swapchain size
-            auto layout = std::vector(3, pipeline->materialDescriptorSetLayout.get());
-            auto allocInfo = vk::initializers::
-                DescriptorSetAllocateInfo(
-                    pipeline->descriptorPool.get(),
-                    static_cast<uint32_t>(layout.size()),
-                    layout.data()
-                );
-
-            auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-            material->descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
-            UpdateDescriptors();
-        }
-
-        void UpdateDescriptors()
-        {
-            auto& descriptorSets = material->descriptorSets;
-
-            if (material)
-            {
-                SharedPtr<VulkanTexture2D> albedo = std::static_pointer_cast<VulkanTexture2D>(
-                    material->albedoMap
-                );
-
-                SharedPtr<VulkanTexture2D> normal = std::static_pointer_cast<VulkanTexture2D>(
-                    material->normalMap
-                );
-
-                for (int i = 0; i < 3; ++i)
-                {
-                    if (albedo)
-                    {
-                        albedo->UpdateDescriptors(descriptorSets[i].get(), 0);
-                    }
-                    if (normal)
-                    {
-                        normal->UpdateDescriptors(descriptorSets[i].get(), 1);
-                    }
-                    else
-                    {
-                        // TODO create blank textures to satisfy layout?
-                        // For not just use albedo tex
-                        CORE_WARN("No normal texture found, using albedo to satisfy layout");
-                        albedo->UpdateDescriptors(descriptorSets[i].get(), 1);
-                    }
-                }
-            }
-        }
+        VulkanSubmesh(std::vector<vk::Vertex> v, std::vector<uint32_t> i, SharedPtr<VulkanMaterial> m);
+        void UpdateDescriptors();
 
         uint32_t baseVertex;
         uint32_t baseIndex;
@@ -101,8 +45,6 @@ namespace vk
         SharedPtr<VulkanMaterial> material;
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        //std::vector<SharedPtr<VulkanTexture2D>> textures;
-        std::vector<SharedPtr<Texture2D>> textures;
         AABB boundingBox;
     };
 

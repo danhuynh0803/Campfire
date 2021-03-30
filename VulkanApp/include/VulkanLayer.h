@@ -8,6 +8,8 @@
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanMesh.h"
 
+class Scene;
+
 class VulkanLayer : public Layer
 {
 public:
@@ -32,4 +34,6 @@ private:
     std::vector<SharedPtr<VulkanUniformBuffer>> lightUBOs;
     std::vector<SharedPtr<VulkanTexture2D>> textures;
     Timer timer;
+
+    SharedPtr<Scene> scene;
 };

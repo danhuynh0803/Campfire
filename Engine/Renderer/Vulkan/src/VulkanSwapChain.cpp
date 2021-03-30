@@ -1,6 +1,7 @@
 #include "Vulkan/VulkanSwapChain.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanUtil.h"
+#include <GLFW/glfw3.h>
 
 VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
 {
