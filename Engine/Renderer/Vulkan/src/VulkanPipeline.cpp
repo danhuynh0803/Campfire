@@ -196,7 +196,7 @@ void VulkanPipeline::SetupDescriptors()
 
         vk::DescriptorPoolCreateInfo poolInfo;
         // TODO have poolsize be configurable
-        poolInfo.maxSets = 100 * static_cast<uint32_t>(swapChainImages.size());
+        poolInfo.maxSets = 10000 * static_cast<uint32_t>(swapChainImages.size());
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 

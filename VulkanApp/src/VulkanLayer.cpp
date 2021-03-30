@@ -54,13 +54,27 @@ void VulkanLayer::OnAttach()
 {
     // initial scene
     scene = CreateSharedPtr<Scene>();
-    auto player = scene->CreateEntity("Player");
+    auto player = scene->CreateEntity("Environment");
     player.GetComponent<TransformComponent>().position = glm::vec3(-1.0f, 0.0f, 0.0f);
-    //player.AddComponent<VulkanMeshComponent>(ASSETS + "/Models/helmet/scene.gltf");
+    player.AddComponent<VulkanMeshComponent>(
+        //ASSETS + "/Models/primitives/sphere.fbx"
+        //ASSETS + "/Models/ganon/scene.gltf"
+        //ASSETS + "/Models/cyborg/cyborg.obj"
+        //ASSETS + "/Models/nanosuit/nanosuit.obj"
+        //ASSETS + "/Models/helmet/scene.gltf"
+        ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
+    );
 
-    auto e = scene->CreateEntity("E");
-    e.GetComponent<TransformComponent>().position = glm::vec3(1.0f, 0.0f, 0.0f);
-    //e.AddComponent<VulkanMeshComponent>(ASSETS + "/Models/helmet/scene.gltf");
+    auto e = scene->CreateEntity("Player");
+    e.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
+    e.AddComponent<VulkanMeshComponent>(
+        //ASSETS + "/Models/primitives/sphere.fbx"
+        //ASSETS + "/Models/ganon/scene.gltf"
+        //ASSETS + "/Models/cyborg/cyborg.obj"
+        //ASSETS + "/Models/nanosuit/nanosuit.obj"
+        //ASSETS + "/Models/helmet/scene.gltf"
+        ASSETS + "/Models/helmet/scene.gltf"
+    );
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
@@ -71,13 +85,6 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 10.0f), // position
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
-
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/primitives/sphere.fbx");
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/ganon/scene.gltf");
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/cyborg/cyborg.obj");
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/nanosuit/nanosuit.obj");
-    //meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/helmet/scene.gltf");
-    meshPtr = CreateSharedPtr<vk::VulkanMesh>(ASSETS + "/Models/Sponza/glTF/Sponza.gltf");
 
     auto& descriptorSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
 
@@ -129,11 +136,6 @@ void VulkanLayer::OnAttach()
             };
             lightUBOs[i]->SetLayout(lightLayout, 2);
         }
-
-        { // Setup texture binding
-            //textures.emplace_back(CreateSharedPtr<VulkanTexture2D>(ASSETS + "/Textures/awesomeface.png"));
-            //textures[i]->UpdateDescriptors(descriptorSets[i].get(), 2);
-        }
     }
 }
 
@@ -178,13 +180,20 @@ void VulkanLayer::OnUpdate(float dt)
     OnImGuiRender();
     vkImguiLayer->End();
 
-
     for (size_t i = 0; i < 3; ++i)
     {
         // Render scene and imgui
         auto commandBuffer = VulkanRenderer::BeginScene(i);
-            // Draw mesh
-            meshPtr->Draw(commandBuffer);
+            auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent>);
+            for (auto entity : group)
+            {
+                // Draw mesh
+                auto [transformComponent, meshComponent] = group.get<TransformComponent, VulkanMeshComponent>(entity);
+
+                // TODO update Transforms
+                SharedPtr<vk::VulkanMesh> mesh = meshComponent;
+                mesh->Draw(commandBuffer);
+            }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
         VulkanRenderer::EndScene(commandBuffer);

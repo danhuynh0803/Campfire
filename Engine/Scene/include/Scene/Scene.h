@@ -39,7 +39,8 @@ public:
 
     SharedPtr<Skybox> skybox;
 
-private:
+public: // TODO make public just for quick testing
+//private:
     friend class Entity;
     friend class Skybox;
     friend class SceneRenderer;
