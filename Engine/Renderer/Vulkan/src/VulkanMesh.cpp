@@ -94,18 +94,15 @@ namespace vk
         auto pipeline = VulkanContext::Get()->GetPipeline();
         for (auto& submesh : submeshes)
         {
-            //for (int i = 0; i < 3; ++i)
-            {
-                // Bind descriptor of material
-                commandBuffer.bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics,
-                    pipeline->GetVulkanPipelineLayout(),
-                    1,
-                    1,
-                    &submesh.material->descriptorSets[0].get(),
-                    0, nullptr
-                );
-            }
+            // Bind descriptor of material
+            commandBuffer.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                pipeline->GetVulkanPipelineLayout(),
+                1,
+                1,
+                &submesh.material->descriptorSets[0].get(),
+                0, nullptr
+            );
 
             VulkanRenderer::DrawIndexed(
                 commandBuffer,

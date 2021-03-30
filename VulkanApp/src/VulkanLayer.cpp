@@ -18,6 +18,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <array>
+
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
@@ -35,7 +37,7 @@ struct TransformUBO
 {
     glm::mat4 model;
 };
-static TransformUBO transformUBO;
+static std::array<TransformUBO, 2> transformUboArray;
 
 struct LightUBO
 {
@@ -161,15 +163,6 @@ void VulkanLayer::OnUpdate(float dt)
     // Update camera
     cameraController.OnUpdate(dt);
 
-    // Update transform ubo
-    //static float rotation = 0;
-    //rotation += 180 * dt;
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.1f));
-    //model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
-    //transformUBO.model = model;
-    //transformUBOs[frameIdx]->SetData(&transformUBO, 0, sizeof(TransformUBO));
-
     // Update camera ubo
     cameraUBO.view = editorCamera->GetViewMatrix();
     cameraUBO.proj = editorCamera->GetProjMatrix();
@@ -190,26 +183,31 @@ void VulkanLayer::OnUpdate(float dt)
     {
         // Render scene and imgui
         auto commandBuffer = VulkanRenderer::BeginScene(i);
-            auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent>);
+            auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
             for (auto entity : group)
             {
-                auto [transformComponent, meshComponent] = group.get<TransformComponent, VulkanMeshComponent>(entity);
+                static int count = 0;
+                auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
+                //CORE_INFO("Count = {0}, Tag = {1}", count++, tagComponent.tag);
 
-                transformUBO.model = transformComponent;
-                transformUBOs[i]->SetData(&transformUBO, 0, sizeof(TransformUBO));
-                auto& transformDescriptors = VulkanContext::Get()->GetPipeline()->transformDescriptorSets;
+                auto idx = count % 2;
+                transformUboArray[idx].model = transformComponent;
+                transformUBOs[idx]->SetData(&transformUboArray[idx], 0, sizeof(TransformUBO));
+
                 // Update transforms
                 commandBuffer.bindDescriptorSets(
                     vk::PipelineBindPoint::eGraphics,
                     VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
                     2,
-                    1, &transformUBOs[i]->mDescriptorSet,
+                    1, &transformUBOs[idx]->mDescriptorSet,
                     0, nullptr
                 );
 
                 //// Draw mesh
                 SharedPtr<vk::VulkanMesh> mesh = meshComponent;
                 mesh->Draw(commandBuffer);
+
+                count++;
             }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
