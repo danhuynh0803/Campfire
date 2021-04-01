@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <glm/glm.hpp>
 
 enum class PipelineType
 {
@@ -11,6 +12,10 @@ enum class PipelineType
 class VulkanPipeline
 {
 public:
+    struct TransformPushConstBlock {
+        glm::mat4 model;
+    } mTransformPushConstBlock;
+
     void RecreatePipeline();
     VulkanPipeline(PipelineType pipelineType);
     ~VulkanPipeline() = default;

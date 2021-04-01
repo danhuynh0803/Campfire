@@ -89,6 +89,15 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
         static_cast<uint32_t>(descriptorLayouts.size()),
         descriptorLayouts.data());
+
+    vk::PushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pushConstantRange.size = sizeof(TransformPushConstBlock);
+    pushConstantRange.offset = 0;
+
+    pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+    pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+
     pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     SetupRenderPass();

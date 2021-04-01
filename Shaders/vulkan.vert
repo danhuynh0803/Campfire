@@ -23,12 +23,16 @@ layout (set = 2, binding = 0) uniform Transform
     mat4 model;
 } transform;
 
+layout (push_constant) uniform PushConstants {
+    mat4 model;
+} pushConstants;
+
 // =========================================
 void main()
 {
-    gl_Position = camera.viewProj * transform.model * vec4(aPos, 1.0);
+    gl_Position = camera.viewProj * pushConstants.model * vec4(aPos, 1.0);
 
-    outPos = vec3(transform.model * vec4(aPos, 1.0f));
+    outPos = vec3(pushConstants.model * vec4(aPos, 1.0f));
     outUV = aUV;
-    outNormal = mat3(transpose(inverse(transform.model))) * aNormal;
+    outNormal = mat3(transpose(inverse(pushConstants.model))) * aNormal;
 }

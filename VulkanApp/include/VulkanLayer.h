@@ -7,6 +7,7 @@
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanMesh.h"
+#include "Vulkan/VulkanPipeline.h"
 
 class Scene;
 
@@ -34,6 +35,8 @@ private:
     std::vector<SharedPtr<VulkanUniformBuffer>> lightUBOs;
     std::vector<SharedPtr<VulkanTexture2D>> textures;
     Timer timer;
+
+    VulkanPipeline::TransformPushConstBlock mPushConstBlock;
 
     SharedPtr<Scene> scene;
 };

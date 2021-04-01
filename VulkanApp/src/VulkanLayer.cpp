@@ -47,7 +47,6 @@ VulkanLayer::VulkanLayer()
 }
 
 Entity e;
-Entity f;
 
 void VulkanLayer::OnAttach()
 {
@@ -65,17 +64,23 @@ void VulkanLayer::OnAttach()
         ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
 
-    f = scene->CreateEntity("helmet");
-    f.GetComponent<TransformComponent>().position = glm::vec3(0.0f, 0.0f, 0.0f);
-    //e.GetComponent<TransformComponent>().scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    f.AddComponent<VulkanMeshComponent>(
-        //ASSETS + "/Models/primitives/sphere.fbx"
-        //ASSETS + "/Models/ganon/scene.gltf"
-        //ASSETS + "/Models/cyborg/cyborg.obj"
-        //ASSETS + "/Models/nanosuit/nanosuit.obj"
-        //ASSETS + "/Models/helmet/scene.gltf"
-        ASSETS + "/Models/helmet/scene.gltf"
-    );
+    for (int i = 0; i < 5; ++i)
+    for (int j = 0; j < 5; ++j)
+    {
+        auto g = scene->CreateEntity(std::to_string(i));
+        g.GetComponent<TransformComponent>().position = glm::vec3(i*3, j*3, 0.0f);
+        //g.GetComponent<TransformComponent>().scale = glm::vec3(0.001f, 0.001f, 0.001f);
+        g.AddComponent<VulkanMeshComponent>(
+            //ASSETS + "/Models/primitives/sphere.fbx"
+            //ASSETS + "/Models/ganon/scene.gltf"
+            //ASSETS + "/Models/cyborg/cyborg.obj"
+            //ASSETS + "/Models/nanosuit/nanosuit.obj"
+            ASSETS + "/Models/helmet/scene.gltf"
+            //ASSETS + "/Models/Avocado/glTF/Avocado.gltf"
+            //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
+        );
+    }
+
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
@@ -183,21 +188,24 @@ void VulkanLayer::OnUpdate(float dt)
                 static int count = 0;
                 auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
 
-                // TODO move transform UBOs to component?
-                auto idx = count % 2;
-                glm::mat4 model = transformComponent;
-                transformUBOs[idx]->SetData(&model, 0, sizeof(glm::mat4));
-
                 // Update transforms
+                // TODO remove since now using pushConst, but also need to remove on pipeline side
                 commandBuffer.bindDescriptorSets(
                     vk::PipelineBindPoint::eGraphics,
                     VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
                     2,
-                    1, &transformUBOs[idx]->mDescriptorSet,
+                    1, &transformUBOs[0]->mDescriptorSet,
                     0, nullptr
                 );
 
-                //// Draw mesh
+                mPushConstBlock.model = transformComponent;
+                commandBuffer.pushConstants(
+                    VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
+                    vk::ShaderStageFlagBits::eVertex,
+                    0, sizeof(VulkanPipeline::TransformPushConstBlock),
+                    &mPushConstBlock);
+
+                // Draw mesh
                 SharedPtr<vk::VulkanMesh> mesh = meshComponent;
                 mesh->Draw(commandBuffer);
 
@@ -206,7 +214,7 @@ void VulkanLayer::OnUpdate(float dt)
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
         VulkanRenderer::EndScene(commandBuffer);
-}
+    }
 
     if (metricTimer <= 0.0)
     {
