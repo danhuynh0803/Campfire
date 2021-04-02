@@ -129,20 +129,6 @@ void VulkanLayer::OnAttach()
             };
             lightUBOs[i]->SetLayout(lightLayout, 1);
         }
-
-        { // Create Transform UBOs
-            transformUBOs.emplace_back(
-                CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(glm::mat4),
-                    transformSets[i].get()
-                )
-            );
-            BufferLayout transformLayout =
-            {
-                { ShaderDataType::MAT4, "model" },
-            };
-            transformUBOs[i]->SetLayout(transformLayout, 0);
-        }
     }
 }
 
@@ -187,16 +173,6 @@ void VulkanLayer::OnUpdate(float dt)
             {
                 static int count = 0;
                 auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
-
-                // Update transforms
-                // TODO remove since now using pushConst, but also need to remove on pipeline side
-                commandBuffer.bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics,
-                    VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
-                    2,
-                    1, &transformUBOs[0]->mDescriptorSet,
-                    0, nullptr
-                );
 
                 mPushConstBlock.model = transformComponent;
                 commandBuffer.pushConstants(
