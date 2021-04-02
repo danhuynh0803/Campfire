@@ -37,7 +37,8 @@ struct LightUBO
 {
     glm::vec4 pos = glm::vec4(30, 30, 2.5f, 0);
     glm::vec4 color = glm::vec4(1, 1, 1, 1);
-    glm::vec4 dir = glm::vec4(1, -1, 0, 0);
+    glm::vec3 dir = glm::vec3(1, -1, 0);
+    float intensity = 50.0f;
 };
 static LightUBO lightUBO;
 
@@ -129,20 +130,6 @@ void VulkanLayer::OnAttach()
             };
             lightUBOs[i]->SetLayout(lightLayout, 1);
         }
-
-        { // Create Transform UBOs
-            transformUBOs.emplace_back(
-                CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(glm::mat4),
-                    transformSets[i].get()
-                )
-            );
-            BufferLayout transformLayout =
-            {
-                { ShaderDataType::MAT4, "model" },
-            };
-            transformUBOs[i]->SetLayout(transformLayout, 0);
-        }
     }
 }
 
@@ -187,16 +174,6 @@ void VulkanLayer::OnUpdate(float dt)
             {
                 static int count = 0;
                 auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
-
-                // Update transforms
-                // TODO remove since now using pushConst, but also need to remove on pipeline side
-                commandBuffer.bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics,
-                    VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
-                    2,
-                    1, &transformUBOs[0]->mDescriptorSet,
-                    0, nullptr
-                );
 
                 mPushConstBlock.model = transformComponent;
                 commandBuffer.pushConstants(
@@ -286,7 +263,8 @@ void VulkanLayer::OnImGuiRender()
     // Light Controls
     ImGui::DragFloat4("Light Pos", (float*)&lightUBO.pos, 0.01f);
     ImGui::ColorEdit4("Light Color", (float*)&lightUBO.color, 0.01f);
-    ImGui::DragFloat4("Light Dir", (float*)&lightUBO.dir, 0.01f);
+    ImGui::DragFloat3("Light Dir", (float*)&lightUBO.dir, 0.01f);
+    ImGui::DragFloat("Light Intensity", (float*)&lightUBO.intensity, 0.01f);
 
     ImGui::End();
 }

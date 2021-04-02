@@ -82,7 +82,6 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     std::vector<vk::DescriptorSetLayout> descriptorLayouts{
         uboDescriptorSetLayout.get(),
         materialDescriptorSetLayout.get(),
-        transformDescriptorSetLayout.get(),
     };
 
     // Setup pipeline layout
@@ -156,19 +155,6 @@ void VulkanPipeline::SetupUboDescriptor()
             static_cast<uint32_t>(layoutBindings.size()),
             layoutBindings.data());
         uboDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
-    }
-
-    { // Set 2
-        // Transform UBO
-        auto transformDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eUniformBuffer,
-            vk::ShaderStageFlagBits::eVertex,
-            0);
-
-        auto transformLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-            1,
-            &transformDescriptor);
-        transformDescriptorSetLayout = device.createDescriptorSetLayoutUnique(transformLayoutInfo);
     }
 }
 
@@ -244,17 +230,6 @@ void VulkanPipeline::SetupDescriptors()
 
         materialDescriptorSets.resize(swapChainImages.size());
         materialDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
-    }
-
-    { // Transform descriptors
-        std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), transformDescriptorSetLayout.get());
-        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-            descriptorPool.get(),
-            static_cast<uint32_t>(layouts.size()),
-            layouts.data());
-
-        transformDescriptorSets.resize(swapChainImages.size());
-        transformDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
     }
 }
 
