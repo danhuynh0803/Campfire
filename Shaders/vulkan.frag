@@ -14,7 +14,8 @@ layout (set = 0, binding = 1) uniform Lights
 {
     vec4 pos;
     vec4 color;
-    vec4 dir;
+    vec3 dir;
+    float intensity;
 } lights;
 
 layout (set = 1, binding = 0) uniform sampler2D uAlbedoMap;
@@ -24,7 +25,6 @@ layout (set = 1, binding = 1) uniform sampler2D uNormalMap;
 float constant = 1.0f;
 float linear = 0.09f;
 float quadratic = 0.032f;
-float intensity = 100.0f;
 
 // =========================================
 vec3 GetNormalFromMap()
@@ -58,7 +58,7 @@ vec3 PhongLighting(vec3 normal)
     float distance = length(lights.pos.xyz - inPos);
     float attenuation = 1.0f / (constant + linear*distance + quadratic*(distance*distance));
     vec3 diff = max(0., dot(normal, lightDir)) * lights.color.rgb;
-    color = intensity * attenuation * (ambient + diff*albedo);
+    color = lights.intensity * attenuation * (ambient + diff*albedo);
 
     // Dir lighting
     //vec3 lightDir = normalize(-lights.dir).xyz;
