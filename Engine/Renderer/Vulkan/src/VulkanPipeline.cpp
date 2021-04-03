@@ -16,6 +16,20 @@ struct PipelineVertex
 VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     : type(pipelineType)
 {
+    switch (pipelineType)
+    {
+        case PipelineType::GRAPHICS:
+            CreateGraphicsPipeline();
+            break;
+        case PipelineType::COMPUTE:
+            CreateComputePipeline();
+            break;
+    }
+}
+
+
+void VulkanPipeline::CreateGraphicsPipeline()
+{
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
     // Setup fixed function part of pipeline
@@ -126,6 +140,11 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipelineCreateInfo.basePipelineIndex = -1;
 
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+}
+
+void VulkanPipeline::CreateComputePipeline()
+{
+
 }
 
 void VulkanPipeline::SetupUboDescriptor()
@@ -302,7 +321,6 @@ void VulkanPipeline::SetupRenderPass()
 // Also causes a crash for some reason when trying to set pipeline layout
 void VulkanPipeline::RecreatePipeline()
 {
-    // TODO
     return;
 }
 

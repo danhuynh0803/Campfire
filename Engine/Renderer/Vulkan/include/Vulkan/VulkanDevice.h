@@ -4,9 +4,10 @@
 
 enum class QueueFamilyType
 {
-    GRAPHICS,
+    GRAPHICS = 0,
     PRESENT,
-    TRANSFER
+    TRANSFER,
+    COMPUTE,
 };
 
 class VulkanDevice
@@ -28,7 +29,7 @@ public:
             case QueueFamilyType::GRAPHICS: return graphicsQueueFamilyIndex;
             case QueueFamilyType::PRESENT: return presentQueueFamilyIndex;
             //case QueueFamilyType::TRANSFER: return ;
-            //case QueueFamilyType::COMPUTE: return ;
+            case QueueFamilyType::COMPUTE: return computeQueueFamilyIndex;
         }
     }
 
@@ -46,6 +47,8 @@ private:
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
     size_t graphicsQueueFamilyIndex;
     size_t presentQueueFamilyIndex;
+    size_t computeQueueFamilyIndex;
     vk::Queue graphicsQueue;
     vk::Queue presentQueue;
+    vk::Queue computeQueue;
 };

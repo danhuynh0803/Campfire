@@ -41,16 +41,27 @@ vk::UniqueDevice VulkanDevice::CreateLogicalDevice()
     // Determine if device contains a graphics queue
     queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
-     graphicsQueueFamilyIndex = std::distance (
+    graphicsQueueFamilyIndex = std::distance(
         queueFamilyProperties.begin(),
-        std::find_if (
-            queueFamilyProperties.begin(), queueFamilyProperties.end(), []( vk::QueueFamilyProperties const& qfp) {
+        std::find_if(
+            queueFamilyProperties.begin(), queueFamilyProperties.end(),
+            []( vk::QueueFamilyProperties const& qfp) {
                 return qfp.queueFlags & vk::QueueFlagBits::eGraphics;
             }
         )
     );
 
     assert( graphicsQueueFamilyIndex < queueFamilyProperties.size() );
+
+    computeQueueFamilyIndex = std::distance(
+        queueFamilyProperties.begin(),
+        std::find_if(
+            queueFamilyProperties.begin(), queueFamilyProperties.end(),
+            [](vk::QueueFamilyProperties const& qfp) {
+                return qfp.queueFlags & vk::QueueFlagBits::eCompute;
+            }
+        )
+    );
 
     presentQueueFamilyIndex = graphicsQueueFamilyIndex;
 

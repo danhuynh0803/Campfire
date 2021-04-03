@@ -135,14 +135,17 @@ void VulkanUniformBuffer::SetLayout(const BufferLayout& layout, uint32_t blockIn
     vk::DescriptorBufferInfo bufferInfo {};
     bufferInfo.buffer = GetBuffer();
     bufferInfo.offset = 0;
-    bufferInfo.range = layout.GetStride();
+    // TODO refactor use of count since it can also be count of descriptors
+    bufferInfo.range = layout.GetStride() * count;
 
     vk::WriteDescriptorSet descriptorWrite {};
     descriptorWrite.dstSet = mDescriptorSet;
     descriptorWrite.dstBinding = blockIndex;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-    descriptorWrite.descriptorCount = count;
+    // count in this use case is for arrays of data
+    //descriptorWrite.descriptorCount = count;
+    descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
     VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);

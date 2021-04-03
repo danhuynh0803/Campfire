@@ -35,6 +35,8 @@ public:
     vk::UniqueDescriptorPool descriptorPool;
 
 private:
+    void CreateGraphicsPipeline();
+    void CreateComputePipeline();
     void CreateDescriptorSets();
     void CreateDescriptorPool();
     void SetupRenderPass();

@@ -16,45 +16,6 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         surface
     );
 
-    //auto surface = VulkanContext::Get()->mSwapChain->GetSurface();
-    //// Get queueFamilyIndex that supports present
-    //// First check if graphicsQueueFamilyIndex is good enough
-    // presentQueueFamilyIndex =
-    //    physicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>(graphicsQueueFamilyIndex), surface )
-    //        ? graphicsQueueFamilyIndex
-    //        : queueFamilyProperties.size();
-
-    //if (presentQueueFamilyIndex == queueFamilyProperties.size())
-    //{
-    //    // the graphicsQueueFamilyIndex doesn't support present -> look for an other family index that supports both
-    //    // graphics and present
-    //    for (size_t i = 0; i < queueFamilyProperties.size(); i++)
-    //    {
-    //        if ((queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) &&
-    //            physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface))
-    //        {
-    //            graphicsQueueFamilyIndex = i;
-    //            presentQueueFamilyIndex = i;
-    //            std::cout << "Queue supports both graphics and present\n";
-    //            break;
-    //        }
-    //    }
-    //    if (presentQueueFamilyIndex == queueFamilyProperties.size())
-    //    {
-    //        // there's nothing like a single family index that supports both graphics and present,
-    //        // so look for an other family index that supports present
-    //        for (size_t i = 0; i < queueFamilyProperties.size(); i++)
-    //        {
-    //            if (physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface))
-    //            {
-    //                std::cout << "Found queue that supports present\n";
-    //                presentQueueFamilyIndex = i;
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface);
     assert(!formats.empty());

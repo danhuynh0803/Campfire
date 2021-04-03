@@ -44,5 +44,6 @@ private:
 
     SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanPipeline> mGraphicsPipeline;
+    SharedPtr<VulkanPipeline> mComputePipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };
