@@ -17,22 +17,8 @@ public:
 
     vk::PhysicalDevice GetVulkanPhysicalDevice() { return physicalDevice; }
     vk::Device GetVulkanDevice() { return device.get(); }
-
-    // TODO have just one function with enums to select which family/queue
-    vk::Queue GetGraphicsQueue() { return graphicsQueue; }
-    vk::Queue GetPresentQueue() { return presentQueue; }
-
-    size_t GetQueueFamilyIndex(QueueFamilyType type)
-    {
-        switch (type)
-        {
-            case QueueFamilyType::GRAPHICS: return graphicsQueueFamilyIndex;
-            case QueueFamilyType::PRESENT: return presentQueueFamilyIndex;
-            //case QueueFamilyType::TRANSFER: return ;
-            case QueueFamilyType::COMPUTE: return computeQueueFamilyIndex;
-        }
-    }
-
+    vk::Queue GetQueue(QueueFamilyType type);
+    size_t GetQueueFamilyIndex(QueueFamilyType type);
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
 
 private:

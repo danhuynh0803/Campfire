@@ -53,7 +53,7 @@ namespace vk::util
 
     vk::CommandBuffer BeginSingleTimeCommands()
     {
-        auto cmdPool = VulkanContext::Get()->GetCommandPool();
+        auto cmdPool = VulkanContext::Get()->GetCommandPool(QueueFamilyType::GRAPHICS);
 
         vk::CommandBufferAllocateInfo allocInfo {};
         allocInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -81,12 +81,14 @@ namespace vk::util
         submitInfo.pCommandBuffers = &commandBuffer;
 
         // TODO maybe optimize by submitting and then batching all data later somehow?
-        auto graphicsQueue = VulkanContext::Get()->GetDevice()->GetGraphicsQueue();
+        auto graphicsQueue = VulkanContext::Get()->GetDevice()->GetQueue(QueueFamilyType::GRAPHICS);
         graphicsQueue.submit(1, &submitInfo, nullptr);
         graphicsQueue.waitIdle();
 
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-        device.freeCommandBuffers(VulkanContext::Get()->GetCommandPool(), 1, &commandBuffer);
+        device.freeCommandBuffers(
+            VulkanContext::Get()->GetCommandPool(QueueFamilyType::GRAPHICS),
+            1, &commandBuffer);
     }
 
     void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)

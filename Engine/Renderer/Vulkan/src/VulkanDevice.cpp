@@ -1,5 +1,7 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanContext.h"
+#include "Core/Log.h"
+
 #include <iostream>
 
 VulkanDevice::VulkanDevice()
@@ -97,4 +99,30 @@ vk::UniqueDevice VulkanDevice::CreateLogicalDevice()
     return physicalDevice.createDeviceUnique(deviceInfo);
 }
 
+vk::Queue VulkanDevice::GetQueue(QueueFamilyType type)
+{
+    switch (type)
+    {
+        case QueueFamilyType::GRAPHICS: return graphicsQueue;
+        case QueueFamilyType::PRESENT: return presentQueue;
+                                       //case QueueFamilyType::TRANSFER: return ;
+        case QueueFamilyType::COMPUTE: return computeQueue;
+    }
 
+    CORE_ERROR("Invalid QueueFamilyType specified when accessing queues");
+    return {};
+}
+
+size_t VulkanDevice::GetQueueFamilyIndex(QueueFamilyType type)
+{
+    switch (type)
+    {
+        case QueueFamilyType::GRAPHICS: return graphicsQueueFamilyIndex;
+        case QueueFamilyType::PRESENT: return presentQueueFamilyIndex;
+                                       //case QueueFamilyType::TRANSFER: return ;
+        case QueueFamilyType::COMPUTE: return computeQueueFamilyIndex;
+    }
+
+    CORE_ERROR("Invalid QueueFamilyType specified when accessing QueueFamilyIndex");
+    return -1;
+}

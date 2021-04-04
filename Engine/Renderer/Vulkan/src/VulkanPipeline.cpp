@@ -24,6 +24,8 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
         case PipelineType::COMPUTE:
             CreateComputePipeline();
             break;
+        default:
+            CORE_ERROR("Invalid PipelineType");
     }
 }
 

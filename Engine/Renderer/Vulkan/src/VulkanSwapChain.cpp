@@ -206,7 +206,7 @@ void VulkanSwapChain::Present()
 
     device.resetFences(inFlightFences[mCurrentFrame].get());
 
-    auto graphicsQueue = mDevice->GetGraphicsQueue();
+    auto graphicsQueue = mDevice->GetQueue(QueueFamilyType::GRAPHICS);
     graphicsQueue.submit(submitInfo, inFlightFences[mCurrentFrame].get());
 
     // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
@@ -221,7 +221,7 @@ void VulkanSwapChain::Present()
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &mImageIndex;
 
-    auto presentQueue = mDevice->GetPresentQueue();
+    auto presentQueue = mDevice->GetQueue(QueueFamilyType::PRESENT);
     presentQueue.presentKHR(&presentInfo);
 
     mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;

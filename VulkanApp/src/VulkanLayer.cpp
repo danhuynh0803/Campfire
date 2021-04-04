@@ -55,7 +55,7 @@ void VulkanLayer::OnAttach()
     // initial scene
     scene = CreateSharedPtr<Scene>();
     e = scene->CreateEntity("Environment");
-    e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, -15.0f);
+    e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, -12.0f);
     e.GetComponent<TransformComponent>().scale = glm::vec3(.1f, .1f, .1f);
     e.AddComponent<VulkanMeshComponent>(
         ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
@@ -200,8 +200,8 @@ void VulkanLayer::OnUpdate(float dt)
 
     for (size_t i = 0; i < 3; ++i)
     {
-        // Render scene and imgui
         auto commandBuffer = VulkanRenderer::BeginScene(i);
+        {
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
             for (auto entity : group)
             {
@@ -223,6 +223,7 @@ void VulkanLayer::OnUpdate(float dt)
             }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+        }
         VulkanRenderer::EndScene(commandBuffer);
     }
 
