@@ -56,7 +56,7 @@ void VulkanLayer::OnAttach()
     scene = CreateSharedPtr<Scene>();
     e = scene->CreateEntity("Environment");
     e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, -15.0f);
-    e.GetComponent<TransformComponent>().scale = glm::vec3(1.f, 1.f, 1.f);
+    e.GetComponent<TransformComponent>().scale = glm::vec3(.1f, .1f, .1f);
     e.AddComponent<VulkanMeshComponent>(
         ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
@@ -235,6 +235,8 @@ void VulkanLayer::OnUpdate(float dt)
 
 void VulkanLayer::OnImGuiRender()
 {
+    SceneHierarchy(scene);
+
     ImGui::Begin("Metrics");
     auto gpu = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
     auto props = gpu.getProperties();
@@ -298,6 +300,26 @@ void VulkanLayer::OnImGuiRender()
     //ImGui::ColorEdit4("Light Color", (float*)&lightUBO.color, 0.01f);
     //ImGui::DragFloat3("Light Dir", (float*)&lightUBO.dir, 0.01f);
     //ImGui::DragFloat("Light Intensity", (float*)&lightUBO.intensity, 0.01f);
+
+    ImGui::End();
+}
+
+void VulkanLayer::SceneHierarchy(SharedPtr<Scene> scene)
+{
+    ImGui::Begin("Scene Hierarchy");
+
+    int rootIdx = 0;
+    static int selected = -1;
+    for (auto entityPair : scene->GetEntityMap())
+    {
+        Entity entity = entityPair.second;
+        std::string tag = entity.GetComponent<TagComponent>().tag;
+        if (ImGui::Selectable(tag.c_str(), selected == rootIdx))
+        {
+            selected = rootIdx;
+        }
+        ++rootIdx;
+    }
 
     ImGui::End();
 }

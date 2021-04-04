@@ -26,6 +26,8 @@ public:
     bool OnWindowResize(WindowResizeEvent& e);
 
 private:
+    void SceneHierarchy(SharedPtr<Scene> scene);
+
     SharedPtr<vk::VulkanMesh> meshPtr;
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanBuffer> pVertexBuffer;
