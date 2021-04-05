@@ -14,14 +14,35 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     mDevice = CreateSharedPtr<VulkanDevice>();
     sVulkanContextInstance.reset(this);
 
-    commandPool = CreateCommandPool(static_cast<uint32_t>(GetDevice()->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS)));
+    mGraphicsCommandPool = CreateCommandPool(
+        static_cast<uint32_t>(GetDevice()->GetQueueFamilyIndex(QueueFamilyType::GRAPHICS))
+    );
+    mComputeCommandPool = CreateCommandPool(
+        static_cast<uint32_t>(GetDevice()->GetQueueFamilyIndex(QueueFamilyType::COMPUTE))
+    );
 
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
-    mGraphicsPipeline = CreateSharedPtr<VulkanPipeline>(PipelineType::GRAPHICS);
+    // TODO pipeline should be with material?
+    mGraphicsPipeline = VulkanPipeline::Create(PipelineType::GRAPHICS);
+    //mComputePipeline = VulkanPipeline::Create(PipelineType::COMPUTE);
 
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();
     mSwapChain->CreateBarriers();
+}
+
+vk::CommandPool VulkanContext::GetCommandPool(QueueFamilyType type)
+{
+    switch (type)
+    {
+        case QueueFamilyType::GRAPHICS:
+            return mGraphicsCommandPool.get();
+        case QueueFamilyType::COMPUTE:
+            return mComputeCommandPool.get();
+    }
+
+    CORE_ERROR("Invalid Pipeline type specified for command pool access");
+    return {};
 }
 
 void VulkanContext::Init()
@@ -43,7 +64,7 @@ vk::UniqueCommandPool VulkanContext::CreateCommandPool(uint32_t queueFamilyIndex
 std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_t size)
 {
     vk::CommandBufferAllocateInfo commandBufferAllocInfo;
-    commandBufferAllocInfo.commandPool = commandPool.get();
+    commandBufferAllocInfo.commandPool = mGraphicsCommandPool.get();
     commandBufferAllocInfo.level = vk::CommandBufferLevel::ePrimary;
     commandBufferAllocInfo.commandBufferCount = size;
 

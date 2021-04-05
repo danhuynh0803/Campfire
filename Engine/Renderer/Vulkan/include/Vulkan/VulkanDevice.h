@@ -4,9 +4,10 @@
 
 enum class QueueFamilyType
 {
-    GRAPHICS,
+    GRAPHICS = 0,
     PRESENT,
-    TRANSFER
+    TRANSFER,
+    COMPUTE,
 };
 
 class VulkanDevice
@@ -16,22 +17,8 @@ public:
 
     vk::PhysicalDevice GetVulkanPhysicalDevice() { return physicalDevice; }
     vk::Device GetVulkanDevice() { return device.get(); }
-
-    // TODO have just one function with enums to select which family/queue
-    vk::Queue GetGraphicsQueue() { return graphicsQueue; }
-    vk::Queue GetPresentQueue() { return presentQueue; }
-
-    size_t GetQueueFamilyIndex(QueueFamilyType type)
-    {
-        switch (type)
-        {
-            case QueueFamilyType::GRAPHICS: return graphicsQueueFamilyIndex;
-            case QueueFamilyType::PRESENT: return presentQueueFamilyIndex;
-            //case QueueFamilyType::TRANSFER: return ;
-            //case QueueFamilyType::COMPUTE: return ;
-        }
-    }
-
+    vk::Queue GetQueue(QueueFamilyType type);
+    size_t GetQueueFamilyIndex(QueueFamilyType type);
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
 
 private:
@@ -46,6 +33,8 @@ private:
     std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
     size_t graphicsQueueFamilyIndex;
     size_t presentQueueFamilyIndex;
+    size_t computeQueueFamilyIndex;
     vk::Queue graphicsQueue;
     vk::Queue presentQueue;
+    vk::Queue computeQueue;
 };

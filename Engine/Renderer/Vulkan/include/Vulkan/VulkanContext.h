@@ -27,7 +27,7 @@ public:
     static vk::Instance GetInstance() { return sVulkanInstance.get(); }
     //static SharedPtr<VulkanDevice> GetContextDevice() { return Get()->mDevice(); }
     SharedPtr<VulkanDevice> GetDevice() { return mDevice; }
-    vk::CommandPool GetCommandPool() { return commandPool.get(); }
+    vk::CommandPool GetCommandPool(QueueFamilyType type);
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
@@ -35,7 +35,8 @@ public:
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
 private:
-    vk::UniqueCommandPool commandPool;
+    vk::UniqueCommandPool mGraphicsCommandPool;
+    vk::UniqueCommandPool mComputeCommandPool;
     vk::UniqueInstance CreateInstance();
     inline static vk::UniqueInstance sVulkanInstance;
     inline static SharedPtr<VulkanContext> sVulkanContextInstance;
@@ -44,5 +45,6 @@ private:
 
     SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanPipeline> mGraphicsPipeline;
+    SharedPtr<VulkanPipeline> mComputePipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };

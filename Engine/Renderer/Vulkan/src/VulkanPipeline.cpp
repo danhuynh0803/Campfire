@@ -6,6 +6,22 @@
 
 #include "Core/ResourceManager.h" // For asset directory macros
 
+namespace
+{
+    std::vector<vk::DescriptorSetLayout> GetDescriptorSetLayouts(
+        const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
+    )
+    {
+        std::vector<vk::DescriptorSetLayout> layouts;
+        for (auto& uniqueLayout : uniqueLayouts)
+        {
+            layouts.emplace_back(uniqueLayout.get());
+        }
+
+        return layouts;
+    }
+}
+
 struct PipelineVertex
 {
     glm::vec3 pos;
@@ -13,8 +29,23 @@ struct PipelineVertex
     glm::vec3 normal;
 };
 
-VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
-    : type(pipelineType)
+SharedPtr<VulkanPipeline> VulkanPipeline::Create(PipelineType type)
+{
+    switch (type)
+    {
+        case PipelineType::GRAPHICS:
+            return CreateSharedPtr<GraphicsPipeline>();
+        case PipelineType::COMPUTE:
+            return CreateSharedPtr<ComputePipeline>();
+        default:
+            CORE_ERROR("Invalid PipelineType");
+    }
+
+    CORE_ERROR("Could not create pipeline");
+    return nullptr;
+}
+
+GraphicsPipeline::GraphicsPipeline()
 {
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
@@ -79,10 +110,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     // Setup descriptorlayout and descriptor sets (doesnt have to be part of pipeline creation)
     SetupDescriptors();
 
-    std::vector<vk::DescriptorSetLayout> descriptorLayouts{
-        uboDescriptorSetLayout.get(),
-        materialDescriptorSetLayout.get(),
-    };
+    std::vector<vk::DescriptorSetLayout> descriptorLayouts = GetDescriptorSetLayouts(descriptorSetLayouts);
 
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
@@ -128,65 +156,7 @@ VulkanPipeline::VulkanPipeline(PipelineType pipelineType)
     pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
-void VulkanPipeline::SetupUboDescriptor()
-{
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    { // Set 0
-        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
-        { // Camera
-            auto cameraDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-                vk::DescriptorType::eUniformBuffer,
-                vk::ShaderStageFlagBits::eVertex,
-                0);
-
-            layoutBindings.emplace_back(cameraDescriptor);
-        }
-
-        { // Light UBO
-            auto lightDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-                vk::DescriptorType::eUniformBuffer,
-                vk::ShaderStageFlagBits::eFragment,
-                1);
-
-            layoutBindings.emplace_back(lightDescriptor);
-        }
-
-        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-            static_cast<uint32_t>(layoutBindings.size()),
-            layoutBindings.data());
-        uboDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
-    }
-}
-
-void VulkanPipeline::SetupMaterialDescriptor()
-{
-    std::vector<vk::DescriptorSetLayoutBinding> layoutBindings;
-    { // Albedo map
-        auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eCombinedImageSampler,
-            vk::ShaderStageFlagBits::eFragment,
-            0);
-
-        layoutBindings.emplace_back(samplerDescriptor);
-    }
-
-    { // Normal map
-        auto samplerDescriptor = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eCombinedImageSampler,
-            vk::ShaderStageFlagBits::eFragment,
-            1);
-
-        layoutBindings.emplace_back(samplerDescriptor);
-    }
-
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-        static_cast<uint32_t>(layoutBindings.size()),
-        layoutBindings.data());
-    materialDescriptorSetLayout = device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
-}
-
-void VulkanPipeline::SetupDescriptors()
+void GraphicsPipeline::SetupDescriptors()
 {
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
@@ -206,34 +176,71 @@ void VulkanPipeline::SetupDescriptors()
         descriptorPool = device.createDescriptorPoolUnique(poolInfo);
     }
 
-    SetupUboDescriptor();
-    { // Environment descriptors - Camera view, lights, etc
+    { // UBOs
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eVertex,
+            0);
 
-        std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), uboDescriptorSetLayout.get());
-        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-            descriptorPool.get(),
-            static_cast<uint32_t>(layouts.size()),
-            layouts.data());
+        // Lights
+        auto lights = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
 
-        uniformDescriptorSets.resize(swapChainImages.size());
-        uniformDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
-    }
+        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
+            camera,
+            lights,
+        };
+
+        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            static_cast<uint32_t>(layoutBindings.size()),
+            layoutBindings.data());
+
+        // Set 0
+        descriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+   }
+
 
     { // Material descriptors
-        SetupMaterialDescriptor();
+        // Albedo map
+        auto albedo = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
 
-        std::vector<vk::DescriptorSetLayout> layouts(swapChainImages.size(), materialDescriptorSetLayout.get());
-        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-            descriptorPool.get(),
-            static_cast<uint32_t>(layouts.size()),
-            layouts.data());
+        // Normal map
+        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
 
-        materialDescriptorSets.resize(swapChainImages.size());
-        materialDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
+            albedo,
+            normal,
+        };
+
+        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            static_cast<uint32_t>(layoutBindings.size()),
+            layoutBindings.data());
+
+        // Set 1
+        descriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
     }
+
+    // DescriptorSets
+    std::vector<vk::DescriptorSetLayout> sets = GetDescriptorSetLayouts(descriptorSetLayouts);    
+    auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+        descriptorPool.get(),
+        static_cast<uint32_t>(descriptorSetLayouts.size()),
+        sets.data()
+    );
+
+    descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
 }
 
-void VulkanPipeline::SetupRenderPass()
+void GraphicsPipeline::SetupRenderPass()
 {
     // Color Attachment
     vk::AttachmentDescription colorAttachment;
@@ -302,10 +309,17 @@ void VulkanPipeline::SetupRenderPass()
 // FIXME, pretty much the pipeline constructor code
 // but removes the descriptor layout setting which isnt needed when remaking on resize
 // Also causes a crash for some reason when trying to set pipeline layout
-void VulkanPipeline::RecreatePipeline()
+void GraphicsPipeline::RecreatePipeline()
 {
-    // TODO
     return;
 }
 
 
+ComputePipeline::ComputePipeline()
+{
+}
+
+void ComputePipeline::RecreatePipeline()
+{
+    return;
+}

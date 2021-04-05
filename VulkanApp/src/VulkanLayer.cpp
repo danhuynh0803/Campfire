@@ -24,6 +24,7 @@ static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
+const int numLights = 100;
 
 struct CameraUBO
 {
@@ -33,14 +34,14 @@ struct CameraUBO
 };
 static CameraUBO cameraUBO;
 
-struct LightUBO
+struct Light
 {
-    glm::vec4 pos = glm::vec4(30, 30, 2.5f, 0);
-    glm::vec4 color = glm::vec4(1, 1, 1, 1);
-    glm::vec3 dir = glm::vec3(1, -1, 0);
-    float intensity = 50.0f;
+    glm::vec4 pos;
+    glm::vec4 color;
+    glm::vec3 dir;
+    float intensity;
 };
-static LightUBO lightUBO;
+std::array<Light, numLights> lights;
 
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
@@ -54,32 +55,47 @@ void VulkanLayer::OnAttach()
     // initial scene
     scene = CreateSharedPtr<Scene>();
     e = scene->CreateEntity("Environment");
-    e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, 0.0f);
-    e.GetComponent<TransformComponent>().scale = glm::vec3(0.1f, 0.1f, 0.1f);
+    e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, -12.0f);
+    e.GetComponent<TransformComponent>().scale = glm::vec3(.1f, .1f, .1f);
     e.AddComponent<VulkanMeshComponent>(
-        //ASSETS + "/Models/primitives/sphere.fbx"
-        //ASSETS + "/Models/ganon/scene.gltf"
-        //ASSETS + "/Models/cyborg/cyborg.obj"
-        //ASSETS + "/Models/nanosuit/nanosuit.obj"
-        //ASSETS + "/Models/helmet/scene.gltf"
         ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
 
-    for (int i = 0; i < 4; ++i)
-    for (int j = 0; j < 4; ++j)
+    int maxRow = 10;
+    int maxCol = 10;
+    int maxWidth = 300;
+    int maxLength = 300;
+    for (int i = 0; i < maxRow; ++i)
+    for (int j = 0; j < maxCol; ++j)
     {
-        auto g = scene->CreateEntity(std::to_string(i));
-        g.GetComponent<TransformComponent>().position = glm::vec3(i*3, j*3, 0.0f);
-        //g.GetComponent<TransformComponent>().scale = glm::vec3(0.001f, 0.001f, 0.001f);
-        g.AddComponent<VulkanMeshComponent>(
-            //ASSETS + "/Models/primitives/sphere.fbx"
-            //ASSETS + "/Models/ganon/scene.gltf"
-            //ASSETS + "/Models/cyborg/cyborg.obj"
-            //ASSETS + "/Models/nanosuit/nanosuit.obj"
-            ASSETS + "/Models/helmet/scene.gltf"
-            //ASSETS + "/Models/Avocado/glTF/Avocado.gltf"
-            //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
+        auto l = scene->CreateEntity("light" + std::to_string(i));
+        glm::vec3 position(
+            -maxWidth/2.0f + static_cast<float>(maxWidth)/maxCol * j,
+             2.0f,
+             maxLength/2.0f - static_cast<float>(maxLength)/maxRow * i
         );
+        l.GetComponent<TransformComponent>().position = position;
+        l.AddComponent<LightComponent>();
+        l.GetComponent<LightComponent>().intensity = 3.0f;
+        glm::vec4 color(
+            static_cast<float>(j)/maxCol,
+            static_cast<float>(i)/maxRow,
+            1.0f,
+            1.0f);
+        l.GetComponent<LightComponent>().color = color;
+
+        //auto g = scene->CreateEntity(std::to_string(i));
+        //g.GetComponent<TransformComponent>().position = glm::vec3(i*3, j*3, 0.0f);
+        ////g.GetComponent<TransformComponent>().scale = glm::vec3(0.001f, 0.001f, 0.001f);
+        //g.AddComponent<VulkanMeshComponent>(
+        //    //ASSETS + "/Models/primitives/sphere.fbx"
+        //    //ASSETS + "/Models/ganon/scene.gltf"
+        //    //ASSETS + "/Models/cyborg/cyborg.obj"
+        //    //ASSETS + "/Models/nanosuit/nanosuit.obj"
+        //    ASSETS + "/Models/helmet/scene.gltf"
+        //    //ASSETS + "/Models/Avocado/glTF/Avocado.gltf"
+        //    //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
+        //);
     }
 
 
@@ -93,9 +109,6 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    auto& environmentSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
-    auto& transformSets = VulkanContext::Get()->GetPipeline()->transformDescriptorSets;
-
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
     {
@@ -103,7 +116,7 @@ void VulkanLayer::OnAttach()
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(CameraUBO),
-                    environmentSets[i].get()
+                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0)
                 )
             );
             BufferLayout cameraLayout =
@@ -118,17 +131,20 @@ void VulkanLayer::OnAttach()
         { // Create Light UBOs
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(LightUBO),
-                    environmentSets[i].get()
+                    sizeof(lights) + sizeof(glm::vec4),
+                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0)
                 )
             );
             BufferLayout lightLayout =
             {
                 { ShaderDataType::FLOAT4, "pos" },
                 { ShaderDataType::FLOAT4, "color" },
-                { ShaderDataType::FLOAT4, "dir" },
+                { ShaderDataType::FLOAT3, "dir" },
+                { ShaderDataType::FLOAT, "intensity" },
             };
-            lightUBOs[i]->SetLayout(lightLayout, 1);
+            // TODO change to use a specified byte range value instead of using layout
+            // which will fix the need to do n+1 size allocations for array data in buffers
+            lightUBOs[i]->SetLayout(lightLayout, 1, numLights+1);
         }
     }
 }
@@ -157,7 +173,21 @@ void VulkanLayer::OnUpdate(float dt)
     cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
 
     // Update light ubo
-    lightUBOs[frameIdx]->SetData(&lightUBO, 0, sizeof(LightUBO));
+    uint32_t numLights = 0;
+    auto group = scene->registry.group<LightComponent>(entt::get<TransformComponent>);
+    for (auto entity : group)
+    {
+        auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
+
+        Light light;
+        light.pos       = glm::vec4(transformComponent.position, 0.0f);
+        light.dir       = glm::vec3(0.0f);
+        light.intensity = lightComponent.intensity;
+        light.color     = lightComponent.color;
+        lights[numLights++] = light;
+    }
+    lightUBOs[frameIdx]->SetData(lights.data(), 0, sizeof(lights));
+    lightUBOs[frameIdx]->SetData(&numLights, sizeof(lights), sizeof(uint32_t));
 
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
@@ -179,7 +209,7 @@ void VulkanLayer::OnUpdate(float dt)
                 commandBuffer.pushConstants(
                     VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
                     vk::ShaderStageFlagBits::eVertex,
-                    0, sizeof(VulkanPipeline::TransformPushConstBlock),
+                    0, sizeof(GraphicsPipeline::TransformPushConstBlock),
                     &mPushConstBlock);
 
                 // Draw mesh
@@ -190,6 +220,7 @@ void VulkanLayer::OnUpdate(float dt)
             }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+        }
         VulkanRenderer::EndScene(commandBuffer);
     }
 
@@ -202,6 +233,8 @@ void VulkanLayer::OnUpdate(float dt)
 
 void VulkanLayer::OnImGuiRender()
 {
+    SceneHierarchy(scene);
+
     ImGui::Begin("Metrics");
     auto gpu = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
     auto props = gpu.getProperties();
@@ -261,10 +294,30 @@ void VulkanLayer::OnImGuiRender()
     ImGui::Separator();
 
     // Light Controls
-    ImGui::DragFloat4("Light Pos", (float*)&lightUBO.pos, 0.01f);
-    ImGui::ColorEdit4("Light Color", (float*)&lightUBO.color, 0.01f);
-    ImGui::DragFloat3("Light Dir", (float*)&lightUBO.dir, 0.01f);
-    ImGui::DragFloat("Light Intensity", (float*)&lightUBO.intensity, 0.01f);
+    //ImGui::DragFloat4("Light Pos", (float*)&lightUBO.pos, 0.01f);
+    //ImGui::ColorEdit4("Light Color", (float*)&lightUBO.color, 0.01f);
+    //ImGui::DragFloat3("Light Dir", (float*)&lightUBO.dir, 0.01f);
+    //ImGui::DragFloat("Light Intensity", (float*)&lightUBO.intensity, 0.01f);
+
+    ImGui::End();
+}
+
+void VulkanLayer::SceneHierarchy(SharedPtr<Scene> scene)
+{
+    ImGui::Begin("Scene Hierarchy");
+
+    int rootIdx = 0;
+    static int selected = -1;
+    for (auto entityPair : scene->GetEntityMap())
+    {
+        Entity entity = entityPair.second;
+        std::string tag = entity.GetComponent<TagComponent>().tag;
+        if (ImGui::Selectable(tag.c_str(), selected == rootIdx))
+        {
+            selected = rootIdx;
+        }
+        ++rootIdx;
+    }
 
     ImGui::End();
 }
@@ -279,6 +332,7 @@ void VulkanLayer::OnEvent(Event& event)
 
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
 {
+    // TODO update dynamicStates of pipeline (viewport width, etc)
     editorCamera->width = e.GetWidth();
     editorCamera->height = e.GetHeight();
     editorCamera->SetProjection();

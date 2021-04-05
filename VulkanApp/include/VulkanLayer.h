@@ -26,6 +26,8 @@ public:
     bool OnWindowResize(WindowResizeEvent& e);
 
 private:
+    void SceneHierarchy(SharedPtr<Scene> scene);
+
     SharedPtr<vk::VulkanMesh> meshPtr;
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanBuffer> pVertexBuffer;
@@ -36,7 +38,7 @@ private:
     std::vector<SharedPtr<VulkanTexture2D>> textures;
     Timer timer;
 
-    VulkanPipeline::TransformPushConstBlock mPushConstBlock;
+    GraphicsPipeline::TransformPushConstBlock mPushConstBlock;
 
     SharedPtr<Scene> scene;
 };
