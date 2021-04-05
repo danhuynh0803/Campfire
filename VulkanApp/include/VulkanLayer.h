@@ -38,7 +38,7 @@ private:
     std::vector<SharedPtr<VulkanTexture2D>> textures;
     Timer timer;
 
-    VulkanPipeline::TransformPushConstBlock mPushConstBlock;
+    GraphicsPipeline::TransformPushConstBlock mPushConstBlock;
 
     SharedPtr<Scene> scene;
 };

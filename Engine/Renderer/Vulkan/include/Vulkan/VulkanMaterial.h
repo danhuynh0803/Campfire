@@ -24,5 +24,5 @@ struct VulkanMaterial
     SharedPtr<Texture2D> normalMap = nullptr;
 
     std::vector<vk::UniqueDescriptorSet> descriptorSets;
-    //vk::Pipeline pipeline;
+    vk::Pipeline pipeline;
 };

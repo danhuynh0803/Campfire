@@ -21,10 +21,11 @@ namespace vk
         indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
         auto pipeline = VulkanContext::Get()->GetPipeline();
         // TODO swapchain size
-        auto layout = std::vector(3, pipeline->materialDescriptorSetLayout.get());
+        // TODO use vars for set indices
+        auto layout = std::vector(3, pipeline->GetDescriptorSetLayout(1));
         auto allocInfo = vk::initializers::
             DescriptorSetAllocateInfo(
-                pipeline->descriptorPool.get(),
+                pipeline->GetDescriptorPool(),
                 static_cast<uint32_t>(layout.size()),
                 layout.data()
             );

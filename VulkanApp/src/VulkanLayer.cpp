@@ -109,9 +109,6 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    auto& environmentSets = VulkanContext::Get()->GetPipeline()->uniformDescriptorSets;
-    auto& transformSets = VulkanContext::Get()->GetPipeline()->transformDescriptorSets;
-
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
     {
@@ -119,7 +116,7 @@ void VulkanLayer::OnAttach()
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(CameraUBO),
-                    environmentSets[i].get()
+                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0)
                 )
             );
             BufferLayout cameraLayout =
@@ -135,7 +132,7 @@ void VulkanLayer::OnAttach()
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(lights) + sizeof(glm::vec4),
-                    environmentSets[i].get()
+                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0)
                 )
             );
             BufferLayout lightLayout =
@@ -212,7 +209,7 @@ void VulkanLayer::OnUpdate(float dt)
                 commandBuffer.pushConstants(
                     VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
                     vk::ShaderStageFlagBits::eVertex,
-                    0, sizeof(VulkanPipeline::TransformPushConstBlock),
+                    0, sizeof(GraphicsPipeline::TransformPushConstBlock),
                     &mPushConstBlock);
 
                 // Draw mesh

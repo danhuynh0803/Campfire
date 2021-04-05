@@ -2,6 +2,9 @@
 
 #include <vulkan/vulkan.hpp>
 #include <glm/glm.hpp>
+#include <map>
+
+#include "Core/Base.h"
 
 enum class PipelineType
 {
@@ -12,43 +15,92 @@ enum class PipelineType
 class VulkanPipeline
 {
 public:
+    static SharedPtr<VulkanPipeline> Create(PipelineType pipelineType);
+
+    virtual ~VulkanPipeline() {}
+    virtual void RecreatePipeline() = 0;
+    virtual vk::Pipeline GetVulkanPipeline() = 0;
+    virtual vk::PipelineLayout GetVulkanPipelineLayout() = 0;
+    virtual vk::RenderPass GetVulkanRenderPass() = 0;
+    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex) = 0;
+    virtual vk::DescriptorSetLayout GetDescriptorSetLayout(uint32_t setIndex) = 0;
+    virtual vk::DescriptorPool GetDescriptorPool() = 0;
+};
+
+class GraphicsPipeline : public VulkanPipeline
+{
+public:
     struct TransformPushConstBlock {
         glm::mat4 model;
     } mTransformPushConstBlock;
 
-    void RecreatePipeline();
-    VulkanPipeline(PipelineType pipelineType);
-    ~VulkanPipeline() = default;
-    vk::Pipeline GetVulkanPipeline() { return pipeline.get(); }
-    vk::PipelineLayout GetVulkanPipelineLayout() { return pipelineLayout.get(); }
-    vk::RenderPass GetVulkanRenderPass() { return renderPass.get(); }
-    vk::RenderPass GetImGuiRenderPass() { return mImGuiRenderPass.get(); }
+    GraphicsPipeline();
+    ~GraphicsPipeline() = default;
 
-    // TODO: figure out a better way to bind the descriptorSet during draw call
-    // maybe have this handled behind the scenes in renderer?
-    std::vector<vk::UniqueDescriptorSet> uniformDescriptorSets;
-    std::vector<vk::UniqueDescriptorSet> materialDescriptorSets;
-    std::vector<vk::UniqueDescriptorSet> transformDescriptorSets;
-    vk::UniqueDescriptorSetLayout uboDescriptorSetLayout;
-    vk::UniqueDescriptorSetLayout materialDescriptorSetLayout;
-    vk::UniqueDescriptorSetLayout transformDescriptorSetLayout;
-    vk::UniqueDescriptorPool descriptorPool;
+    virtual void RecreatePipeline() override;
+    virtual vk::Pipeline GetVulkanPipeline() override {
+        return pipeline.get();
+    }
+    virtual vk::PipelineLayout GetVulkanPipelineLayout() override {
+        return pipelineLayout.get();
+    }
+    virtual vk::RenderPass GetVulkanRenderPass() override {
+        return renderPass.get();
+    }
+    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex) override {
+        return descriptorSets.at(setIndex).get();
+    }
+    virtual vk::DescriptorSetLayout GetDescriptorSetLayout(uint32_t setIndex) override {
+        return descriptorSetLayouts.at(setIndex).get();
+    }
+    virtual vk::DescriptorPool GetDescriptorPool() override { return descriptorPool.get(); }
 
 private:
-    void CreateGraphicsPipeline();
-    void CreateComputePipeline();
     void CreateDescriptorSets();
     void CreateDescriptorPool();
     void SetupRenderPass();
     void SetupDescriptors();
-    void SetupUboDescriptor();
-    void SetupMaterialDescriptor();
 
 private:
     vk::UniquePipeline pipeline;
-    PipelineType type;
-
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
-    vk::UniqueRenderPass mImGuiRenderPass;
+
+    std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    std::vector<vk::UniqueDescriptorSetLayout> descriptorSetLayouts;
+    vk::UniqueDescriptorPool descriptorPool;
+};
+
+class ComputePipeline : public VulkanPipeline
+{
+public:
+    ComputePipeline();
+    ~ComputePipeline() = default;
+
+    virtual void RecreatePipeline() override;
+    virtual vk::Pipeline GetVulkanPipeline() override {
+        return pipeline.get();
+    }
+    virtual vk::PipelineLayout GetVulkanPipelineLayout() override {
+        return pipelineLayout.get();
+    }
+    virtual vk::RenderPass GetVulkanRenderPass() override {
+        return renderPass.get();
+    }
+    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex) override {
+        return descriptorSets.at(setIndex).get();
+    }
+    virtual vk::DescriptorSetLayout GetDescriptorSetLayout(uint32_t setIndex) override {
+        return descriptorSetLayouts.at(setIndex).get();
+    }
+    virtual vk::DescriptorPool GetDescriptorPool() override { return descriptorPool.get(); }
+
+private:
+    vk::UniquePipeline pipeline;
+    vk::UniquePipelineLayout pipelineLayout;
+    vk::UniqueRenderPass renderPass;
+
+    std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    std::vector<vk::UniqueDescriptorSetLayout> descriptorSetLayouts;
+    vk::UniqueDescriptorPool descriptorPool;
 };
