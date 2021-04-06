@@ -116,6 +116,15 @@ void OpenGLUniformBuffer::SetLayout(const BufferLayout& _layout, uint32_t blockI
     glBindBufferRange(GL_UNIFORM_BUFFER, blockIndex, renderID, 0, size);
 }
 
+void OpenGLUniformBuffer::SetLayout(uint32_t blockIndex, uint32_t size)
+{
+    // Allocate buffer based on attached elements
+    glBindBuffer(GL_UNIFORM_BUFFER, renderID);
+    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, blockIndex, renderID, 0, size);
+}
+
 
 void OpenGLUniformBuffer::SetData(void* data, uint32_t offset, uint32_t size)
 {

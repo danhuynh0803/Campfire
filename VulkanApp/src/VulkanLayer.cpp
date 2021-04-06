@@ -142,9 +142,7 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::FLOAT3, "dir" },
                 { ShaderDataType::FLOAT, "intensity" },
             };
-            // TODO change to use a specified byte range value instead of using layout
-            // which will fix the need to do n+1 size allocations for array data in buffers
-            lightUBOs[i]->SetLayout(lightLayout, 1, numLights+1);
+            lightUBOs[i]->SetLayout(1, numLights*lightLayout.GetStride() + sizeof(glm::vec4));
         }
     }
 }

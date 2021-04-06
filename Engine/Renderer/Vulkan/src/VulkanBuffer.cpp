@@ -130,6 +130,24 @@ void VulkanUniformBuffer::SetData(void* inputData, uint32_t offset, uint32_t siz
     device.unmapMemory(bufferMemory.get());
 }
 
+void VulkanUniformBuffer::SetLayout(uint32_t blockIndex, uint32_t size)
+{
+    vk::DescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = GetBuffer();
+    bufferInfo.offset = 0;
+    bufferInfo.range = size;
+
+    vk::WriteDescriptorSet descriptorWrite{};
+    descriptorWrite.dstSet = mDescriptorSet;
+    descriptorWrite.dstBinding = blockIndex;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+}
+
 void VulkanUniformBuffer::SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
 {
     vk::DescriptorBufferInfo bufferInfo {};
