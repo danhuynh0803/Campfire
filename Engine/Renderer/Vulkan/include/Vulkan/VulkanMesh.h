@@ -56,7 +56,7 @@ namespace vk
 
         void OnUpdate(float dt);
 
-        void Draw(vk::CommandBuffer commandBuffer);
+        void Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex);
 
         static SharedPtr<VulkanMesh> Create(const std::string& filename);
 

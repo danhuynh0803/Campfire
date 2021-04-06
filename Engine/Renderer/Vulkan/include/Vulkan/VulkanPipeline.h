@@ -22,9 +22,11 @@ public:
     virtual vk::Pipeline GetVulkanPipeline() = 0;
     virtual vk::PipelineLayout GetVulkanPipelineLayout() = 0;
     virtual vk::RenderPass GetVulkanRenderPass() = 0;
-    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex) = 0;
+    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex, uint32_t frameIndex) = 0;
     virtual vk::DescriptorSetLayout GetDescriptorSetLayout(uint32_t setIndex) = 0;
     virtual vk::DescriptorPool GetDescriptorPool() = 0;
+
+private:
 };
 
 class GraphicsPipeline : public VulkanPipeline
@@ -47,8 +49,8 @@ public:
     virtual vk::RenderPass GetVulkanRenderPass() override {
         return renderPass.get();
     }
-    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex) override {
-        return descriptorSets.at(setIndex).get();
+    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex, uint32_t frameIndex) override {
+        return descriptorSets.at(setIndex).at(frameIndex).get();
     }
     virtual vk::DescriptorSetLayout GetDescriptorSetLayout(uint32_t setIndex) override {
         return descriptorSetLayouts.at(setIndex).get();
@@ -66,7 +68,7 @@ private:
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
 
-    std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    std::vector< std::vector<vk::UniqueDescriptorSet> > descriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> descriptorSetLayouts;
     vk::UniqueDescriptorPool descriptorPool;
 };
@@ -87,8 +89,8 @@ public:
     virtual vk::RenderPass GetVulkanRenderPass() override {
         return renderPass.get();
     }
-    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex) override {
-        return descriptorSets.at(setIndex).get();
+    virtual vk::DescriptorSet GetDescriptorSet(uint32_t setIndex, uint32_t frameIndex) override {
+        return descriptorSets.at(setIndex).at(frameIndex).get();
     }
     virtual vk::DescriptorSetLayout GetDescriptorSetLayout(uint32_t setIndex) override {
         return descriptorSetLayouts.at(setIndex).get();
@@ -100,7 +102,7 @@ private:
     vk::UniquePipelineLayout pipelineLayout;
     vk::UniqueRenderPass renderPass;
 
-    std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    std::vector< std::vector<vk::UniqueDescriptorSet> > descriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> descriptorSetLayouts;
     vk::UniqueDescriptorPool descriptorPool;
 };

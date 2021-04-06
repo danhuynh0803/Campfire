@@ -89,7 +89,7 @@ namespace vk
         // TODO for animations
     }
 
-    void VulkanMesh::Draw(vk::CommandBuffer commandBuffer)
+    void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex)
     {
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
         auto pipeline = VulkanContext::Get()->GetPipeline();
@@ -101,7 +101,7 @@ namespace vk
                 pipeline->GetVulkanPipelineLayout(),
                 1,
                 1,
-                &submesh.material->descriptorSets[0].get(),
+                &submesh.material->descriptorSets[frameIndex].get(),
                 0, nullptr
             );
 

@@ -2,11 +2,11 @@
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
 
-vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t index)
+vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 {
     auto graphicsPipeline = VulkanContext::Get()->GetPipeline();
-    auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(index);
-    auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(index);
+    auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
+    auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
     vk::CommandBufferBeginInfo beginInfo;
@@ -39,7 +39,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t index)
 
     // TODO replace set index with var
     std::vector<vk::DescriptorSet> descriptorSets {
-        graphicsPipeline->GetDescriptorSet(0),
+        graphicsPipeline->GetDescriptorSet(0, frame),
     };
 
     commandBuffer.bindDescriptorSets(

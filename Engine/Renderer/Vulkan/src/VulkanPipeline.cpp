@@ -8,7 +8,7 @@
 
 namespace
 {
-    std::vector<vk::DescriptorSetLayout> GetDescriptorSetLayouts(
+    std::vector<vk::DescriptorSetLayout> ConvertUnique(
         const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
     )
     {
@@ -110,7 +110,7 @@ GraphicsPipeline::GraphicsPipeline()
     // Setup descriptorlayout and descriptor sets (doesnt have to be part of pipeline creation)
     SetupDescriptors();
 
-    std::vector<vk::DescriptorSetLayout> descriptorLayouts = GetDescriptorSetLayouts(descriptorSetLayouts);
+    auto descriptorLayouts = ConvertUnique(descriptorSetLayouts);
 
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
@@ -230,14 +230,19 @@ void GraphicsPipeline::SetupDescriptors()
     }
 
     // DescriptorSets
-    std::vector<vk::DescriptorSetLayout> sets = GetDescriptorSetLayouts(descriptorSetLayouts);    
-    auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-        descriptorPool.get(),
-        static_cast<uint32_t>(descriptorSetLayouts.size()),
-        sets.data()
-    );
+    std::vector<vk::DescriptorSetLayout> setLayouts = ConvertUnique(descriptorSetLayouts);
+    const auto swapChainSize = swapChainImages.size();
+    for (size_t i = 0; i < setLayouts.size(); ++i)
+    {
+        std::vector<vk::DescriptorSetLayout> layouts { swapChainSize, setLayouts.at(i) };
+        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+            descriptorPool.get(),
+            static_cast<uint32_t>(layouts.size()),
+            layouts.data()
+        );
 
-    descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+        descriptorSets.emplace_back(device.allocateDescriptorSetsUnique(allocInfo));
+    }
 }
 
 void GraphicsPipeline::SetupRenderPass()

@@ -116,7 +116,7 @@ void VulkanLayer::OnAttach()
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(CameraUBO),
-                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0)
+                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0, i)
                 )
             );
             BufferLayout cameraLayout =
@@ -132,7 +132,7 @@ void VulkanLayer::OnAttach()
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(lights) + sizeof(glm::vec4),
-                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0)
+                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0, i)
                 )
             );
             BufferLayout lightLayout =
@@ -195,9 +195,9 @@ void VulkanLayer::OnUpdate(float dt)
     OnImGuiRender();
     vkImguiLayer->End();
 
-    for (size_t i = 0; i < 3; ++i)
+    for (size_t frame = 0; frame < 3; ++frame)
     {
-        auto commandBuffer = VulkanRenderer::BeginScene(i);
+        auto commandBuffer = VulkanRenderer::BeginScene(frame);
         {
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
             for (auto entity : group)
@@ -214,7 +214,7 @@ void VulkanLayer::OnUpdate(float dt)
 
                 // Draw mesh
                 SharedPtr<vk::VulkanMesh> mesh = meshComponent;
-                mesh->Draw(commandBuffer);
+                mesh->Draw(commandBuffer, frame);
 
                 count++;
             }
