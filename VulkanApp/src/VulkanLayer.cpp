@@ -24,7 +24,6 @@ static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
-const int numLights = 100;
 
 struct CameraUBO
 {
@@ -41,7 +40,8 @@ struct Light
     glm::vec3 dir;
     float intensity;
 };
-std::array<Light, numLights> lights;
+const int maxNumLights = 100;
+std::array<Light, maxNumLights> lights;
 
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
@@ -55,34 +55,25 @@ void VulkanLayer::OnAttach()
     // initial scene
     scene = CreateSharedPtr<Scene>();
     e = scene->CreateEntity("Environment");
-    e.GetComponent<TransformComponent>().position = glm::vec3(2.0f, 0.0f, -12.0f);
+    e.GetComponent<TransformComponent>().position = glm::vec3(0.0f);
     e.GetComponent<TransformComponent>().scale = glm::vec3(.1f, .1f, .1f);
     e.AddComponent<VulkanMeshComponent>(
         ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
 
-    int maxRow = 10;
-    int maxCol = 10;
+    int maxCol = 5;
     int maxWidth = 300;
-    int maxLength = 300;
-    for (int i = 0; i < maxRow; ++i)
-    for (int j = 0; j < maxCol; ++j)
+    for (int i = 0; i < maxCol; ++i)
     {
         auto l = scene->CreateEntity("light" + std::to_string(i));
         glm::vec3 position(
-            -maxWidth/2.0f + static_cast<float>(maxWidth)/maxCol * j,
-             2.0f,
-             maxLength/2.0f - static_cast<float>(maxLength)/maxRow * i
+            -maxWidth/2.0f + static_cast<float>(maxWidth)/maxCol * i,
+             10.0f,
+             0.0f
         );
         l.GetComponent<TransformComponent>().position = position;
         l.AddComponent<LightComponent>();
-        l.GetComponent<LightComponent>().intensity = 3.0f;
-        glm::vec4 color(
-            static_cast<float>(j)/maxCol,
-            static_cast<float>(i)/maxRow,
-            1.0f,
-            1.0f);
-        l.GetComponent<LightComponent>().color = color;
+        l.GetComponent<LightComponent>().intensity = 10.0f;
 
         //auto g = scene->CreateEntity(std::to_string(i));
         //g.GetComponent<TransformComponent>().position = glm::vec3(i*3, j*3, 0.0f);
@@ -97,7 +88,6 @@ void VulkanLayer::OnAttach()
         //    //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
         //);
     }
-
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
@@ -142,7 +132,7 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::FLOAT3, "dir" },
                 { ShaderDataType::FLOAT, "intensity" },
             };
-            lightUBOs[i]->SetLayout(1, numLights*lightLayout.GetStride() + sizeof(glm::vec4));
+            lightUBOs[i]->SetLayout(1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4));
         }
     }
 }
