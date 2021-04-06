@@ -31,7 +31,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
     clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
 
     vk::RenderPassBeginInfo renderPassBeginInfo;
-    renderPassBeginInfo.renderPass = graphicsPipeline->GetVulkanRenderPass();
+    renderPassBeginInfo.renderPass = graphicsPipeline->mRenderPass.get();
     renderPassBeginInfo.framebuffer = framebuffer;
     renderPassBeginInfo.renderArea = renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -39,18 +39,18 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 
     // TODO replace set index with var
     std::vector<vk::DescriptorSet> descriptorSets {
-        graphicsPipeline->GetDescriptorSet(0, frame),
+        graphicsPipeline->mDescriptorSets[0][frame].get(),
     };
 
     commandBuffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
-        graphicsPipeline->GetVulkanPipelineLayout(),
+        graphicsPipeline->mPipelineLayout.get(),
         0,
         static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
         0, nullptr
     );
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->GetVulkanPipeline());
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->mPipeline.get());
 
     return commandBuffer;
 

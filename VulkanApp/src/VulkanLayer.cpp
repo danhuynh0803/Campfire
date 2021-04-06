@@ -106,7 +106,7 @@ void VulkanLayer::OnAttach()
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(CameraUBO),
-                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0, i)
+                    VulkanContext::Get()->GetPipeline()->mDescriptorSets[0][i].get()
                 )
             );
             BufferLayout cameraLayout =
@@ -122,7 +122,7 @@ void VulkanLayer::OnAttach()
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(lights) + sizeof(glm::vec4),
-                    VulkanContext::Get()->GetPipeline()->GetDescriptorSet(0, i)
+                    VulkanContext::Get()->GetPipeline()->mDescriptorSets[0][i].get()
                 )
             );
             BufferLayout lightLayout =
@@ -195,7 +195,7 @@ void VulkanLayer::OnUpdate(float dt)
 
                 mPushConstBlock.model = transformComponent;
                 commandBuffer.pushConstants(
-                    VulkanContext::Get()->GetPipeline()->GetVulkanPipelineLayout(),
+                    VulkanContext::Get()->GetPipeline()->mPipelineLayout.get(),
                     vk::ShaderStageFlagBits::eVertex,
                     0, sizeof(GraphicsPipeline::TransformPushConstBlock),
                     &mPushConstBlock);

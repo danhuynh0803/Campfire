@@ -22,10 +22,10 @@ namespace vk
         auto pipeline = VulkanContext::Get()->GetPipeline();
         // TODO swapchain size
         // TODO use vars for set indices
-        auto layout = std::vector(3, pipeline->GetDescriptorSetLayout(1));
+        auto layout = std::vector(3, pipeline->mDescriptorSetLayouts[1].get());
         auto allocInfo = vk::initializers::
             DescriptorSetAllocateInfo(
-                pipeline->GetDescriptorPool(),
+                pipeline->mDescriptorPool.get(),
                 static_cast<uint32_t>(layout.size()),
                 layout.data()
             );
@@ -98,7 +98,7 @@ namespace vk
             // Bind descriptor of material
             commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
-                pipeline->GetVulkanPipelineLayout(),
+                pipeline->mPipelineLayout.get(),
                 1,
                 1,
                 &submesh.material->descriptorSets[frameIndex].get(),

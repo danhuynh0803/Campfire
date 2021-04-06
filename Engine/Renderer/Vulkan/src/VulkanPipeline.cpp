@@ -110,7 +110,7 @@ GraphicsPipeline::GraphicsPipeline()
     // Setup descriptorlayout and descriptor sets (doesnt have to be part of pipeline creation)
     SetupDescriptors();
 
-    auto descriptorLayouts = ConvertUnique(descriptorSetLayouts);
+    auto descriptorLayouts = ConvertUnique(mDescriptorSetLayouts);
 
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
@@ -125,7 +125,7 @@ GraphicsPipeline::GraphicsPipeline()
     pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
     pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
-    pipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+    mPipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     SetupRenderPass();
 
@@ -147,17 +147,18 @@ GraphicsPipeline::GraphicsPipeline()
     pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
     pipelineCreateInfo.pDynamicState = nullptr;
-    pipelineCreateInfo.layout = pipelineLayout.get();
-    pipelineCreateInfo.renderPass = renderPass.get();
+    pipelineCreateInfo.layout = mPipelineLayout.get();
+    pipelineCreateInfo.renderPass = mRenderPass.get();
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;
 
-    pipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    mPipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
 void GraphicsPipeline::SetupDescriptors()
 {
+    // TODO move this to generic context maybe?
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
     { // Creating descriptor pools
@@ -173,7 +174,7 @@ void GraphicsPipeline::SetupDescriptors()
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
 
-        descriptorPool = device.createDescriptorPoolUnique(poolInfo);
+        mDescriptorPool = device.createDescriptorPoolUnique(poolInfo);
     }
 
     { // UBOs
@@ -199,7 +200,7 @@ void GraphicsPipeline::SetupDescriptors()
             layoutBindings.data());
 
         // Set 0
-        descriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+        mDescriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
    }
 
 
@@ -226,22 +227,25 @@ void GraphicsPipeline::SetupDescriptors()
             layoutBindings.data());
 
         // Set 1
-        descriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+        mDescriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
     }
 
     // DescriptorSets
-    std::vector<vk::DescriptorSetLayout> setLayouts = ConvertUnique(descriptorSetLayouts);
+    std::vector<vk::DescriptorSetLayout> setLayouts = ConvertUnique(mDescriptorSetLayouts);
     const auto swapChainSize = swapChainImages.size();
     for (size_t i = 0; i < setLayouts.size(); ++i)
     {
+        // Create 3 descriptor sets per each unique descriptorSetLayout
+        // TODO: check if we actually need multiple? Would it suffice to just use
+        // the same set per frame?
         std::vector<vk::DescriptorSetLayout> layouts { swapChainSize, setLayouts.at(i) };
         auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-            descriptorPool.get(),
+            mDescriptorPool.get(),
             static_cast<uint32_t>(layouts.size()),
             layouts.data()
         );
 
-        descriptorSets.emplace_back(device.allocateDescriptorSetsUnique(allocInfo));
+        mDescriptorSets.emplace_back(device.allocateDescriptorSetsUnique(allocInfo));
     }
 }
 
@@ -305,7 +309,7 @@ void GraphicsPipeline::SetupRenderPass()
     renderPassCreateInfo.pDependencies = &subpassDependency;
 
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    renderPass = device.createRenderPassUnique(renderPassCreateInfo);
+    mRenderPass = device.createRenderPassUnique(renderPassCreateInfo);
 }
 
 
