@@ -61,8 +61,8 @@ void VulkanLayer::OnAttach()
         ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
     );
 
-    int maxRow = 10;
-    int maxCol = 10;
+    int maxRow = 1;
+    int maxCol = 1;
     int maxWidth = 300;
     int maxLength = 300;
     for (int i = 0; i < maxRow; ++i)
@@ -198,7 +198,7 @@ void VulkanLayer::OnUpdate(float dt)
     //for (size_t i = 0; i < 3; ++i)
     {
         // Render scene and imgui
-        auto commandBuffer = VulkanRenderer::BeginScene();
+        auto commandBuffer = VulkanRenderer::BeginScene(1);
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
             for (auto entity : group)
             {
@@ -220,7 +220,6 @@ void VulkanLayer::OnUpdate(float dt)
             }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
-        }
         VulkanRenderer::EndScene(commandBuffer);
     }
 
