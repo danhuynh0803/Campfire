@@ -19,7 +19,7 @@ namespace vk
     {
         vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(vk::Vertex) * vertices.size());
         indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
-        auto pipeline = VulkanContext::Get()->GetPipeline();
+        auto pipeline = VulkanContext::Get()->GetGraphicsPipeline();
         // TODO swapchain size
         // TODO use vars for set indices
         auto layout = std::vector(3, pipeline->mDescriptorSetLayouts[1].get());
@@ -92,7 +92,7 @@ namespace vk
     void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex)
     {
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-        auto pipeline = VulkanContext::Get()->GetPipeline();
+        auto pipeline = VulkanContext::Get()->GetGraphicsPipeline();
         for (auto& submesh : submeshes)
         {
             // Bind descriptor of material

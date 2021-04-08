@@ -106,7 +106,7 @@ void VulkanLayer::OnAttach()
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(CameraUBO),
-                    VulkanContext::Get()->GetPipeline()->mDescriptorSets[0][i].get()
+                    VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get()
                 )
             );
             BufferLayout cameraLayout =
@@ -122,7 +122,7 @@ void VulkanLayer::OnAttach()
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
                     sizeof(lights) + sizeof(glm::vec4),
-                    VulkanContext::Get()->GetPipeline()->mDescriptorSets[0][i].get()
+                    VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get()
                 )
             );
             BufferLayout lightLayout =
@@ -190,21 +190,18 @@ void VulkanLayer::OnUpdate(float dt)
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
             for (auto entity : group)
             {
-                static int count = 0;
                 auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
 
                 mPushConstBlock.model = transformComponent;
                 commandBuffer.pushConstants(
-                    VulkanContext::Get()->GetPipeline()->mPipelineLayout.get(),
+                    VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
                     vk::ShaderStageFlagBits::eVertex,
-                    0, sizeof(GraphicsPipeline::TransformPushConstBlock),
+                    0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
                     &mPushConstBlock);
 
                 // Draw mesh
                 SharedPtr<vk::VulkanMesh> mesh = meshComponent;
                 mesh->Draw(commandBuffer, frame);
-
-                count++;
             }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);

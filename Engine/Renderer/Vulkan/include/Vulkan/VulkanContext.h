@@ -4,7 +4,8 @@
 #include <vulkan/vulkan.hpp>
 #include "Renderer/Renderer.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanGraphicsPipeline.h"
+#include "Vulkan/VulkanComputePipeline.h"
 #include "Vulkan/VulkanSwapChain.h"
 
 class GLFWwindow;
@@ -31,7 +32,7 @@ public:
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
 
-    SharedPtr<VulkanPipeline> GetPipeline() { return mGraphicsPipeline; }
+    SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline() { return mGraphicsPipeline; }
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
 private:
@@ -44,7 +45,7 @@ private:
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
     SharedPtr<VulkanDevice> mDevice;
-    SharedPtr<VulkanPipeline> mGraphicsPipeline;
-    SharedPtr<VulkanPipeline> mComputePipeline;
+    SharedPtr<VulkanGraphicsPipeline> mGraphicsPipeline;
+    SharedPtr<VulkanComputePipeline> mComputePipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };

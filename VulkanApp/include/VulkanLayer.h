@@ -7,7 +7,7 @@
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanMesh.h"
-#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanGraphicsPipeline.h"
 
 class Scene;
 
@@ -38,7 +38,7 @@ private:
     std::vector<SharedPtr<VulkanTexture2D>> textures;
     Timer timer;
 
-    GraphicsPipeline::TransformPushConstBlock mPushConstBlock;
+    VulkanGraphicsPipeline::TransformPushConstBlock mPushConstBlock;
 
     SharedPtr<Scene> scene;
 };

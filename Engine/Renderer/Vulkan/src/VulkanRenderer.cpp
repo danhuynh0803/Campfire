@@ -4,7 +4,7 @@
 
 vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 {
-    auto graphicsPipeline = VulkanContext::Get()->GetPipeline();
+    auto graphicsPipeline = VulkanContext::Get()->GetGraphicsPipeline();
     auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;

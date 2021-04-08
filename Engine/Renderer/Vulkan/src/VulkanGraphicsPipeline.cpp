@@ -1,4 +1,4 @@
-#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanGraphicsPipeline.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanUtil.h"
@@ -20,32 +20,16 @@ namespace
 
         return layouts;
     }
-}
 
-struct PipelineVertex
-{
-    glm::vec3 pos;
-    glm::vec2 uv;
-    glm::vec3 normal;
-};
-
-SharedPtr<VulkanPipeline> VulkanPipeline::Create(PipelineType type)
-{
-    switch (type)
+    struct PipelineVertex
     {
-        case PipelineType::GRAPHICS:
-            return CreateSharedPtr<GraphicsPipeline>();
-        case PipelineType::COMPUTE:
-            return CreateSharedPtr<ComputePipeline>();
-        default:
-            CORE_ERROR("Invalid PipelineType");
-    }
-
-    CORE_ERROR("Could not create pipeline");
-    return nullptr;
+        glm::vec3 pos;
+        glm::vec2 uv;
+        glm::vec3 normal;
+    };
 }
 
-GraphicsPipeline::GraphicsPipeline()
+VulkanGraphicsPipeline::VulkanGraphicsPipeline()
 {
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
@@ -156,7 +140,7 @@ GraphicsPipeline::GraphicsPipeline()
     mPipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
-void GraphicsPipeline::SetupDescriptors()
+void VulkanGraphicsPipeline::SetupDescriptors()
 {
     // TODO move this to generic context maybe?
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -249,7 +233,7 @@ void GraphicsPipeline::SetupDescriptors()
     }
 }
 
-void GraphicsPipeline::SetupRenderPass()
+void VulkanGraphicsPipeline::SetupRenderPass()
 {
     // Color Attachment
     vk::AttachmentDescription colorAttachment;
@@ -312,21 +296,10 @@ void GraphicsPipeline::SetupRenderPass()
     mRenderPass = device.createRenderPassUnique(renderPassCreateInfo);
 }
 
-
-// FIXME, pretty much the pipeline constructor code
-// but removes the descriptor layout setting which isnt needed when remaking on resize
-// Also causes a crash for some reason when trying to set pipeline layout
-void GraphicsPipeline::RecreatePipeline()
+void VulkanGraphicsPipeline::RecreatePipeline()
 {
+    // TODO
     return;
 }
 
 
-ComputePipeline::ComputePipeline()
-{
-}
-
-void ComputePipeline::RecreatePipeline()
-{
-    return;
-}
