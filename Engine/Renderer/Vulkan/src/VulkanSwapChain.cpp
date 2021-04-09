@@ -208,9 +208,10 @@ void VulkanSwapChain::Present()
 
     auto graphicsQueue = mDevice->GetQueue(QueueFamilyType::GRAPHICS);
     graphicsQueue.submit(submitInfo, inFlightFences[mCurrentFrame].get());
+    graphicsQueue.waitIdle();
 
     // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
-    vk::util::SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
+    vk::util::SwitchImageLayout(swapChainImages.at(mImageIndex), vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::ePresentSrcKHR);
 
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
