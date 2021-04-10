@@ -3,10 +3,13 @@
 ![Windows build](https://github.com/danhuynh0803/Campfire/workflows/Windows%20build/badge.svg)
 
 ## Summary
-Campfire is an in-progress game engine intended for use in small gamejam projects.
+Campfire is an in-progress game engine built using OpenGL and Vulkan. Most of the engine's features are currently disabled, as we work through switching to Vulkan, but are available on the [OpenGL branch](https://github.com/danhuynh0803/Campfire/tree/OpenGL).
 
 ## Sample Images
 ![SampleScene](https://i.imgur.com/XzcOUaC.jpg)
+
+## Dependencies
+Vulkan SDK: [1.2.148.1](https://vulkan.lunarg.com/sdk/home)
 
 ## Build Instructions
 ```bash
