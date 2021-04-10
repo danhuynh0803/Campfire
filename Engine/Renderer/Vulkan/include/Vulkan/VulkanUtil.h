@@ -42,4 +42,8 @@ namespace vk::util {
 
     bool HasStencilComponent(vk::Format format);
 
+    std::vector<vk::DescriptorSetLayout> ConvertUnique(
+        const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
+    );
+
 }

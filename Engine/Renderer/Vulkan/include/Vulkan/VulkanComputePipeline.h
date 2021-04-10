@@ -9,9 +9,11 @@ public:
     ~VulkanComputePipeline() = default;
     void RecreatePipeline();
 
-    std::vector< std::vector<vk::UniqueDescriptorSet> > mDescriptorSets;
-    std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
+    std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
+    vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
     vk::UniqueDescriptorPool mDescriptorPool;
+
+private:
 };

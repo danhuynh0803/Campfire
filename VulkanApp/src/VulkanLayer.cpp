@@ -62,7 +62,7 @@ void VulkanLayer::OnAttach()
     );
 
     int maxCol = 5;
-    int maxWidth = 300;
+    int maxWidth = 250;
     for (int i = 0; i < maxCol; ++i)
     {
         auto l = scene->CreateEntity("light" + std::to_string(i));
@@ -74,6 +74,15 @@ void VulkanLayer::OnAttach()
         l.GetComponent<TransformComponent>().position = position;
         l.AddComponent<LightComponent>();
         l.GetComponent<LightComponent>().intensity = 10.0f;
+
+        float pct = static_cast<float>(i) / maxCol;
+        glm::vec4 color = glm::vec4(
+            pct,
+            1.0f - pct,
+            1.0f,
+            1.0f
+        );
+        l.GetComponent<LightComponent>().color = color;
 
         //auto g = scene->CreateEntity(std::to_string(i));
         //g.GetComponent<TransformComponent>().position = glm::vec3(i*3, j*3, 0.0f);

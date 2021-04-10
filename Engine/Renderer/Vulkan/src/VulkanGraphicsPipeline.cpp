@@ -8,19 +8,6 @@
 
 namespace
 {
-    std::vector<vk::DescriptorSetLayout> ConvertUnique(
-        const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
-    )
-    {
-        std::vector<vk::DescriptorSetLayout> layouts;
-        for (auto& uniqueLayout : uniqueLayouts)
-        {
-            layouts.emplace_back(uniqueLayout.get());
-        }
-
-        return layouts;
-    }
-
     struct PipelineVertex
     {
         glm::vec3 pos;
@@ -94,7 +81,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline()
     // Setup descriptorlayout and descriptor sets (doesnt have to be part of pipeline creation)
     SetupDescriptors();
 
-    auto descriptorLayouts = ConvertUnique(mDescriptorSetLayouts);
+    auto descriptorLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
 
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
@@ -215,7 +202,7 @@ void VulkanGraphicsPipeline::SetupDescriptors()
     }
 
     // DescriptorSets
-    std::vector<vk::DescriptorSetLayout> setLayouts = ConvertUnique(mDescriptorSetLayouts);
+    std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
     const auto swapChainSize = swapChainImages.size();
     for (size_t i = 0; i < setLayouts.size(); ++i)
     {

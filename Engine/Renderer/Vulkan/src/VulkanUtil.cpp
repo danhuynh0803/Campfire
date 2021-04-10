@@ -273,4 +273,18 @@ namespace vk::util
         return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
     }
 
+    std::vector<vk::DescriptorSetLayout> ConvertUnique(
+        const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
+    )
+    {
+        std::vector<vk::DescriptorSetLayout> layouts;
+        for (auto& uniqueLayout : uniqueLayouts)
+        {
+            layouts.emplace_back(uniqueLayout.get());
+        }
+
+        return layouts;
+    }
+
+
 }
