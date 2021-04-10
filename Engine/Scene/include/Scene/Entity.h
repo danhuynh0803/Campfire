@@ -36,7 +36,7 @@ public:
         if (HasComponent<T>())
             return scene->registry.template get<T>(entityHandle);
         else
-            CORE_ERROR("{0} not found", typeid(T).name());
+            AssertFailureHandler<T>();
     }
 
     template <typename T>
@@ -72,4 +72,11 @@ private:
     friend class Scene;
     friend class ScriptableEntity;
     friend class Script;
+    
+    template<typename T>
+    [[noreturn]] void AssertFailureHandler()
+    {
+        CORE_WARN("{0} not found for removal", typeid(T).name());
+        throw std::exception();
+    }
 };
