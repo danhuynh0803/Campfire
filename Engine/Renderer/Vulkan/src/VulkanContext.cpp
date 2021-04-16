@@ -24,7 +24,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
     // TODO pipeline should be with material?
     mGraphicsPipeline = CreateSharedPtr<VulkanGraphicsPipeline>();
-    //mComputePipeline = VulkanPipeline::Create(PipelineType::COMPUTE);
+    mComputePipeline = CreateSharedPtr<VulkanComputePipeline>();
 
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();

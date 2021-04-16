@@ -35,6 +35,8 @@ public:
     SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline() { return mGraphicsPipeline; }
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
+    SharedPtr<VulkanComputePipeline> mComputePipeline;
+
 private:
     vk::UniqueCommandPool mGraphicsCommandPool;
     vk::UniqueCommandPool mComputeCommandPool;
@@ -46,6 +48,5 @@ private:
 
     SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanGraphicsPipeline> mGraphicsPipeline;
-    SharedPtr<VulkanComputePipeline> mComputePipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };
