@@ -31,13 +31,13 @@ public:
     vk::CommandPool GetCommandPool(QueueFamilyType type);
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
+    vk::DescriptorPool GetDescriptorPool() { return mDescriptorPool.get(); }
 
     SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline() { return mGraphicsPipeline; }
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
-    SharedPtr<VulkanComputePipeline> mComputePipeline;
-
 private:
+    vk::UniqueDescriptorPool mDescriptorPool;
     vk::UniqueCommandPool mGraphicsCommandPool;
     vk::UniqueCommandPool mComputeCommandPool;
     vk::UniqueInstance CreateInstance();
@@ -48,5 +48,6 @@ private:
 
     SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanGraphicsPipeline> mGraphicsPipeline;
+    SharedPtr<VulkanComputePipeline> mComputePipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };

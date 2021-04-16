@@ -25,7 +25,7 @@ namespace vk
         auto layout = std::vector(3, pipeline->mDescriptorSetLayouts[1].get());
         auto allocInfo = vk::initializers::
             DescriptorSetAllocateInfo(
-                pipeline->mDescriptorPool.get(),
+                VulkanContext::Get()->GetDescriptorPool(),
                 static_cast<uint32_t>(layout.size()),
                 layout.data()
             );

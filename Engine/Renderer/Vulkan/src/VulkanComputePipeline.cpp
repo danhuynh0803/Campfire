@@ -9,20 +9,6 @@ VulkanComputePipeline::VulkanComputePipeline()
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
-    // TODO just have a single pool
-    { // Creating descriptor pools
-        std::array<vk::DescriptorPoolSize, 1> poolSizes {};
-        poolSizes[0].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-        vk::DescriptorPoolCreateInfo poolInfo;
-        poolInfo.maxSets = 10000 * static_cast<uint32_t>(swapChainImages.size());
-        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        poolInfo.pPoolSizes = poolSizes.data();
-
-        mDescriptorPool = device.createDescriptorPoolUnique(poolInfo);
-    }
-
     std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings = {
         // Bind 0: Input image
         vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
@@ -42,7 +28,7 @@ VulkanComputePipeline::VulkanComputePipeline()
     const auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
     std::vector<vk::DescriptorSetLayout> layouts { swapChainSize, mDescriptorSetLayout.get() };
     auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-        mDescriptorPool.get(),
+        VulkanContext::Get()->GetDescriptorPool(),
         static_cast<uint32_t>(layouts.size()),
         layouts.data());
 

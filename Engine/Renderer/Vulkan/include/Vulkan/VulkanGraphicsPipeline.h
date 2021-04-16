@@ -20,8 +20,6 @@ public:
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
 
-    // Move to context?
-    vk::UniqueDescriptorPool mDescriptorPool;
     // Move elsewhere of pipeline
     vk::UniqueRenderPass mRenderPass;
 private:

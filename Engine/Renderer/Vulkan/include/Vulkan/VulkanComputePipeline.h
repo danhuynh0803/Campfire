@@ -13,7 +13,6 @@ public:
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
-    vk::UniqueDescriptorPool mDescriptorPool;
 
 private:
 };

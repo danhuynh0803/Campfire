@@ -22,6 +22,23 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     );
 
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(window);
+
+    // Creating descriptor pool
+    std::array<vk::DescriptorPoolSize, 3> poolSizes{};
+    poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(mSwapChain->GetImages().size());
+    poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(mSwapChain->GetImages().size());
+    poolSizes[2].type = vk::DescriptorType::eStorageImage;
+    poolSizes[2].descriptorCount = static_cast<uint32_t>(mSwapChain->GetImages().size());
+
+    vk::DescriptorPoolCreateInfo poolInfo;
+    // TODO have poolsize be configurable
+    poolInfo.maxSets = 10000 * static_cast<uint32_t>(mSwapChain->GetImages().size());
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes = poolSizes.data();
+    mDescriptorPool = mDevice->GetVulkanDevice().createDescriptorPoolUnique(poolInfo);
+
     // TODO pipeline should be with material?
     mGraphicsPipeline = CreateSharedPtr<VulkanGraphicsPipeline>();
     mComputePipeline = CreateSharedPtr<VulkanComputePipeline>();

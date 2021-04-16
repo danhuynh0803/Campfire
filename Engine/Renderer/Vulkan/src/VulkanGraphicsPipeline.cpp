@@ -132,21 +132,6 @@ void VulkanGraphicsPipeline::SetupDescriptors()
     // TODO move this to generic context maybe?
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
-    { // Creating descriptor pools
-        std::array<vk::DescriptorPoolSize, 2> poolSizes {};
-        poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-        poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-        vk::DescriptorPoolCreateInfo poolInfo;
-        // TODO have poolsize be configurable
-        poolInfo.maxSets = 10000 * static_cast<uint32_t>(swapChainImages.size());
-        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        poolInfo.pPoolSizes = poolSizes.data();
-
-        mDescriptorPool = device.createDescriptorPoolUnique(poolInfo);
-    }
 
     { // UBOs
         // Camera
@@ -211,7 +196,7 @@ void VulkanGraphicsPipeline::SetupDescriptors()
         // the same set per frame?
         std::vector<vk::DescriptorSetLayout> layouts { swapChainSize, setLayouts.at(i) };
         auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-            mDescriptorPool.get(),
+            VulkanContext::Get()->GetDescriptorPool(),
             static_cast<uint32_t>(layouts.size()),
             layouts.data()
         );
