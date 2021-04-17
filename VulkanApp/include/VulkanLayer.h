@@ -28,7 +28,7 @@ public:
 private:
     void SceneHierarchy(SharedPtr<Scene> scene);
 
-    SharedPtr<vk::VulkanMesh> meshPtr;
+    SharedPtr<VulkanMesh> meshPtr;
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
     SharedPtr<VulkanBuffer> pVertexBuffer;
     SharedPtr<VulkanIndexBuffer> indexBufferPtr;

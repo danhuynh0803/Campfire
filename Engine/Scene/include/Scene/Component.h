@@ -123,11 +123,11 @@ struct VulkanMeshComponent
     VulkanMeshComponent() = default;
     VulkanMeshComponent(const std::string& meshPath)
     {
-        mesh = CreateSharedPtr<vk::VulkanMesh>(meshPath);
+        mesh = CreateSharedPtr<VulkanMesh>(meshPath);
     }
 
-    SharedPtr<vk::VulkanMesh> mesh;
-    operator SharedPtr<vk::VulkanMesh>& () { return mesh; }
+    SharedPtr<VulkanMesh> mesh;
+    operator SharedPtr<VulkanMesh>& () { return mesh; }
     bool isActive = true;
 };
 

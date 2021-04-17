@@ -16,42 +16,18 @@
 
 class MaterialInstance;
 
-struct Vertex
-{
-    glm::vec3 position;
-    glm::vec2 texCoords;
-    glm::vec3 normal;
-    //glm::vec3 tangent;
-    //glm::vec3 binormal;
-};
-
 struct Submesh
 {
-    Submesh(std::vector<Vertex> v, std::vector<uint32_t> i, std::vector<SharedPtr<Texture2D>> t)
-        : vertices(v), indices(i), textures(t)
+    struct Vertex
     {
-        // Load render data
-        vertexArray = VertexArray::Create();
-        vertexArray->Bind();
+        glm::vec3 position;
+        glm::vec2 texCoords;
+        glm::vec3 normal;
+        //glm::vec3 tangent;
+        //glm::vec3 binormal;
+    };
 
-        SharedPtr<VertexBuffer> buffer = VertexBuffer::Create(vertices.data(), vertices.size() * sizeof(Vertex));
-        buffer->Bind();
-
-        BufferLayout layout =
-        {
-            { ShaderDataType::FLOAT3, "aPos" },
-            { ShaderDataType::FLOAT2, "aUV" },
-            { ShaderDataType::FLOAT3, "aNormal" }
-        };
-        buffer->SetLayout(layout);
-
-        SharedPtr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
-        vertexArray->AddVertexBuffer(buffer);
-        vertexArray->SetIndexBuffer(indexBuffer);
-
-        buffer->Unbind();
-        vertexArray->Unbind();
-    }
+    Submesh(std::vector<Vertex> v, std::vector<uint32_t> i, std::vector<SharedPtr<Texture2D>> t);
 
     uint32_t baseVertex;
     uint32_t baseIndex;

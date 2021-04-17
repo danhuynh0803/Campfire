@@ -209,7 +209,7 @@ void VulkanLayer::OnUpdate(float dt)
                     &mPushConstBlock);
 
                 // Draw mesh
-                SharedPtr<vk::VulkanMesh> mesh = meshComponent;
+                SharedPtr<VulkanMesh> mesh = meshComponent;
                 mesh->Draw(commandBuffer, frame);
             }
 
@@ -266,11 +266,11 @@ void VulkanLayer::OnImGuiRender()
         {
             if (ImGui::Button("Load Mesh"))
             {
-                SharedPtr<vk::VulkanMesh> mesh = e.GetComponent<VulkanMeshComponent>();
+                SharedPtr<VulkanMesh> mesh = e.GetComponent<VulkanMeshComponent>();
                 std::string path = FileSystem::OpenFile();
                 if (path.compare("") != 0) // No file selected
                 {
-                    mesh.reset(new vk::VulkanMesh(path));
+                    mesh.reset(new VulkanMesh(path));
                 }
             }
 
