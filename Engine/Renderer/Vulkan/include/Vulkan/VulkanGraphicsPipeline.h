@@ -20,13 +20,12 @@ public:
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
 
-    // Move elsewhere of pipeline
-    vk::UniqueRenderPass mRenderPass;
 private:
     void CreateDescriptorSets();
     void CreateDescriptorPool();
     void SetupDescriptors();
-    void SetupRenderPass();
+
+    vk::Device mDevice;
 };
 
 

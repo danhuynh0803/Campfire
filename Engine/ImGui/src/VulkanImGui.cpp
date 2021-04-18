@@ -409,8 +409,7 @@ void VulkanImGui::InitResources()
     pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStageInfos.size());
     pipelineCreateInfo.pStages = shaderStageInfos.data();
     pipelineCreateInfo.layout = mPipelineLayout.get();
-    pipelineCreateInfo.renderPass = VulkanContext::Get()->GetGraphicsPipeline()->mRenderPass.get();
-    //pipelineCreateInfo.renderPass = mRenderPass.get();
+    pipelineCreateInfo.renderPass = mRenderPass.get();
 
     // Setup vertex bindings
     vk::VertexInputBindingDescription vertexInputBinding = {};

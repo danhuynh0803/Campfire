@@ -3,6 +3,7 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 #include "Renderer/Renderer.h"
+#include "Renderer/FrameGraph.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanGraphicsPipeline.h"
 #include "Vulkan/VulkanComputePipeline.h"
@@ -35,6 +36,8 @@ public:
 
     SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline() { return mGraphicsPipeline; }
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
+
+    FrameGraph mFrameGraph;
 
 private:
     vk::UniqueDescriptorPool mDescriptorPool;

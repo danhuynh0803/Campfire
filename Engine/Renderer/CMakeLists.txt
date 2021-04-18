@@ -19,6 +19,7 @@ set(RENDERER_HEADERS
     include/Renderer/Text.h
     include/Renderer/Texture.h
     include/Renderer/VertexArray.h
+    include/Renderer/FrameGraph.h
 )
 
 set(RENDERER_SRC
@@ -36,6 +37,7 @@ set(RENDERER_SRC
     src/Renderer/Text.cpp
     src/Renderer/Texture.cpp
     src/Renderer/VertexArray.cpp
+    src/Renderer/FrameGraph.cpp
 )
 
 target_sources(

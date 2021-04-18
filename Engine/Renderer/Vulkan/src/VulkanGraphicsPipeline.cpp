@@ -18,10 +18,9 @@ namespace
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline()
 {
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
     // Setup fixed function part of pipeline
-
     // Vertex input
     // Binds = spacing btw data and whether data is per-vertex or per-instance
     // Attribute descriptions = type of the attribs passed to vertex shader,
@@ -96,9 +95,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline()
     pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
     pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
-    mPipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
-
-    SetupRenderPass();
+    mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     // Shaders
     auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(SHADERS + "/vert.spv", vk::ShaderStageFlagBits::eVertex);
@@ -119,18 +116,17 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline()
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
     pipelineCreateInfo.pDynamicState = nullptr;
     pipelineCreateInfo.layout = mPipelineLayout.get();
-    pipelineCreateInfo.renderPass = mRenderPass.get();
+    pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph.mRenderPass.get();
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;
 
-    mPipeline = device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    mPipeline = mDevice.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
 
 void VulkanGraphicsPipeline::SetupDescriptors()
 {
     // TODO move this to generic context maybe?
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
     { // UBOs
@@ -156,7 +152,7 @@ void VulkanGraphicsPipeline::SetupDescriptors()
             layoutBindings.data());
 
         // Set 0
-        mDescriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+        mDescriptorSetLayouts.emplace_back(mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
    }
 
 
@@ -183,7 +179,7 @@ void VulkanGraphicsPipeline::SetupDescriptors()
             layoutBindings.data());
 
         // Set 1
-        mDescriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+        mDescriptorSetLayouts.emplace_back(mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
     }
 
     // DescriptorSets
@@ -201,71 +197,8 @@ void VulkanGraphicsPipeline::SetupDescriptors()
             layouts.data()
         );
 
-        mDescriptorSets.emplace_back(device.allocateDescriptorSetsUnique(allocInfo));
+        mDescriptorSets.emplace_back(mDevice.allocateDescriptorSetsUnique(allocInfo));
     }
-}
-
-void VulkanGraphicsPipeline::SetupRenderPass()
-{
-    // Color Attachment
-    vk::AttachmentDescription colorAttachment;
-    colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
-    colorAttachment.samples = vk::SampleCountFlagBits::e1;
-    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear; // Clear the values to a constant at start
-    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore; // Rendered contents store in memory and can be read later
-    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
-
-    vk::AttachmentReference colorAttachmentRef;
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
-
-    // Depth Attachment
-    vk::AttachmentDescription depthAttachment;
-    depthAttachment.format = vk::util::FindDepthFormat();
-    depthAttachment.samples = vk::SampleCountFlagBits::e1;
-    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-    vk::AttachmentReference depthAttachmentRef;
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-    // Setup subpasses
-    vk::SubpassDescription subpass;
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-    // Setup subpass dependencies
-    vk::SubpassDependency subpassDependency;
-    subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    subpassDependency.dstSubpass = 0;
-    subpassDependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    subpassDependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    subpassDependency.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
-    subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-
-    // Setup render pass
-    std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-    vk::RenderPassCreateInfo renderPassCreateInfo {};
-    renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
-    renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassCreateInfo.pAttachments = attachments.data();
-    renderPassCreateInfo.subpassCount = 1;
-    renderPassCreateInfo.pSubpasses = &subpass;
-    renderPassCreateInfo.dependencyCount = 1;
-    renderPassCreateInfo.pDependencies = &subpassDependency;
-
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    mRenderPass = device.createRenderPassUnique(renderPassCreateInfo);
 }
 
 void VulkanGraphicsPipeline::RecreatePipeline()
