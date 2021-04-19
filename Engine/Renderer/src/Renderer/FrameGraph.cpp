@@ -2,8 +2,10 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanUtil.h"
 
-void FrameGraph::CreateRenderFrameGraph()
+void FrameGraph::CreateOpaque()
 {
+    const std::string label = "opaque";
+
     // Color Attachment
     vk::AttachmentDescription colorAttachment;
     colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
@@ -69,6 +71,12 @@ void FrameGraph::CreateRenderFrameGraph()
     renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
     renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    mRenderPass = device.createRenderPassUnique(renderPassCreateInfo);
+    mRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
+}
+
+void FrameGraph::CreateRenderFrameGraph()
+{
+    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    // Prepare pipelines
+    CreateOpaque();
 }

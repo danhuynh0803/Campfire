@@ -31,7 +31,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
     clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
 
     vk::RenderPassBeginInfo renderPassBeginInfo;
-    renderPassBeginInfo.renderPass = VulkanContext::Get()->mFrameGraph.mRenderPass.get();
+    renderPassBeginInfo.renderPass = VulkanContext::Get()->mFrameGraph.GetRenderPass("opaque");
     renderPassBeginInfo.framebuffer = framebuffer;
     renderPassBeginInfo.renderArea = renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

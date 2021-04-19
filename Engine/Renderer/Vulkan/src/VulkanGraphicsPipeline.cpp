@@ -8,34 +8,71 @@
 
 namespace
 {
-    struct PipelineVertex
+    enum class VertexComponent
+    {
+        Position,
+        UV,
+        Normal
+    };
+
+    struct Vertex
     {
         glm::vec3 pos;
         glm::vec2 uv;
         glm::vec3 normal;
+
+        static vk::PipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo;
+        static vk::VertexInputBindingDescription vertexInputBindingDescription;
+        static std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
+
+        static vk::PipelineVertexInputStateCreateInfo* GetPipelineVertexInputState(const std::vector<VertexComponent>& components)
+        {
+            vertexInputBindingDescription = vk::initializers::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex);
+
+            uint32_t location = 0;
+            for (auto component : components)
+            {
+                vertexInputAttributeDescriptions.push_back(Vertex::InputAttributeDescription(0, location, component));
+                location++;
+            }
+
+            pipelineVertexInputStateCreateInfo = vk::initializers::PipelineVertexInputStateCreateInfo(
+                1, &vertexInputBindingDescription,
+                static_cast<uint32_t>(vertexInputAttributeDescriptions.size()),
+                vertexInputAttributeDescriptions.data()
+            );
+
+            return &pipelineVertexInputStateCreateInfo;
+        }
+
+        static vk::VertexInputAttributeDescription InputAttributeDescription(
+            uint32_t binding,
+            uint32_t location,
+            VertexComponent component
+        )
+        {
+            switch (component)
+            {
+                case VertexComponent::Position:
+                    return vk::initializers::VertexInputAttributeDescription(binding, location, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos));
+                case VertexComponent::UV:
+                    return vk::initializers::VertexInputAttributeDescription(binding, location, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv));
+                case VertexComponent::Normal:
+                    return vk::initializers::VertexInputAttributeDescription(binding, location, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal));
+                default:
+                    CORE_ERROR("No valid Input Attribute for specified component");
+            }
+        }
     };
 }
+
+vk::PipelineVertexInputStateCreateInfo Vertex::pipelineVertexInputStateCreateInfo;
+std::vector<vk::VertexInputAttributeDescription> Vertex::vertexInputAttributeDescriptions;
+vk::VertexInputBindingDescription Vertex::vertexInputBindingDescription;
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline()
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-
-    // Setup fixed function part of pipeline
-    // Vertex input
-    // Binds = spacing btw data and whether data is per-vertex or per-instance
-    // Attribute descriptions = type of the attribs passed to vertex shader,
-    // including which binding to load them from and at which offset
-    auto bindingDescription = vk::initializers::VertexInputBindingDescription(0, sizeof(PipelineVertex), vk::VertexInputRate::eVertex);
-
-    std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
-    attributeDescriptions[0] = vk::initializers::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, pos));
-    attributeDescriptions[1] = vk::initializers::VertexInputAttributeDescription(0, 1, vk::Format::eR32G32Sfloat, offsetof(PipelineVertex, uv));
-    attributeDescriptions[2] = vk::initializers::VertexInputAttributeDescription(0, 2, vk::Format::eR32G32B32Sfloat, offsetof(PipelineVertex, normal));
-
-    auto vertexInputStateCreateInfo = vk::initializers::PipelineVertexInputStateCreateInfo(
-        1, &bindingDescription,
-        static_cast<uint32_t>(attributeDescriptions.size()), attributeDescriptions.data()
-    );
 
     // Input assembly
     auto inputAssemblyStateCreateInfo = vk::initializers::PipelineInputAssemblyStateCreateInfo(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
@@ -66,16 +103,9 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline()
     auto colorBlendState = vk::initializers::PipelineColorBlendStateCreateInfo(1, &colorBlendAttachment);
 
     // Setup dynamic state - these can be changed without recreating the pipeline
-    std::vector<vk::DynamicState> dynamicStates =
-    {
-        vk::DynamicState::eViewport,
-        vk::DynamicState::eLineWidth,
-    };
+    std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eLineWidth };
 
-    auto dynamicState = vk::initializers::PipelineDynamicStateCreateInfo(
-        static_cast<uint32_t>(dynamicStates.size()),
-        dynamicStates.data()
-    );
+    auto dynamicState = vk::initializers::PipelineDynamicStateCreateInfo(static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
 
     // Setup descriptorlayout and descriptor sets (doesnt have to be part of pipeline creation)
     SetupDescriptors();
@@ -107,7 +137,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline()
     pipelineCreateInfo.flags = vk::PipelineCreateFlags();
     pipelineCreateInfo.stageCount = 2;
     pipelineCreateInfo.pStages = shaderStages;
-    pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
+    pipelineCreateInfo.pVertexInputState = Vertex::GetPipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
     pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
     pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
@@ -116,7 +146,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline()
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
     pipelineCreateInfo.pDynamicState = nullptr;
     pipelineCreateInfo.layout = mPipelineLayout.get();
-    pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph.mRenderPass.get();
+    pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph.GetRenderPass("opaque");
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;

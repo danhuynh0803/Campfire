@@ -245,7 +245,7 @@ void VulkanSwapChain::CreateFramebuffers()
 
         vk::FramebufferCreateInfo framebufferCreateInfo;
         framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
-        framebufferCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph.mRenderPass.get();
+        framebufferCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph.GetRenderPass("opaque");
         framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferCreateInfo.pAttachments = attachments.data();
         framebufferCreateInfo.width = swapChainExtent.width;
