@@ -11,6 +11,65 @@ void VulkanTexture2D::SetData(void* data, uint32_t size)
 {
 }
 
+VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
+    : mWidth(width), mHeight(height)
+{
+    // TODO aspectMask and format should be parameterized in api
+    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
+    vk::DeviceSize imageSize = width * height * 4;
+
+    // Create image
+    mImage = vk::util::CreateUniqueImage(
+        static_cast<uint32_t>(width),
+        static_cast<uint32_t>(height),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled
+    );
+
+    // Create image memory
+    mImageMemory = vk::util::CreateUniqueDeviceMemory(
+        mImage.get(),
+        vk::MemoryPropertyFlagBits::eDeviceLocal
+    );
+    mDevice.bindImageMemory(mImage.get(), mImageMemory.get(), 0);
+
+    // Transition image layout
+    vk::util::SwitchImageLayout(
+        mImage.get(),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageLayout::eUndefined,
+        vk::ImageLayout::eGeneral
+    );
+
+    // Create sampler
+    vk::SamplerCreateInfo samplerInfo {};
+    samplerInfo.magFilter = vk::Filter::eLinear;
+    samplerInfo.minFilter = vk::Filter::eLinear;
+    samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+    samplerInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+    samplerInfo.maxAnisotropy = 1.0f;
+    samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    samplerInfo.unnormalizedCoordinates = false;
+    samplerInfo.compareEnable = false;
+    samplerInfo.compareOp = vk::CompareOp::eNever;
+
+    mSampler = mDevice.createSamplerUnique(samplerInfo);
+
+    // Create ImageView
+    mImageView = vk::util::CreateUniqueImageView(
+        mImage.get(),
+        vk::Format::eR8G8B8A8Srgb,
+        vk::ImageAspectFlagBits::eColor
+    );
+}
+
 VulkanTexture2D::VulkanTexture2D(const std::string& path)
     : mFilePath(path)
 {

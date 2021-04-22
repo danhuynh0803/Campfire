@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include "Vulkan/VulkanTexture.h"
 
 class VulkanComputePipeline
 {
@@ -13,6 +14,13 @@ public:
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
+    std::vector<vk::UniqueCommandBuffer> mCmdBuffers;
+
+    // TODO use textures to generate descriptors maybe?
+    // so that the process of adding attachments can be
+    // streamlined a bit more
+    SharedPtr<VulkanTexture2D> mTexture;
 
 private:
+    vk::Device mDevice;
 };

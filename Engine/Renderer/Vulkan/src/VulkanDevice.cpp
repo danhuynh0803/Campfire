@@ -11,6 +11,7 @@ VulkanDevice::VulkanDevice()
 
     graphicsQueue = device->getQueue(graphicsQueueFamilyIndex, 0);
     presentQueue = device->getQueue(presentQueueFamilyIndex, 0);
+    computeQueue = device->getQueue(computeQueueFamilyIndex, 0);
 }
 
 vk::PhysicalDevice VulkanDevice::SelectPhysicalDevice()

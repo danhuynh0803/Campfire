@@ -27,6 +27,7 @@ public:
 
 private:
     void SceneHierarchy(SharedPtr<Scene> scene);
+    void SetupModelsScene();
 
     SharedPtr<VulkanMesh> meshPtr;
     SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
@@ -41,4 +42,8 @@ private:
     VulkanGraphicsPipeline::TransformPushConstBlock mPushConstBlock;
 
     SharedPtr<Scene> scene;
+
+    vk::UniqueFence computeFence;
+
+    vk::Device mDevice;
 };

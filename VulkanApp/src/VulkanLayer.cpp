@@ -46,14 +46,14 @@ std::array<Light, maxNumLights> lights;
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
 {
+    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 }
 
 Entity e;
 
-void VulkanLayer::OnAttach()
+void VulkanLayer::SetupModelsScene()
 {
     // initial scene
-    scene = CreateSharedPtr<Scene>();
     e = scene->CreateEntity("Environment");
     e.GetComponent<TransformComponent>().position = glm::vec3(0.0f);
     e.GetComponent<TransformComponent>().scale = glm::vec3(.1f, .1f, .1f);
@@ -83,20 +83,13 @@ void VulkanLayer::OnAttach()
             1.0f
         );
         l.GetComponent<LightComponent>().color = color;
-
-        //auto g = scene->CreateEntity(std::to_string(i));
-        //g.GetComponent<TransformComponent>().position = glm::vec3(i*3, j*3, 0.0f);
-        ////g.GetComponent<TransformComponent>().scale = glm::vec3(0.001f, 0.001f, 0.001f);
-        //g.AddComponent<VulkanMeshComponent>(
-        //    //ASSETS + "/Models/primitives/sphere.fbx"
-        //    //ASSETS + "/Models/ganon/scene.gltf"
-        //    //ASSETS + "/Models/cyborg/cyborg.obj"
-        //    //ASSETS + "/Models/nanosuit/nanosuit.obj"
-        //    ASSETS + "/Models/helmet/scene.gltf"
-        //    //ASSETS + "/Models/Avocado/glTF/Avocado.gltf"
-        //    //ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
-        //);
     }
+}
+
+void VulkanLayer::OnAttach()
+{
+    scene = CreateSharedPtr<Scene>();
+    SetupModelsScene();
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
@@ -144,6 +137,13 @@ void VulkanLayer::OnAttach()
             lightUBOs[i]->SetLayout(1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4));
         }
     }
+
+    auto& computeTex = VulkanContext::Get()->mComputePipeline->mTexture;
+    //computeTex->updateDescriptorSets(
+
+    vk::FenceCreateInfo fenceInfo;
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    computeFence = mDevice.createFenceUnique(fenceInfo);
 }
 
 void VulkanLayer::OnDetach()
@@ -188,9 +188,23 @@ void VulkanLayer::OnUpdate(float dt)
 
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
+    // TODO this should be called from the application loop
     vkImguiLayer->Begin();
     OnImGuiRender();
     vkImguiLayer->End();
+
+    // Submit compute command
+    vk::SubmitInfo computeSubmitInfo {};
+    computeSubmitInfo.commandBufferCount = 1;
+    computeSubmitInfo.pCommandBuffers = &VulkanContext::Get()->mComputePipeline->mCmdBuffers.at(0).get();
+
+    mDevice.waitForFences(computeFence.get(), VK_TRUE, UINT64_MAX);
+    mDevice.resetFences(computeFence.get());
+    auto computeQueue = VulkanContext::Get()->GetDevice()->GetQueue(QueueFamilyType::COMPUTE);
+    computeQueue.submit(computeSubmitInfo, computeFence.get());
+
+    // TODO add image barrier from compute to fragment
+
 
     for (size_t frame = 0; frame < 3; ++frame)
     {
@@ -209,8 +223,7 @@ void VulkanLayer::OnUpdate(float dt)
                     &mPushConstBlock);
 
                 // Draw mesh
-                SharedPtr<VulkanMesh> mesh = meshComponent;
-                mesh->Draw(commandBuffer, frame);
+                meshComponent.mesh->Draw(commandBuffer, frame);
             }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);

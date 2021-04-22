@@ -24,6 +24,7 @@ public:
     vk::Sampler GetSampler() { return mSampler.get(); }
 
 private:
+    vk::Device mDevice;
     uint32_t mWidth, mHeight;
     vk::UniqueImage mImage;
     vk::UniqueDeviceMemory mImageMemory;

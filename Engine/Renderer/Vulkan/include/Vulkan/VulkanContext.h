@@ -38,6 +38,7 @@ public:
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
     FrameGraph mFrameGraph;
+    SharedPtr<VulkanComputePipeline> mComputePipeline;
 
 private:
     vk::UniqueDescriptorPool mDescriptorPool;
@@ -51,6 +52,5 @@ private:
 
     SharedPtr<VulkanDevice> mDevice;
     SharedPtr<VulkanGraphicsPipeline> mGraphicsPipeline;
-    SharedPtr<VulkanComputePipeline> mComputePipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };
