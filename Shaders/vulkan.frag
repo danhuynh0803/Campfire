@@ -31,11 +31,9 @@ float quadratic = 0.032f;
 
 // =========================================
 layout (set = 1, binding = 0) uniform sampler2D uComputeResolve;
-layout (set = 1, binding = 1) uniform sampler2D uBlank;
 
 // =========================================
 void main()
 {
-    vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
-    outColor = texture(uComputeResolve, uv);
+    outColor = texture(uComputeResolve, inUV);
 }

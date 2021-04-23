@@ -187,7 +187,7 @@ void VulkanGraphicsPipeline::SetupDescriptors()
 
 
     { // Material descriptors
-        // Albedo map
+        // Albedo map (or computeResolve)
         auto albedo = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
@@ -201,7 +201,7 @@ void VulkanGraphicsPipeline::SetupDescriptors()
 
         std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
             albedo,
-            normal,
+            //normal,
         };
 
         auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(

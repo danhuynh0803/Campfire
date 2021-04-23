@@ -5,7 +5,8 @@ layout (binding = 0, rgba8) uniform writeonly image2D outputImage;
 
 void main()
 {
+    vec2 uv = vec2(gl_GlobalInvocationID.xy) / imageSize(outputImage);
     //vec3 rgb = imageLoad(inputImage, ivec2(gl_GlobalInvocationID.xy)).rgb;
     //vec3 invert = vec3(1.0f) - rgb;
-    imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), vec4(1, 0, 0, 1));
+    imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), vec4(uv, 0, 1));
 }

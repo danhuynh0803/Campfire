@@ -15,6 +15,7 @@ public:
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
     std::vector<vk::UniqueCommandBuffer> mCmdBuffers;
+    vk::DescriptorImageInfo mDescriptorImageInfo;
 
     // TODO use textures to generate descriptors maybe?
     // so that the process of adding attachments can be

@@ -25,7 +25,8 @@ layout (push_constant) uniform PushConstants {
 // =========================================
 void main()
 {
-    gl_Position = camera.viewProj * pushConstants.model * vec4(aPos, 1.0);
+    //gl_Position = camera.viewProj * pushConstants.model * vec4(aPos, 1.0);
+    gl_Position = vec4(aPos.x, -aPos.y, aPos.z, 1.0);
 
     outPos = vec3(pushConstants.model * vec4(aPos, 1.0f));
     outUV = aUV;

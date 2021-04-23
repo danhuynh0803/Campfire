@@ -49,47 +49,9 @@ VulkanLayer::VulkanLayer()
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 }
 
-Entity e;
-
-void VulkanLayer::SetupModelsScene()
-{
-    // initial scene
-    e = scene->CreateEntity("Environment");
-    e.GetComponent<TransformComponent>().position = glm::vec3(0.0f);
-    e.GetComponent<TransformComponent>().scale = glm::vec3(.1f, .1f, .1f);
-    e.AddComponent<VulkanMeshComponent>(
-        ASSETS + "/Models/Sponza/glTF/Sponza.gltf"
-    );
-
-    int maxCol = 5;
-    int maxWidth = 250;
-    for (int i = 0; i < maxCol; ++i)
-    {
-        auto l = scene->CreateEntity("light" + std::to_string(i));
-        glm::vec3 position(
-            -maxWidth/2.0f + static_cast<float>(maxWidth)/maxCol * i,
-             10.0f,
-             0.0f
-        );
-        l.GetComponent<TransformComponent>().position = position;
-        l.AddComponent<LightComponent>();
-        l.GetComponent<LightComponent>().intensity = 10.0f;
-
-        float pct = static_cast<float>(i) / maxCol;
-        glm::vec4 color = glm::vec4(
-            pct,
-            1.0f - pct,
-            1.0f,
-            1.0f
-        );
-        l.GetComponent<LightComponent>().color = color;
-    }
-}
-
 void VulkanLayer::OnAttach()
 {
     scene = CreateSharedPtr<Scene>();
-    SetupModelsScene();
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
@@ -100,6 +62,23 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 10.0f), // position
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
+
+    float vertices[] =
+    {
+        -1.0f,  1.0f, 0.0f,     0, 1,   0, 0, 0,
+        -1.0f, -1.0f, 0.0f,     0, 0,   0, 0, 0,
+         1.0f, -1.0f, 0.0f,     1, 0,   0, 0, 0,
+         1.0f,  1.0f, 0.0f,     1, 1,   0, 0, 0,
+    };
+
+    uint32_t indices[] =
+    {
+        0, 1, 2,
+        2, 3, 0,
+    };
+
+    vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
+    indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
@@ -138,8 +117,19 @@ void VulkanLayer::OnAttach()
         }
     }
 
-    auto& computeTex = VulkanContext::Get()->mComputePipeline->mTexture;
-    //computeTex->updateDescriptorSets(
+    auto graphicsPipeline = VulkanContext::Get()->GetGraphicsPipeline();
+    auto computePipeline = VulkanContext::Get()->mComputePipeline;
+
+    // Update post compute graphics descriptorset that reads in the processed image
+    vk::WriteDescriptorSet writeInfo {};
+    writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
+    writeInfo.dstBinding = 0;
+    writeInfo.dstArrayElement = 0;
+    writeInfo.descriptorCount = 1;
+    writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
+
+    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
 
     vk::FenceCreateInfo fenceInfo;
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
@@ -205,26 +195,45 @@ void VulkanLayer::OnUpdate(float dt)
 
     // TODO add image barrier from compute to fragment
 
-
     for (size_t frame = 0; frame < 3; ++frame)
     {
         auto commandBuffer = VulkanRenderer::BeginScene(frame);
         {
-            auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
-            for (auto entity : group)
-            {
-                auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
+            //auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
+            //for (auto entity : group)
+            //{
+            //    auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
 
-                mPushConstBlock.model = transformComponent;
-                commandBuffer.pushConstants(
-                    VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
-                    vk::ShaderStageFlagBits::eVertex,
-                    0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
-                    &mPushConstBlock);
+            //    mPushConstBlock.model = transformComponent;
+            //    commandBuffer.pushConstants(
+            //        VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
+            //        vk::ShaderStageFlagBits::eVertex,
+            //        0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
+            //        &mPushConstBlock);
 
-                // Draw mesh
-                meshComponent.mesh->Draw(commandBuffer, frame);
-            }
+            //    // Draw mesh
+            //    meshComponent.mesh->Draw(commandBuffer, frame);
+            //}
+
+            mPushConstBlock.model = glm::mat4(1.0f);
+            commandBuffer.pushConstants(
+                VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
+                vk::ShaderStageFlagBits::eVertex,
+                0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
+                &mPushConstBlock
+            );
+
+            commandBuffer.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
+                1,
+                1,
+                &VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[1][0].get(),
+                0,
+                nullptr
+            );
+
+            VulkanRenderer::DrawIndexed(commandBuffer, vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), indexBufferPtr->GetCount());
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
         }
@@ -251,45 +260,6 @@ void VulkanLayer::OnImGuiRender()
     ImGui::End();
 
     ImGui::Begin("Controls");
-
-    ImGui::Separator();
-
-    // TODO display all entities in registry
-    if (e.HasComponent<TransformComponent>())
-    {
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Transform"))
-        {
-            auto& transform = e.GetComponent<TransformComponent>();
-
-            ImGui::DragFloat3("Position", (float*)&transform.position, 0.01f);
-            ImGui::DragFloat3("Rotation", (float*)&transform.euler, 0.01f);
-            ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.01f);
-
-            ImGui::TreePop();
-        }
-        ImGui::Separator();
-
-    }
-
-    if (e.HasComponent<VulkanMeshComponent>())
-    {
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if (ImGui::TreeNode("Mesh"))
-        {
-            if (ImGui::Button("Load Mesh"))
-            {
-                SharedPtr<VulkanMesh> mesh = e.GetComponent<VulkanMeshComponent>();
-                std::string path = FileSystem::OpenFile();
-                if (path.compare("") != 0) // No file selected
-                {
-                    mesh.reset(new VulkanMesh(path));
-                }
-            }
-
-            ImGui::TreePop();
-        }
-    }
 
     ImGui::Separator();
 

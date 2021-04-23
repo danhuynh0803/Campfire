@@ -48,10 +48,9 @@ VulkanComputePipeline::VulkanComputePipeline()
     mTexture = CreateSharedPtr<VulkanTexture2D>(1920, 1080);
 
     // Update descriptorSet with image
-    vk::DescriptorImageInfo imageInfo {};
-    imageInfo.imageLayout = vk::ImageLayout::eGeneral;
-    imageInfo.imageView = mTexture->GetImageView();
-    imageInfo.sampler = mTexture->GetSampler();
+    mDescriptorImageInfo.imageLayout = vk::ImageLayout::eGeneral;
+    mDescriptorImageInfo.imageView = mTexture->GetImageView();
+    mDescriptorImageInfo.sampler = mTexture->GetSampler();
 
     vk::WriteDescriptorSet descriptorWrite {};
     descriptorWrite.dstSet = mDescriptorSets.at(0).get();
@@ -59,7 +58,7 @@ VulkanComputePipeline::VulkanComputePipeline()
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = vk::DescriptorType::eStorageImage;
     descriptorWrite.descriptorCount = 1;
-    descriptorWrite.pImageInfo = &imageInfo;
+    descriptorWrite.pImageInfo = &mDescriptorImageInfo;
 
     mDevice.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 

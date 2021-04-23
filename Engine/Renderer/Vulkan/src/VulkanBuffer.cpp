@@ -80,6 +80,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(void* vertices, uint32_t size)
 //------------------------- Index Buffers -----------------------------
 //=====================================================================
 VulkanIndexBuffer::VulkanIndexBuffer(void* indices, uint32_t count)
+    : mCount(count)
 {
     vk::UniqueBuffer stagingBuffer;
     vk::UniqueDeviceMemory stagingBufferMemory;
