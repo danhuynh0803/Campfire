@@ -106,8 +106,7 @@ VulkanIndexBuffer::VulkanIndexBuffer(void* indices, uint32_t count)
 //=====================================================================
 //------------------------- Uniform Buffers ---------------------------
 //=====================================================================
-VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size, vk::DescriptorSet descriptorSet)
-    : mDescriptorSet(descriptorSet)
+VulkanUniformBuffer::VulkanUniformBuffer(uint32_t size)
 {
     vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eUniformBuffer;
     vk::MemoryPropertyFlags memoryProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
@@ -131,6 +130,26 @@ void VulkanUniformBuffer::SetData(void* inputData, uint32_t offset, uint32_t siz
     device.unmapMemory(bufferMemory.get());
 }
 
+void VulkanUniformBuffer::SetLayout(vk::DescriptorSet dstSet, uint32_t blockIndex, uint32_t size)
+{
+    vk::DescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = GetBuffer();
+    bufferInfo.offset = 0;
+    bufferInfo.range = size;
+
+    vk::WriteDescriptorSet descriptorWrite{};
+    descriptorWrite.dstSet = dstSet;
+    descriptorWrite.dstBinding = blockIndex;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+}
+
+// TODO: Rewrite to still wrap around vulkan and gl calls
+// or just prioritize vulkan and rewrite the opengl side to match the api?
 void VulkanUniformBuffer::SetLayout(uint32_t blockIndex, uint32_t size)
 {
     vk::DescriptorBufferInfo bufferInfo{};
@@ -143,6 +162,27 @@ void VulkanUniformBuffer::SetLayout(uint32_t blockIndex, uint32_t size)
     descriptorWrite.dstBinding = blockIndex;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+}
+
+void VulkanUniformBuffer::SetLayout(vk::DescriptorSet dstSet, const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
+{
+    vk::DescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = GetBuffer();
+    bufferInfo.offset = 0;
+    // TODO refactor use of count since it can also be count of descriptors
+    bufferInfo.range = layout.GetStride() * count;
+
+    vk::WriteDescriptorSet descriptorWrite{};
+    descriptorWrite.dstSet = dstSet;
+    descriptorWrite.dstBinding = blockIndex;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+    // count in this use case is for arrays of data
+    //descriptorWrite.descriptorCount = count;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 

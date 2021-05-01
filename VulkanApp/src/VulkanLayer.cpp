@@ -86,26 +86,35 @@ void VulkanLayer::OnAttach()
         { // Create camera UBOs
             cameraUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(CameraUBO),
-                    VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get()
+                    sizeof(CameraUBO)
                 )
             );
+
             BufferLayout cameraLayout =
             {
                 { ShaderDataType::MAT4, "view" },
                 { ShaderDataType::MAT4, "proj" },
                 { ShaderDataType::MAT4, "viewProj" },
             };
-            cameraUBOs[i]->SetLayout(cameraLayout, 0);
+
+            cameraUBOs[i]->SetLayout(
+                VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get(),
+                cameraLayout, 0
+            );
+
+            cameraUBOs[i]->SetLayout(
+                VulkanContext::Get()->mComputePipeline->mDescriptorSets[i].get(),
+                cameraLayout, 1
+            );
         }
 
         { // Create Light UBOs
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(lights) + sizeof(glm::vec4),
-                    VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get()
+                    sizeof(lights) + sizeof(glm::vec4)
                 )
             );
+
             BufferLayout lightLayout =
             {
                 { ShaderDataType::FLOAT4, "pos" },
@@ -113,7 +122,16 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::FLOAT3, "dir" },
                 { ShaderDataType::FLOAT, "intensity" },
             };
-            lightUBOs[i]->SetLayout(1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4));
+
+            lightUBOs[i]->SetLayout(
+                VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get(),
+                1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
+            );
+
+            lightUBOs[i]->SetLayout(
+                VulkanContext::Get()->mComputePipeline->mDescriptorSets[i].get(),
+                lightLayout, 2
+            );
         }
     }
 
