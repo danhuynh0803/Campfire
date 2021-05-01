@@ -10,10 +10,16 @@ VulkanComputePipeline::VulkanComputePipeline()
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
     std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings = {
-        // Bind 0: Input image
-        //vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
-        // Bind 1: Output image
+        // Bind 0: Output image
         vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
+        // Bind 1: Camera
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1),
+        // Bind 2: Lights
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 2),
+        // Bind 3: Spheres
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 3),
+        // Bind 4: Planes
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 4),
     };
 
     auto setLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
@@ -67,17 +73,6 @@ VulkanComputePipeline::VulkanComputePipeline()
     cmdBufAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
     cmdBufAllocateInfo.commandBufferCount = 1;
     mCmdBuffers = mDevice.allocateCommandBuffersUnique(cmdBufAllocateInfo);
-
-    // Create command buffer and dispatch command
-    vk::CommandBufferBeginInfo cmdBufferInfo {};
-    auto& cmdBuffer = mCmdBuffers.at(0);
-    cmdBuffer->begin(cmdBufferInfo);
-    cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline.get());
-    cmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, mPipelineLayout.get(), 0, 1, &mDescriptorSets.at(0).get(), 0, 0);
-
-    cmdBuffer->dispatch(mTexture->GetWidth() / 16, mTexture->GetHeight() / 16, 1);
-
-    cmdBuffer->end();
 }
 
 void VulkanComputePipeline::RecreatePipeline()

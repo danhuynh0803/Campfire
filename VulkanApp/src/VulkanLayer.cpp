@@ -183,6 +183,16 @@ void VulkanLayer::OnUpdate(float dt)
     OnImGuiRender();
     vkImguiLayer->End();
 
+    auto computePipeline = VulkanContext::Get()->mComputePipeline;
+    vk::CommandBufferBeginInfo cmdBufferInfo{};
+    auto& cmdBuffer = computePipeline->mCmdBuffers.at(0);
+    // Dispatch compute command
+    cmdBuffer->begin(cmdBufferInfo);
+    cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
+    cmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, computePipeline->mPipelineLayout.get(), 0, 1, &computePipeline->mDescriptorSets.at(0).get(), 0, 0);
+    cmdBuffer->dispatch(computePipeline->mTexture->GetWidth() / 16, computePipeline->mTexture->GetHeight() / 16, 1);
+    cmdBuffer->end();
+
     // Submit compute command
     vk::SubmitInfo computeSubmitInfo {};
     computeSubmitInfo.commandBufferCount = 1;
