@@ -59,11 +59,28 @@ layout (std140, binding = 4) buffer Planes
     Plane planes[];
 };
 
+vec3 RenderScene(in vec2 uv)
+{
+    float separator = 1.0f / spheres.length();
+
+    for (int i = 0; i < spheres.length(); ++i)
+    {
+        if (uv.x < (i+1)*separator)
+        {
+            return spheres[i].diffuse;
+        }
+    }
+
+    return vec3(1.0f, 0.0f, 1.0f);
+}
+
 // =========================================
 void main()
 {
     ivec2 dim = imageSize(resultImage);
     vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
 
-    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(uv, 0.0, 0.0));
+    //imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(uv, 0.0, 0.0));
+    vec3 color = RenderScene(uv);
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
 }

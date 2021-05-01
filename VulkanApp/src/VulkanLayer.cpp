@@ -111,23 +111,17 @@ void VulkanLayer::OnAttach()
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
     int id = 0;
-    spheres.push_back({
-        glm::vec3(0, 0, -5),
-        1,
-        glm::vec3(0, 1, 1),
-        32,
-        id++,
-        glm::vec3(0.0f)
-    });
+    spheres = {
+        { glm::vec3(0, 0, -5), 1, glm::vec3(1, 0, 0), 32, id++, glm::vec3(0.0f) },
+        { glm::vec3(0, 0, -5), 1, glm::vec3(0, 1, 0), 32, id++, glm::vec3(0.0f) },
+        { glm::vec3(0, 0, -5), 1, glm::vec3(0, 0, 1), 32, id++, glm::vec3(0.0f) },
+        { glm::vec3(0, 0, -5), 1, glm::vec3(0, 1, 1), 32, id++, glm::vec3(0.0f) },
+        { glm::vec3(0, 0, -5), 1, glm::vec3(1, 0, 1), 32, id++, glm::vec3(0.0f) },
+    };
 
-    planes.push_back({
-        glm::vec3(0, 0, -7),
-        5,
-        glm::vec3(0, 0, 1),
-        32,
-        id++,
-        glm::vec3(0.0f)
-    });
+    planes = {
+        { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, id++, glm::vec3(0.0f) },
+    };
 
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
@@ -194,12 +188,12 @@ void VulkanLayer::OnAttach()
         sphereSSBO = CreateSharedPtr<VulkanBuffer>(
             vk::BufferUsageFlagBits::eStorageBuffer,
             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-            sizeof(spheres),
+            spheres.size() * sizeof(Sphere),
             vk::SharingMode::eExclusive
         );
 
         void* data = sphereSSBO->Map();
-        memcpy(data, spheres.data(), sizeof(spheres));
+        memcpy(data, spheres.data(), spheres.size() * sizeof(Sphere));
 
         // Update DescriptorSet
         vk::DescriptorBufferInfo bufferInfo {};
@@ -222,12 +216,12 @@ void VulkanLayer::OnAttach()
         planeSSBO = CreateSharedPtr<VulkanBuffer>(
             vk::BufferUsageFlagBits::eStorageBuffer,
             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-            sizeof(planes),
+            planes.size() * sizeof(Plane),
             vk::SharingMode::eExclusive
         );
 
         void* data = planeSSBO->Map();
-        memcpy(data, planes.data(), sizeof(planes));
+        memcpy(data, planes.data(), planes.size() * sizeof(Plane));
 
         // Update DescriptorSet
         vk::DescriptorBufferInfo bufferInfo {};
