@@ -25,6 +25,7 @@ static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
 
+//========================================================
 struct CameraUBO
 {
     glm::mat4 view;
@@ -33,6 +34,7 @@ struct CameraUBO
 };
 static CameraUBO cameraUBO;
 
+//========================================================
 struct Light
 {
     glm::vec4 pos;
@@ -43,6 +45,33 @@ struct Light
 const int maxNumLights = 100;
 std::array<Light, maxNumLights> lights;
 
+//========================================================
+struct Sphere
+{
+    glm::vec3 pos;
+    float radius;
+    glm::vec3 diffuse;
+    float specular;
+    int id;
+    glm::vec3 padding;
+};
+std::vector<Sphere> spheres;
+SharedPtr<VulkanBuffer> sphereSSBO;
+
+//========================================================
+struct Plane
+{
+    glm::vec3 normal;
+    float distance;
+    glm::vec3 diffuse;
+    float specular;
+    int id;
+    glm::vec3 padding;
+};
+std::vector<Plane> planes;
+SharedPtr<VulkanBuffer> planeSSBO;
+
+//========================================================
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
 {
@@ -63,6 +92,7 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
+    // TODO replace with just one triangle for projection quad
     float vertices[] =
     {
         -1.0f,  1.0f, 0.0f,     0, 1,   0, 0, 0,
@@ -79,6 +109,25 @@ void VulkanLayer::OnAttach()
 
     vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
+
+    int id = 0;
+    spheres.push_back({
+        glm::vec3(0, 0, -5),
+        1,
+        glm::vec3(0, 1, 1),
+        32,
+        id++,
+        glm::vec3(0.0f)
+    });
+
+    planes.push_back({
+        glm::vec3(0, 0, -7),
+        5,
+        glm::vec3(0, 0, 1),
+        32,
+        id++,
+        glm::vec3(0.0f)
+    });
 
     // TODO match with swapchainImages size
     for (size_t i = 0; i < 3; ++i)
@@ -97,12 +146,12 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::MAT4, "viewProj" },
             };
 
-            cameraUBOs[i]->SetLayout(
+            cameraUBOs[i]->UpdateDescriptorSet(
                 VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get(),
                 cameraLayout, 0
             );
 
-            cameraUBOs[i]->SetLayout(
+            cameraUBOs[i]->UpdateDescriptorSet(
                 VulkanContext::Get()->mComputePipeline->mDescriptorSets[i].get(),
                 cameraLayout, 1
             );
@@ -123,12 +172,12 @@ void VulkanLayer::OnAttach()
                 { ShaderDataType::FLOAT, "intensity" },
             };
 
-            lightUBOs[i]->SetLayout(
+            lightUBOs[i]->UpdateDescriptorSet(
                 VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get(),
                 1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
             );
 
-            lightUBOs[i]->SetLayout(
+            lightUBOs[i]->UpdateDescriptorSet(
                 VulkanContext::Get()->mComputePipeline->mDescriptorSets[i].get(),
                 lightLayout, 2
             );
@@ -137,6 +186,65 @@ void VulkanLayer::OnAttach()
 
     auto graphicsPipeline = VulkanContext::Get()->GetGraphicsPipeline();
     auto computePipeline = VulkanContext::Get()->mComputePipeline;
+
+    { // -- sphere SSBO
+        // TODO: No need to flush since coherent, but investigate
+        // what the performance hit is since we're not using
+        // device local memory
+        sphereSSBO = CreateSharedPtr<VulkanBuffer>(
+            vk::BufferUsageFlagBits::eStorageBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            sizeof(spheres),
+            vk::SharingMode::eExclusive
+        );
+
+        void* data = sphereSSBO->Map();
+        memcpy(data, spheres.data(), sizeof(spheres));
+
+        // Update DescriptorSet
+        vk::DescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = sphereSSBO->mBuffer.get();
+        bufferInfo.offset = 0;
+        bufferInfo.range = sphereSSBO->mSize;
+
+        vk::WriteDescriptorSet writeInfo {};
+        writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
+        writeInfo.dstBinding = 3;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+        writeInfo.descriptorCount = 1;
+        writeInfo.pBufferInfo = &bufferInfo;
+
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
+
+    { // -- plane SSBO
+        planeSSBO = CreateSharedPtr<VulkanBuffer>(
+            vk::BufferUsageFlagBits::eStorageBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            sizeof(planes),
+            vk::SharingMode::eExclusive
+        );
+
+        void* data = planeSSBO->Map();
+        memcpy(data, planes.data(), sizeof(planes));
+
+        // Update DescriptorSet
+        vk::DescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = sphereSSBO->mBuffer.get();
+        bufferInfo.offset = 0;
+        bufferInfo.range = sphereSSBO->mSize;
+
+        vk::WriteDescriptorSet writeInfo {};
+        writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
+        writeInfo.dstBinding = 4;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+        writeInfo.descriptorCount = 1;
+        writeInfo.pBufferInfo = &bufferInfo;
+
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
 
     // Update post compute graphics descriptorset that reads in the processed image
     vk::WriteDescriptorSet writeInfo {};
@@ -206,9 +314,15 @@ void VulkanLayer::OnUpdate(float dt)
     auto& cmdBuffer = computePipeline->mCmdBuffers.at(0);
     // Dispatch compute command
     cmdBuffer->begin(cmdBufferInfo);
-    cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-    cmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, computePipeline->mPipelineLayout.get(), 0, 1, &computePipeline->mDescriptorSets.at(0).get(), 0, 0);
-    cmdBuffer->dispatch(computePipeline->mTexture->GetWidth() / 16, computePipeline->mTexture->GetHeight() / 16, 1);
+        cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
+        cmdBuffer->bindDescriptorSets(
+            vk::PipelineBindPoint::eCompute,
+            computePipeline->mPipelineLayout.get(),
+            0,
+            1, &computePipeline->mDescriptorSets.at(0).get(),
+            0, nullptr
+        );
+        cmdBuffer->dispatch(computePipeline->mTexture->GetWidth() / 16, computePipeline->mTexture->GetHeight() / 16, 1);
     cmdBuffer->end();
 
     // Submit compute command

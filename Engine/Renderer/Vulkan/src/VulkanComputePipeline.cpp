@@ -17,9 +17,9 @@ VulkanComputePipeline::VulkanComputePipeline()
         // Bind 2: Lights
         vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 2),
         // Bind 3: Spheres
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 3),
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 3),
         // Bind 4: Planes
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 4),
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 4),
     };
 
     auto setLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(

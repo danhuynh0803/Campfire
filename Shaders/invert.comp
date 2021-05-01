@@ -13,6 +13,16 @@ layout (binding = 1) uniform Camera
 } camera;
 
 // =========================================
+// TODO move to a global info
+const int MAX_NUM_LIGHTS = 100;
+struct Light
+{
+    vec4 pos;
+    vec4 color;
+    vec3 dir;
+    float intensity;
+};
+
 layout (binding = 2) uniform Lights
 {
     Light lights[MAX_NUM_LIGHTS];
@@ -29,6 +39,12 @@ struct Sphere
     int id;
 };
 
+layout (std140, binding = 3) buffer Spheres
+{
+    Sphere spheres[];
+};
+
+// =========================================
 struct Plane
 {
     vec3 normal;
@@ -36,11 +52,6 @@ struct Plane
     vec3 diffuse;
     float specular;
     int id;
-};
-
-layout (std140, binding = 3) buffer Spheres
-{
-    Sphere spheres[];
 };
 
 layout (std140, binding = 4) buffer Planes
