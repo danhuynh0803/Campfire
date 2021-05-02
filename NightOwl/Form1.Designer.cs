@@ -1,5 +1,4 @@
-﻿
-namespace NightOwl
+﻿namespace NightOwl
 {
     partial class NightOwlForm
     {
@@ -34,15 +33,19 @@ namespace NightOwl
             this.ToolStripMenuItemFileDropDownMenuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.FlowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.ShaderDirectoryPathBrowseButton = new System.Windows.Forms.Button();
+            this.OpenButton = new System.Windows.Forms.Button();
             this.ShaderDirectoryWatcherRunButton = new System.Windows.Forms.Button();
+            this.ClearButton = new System.Windows.Forms.Button();
             this.PathGroupBox = new System.Windows.Forms.GroupBox();
             this.VulkanDirectoryRichTextBox = new System.Windows.Forms.RichTextBox();
             this.ShaderDirectoryWatcherPathRichTextBox = new System.Windows.Forms.RichTextBox();
-            this.ShaderDirectoryWatcherRichTextBox = new System.Windows.Forms.RichTextBox();
+            this.ShaderDirectoryWatcherLogRichTextBox = new System.Windows.Forms.RichTextBox();
             this.FolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.FileSystemWatcher = new System.IO.FileSystemWatcher();
             this.MenuStrip.SuspendLayout();
             this.FlowLayoutPanel1.SuspendLayout();
             this.PathGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.FileSystemWatcher)).BeginInit();
             this.SuspendLayout();
             // 
             // MenuStrip
@@ -73,9 +76,11 @@ namespace NightOwl
             // FlowLayoutPanel1
             // 
             this.FlowLayoutPanel1.Controls.Add(this.ShaderDirectoryPathBrowseButton);
+            this.FlowLayoutPanel1.Controls.Add(this.OpenButton);
             this.FlowLayoutPanel1.Controls.Add(this.ShaderDirectoryWatcherRunButton);
+            this.FlowLayoutPanel1.Controls.Add(this.ClearButton);
             this.FlowLayoutPanel1.Controls.Add(this.PathGroupBox);
-            this.FlowLayoutPanel1.Controls.Add(this.ShaderDirectoryWatcherRichTextBox);
+            this.FlowLayoutPanel1.Controls.Add(this.ShaderDirectoryWatcherLogRichTextBox);
             this.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FlowLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.FlowLayoutPanel1.Name = "FlowLayoutPanel1";
@@ -84,19 +89,30 @@ namespace NightOwl
             // 
             // ShaderDirectoryPathBrowseButton
             // 
-            this.ShaderDirectoryPathBrowseButton.Location = new System.Drawing.Point(128, 32);
-            this.ShaderDirectoryPathBrowseButton.Margin = new System.Windows.Forms.Padding(128, 32, 0, 0);
+            this.ShaderDirectoryPathBrowseButton.Location = new System.Drawing.Point(16, 32);
+            this.ShaderDirectoryPathBrowseButton.Margin = new System.Windows.Forms.Padding(16, 32, 16, 32);
             this.ShaderDirectoryPathBrowseButton.Name = "ShaderDirectoryPathBrowseButton";
             this.ShaderDirectoryPathBrowseButton.Size = new System.Drawing.Size(128, 128);
             this.ShaderDirectoryPathBrowseButton.TabIndex = 0;
-            this.ShaderDirectoryPathBrowseButton.Text = "Browse";
+            this.ShaderDirectoryPathBrowseButton.Text = "Browse Directory";
             this.ShaderDirectoryPathBrowseButton.UseVisualStyleBackColor = true;
             this.ShaderDirectoryPathBrowseButton.Click += new System.EventHandler(this.BrowseButton_Click);
             // 
+            // OpenButton
+            // 
+            this.OpenButton.Location = new System.Drawing.Point(160, 32);
+            this.OpenButton.Margin = new System.Windows.Forms.Padding(0, 32, 16, 32);
+            this.OpenButton.Name = "OpenButton";
+            this.OpenButton.Size = new System.Drawing.Size(128, 128);
+            this.OpenButton.TabIndex = 5;
+            this.OpenButton.Text = "Open Directory";
+            this.OpenButton.UseVisualStyleBackColor = true;
+            this.OpenButton.Click += new System.EventHandler(this.OpenButton_Click);
+            // 
             // ShaderDirectoryWatcherRunButton
             // 
-            this.ShaderDirectoryWatcherRunButton.Location = new System.Drawing.Point(272, 32);
-            this.ShaderDirectoryWatcherRunButton.Margin = new System.Windows.Forms.Padding(16, 32, 16, 32);
+            this.ShaderDirectoryWatcherRunButton.Location = new System.Drawing.Point(304, 32);
+            this.ShaderDirectoryWatcherRunButton.Margin = new System.Windows.Forms.Padding(0, 32, 16, 32);
             this.ShaderDirectoryWatcherRunButton.Name = "ShaderDirectoryWatcherRunButton";
             this.ShaderDirectoryWatcherRunButton.Size = new System.Drawing.Size(128, 128);
             this.ShaderDirectoryWatcherRunButton.TabIndex = 2;
@@ -104,13 +120,24 @@ namespace NightOwl
             this.ShaderDirectoryWatcherRunButton.UseVisualStyleBackColor = true;
             this.ShaderDirectoryWatcherRunButton.Click += new System.EventHandler(this.ShaderDirectoryWatcherRunButton_Click);
             // 
+            // ClearButton
+            // 
+            this.ClearButton.Location = new System.Drawing.Point(448, 32);
+            this.ClearButton.Margin = new System.Windows.Forms.Padding(0, 32, 16, 32);
+            this.ClearButton.Name = "ClearButton";
+            this.ClearButton.Size = new System.Drawing.Size(128, 128);
+            this.ClearButton.TabIndex = 3;
+            this.ClearButton.Text = "Clear";
+            this.ClearButton.UseVisualStyleBackColor = true;
+            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            // 
             // PathGroupBox
             // 
             this.PathGroupBox.Controls.Add(this.VulkanDirectoryRichTextBox);
             this.PathGroupBox.Controls.Add(this.ShaderDirectoryWatcherPathRichTextBox);
-            this.PathGroupBox.Location = new System.Drawing.Point(419, 3);
+            this.PathGroupBox.Location = new System.Drawing.Point(595, 3);
             this.PathGroupBox.Name = "PathGroupBox";
-            this.PathGroupBox.Size = new System.Drawing.Size(1473, 186);
+            this.PathGroupBox.Size = new System.Drawing.Size(1028, 186);
             this.PathGroupBox.TabIndex = 4;
             this.PathGroupBox.TabStop = false;
             this.PathGroupBox.Text = "Path";
@@ -133,15 +160,26 @@ namespace NightOwl
             this.ShaderDirectoryWatcherPathRichTextBox.Name = "ShaderDirectoryWatcherPathRichTextBox";
             this.ShaderDirectoryWatcherPathRichTextBox.Size = new System.Drawing.Size(512, 33);
             this.ShaderDirectoryWatcherPathRichTextBox.TabIndex = 1;
-            this.ShaderDirectoryWatcherPathRichTextBox.Text = "C:/Users/Ray/Desktop/Code/TenetEngine/Campfire/Shaders";
+            this.ShaderDirectoryWatcherPathRichTextBox.Text = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE";
             // 
-            // ShaderDirectoryWatcherRichTextBox
+            // ShaderDirectoryWatcherLogRichTextBox
             // 
-            this.ShaderDirectoryWatcherRichTextBox.Location = new System.Drawing.Point(3, 195);
-            this.ShaderDirectoryWatcherRichTextBox.Name = "ShaderDirectoryWatcherRichTextBox";
-            this.ShaderDirectoryWatcherRichTextBox.Size = new System.Drawing.Size(1904, 854);
-            this.ShaderDirectoryWatcherRichTextBox.TabIndex = 3;
-            this.ShaderDirectoryWatcherRichTextBox.Text = "";
+            this.ShaderDirectoryWatcherLogRichTextBox.Location = new System.Drawing.Point(3, 195);
+            this.ShaderDirectoryWatcherLogRichTextBox.Name = "ShaderDirectoryWatcherLogRichTextBox";
+            this.ShaderDirectoryWatcherLogRichTextBox.Size = new System.Drawing.Size(1904, 854);
+            this.ShaderDirectoryWatcherLogRichTextBox.TabIndex = 3;
+            this.ShaderDirectoryWatcherLogRichTextBox.Text = "";
+            // 
+            // FileSystemWatcher
+            // 
+            this.FileSystemWatcher.EnableRaisingEvents = true;
+            this.FileSystemWatcher.IncludeSubdirectories = true;
+            this.FileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.FileName | System.IO.NotifyFilters.LastWrite)));
+            this.FileSystemWatcher.SynchronizingObject = this;
+            this.FileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.OnFileChanged);
+            this.FileSystemWatcher.Created += new System.IO.FileSystemEventHandler(this.OnFileCreated);
+            this.FileSystemWatcher.Error += new System.IO.ErrorEventHandler(this.OnFileError);
+            this.FileSystemWatcher.Renamed += new System.IO.RenamedEventHandler(this.OnFileRenamed);
             // 
             // NightOwlForm
             // 
@@ -158,6 +196,7 @@ namespace NightOwl
             this.MenuStrip.PerformLayout();
             this.FlowLayoutPanel1.ResumeLayout(false);
             this.PathGroupBox.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.FileSystemWatcher)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -173,10 +212,12 @@ namespace NightOwl
         private System.Windows.Forms.Button ShaderDirectoryWatcherRunButton;
         private System.Windows.Forms.RichTextBox ShaderDirectoryWatcherPathRichTextBox;
         private System.Windows.Forms.FolderBrowserDialog FolderBrowserDialog;
-        private System.Windows.Forms.RichTextBox ShaderDirectoryWatcherRichTextBox;
+        private System.Windows.Forms.RichTextBox ShaderDirectoryWatcherLogRichTextBox;
         private System.Windows.Forms.GroupBox PathGroupBox;
         private System.Windows.Forms.RichTextBox VulkanDirectoryRichTextBox;
+        private System.Windows.Forms.Button ClearButton;
         private System.IO.FileSystemWatcher FileSystemWatcher;
+        private System.Windows.Forms.Button OpenButton;
     }
 }
 

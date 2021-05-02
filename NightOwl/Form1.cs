@@ -11,13 +11,12 @@ namespace NightOwl
         public NightOwlForm()
         {
             InitializeComponent();
+            ShaderDirectoryWatcherPathRichTextBox.Text = System.IO.Directory.GetCurrentDirectory();
         }
-
         private void toolStripMenuItemFileDropDownMenuItemExit_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
         private void BrowseButton_Click(object sender, EventArgs e)
         {
             if(string.IsNullOrWhiteSpace(value: ShaderDirectoryWatcherPathRichTextBox.Text))
@@ -57,84 +56,124 @@ namespace NightOwl
                 return;
             }
         }
-
         private void ShaderDirectoryWatcherRunButton_Click(object sender, EventArgs e)
         {
-            FileSystemWatcher = new(ShaderDirectoryWatcherPathRichTextBox.Text);
-            (FileSystemWatcher as System.ComponentModel.ISupportInitialize)?.BeginInit();
-            FileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite;
-            FileSystemWatcher.EnableRaisingEvents = true;
-            FileSystemWatcher.IncludeSubdirectories = true;
-            //FileSystemWatcher.SynchronizingObject = this;
-            FileSystemWatcher.Created += OnCreated;
-            FileSystemWatcher.Renamed += OnRenamed;
-            FileSystemWatcher.Changed += OnChanged;
-            FileSystemWatcher.Error += OnError;
-            (FileSystemWatcher as System.ComponentModel.ISupportInitialize)?.EndInit();
+            MethodInvoker logWacthingUpdatedDirectory = () => ShaderDirectoryWatcherLogRichTextBox.AppendText($"Watcthing: {ShaderDirectoryWatcherPathRichTextBox.Text}\u2028");
+            Invoke(logWacthingUpdatedDirectory);
+            FileSystemWatcher.Path = ShaderDirectoryWatcherPathRichTextBox.Text;
         }
-
-        private void OnCreated(object sender, FileSystemEventArgs e)
+        private void ClearButton_Click(object sender, EventArgs e)
         {
-            MethodInvoker action = () => {
-                ShaderDirectoryWatcherRichTextBox.AppendText($"Created: {e.FullPath}\u2028");
-                ShaderDirectoryWatcherRichTextBox.ScrollToCaret();
-            };
+            MethodInvoker action = () => ShaderDirectoryWatcherLogRichTextBox.Text = "";
             Invoke(action);
         }
-
-        private void OnRenamed(object sender, RenamedEventArgs e)
+        private void OnFileCreated(object sender, FileSystemEventArgs e)
         {
-            MethodInvoker action = () => {
-                ShaderDirectoryWatcherRichTextBox.AppendText($"Renamed: {e.FullPath}\u2028");
-                ShaderDirectoryWatcherRichTextBox.AppendText($"    Old: {e.OldFullPath}\u2028");
-                ShaderDirectoryWatcherRichTextBox.AppendText($"    New: {e.FullPath}\u2028");
+            MethodInvoker logCreatedFile = () => {
+                ShaderDirectoryWatcherLogRichTextBox.AppendText($"Created: {e.FullPath}\u2028");
+                ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
             };
-            Invoke(action);
+            Invoke(logCreatedFile);
         }
-
-        private void OnChanged(object sender, FileSystemEventArgs e)
+        private void OnFileRenamed(object sender, RenamedEventArgs e)
+        {
+            MethodInvoker logRenamedFile = () => {
+                ShaderDirectoryWatcherLogRichTextBox.AppendText($"Renamed: {e.FullPath}\u2028");
+                ShaderDirectoryWatcherLogRichTextBox.AppendText($"    Old: {e.OldFullPath}\u2028");
+                ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
+            };
+            Invoke(logRenamedFile);
+        }
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
             FileAttributes attributes = File.GetAttributes(e.FullPath);
-            if((attributes & FileAttributes.Directory) == 0)
+            if ((attributes & FileAttributes.Directory) == 0)
             {
                 try
                 {
-                    string VulkanDirectory = "";
-                    MethodInvoker outData = () => VulkanDirectory = VulkanDirectoryRichTextBox.Text;
-                    Invoke(outData);
-                    //if (string.IsNullOrEmpty(VulkanDirectory)) return;
-                    string watchPath = (sender as FileSystemWatcher)?.Path;
-                    StringBuilder commandBulder = new("/C ");
-                    commandBulder.Append(VulkanDirectory).Append(' ').Append(watchPath).Append('/').Append(e.Name).Append(" -o ").Append(watchPath).Append('/').Append(e.Name).Append(".spv");
-                    var StartInfo = new ProcessStartInfo
-                    {
-                        UseShellExecute = false,
-                        FileName = "cmd.exe",
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true,
-                        Arguments = commandBulder.ToString()
-                    };
-                    Process process = Process.Start(StartInfo);
-                    process.ErrorDataReceived += (s, e) => {
-                        MethodInvoker outputError = () => {
-                            ShaderDirectoryWatcherRichTextBox.AppendText($"{e.Data}\u2028");
-                            ShaderDirectoryWatcherRichTextBox.ScrollToCaret();
-                        };
-                        Invoke(outputError);
-                    };
-                    process.OutputDataReceived += (s, e) => {
-                        MethodInvoker outData = () => {
-                            ShaderDirectoryWatcherRichTextBox.AppendText($"{e.Data}\u2028");
-                            ShaderDirectoryWatcherRichTextBox.ScrollToCaret();
-                        };
-                        Invoke(outData);
-                    };
-                    process.Start();
-                    process.BeginErrorReadLine();
-                    process.BeginOutputReadLine();
 
-                    process.WaitForExit();
+                    if (!e.Name.EndsWith(".spv"))
+                    {
+                        MethodInvoker logModifiedFile = () => {
+                            ShaderDirectoryWatcherLogRichTextBox.AppendText($"Modified: {e.FullPath}\u2028");
+                            ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
+                        };
+                        Invoke(logModifiedFile);
+                        string VulkanDirectory = "";
+                        MethodInvoker outData = () => VulkanDirectory = VulkanDirectoryRichTextBox.Text;
+                        Invoke(outData);
+                        //if (string.IsNullOrEmpty(VulkanDirectory)) return;
+                        string watchPath = (sender as FileSystemWatcher)?.Path;
+                        StringBuilder commandBulder = new("/C ");
+                        commandBulder
+                            .Append(VulkanDirectory)
+                            .Append(' ')
+                            .Append(watchPath)
+                            .Append('/')
+                            .Append(e.Name)
+                            .Append(" -o ")
+                            .Append(watchPath)
+                            .Append('/')
+                            .Append(e.Name)
+                            .Append(".spv");
+                        MethodInvoker logExecutingCommand = () => {
+                            ShaderDirectoryWatcherLogRichTextBox.AppendText($"Execute: {commandBulder}\u2028");
+                            ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
+                        };
+                        Invoke(logExecutingCommand);
+                        var StartInfo = new ProcessStartInfo
+                        {
+                            UseShellExecute = false,
+                            FileName = "cmd.exe",
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            CreateNoWindow = true,
+                            Arguments = commandBulder.ToString()
+                        };
+                        Process process = Process.Start(StartInfo);
+                        process.ErrorDataReceived += (s, e) => {
+                            MethodInvoker outputError = () => {
+                                ShaderDirectoryWatcherLogRichTextBox.AppendText($"{e.Data}\u2028");
+                                ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
+                            };
+                            Invoke(outputError);
+                        };
+                        process.OutputDataReceived += (s, e) => {
+                            if (e.Data?.Length > 0)
+                            {
+                                MethodInvoker outputReceivedData = () => {
+                                    ShaderDirectoryWatcherLogRichTextBox.AppendText($"{e.Data}\u2028");
+                                    ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
+                                };
+                                Invoke(outputReceivedData);
+                            }
+                            else
+                            {
+                                MethodInvoker outputComplete = () => {
+                                    ShaderDirectoryWatcherLogRichTextBox.AppendText("Completed.\u2028");
+                                    ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
+                                };
+                                Invoke(outputComplete);
+                            }
+                        };
+                        process.Start();
+                        process.BeginErrorReadLine();
+                        process.BeginOutputReadLine();
+
+                        process.WaitForExit();
+                    }
+                    else
+                    {
+                        //var fileInfo = new FileInfo(e.FullPath);
+                        //if(fileInfo.Length > 0)
+                        //{
+                        //    MethodInvoker logModifiedFile = () => {
+                        //        ShaderDirectoryWatcherRichTextBox.AppendText($"Modified: {e.FullPath}\u2028");
+                        //        ShaderDirectoryWatcherRichTextBox.ScrollToCaret();
+                        //    };
+                        //    Invoke(logModifiedFile);
+                        //}
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -142,22 +181,37 @@ namespace NightOwl
                 }
             }
         }
-
-        private void OnError(object sender, ErrorEventArgs e) => PrintException(e.GetException());
-
+        private void OnFileError(object sender, ErrorEventArgs e) => PrintException(e.GetException());
         private void PrintException(Exception ex)
         {
             if (ex != null)
             {
-                MethodInvoker action = () => {
-                    ShaderDirectoryWatcherRichTextBox.AppendText($"Message: {ex.Message}");
-                    ShaderDirectoryWatcherRichTextBox.AppendText("Stacktrace:");
-                    ShaderDirectoryWatcherRichTextBox.AppendText("Error:");
-                    ShaderDirectoryWatcherRichTextBox.AppendText(ex.StackTrace);
-                    ShaderDirectoryWatcherRichTextBox.AppendText("\u2028");
-                    ShaderDirectoryWatcherRichTextBox.ScrollToCaret();
+                MethodInvoker logError = () => {
+                    ShaderDirectoryWatcherLogRichTextBox.AppendText($"Message: {ex.Message}");
+                    ShaderDirectoryWatcherLogRichTextBox.AppendText("Stacktrace:");
+                    ShaderDirectoryWatcherLogRichTextBox.AppendText("Error:");
+                    ShaderDirectoryWatcherLogRichTextBox.AppendText(ex.StackTrace);
+                    ShaderDirectoryWatcherLogRichTextBox.AppendText("\u2028");
+                    ShaderDirectoryWatcherLogRichTextBox.ScrollToCaret();
                 };
-                Invoke(action);
+                Invoke(logError);
+                PrintException(ex.InnerException);
+            }
+        }
+
+        private void OpenButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = ShaderDirectoryWatcherPathRichTextBox.Text,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            catch(Exception ex)
+            {
                 PrintException(ex.InnerException);
             }
         }
