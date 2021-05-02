@@ -116,10 +116,10 @@ void VulkanLayer::OnAttach()
 
     int id = 0;
     spheres = {
-        { glm::vec3(0, 0, 0), 1.0, glm::vec3(1, 0, 0), 32, id++ },
-        { glm::vec3(1, 0, 0), 1.0, glm::vec3(0, 1, 0), 32, id++ },
-        { glm::vec3(2, 0, 0), 1.0, glm::vec3(0, 0, 1), 32, id++ },
-        { glm::vec3(3, 0, 0), 1.0, glm::vec3(0, 1, 1), 32, id++ },
+        { glm::vec3(-1, 1, 0), 1.0, glm::vec3(1, 0, 0), 32, id++ },
+        { glm::vec3(1, 1, 0), 1.0, glm::vec3(0, 1, 0), 32, id++ },
+        { glm::vec3(-1, -1, 0), 1.0, glm::vec3(0, 0, 1), 32, id++ },
+        { glm::vec3(1, -1, 0), 1.0, glm::vec3(0, 1, 1), 32, id++ },
     };
 
     // TODO
@@ -409,11 +409,12 @@ void VulkanLayer::OnImGuiRender()
     ImGui::DragFloat("Near", &editorCamera->nearPlane);
     ImGui::DragFloat("Far", &editorCamera->farPlane);
 
-    ImGui::Text("View Matrix");
-    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[0], 0.01f);
-    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[1], 0.01f);
-    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[2], 0.01f);
-    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[3], 0.01f);
+    ImGui::Text("Inverse View Matrix");
+    glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
+    ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
+    ImGui::DragFloat4("", (float*)&invView[1], 0.01f);
+    ImGui::DragFloat4("", (float*)&invView[2], 0.01f);
+    ImGui::DragFloat4("", (float*)&invView[3], 0.01f);
 
     ImGui::Separator();
 

@@ -78,8 +78,9 @@ bool SphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere, inout float t
         float tPos = (b + sqrt(disc)) * invDenom;
         float tNeg = (b - sqrt(disc)) * invDenom;
 
-        t = tPos >= EPSILON ? tPos : t;
-        t = tNeg >= EPSILON && tNeg < t ? tNeg : t;
+        //t = tPos >= EPSILON ? tPos : t;
+        //t = tNeg >= EPSILON && tNeg < t ? tNeg : t;
+        t = (-b - sqrt(disc)) / (2.0f * a);
 
         return true;
     }
@@ -96,26 +97,26 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD)
         float t = INF;
         if (SphereIntersect(rayO, rayD, spheres[i], t))
         {
-            if (t < currT)
+            if ((t > EPSILON) && (t < currT))
             {
+                hitId = spheres[i].id;
                 currT = t;
-                hitId = i;
             }
         }
     }
 
+    // Get color of hit id
     for (int i = 0; i < spheres.length(); ++i)
     {
         if (hitId == i)
         {
             Sphere sphere = spheres[hitId];
             vec3 hitPos = rayO + currT*rayD;
-            vec3 normal = normalize(hitPos - sphere.pos);
+            vec3 normal = (hitPos - sphere.pos) / sphere.radius;
             //vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
-            vec3 l = normalize(vec3(0, 5, 0) - hitPos);
+            vec3 l = normalize(vec3(0, 0, 5) - hitPos);
 
-            return spheres[i].diffuse;
-            //return spheres[hitId].diffuse * max(0.0f, dot(l, normal));
+            return spheres[hitId].diffuse * max(0.0f, dot(l, normal));
         }
     }
 
@@ -128,10 +129,22 @@ void main()
     ivec2 dim = imageSize(resultImage);
     vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
 
-    vec3 rayO = camera.view[3].xyz;
+    vec3 lookAt = vec3(0.0f);
+    mat4 invView = inverse(camera.view);
+    vec3 rayO = vec3(invView[3][0], invView[3][1], invView[3][2]);
+    //vec3 rayO = camera.view[3].xyz;
     // TODO pass into camera ubo
     float aspectRatio = 16.0f / 9.0f;
-    vec3 rayD = normalize(vec3((2.0f*uv - 1.0f) * vec2(aspectRatio, 1.0f), -1.0f));
+
+    vec3 rayD = normalize(
+          vec3(camera.view[0][2], camera.view[1][2], camera.view[2][2])
+        + vec3((2.0f*uv - 1.0f) * vec2(aspectRatio, 1.0f), 1.0f)
+        - rayO
+        //vec3(camera.view[0][2], camera.view[1][2], camera.view[2][2])
+        //vec3(invView[0][2], invView[1][2], -invView[2][2])
+        //invView[2].xyz
+        //vec3((2.0f*uv - 1.0f) * vec2(aspectRatio, 1.0f), 1.0f)
+    );
 
     vec3 color = RenderScene(rayO, rayD);
 
