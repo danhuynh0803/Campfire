@@ -113,10 +113,15 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD)
             Sphere sphere = spheres[hitId];
             vec3 hitPos = rayO + currT*rayD;
             vec3 normal = (hitPos - sphere.pos) / sphere.radius;
-            //vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
-            vec3 l = normalize(vec3(0, 2, 5) - hitPos);
 
-            return spheres[hitId].diffuse * max(0.0f, dot(l, normal));
+            vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
+
+            return
+                spheres[hitId].diffuse
+              * lightBuffer.lights[0].color.rgb
+              * lightBuffer.lights[0].intensity
+              * max(0.0f, dot(l, normal))
+            ;
         }
     }
 

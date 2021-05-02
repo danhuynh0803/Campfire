@@ -78,12 +78,14 @@ VulkanLayer::VulkanLayer()
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 }
 
+Entity light;
+
 void VulkanLayer::OnAttach()
 {
     scene = CreateSharedPtr<Scene>();
 
-    auto light = scene->CreateEntity("light");
-    light.GetComponent<TransformComponent>().position = glm::vec3(0, 3, 0);
+    light = scene->CreateEntity("light");
+    light.GetComponent<TransformComponent>().position = glm::vec3(0, 3, 3);
     light.AddComponent<LightComponent>();
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -122,8 +124,6 @@ void VulkanLayer::OnAttach()
         { glm::vec3(1, -1, 0), 1.0, glm::vec3(0, 1, 1), 32, id++ },
     };
 
-    // TODO
-    id = 0;
     planes = {
         { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, id++, glm::vec3(0.0f) },
     };
@@ -419,10 +419,9 @@ void VulkanLayer::OnImGuiRender()
     ImGui::Separator();
 
     // Light Controls
-    //ImGui::DragFloat4("Light Pos", (float*)&lightUBO.pos, 0.01f);
-    //ImGui::ColorEdit4("Light Color", (float*)&lightUBO.color, 0.01f);
-    //ImGui::DragFloat3("Light Dir", (float*)&lightUBO.dir, 0.01f);
-    //ImGui::DragFloat("Light Intensity", (float*)&lightUBO.intensity, 0.01f);
+    ImGui::DragFloat4("Light Pos", (float*)&light.GetComponent<TransformComponent>().position, 0.01f);
+    ImGui::ColorEdit4("Light Color", (float*)&light.GetComponent<LightComponent>().color, 0.01f);
+    ImGui::DragFloat("Light Intensity", (float*)&light.GetComponent<LightComponent>().intensity, 0.01f);
 
     ImGui::End();
 }
