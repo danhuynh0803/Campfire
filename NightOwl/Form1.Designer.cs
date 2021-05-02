@@ -83,6 +83,7 @@
             this.FlowLayoutPanel1.Controls.Add(this.ShaderDirectoryWatcherLogRichTextBox);
             this.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FlowLayoutPanel1.Location = new System.Drawing.Point(0, 24);
+            this.FlowLayoutPanel1.Margin = new System.Windows.Forms.Padding(8, 16, 0, 0);
             this.FlowLayoutPanel1.Name = "FlowLayoutPanel1";
             this.FlowLayoutPanel1.Size = new System.Drawing.Size(1904, 1017);
             this.FlowLayoutPanel1.TabIndex = 1;
@@ -164,9 +165,10 @@
             // 
             // ShaderDirectoryWatcherLogRichTextBox
             // 
-            this.ShaderDirectoryWatcherLogRichTextBox.Location = new System.Drawing.Point(3, 195);
+            this.ShaderDirectoryWatcherLogRichTextBox.Location = new System.Drawing.Point(16, 208);
+            this.ShaderDirectoryWatcherLogRichTextBox.Margin = new System.Windows.Forms.Padding(16, 16, 0, 0);
             this.ShaderDirectoryWatcherLogRichTextBox.Name = "ShaderDirectoryWatcherLogRichTextBox";
-            this.ShaderDirectoryWatcherLogRichTextBox.Size = new System.Drawing.Size(1888, 768);
+            this.ShaderDirectoryWatcherLogRichTextBox.Size = new System.Drawing.Size(1872, 768);
             this.ShaderDirectoryWatcherLogRichTextBox.TabIndex = 3;
             this.ShaderDirectoryWatcherLogRichTextBox.Text = "";
             // 
