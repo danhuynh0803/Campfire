@@ -166,7 +166,7 @@
             // 
             this.ShaderDirectoryWatcherLogRichTextBox.Location = new System.Drawing.Point(3, 195);
             this.ShaderDirectoryWatcherLogRichTextBox.Name = "ShaderDirectoryWatcherLogRichTextBox";
-            this.ShaderDirectoryWatcherLogRichTextBox.Size = new System.Drawing.Size(1904, 854);
+            this.ShaderDirectoryWatcherLogRichTextBox.Size = new System.Drawing.Size(1888, 768);
             this.ShaderDirectoryWatcherLogRichTextBox.TabIndex = 3;
             this.ShaderDirectoryWatcherLogRichTextBox.Text = "";
             // 
