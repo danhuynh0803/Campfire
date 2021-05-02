@@ -41,7 +41,7 @@ VulkanComputePipeline::VulkanComputePipeline()
     mDescriptorSets = mDevice.allocateDescriptorSetsUnique(allocInfo);
 
     auto computeShaderInfo = vk::initializers::PipelineShaderStageCreateInfo(
-        SHADERS + "/invert.comp.spv",
+        SHADERS + "/raytrace.comp.spv",
         vk::ShaderStageFlagBits::eCompute);
 
     vk::ComputePipelineCreateInfo pipelineCreateInfo {};

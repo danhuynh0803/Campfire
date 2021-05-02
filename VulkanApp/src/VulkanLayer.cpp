@@ -82,6 +82,10 @@ void VulkanLayer::OnAttach()
 {
     scene = CreateSharedPtr<Scene>();
 
+    auto light = scene->CreateEntity("light");
+    light.GetComponent<TransformComponent>().position = glm::vec3(0, 3, 0);
+    light.AddComponent<LightComponent>();
+
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
     editorCamera->farPlane = 10000.0f;
@@ -111,24 +115,15 @@ void VulkanLayer::OnAttach()
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
     int id = 0;
-    int maxSpheres = 100;
-    for (int i = 0; i < maxSpheres; ++i)
-    {
-        Sphere sphere {};
-        sphere.pos = glm::vec3(0, 0, -5);
-        sphere.radius = 1;
-        sphere.diffuse =
-            glm::vec3(
-                static_cast<float>(i)/maxSpheres,
-                0,
-                static_cast<float>(i)/maxSpheres
-            );
-        sphere.specular = 32;
-        sphere.id = id++;
+    spheres = {
+        { glm::vec3(0, 0, 0), 1.0, glm::vec3(1, 0, 0), 32, id++ },
+        { glm::vec3(1, 0, 0), 1.0, glm::vec3(0, 1, 0), 32, id++ },
+        { glm::vec3(2, 0, 0), 1.0, glm::vec3(0, 0, 1), 32, id++ },
+        { glm::vec3(3, 0, 0), 1.0, glm::vec3(0, 1, 1), 32, id++ },
+    };
 
-        spheres.push_back(sphere);
-    }
-
+    // TODO
+    id = 0;
     planes = {
         { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, id++, glm::vec3(0.0f) },
     };
