@@ -11,7 +11,7 @@ namespace NightOwl
         public NightOwlForm()
         {
             InitializeComponent();
-            ShaderDirectoryWatcherPathRichTextBox.Text = System.IO.Directory.GetCurrentDirectory();
+            ShaderDirectoryWatcherPathRichTextBox.Text = Directory.GetCurrentDirectory();
         }
         private void toolStripMenuItemFileDropDownMenuItemExit_Click(object sender, EventArgs e)
         {
@@ -91,7 +91,6 @@ namespace NightOwl
             {
                 try
                 {
-
                     if (!e.Name.EndsWith(".spv"))
                     {
                         MethodInvoker logModifiedFile = () => {
@@ -198,7 +197,6 @@ namespace NightOwl
                 PrintException(ex.InnerException);
             }
         }
-
         private void OpenButton_Click(object sender, EventArgs e)
         {
             try
