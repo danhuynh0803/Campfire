@@ -69,7 +69,8 @@
             // ToolStripMenuItemFileDropDownMenuItemExit
             // 
             this.ToolStripMenuItemFileDropDownMenuItemExit.Name = "ToolStripMenuItemFileDropDownMenuItemExit";
-            this.ToolStripMenuItemFileDropDownMenuItemExit.Size = new System.Drawing.Size(93, 22);
+            this.ToolStripMenuItemFileDropDownMenuItemExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.ToolStripMenuItemFileDropDownMenuItemExit.Size = new System.Drawing.Size(135, 22);
             this.ToolStripMenuItemFileDropDownMenuItemExit.Text = "Exit";
             this.ToolStripMenuItemFileDropDownMenuItemExit.Click += new System.EventHandler(this.toolStripMenuItemFileDropDownMenuItemExit_Click);
             // 
