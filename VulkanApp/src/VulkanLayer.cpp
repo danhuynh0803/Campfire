@@ -409,6 +409,12 @@ void VulkanLayer::OnImGuiRender()
     ImGui::DragFloat("Near", &editorCamera->nearPlane);
     ImGui::DragFloat("Far", &editorCamera->farPlane);
 
+    ImGui::Text("View Matrix");
+    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[0], 0.01f);
+    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[1], 0.01f);
+    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[2], 0.01f);
+    ImGui::DragFloat4("", (float*)&editorCamera->GetViewMatrix()[3], 0.01f);
+
     ImGui::Separator();
 
     // Light Controls

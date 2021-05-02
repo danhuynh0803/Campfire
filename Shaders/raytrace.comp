@@ -64,13 +64,10 @@ layout (std140, binding = 4) buffer Planes
 
 bool SphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere, inout float t)
 {
+    vec3 oc = rayO - sphere.pos;
     float a = dot(rayD, rayD);
-    float b = 2 * dot(rayO, rayD);
-    float c =
-          dot(rayO, rayO)
-        + dot(sphere.pos, sphere.pos)
-        - sphere.radius*sphere.radius
-    ;
+    float b = 2.0f * dot(oc, rayD);
+    float c = dot(oc, oc) - sphere.radius*sphere.radius;
 
     // Roots exist if discriminant value >= 0
     float disc = b*b - 4*a*c;
