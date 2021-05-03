@@ -34,7 +34,6 @@ public:
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
     vk::DescriptorPool GetDescriptorPool() { return mDescriptorPool.get(); }
 
-    SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline() { return mGraphicsPipeline; }
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
     FrameGraph mFrameGraph;
@@ -51,6 +50,5 @@ private:
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
     SharedPtr<VulkanDevice> mDevice;
-    SharedPtr<VulkanGraphicsPipeline> mGraphicsPipeline;
     SharedPtr<VulkanSwapChain> mSwapChain;
 };

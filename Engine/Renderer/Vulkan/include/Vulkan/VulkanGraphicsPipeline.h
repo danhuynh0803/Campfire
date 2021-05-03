@@ -11,7 +11,11 @@ public:
         glm::mat4 model;
     } mTransformPushConstBlock;
 
-    VulkanGraphicsPipeline();
+    VulkanGraphicsPipeline(
+        const std::vector<vk::UniqueDescriptorSetLayout> & descriptorSetLayouts
+      , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
+    );
+
     ~VulkanGraphicsPipeline() = default;
     void RecreatePipeline();
 
@@ -22,8 +26,6 @@ public:
 
 private:
     void CreateDescriptorSets();
-    void CreateDescriptorPool();
-    void SetupDescriptors();
 
     vk::Device mDevice;
 };

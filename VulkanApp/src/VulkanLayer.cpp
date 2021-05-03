@@ -117,12 +117,20 @@ void VulkanLayer::OnAttach()
     indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
     int id = 0;
-    spheres = {
-        { glm::vec3(-1, 1, 0), 1.0, glm::vec3(1, 0, 0), 32, id++ },
-        { glm::vec3(1, 1, 0), 1.0, glm::vec3(0, 1, 0), 32, id++ },
-        { glm::vec3(-1, -1, 0), 1.0, glm::vec3(0, 0, 1), 32, id++ },
-        { glm::vec3(1, -1, 0), 1.0, glm::vec3(0, 1, 1), 32, id++ },
-    };
+    int maxRow = 25;
+    int maxCol = 25;
+    for (int i = 0; i < maxRow; ++i)
+    for (int j = 0; j < maxCol; ++j)
+    {
+        Sphere sphere {};
+        sphere.pos = glm::vec3(j, i, 0);
+        sphere.radius = 0.5f;
+        sphere.diffuse = glm::vec3((float)j/maxCol, (float)i/maxRow, 1.0f);
+        sphere.specular = 32;
+        sphere.id = id++;
+
+        spheres.push_back(sphere);
+    }
 
     planes = {
         { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, id++, glm::vec3(0.0f) },
@@ -146,7 +154,7 @@ void VulkanLayer::OnAttach()
             };
 
             cameraUBOs[i]->UpdateDescriptorSet(
-                VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get(),
+                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[0][i].get(),
                 cameraLayout, 0
             );
 
@@ -172,7 +180,7 @@ void VulkanLayer::OnAttach()
             };
 
             lightUBOs[i]->UpdateDescriptorSet(
-                VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[0][i].get(),
+                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[0][i].get(),
                 1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
             );
 
@@ -183,7 +191,7 @@ void VulkanLayer::OnAttach()
         }
     }
 
-    auto graphicsPipeline = VulkanContext::Get()->GetGraphicsPipeline();
+    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
     auto computePipeline = VulkanContext::Get()->mComputePipeline;
 
     { // -- sphere SSBO
@@ -358,7 +366,7 @@ void VulkanLayer::OnUpdate(float dt)
 
             mPushConstBlock.model = glm::mat4(1.0f);
             commandBuffer.pushConstants(
-                VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
+                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
                 vk::ShaderStageFlagBits::eVertex,
                 0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
                 &mPushConstBlock
@@ -366,10 +374,10 @@ void VulkanLayer::OnUpdate(float dt)
 
             commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
-                VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
+                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
                 1,
                 1,
-                &VulkanContext::Get()->GetGraphicsPipeline()->mDescriptorSets[1][0].get(),
+                &VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[1][0].get(),
                 0,
                 nullptr
             );

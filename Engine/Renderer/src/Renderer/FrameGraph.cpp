@@ -1,6 +1,89 @@
 #include "Renderer/FrameGraph.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanUtil.h"
+#include "Vulkan/VulkanInitializers.h"
+#include "Core/ResourceManager.h"
+
+void FrameGraph::PrepareGraphicsPipeline()
+{
+    auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
+
+    std::vector<vk::UniqueDescriptorSetLayout> descriptorSetLayouts;
+    { // UBOs
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eVertex,
+            0);
+
+        // Lights
+        auto lights = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
+            camera,
+            lights,
+        };
+
+        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            static_cast<uint32_t>(layoutBindings.size()),
+            layoutBindings.data());
+
+        // Set 0
+        descriptorSetLayouts.emplace_back(mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+    }
+
+
+    { // Material descriptors
+        // Albedo map (or computeResolve)
+        auto albedo = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
+
+        // Normal map
+        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
+            albedo,
+            //normal,
+        };
+
+        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            static_cast<uint32_t>(layoutBindings.size()),
+            layoutBindings.data());
+
+        // Set 1
+        descriptorSetLayouts.emplace_back(mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+    }
+
+    // Shaders
+    auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
+        SHADERS + "/vert.spv"
+      , vk::ShaderStageFlagBits::eVertex
+    );
+
+    auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
+        SHADERS + "/frag.spv"
+      , vk::ShaderStageFlagBits::eFragment
+    );
+
+    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
+        vertShaderStageInfo,
+        fragShaderStageInfo,
+    };
+
+    mGraphicsPipelines.emplace(
+        "PostProcess"
+      , CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayouts, shaderStages)
+    );
+
+}
 
 void FrameGraph::CreateOpaque()
 {
@@ -77,6 +160,10 @@ void FrameGraph::CreateOpaque()
 void FrameGraph::CreateRenderFrameGraph()
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    // Prepare pipelines
+
+    // Prepare renderpasses
     CreateOpaque();
+
+    // Prepare pipelines
+    PrepareGraphicsPipeline();
 }

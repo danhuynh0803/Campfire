@@ -43,7 +43,6 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     mFrameGraph.CreateRenderFrameGraph();
 
     // TODO pipeline should be with material?
-    mGraphicsPipeline = CreateSharedPtr<VulkanGraphicsPipeline>();
     mComputePipeline = CreateSharedPtr<VulkanComputePipeline>();
 
     // These need to be created post-graphics pipeline
@@ -100,7 +99,7 @@ void VulkanContext::RecreateSwapChain()
 
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
 
-    mGraphicsPipeline->RecreatePipeline();
+    //mGraphicsPipeline->RecreatePipeline();
 
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();

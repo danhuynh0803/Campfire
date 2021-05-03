@@ -1,7 +1,10 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <map>
+#include <vulkan/vulkan.hpp>
+
+#include <Vulkan/VulkanGraphicsPipeline.h>
+#include <Vulkan/VulkanComputePipeline.h>
 
 class FrameGraph
 {
@@ -10,8 +13,10 @@ public:
     vk::Device mDevice;
 
     vk::RenderPass GetRenderPass(const std::string& label) { return mRenderPasses.at(label).get(); }
+    SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline(const std::string& label) { return mGraphicsPipelines.at(label); }
 private:
     void CreateOpaque();
+    void PrepareGraphicsPipeline();
 
     template <typename T>
     using LabelMap = std::map<std::string, T>;
@@ -19,7 +24,10 @@ private:
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;
-    LabelMap<vk::Pipeline> mPipelines;
+    LabelMap<SharedPtr<VulkanGraphicsPipeline>> mGraphicsPipelines;
+    LabelMap<VulkanComputePipeline> mComputePipelines;
+
+    //LabelMap<vk::Pipeline> mPipelines;
     //LabelMap<vk::SubpassDescription> mSubpasses;
     //LabelMap<vk::SubpassDependency> mSubpassDependencies;
 };

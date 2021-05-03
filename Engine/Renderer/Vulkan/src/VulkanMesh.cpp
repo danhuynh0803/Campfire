@@ -22,7 +22,7 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
 {
     vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(Vertex) * vertices.size());
     indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
-    auto pipeline = VulkanContext::Get()->GetGraphicsPipeline();
+    auto pipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
     // TODO swapchain size
     // TODO use vars for set indices
     auto layout = std::vector(3, pipeline->mDescriptorSetLayouts[1].get());
@@ -93,7 +93,7 @@ void VulkanMesh::OnUpdate(float dt)
 void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex)
 {
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    auto pipeline = VulkanContext::Get()->GetGraphicsPipeline();
+    auto pipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
     for (auto& submesh : submeshes)
     {
         // Bind descriptor of material
