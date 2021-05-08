@@ -46,47 +46,29 @@ const int maxNumLights = 100;
 std::array<Light, maxNumLights> lights;
 
 //========================================================
-struct Sphere
-{
-    glm::vec3 pos;
-    float radius;
-    glm::vec3 diffuse;
-    float specular;
-    int id;
-    glm::vec3 padding;
-};
-std::vector<Sphere> spheres;
-SharedPtr<VulkanBuffer> sphereSSBO;
-
-//========================================================
-struct Plane
-{
-    glm::vec3 normal;
-    float distance;
-    glm::vec3 diffuse;
-    float specular;
-    int id;
-    glm::vec3 padding;
-};
-std::vector<Plane> planes;
-SharedPtr<VulkanBuffer> planeSSBO;
-
-//========================================================
 VulkanLayer::VulkanLayer()
     : Layer("VulkanLayer")
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 }
 
-Entity light;
-
 void VulkanLayer::OnAttach()
 {
     scene = CreateSharedPtr<Scene>();
 
-    light = scene->CreateEntity("light");
-    light.GetComponent<TransformComponent>().position = glm::vec3(0, 3, 3);
-    light.AddComponent<LightComponent>();
+    const int maxLights = 5;
+    for (int i = 0; i < maxLights; ++i)
+    {
+        auto light = scene->CreateEntity("light");
+        light.GetComponent<TransformComponent>().position =
+            glm::vec3(
+                30 * (i - maxLights * 0.5f),
+                30,
+                0
+            );
+        light.AddComponent<LightComponent>();
+        light.GetComponent<LightComponent>().intensity = 10.0f;
+    }
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
@@ -98,46 +80,15 @@ void VulkanLayer::OnAttach()
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
-    // TODO replace with just one triangle for projection quad
-    float vertices[] =
-    {
-        -1.0f,  1.0f, 0.0f,     0, 1,   0, 0, 0,
-        -1.0f, -1.0f, 0.0f,     0, 0,   0, 0, 0,
-         1.0f, -1.0f, 0.0f,     1, 0,   0, 0, 0,
-         1.0f,  1.0f, 0.0f,     1, 1,   0, 0, 0,
-    };
+    auto environment = scene->CreateEntity("environment");
+    environment.AddComponent<VulkanMeshComponent>(
+        ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+    );
+    environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
 
-    uint32_t indices[] =
-    {
-        0, 1, 2,
-        2, 3, 0,
-    };
-
-    vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
-    indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
-
-    int id = 0;
-    int maxRow = 25;
-    int maxCol = 25;
-    for (int i = 0; i < maxRow; ++i)
-    for (int j = 0; j < maxCol; ++j)
-    {
-        Sphere sphere {};
-        sphere.pos = glm::vec3(j, i, 0);
-        sphere.radius = 0.5f;
-        sphere.diffuse = glm::vec3((float)j/maxCol, (float)i/maxRow, 1.0f);
-        sphere.specular = 32;
-        sphere.id = id++;
-
-        spheres.push_back(sphere);
-    }
-
-    planes = {
-        { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, id++, glm::vec3(0.0f) },
-    };
-
-    // TODO match with swapchainImages size
-    for (size_t i = 0; i < 3; ++i)
+    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
+    auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
+    for (size_t i = 0; i < swapChainSize; ++i)
     {
         { // Create camera UBOs
             cameraUBOs.emplace_back(
@@ -154,16 +105,12 @@ void VulkanLayer::OnAttach()
             };
 
             cameraUBOs[i]->UpdateDescriptorSet(
-                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[0][i].get(),
+                graphicsPipeline->mDescriptorSets[0][i].get(),
                 cameraLayout, 0
-            );
-
-            cameraUBOs[i]->UpdateDescriptorSet(
-                VulkanContext::Get()->mComputePipeline->mDescriptorSets[i].get(),
-                cameraLayout, 1
             );
         }
 
+        // TODO switch to storage buffer
         { // Create Light UBOs
             lightUBOs.emplace_back(
                 CreateSharedPtr<VulkanUniformBuffer>(
@@ -173,100 +120,18 @@ void VulkanLayer::OnAttach()
 
             BufferLayout lightLayout =
             {
-                { ShaderDataType::FLOAT4, "pos" },
-                { ShaderDataType::FLOAT4, "color" },
-                { ShaderDataType::FLOAT3, "dir" },
-                { ShaderDataType::FLOAT, "intensity" },
+                { ShaderDataType::FLOAT4, "pos"       },
+                { ShaderDataType::FLOAT4, "color"     },
+                { ShaderDataType::FLOAT3, "dir"       },
+                { ShaderDataType::FLOAT , "intensity" },
             };
 
             lightUBOs[i]->UpdateDescriptorSet(
-                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[0][i].get(),
+                graphicsPipeline->mDescriptorSets[0][i].get(),
                 1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
-            );
-
-            lightUBOs[i]->UpdateDescriptorSet(
-                VulkanContext::Get()->mComputePipeline->mDescriptorSets[i].get(),
-                lightLayout, 2
             );
         }
     }
-
-    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
-    auto computePipeline = VulkanContext::Get()->mComputePipeline;
-
-    { // -- sphere SSBO
-        // TODO: No need to flush since coherent, but investigate
-        // what the performance hit is since we're not using
-        // device local memory
-        sphereSSBO = CreateSharedPtr<VulkanBuffer>(
-            vk::BufferUsageFlagBits::eStorageBuffer,
-            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-            spheres.size() * sizeof(Sphere),
-            vk::SharingMode::eExclusive
-        );
-
-        void* data = sphereSSBO->Map();
-        memcpy(data, spheres.data(), spheres.size() * sizeof(Sphere));
-
-        // Update DescriptorSet
-        vk::DescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = sphereSSBO->mBuffer.get();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sphereSSBO->mSize;
-
-        vk::WriteDescriptorSet writeInfo {};
-        writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
-        writeInfo.dstBinding = 3;
-        writeInfo.dstArrayElement = 0;
-        writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
-        writeInfo.descriptorCount = 1;
-        writeInfo.pBufferInfo = &bufferInfo;
-
-        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
-    }
-
-    { // -- plane SSBO
-        planeSSBO = CreateSharedPtr<VulkanBuffer>(
-            vk::BufferUsageFlagBits::eStorageBuffer,
-            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-            planes.size() * sizeof(Plane),
-            vk::SharingMode::eExclusive
-        );
-
-        void* data = planeSSBO->Map();
-        memcpy(data, planes.data(), planes.size() * sizeof(Plane));
-
-        // Update DescriptorSet
-        vk::DescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = sphereSSBO->mBuffer.get();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sphereSSBO->mSize;
-
-        vk::WriteDescriptorSet writeInfo {};
-        writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
-        writeInfo.dstBinding = 4;
-        writeInfo.dstArrayElement = 0;
-        writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
-        writeInfo.descriptorCount = 1;
-        writeInfo.pBufferInfo = &bufferInfo;
-
-        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
-    }
-
-    // Update post compute graphics descriptorset that reads in the processed image
-    vk::WriteDescriptorSet writeInfo {};
-    writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
-    writeInfo.dstBinding = 0;
-    writeInfo.dstArrayElement = 0;
-    writeInfo.descriptorCount = 1;
-    writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-    writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
-
-    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
-
-    vk::FenceCreateInfo fenceInfo;
-    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-    computeFence = mDevice.createFenceUnique(fenceInfo);
 }
 
 void VulkanLayer::OnDetach()
@@ -316,73 +181,40 @@ void VulkanLayer::OnUpdate(float dt)
     OnImGuiRender();
     vkImguiLayer->End();
 
-    auto computePipeline = VulkanContext::Get()->mComputePipeline;
-    vk::CommandBufferBeginInfo cmdBufferInfo{};
-    auto& cmdBuffer = computePipeline->mCmdBuffers.at(0);
-    // Dispatch compute command
-    cmdBuffer->begin(cmdBufferInfo);
-        cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-        cmdBuffer->bindDescriptorSets(
-            vk::PipelineBindPoint::eCompute,
-            computePipeline->mPipelineLayout.get(),
-            0,
-            1, &computePipeline->mDescriptorSets.at(0).get(),
-            0, nullptr
-        );
-        cmdBuffer->dispatch(computePipeline->mTexture->GetWidth() / 16, computePipeline->mTexture->GetHeight() / 16, 1);
-    cmdBuffer->end();
-
-    // Submit compute command
-    vk::SubmitInfo computeSubmitInfo {};
-    computeSubmitInfo.commandBufferCount = 1;
-    computeSubmitInfo.pCommandBuffers = &VulkanContext::Get()->mComputePipeline->mCmdBuffers.at(0).get();
-
-    mDevice.waitForFences(computeFence.get(), VK_TRUE, UINT64_MAX);
-    mDevice.resetFences(computeFence.get());
-    auto computeQueue = VulkanContext::Get()->GetDevice()->GetQueue(QueueFamilyType::COMPUTE);
-    computeQueue.submit(computeSubmitInfo, computeFence.get());
-
-    // TODO add image barrier from compute to fragment
+    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
 
     for (size_t frame = 0; frame < 3; ++frame)
     {
         auto commandBuffer = VulkanRenderer::BeginScene(frame);
         {
-            //auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
-            //for (auto entity : group)
-            //{
-            //    auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
-
-            //    mPushConstBlock.model = transformComponent;
-            //    commandBuffer.pushConstants(
-            //        VulkanContext::Get()->GetGraphicsPipeline()->mPipelineLayout.get(),
-            //        vk::ShaderStageFlagBits::eVertex,
-            //        0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
-            //        &mPushConstBlock);
-
-            //    // Draw mesh
-            //    meshComponent.mesh->Draw(commandBuffer, frame);
-            //}
-
-            mPushConstBlock.model = glm::mat4(1.0f);
-            commandBuffer.pushConstants(
-                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
-                vk::ShaderStageFlagBits::eVertex,
-                0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
-                &mPushConstBlock
-            );
+            std::vector<vk::DescriptorSet> descriptorSets{
+                graphicsPipeline->mDescriptorSets[0][frame].get(), // Camera, light ubo
+            };
 
             commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
-                VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
-                1,
-                1,
-                &VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[1][0].get(),
+                graphicsPipeline->mPipelineLayout.get(),
                 0,
-                nullptr
+                static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
+                0, nullptr
             );
+            commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->mPipeline.get());
 
-            VulkanRenderer::DrawIndexed(commandBuffer, vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), indexBufferPtr->GetCount());
+            auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
+            for (auto entity : group)
+            {
+                auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
+
+                mPushConstBlock.model = transformComponent;
+                commandBuffer.pushConstants(
+                    graphicsPipeline->mPipelineLayout.get(),
+                    vk::ShaderStageFlagBits::eVertex,
+                    0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
+                    &mPushConstBlock);
+
+                // Draw mesh
+                meshComponent.mesh->Draw(commandBuffer, frame);
+            }
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
         }
@@ -417,19 +249,14 @@ void VulkanLayer::OnImGuiRender()
     ImGui::DragFloat("Near", &editorCamera->nearPlane);
     ImGui::DragFloat("Far", &editorCamera->farPlane);
 
-    ImGui::Text("Inverse View Matrix");
-    glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
-    ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
-    ImGui::DragFloat4("", (float*)&invView[1], 0.01f);
-    ImGui::DragFloat4("", (float*)&invView[2], 0.01f);
-    ImGui::DragFloat4("", (float*)&invView[3], 0.01f);
+    //ImGui::Text("Inverse View Matrix");
+    //glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
+    //ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
+    //ImGui::DragFloat4("", (float*)&invView[1], 0.01f);
+    //ImGui::DragFloat4("", (float*)&invView[2], 0.01f);
+    //ImGui::DragFloat4("", (float*)&invView[3], 0.01f);
 
     ImGui::Separator();
-
-    // Light Controls
-    ImGui::DragFloat4("Light Pos", (float*)&light.GetComponent<TransformComponent>().position, 0.01f);
-    ImGui::ColorEdit4("Light Color", (float*)&light.GetComponent<LightComponent>().color, 0.01f);
-    ImGui::DragFloat("Light Intensity", (float*)&light.GetComponent<LightComponent>().intensity, 0.01f);
 
     ImGui::End();
 }

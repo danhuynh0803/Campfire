@@ -12,7 +12,7 @@ public:
     } mTransformPushConstBlock;
 
     VulkanGraphicsPipeline(
-        const std::vector<vk::UniqueDescriptorSetLayout> & descriptorSetLayouts
+        const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
       , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
     );
 

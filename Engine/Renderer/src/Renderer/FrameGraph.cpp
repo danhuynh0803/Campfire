@@ -4,35 +4,32 @@
 #include "Vulkan/VulkanInitializers.h"
 #include "Core/ResourceManager.h"
 
+#include <vector>
+
 void FrameGraph::PrepareGraphicsPipeline()
 {
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
-    std::vector<vk::UniqueDescriptorSetLayout> descriptorSetLayouts;
-    { // UBOs
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
+    { // Environment descriptors
         // Camera
         auto camera = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eUniformBuffer,
             vk::ShaderStageFlagBits::eVertex,
             0);
 
+        // TODO switch to storage buffer
         // Lights
         auto lights = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eUniformBuffer,
             vk::ShaderStageFlagBits::eFragment,
             1);
 
-        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
             camera,
             lights,
         };
-
-        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-            static_cast<uint32_t>(layoutBindings.size()),
-            layoutBindings.data());
-
-        // Set 0
-        descriptorSetLayouts.emplace_back(mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
     }
 
 
@@ -49,27 +46,20 @@ void FrameGraph::PrepareGraphicsPipeline()
             vk::ShaderStageFlagBits::eFragment,
             1);
 
-        std::vector<vk::DescriptorSetLayoutBinding> layoutBindings {
+        descriptorSetLayoutBindings[1] = {
             albedo,
-            //normal,
+            normal,
         };
-
-        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-            static_cast<uint32_t>(layoutBindings.size()),
-            layoutBindings.data());
-
-        // Set 1
-        descriptorSetLayouts.emplace_back(mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
     }
 
     // Shaders
     auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
-        SHADERS + "/vert.spv"
+        SHADERS + "/model.vert.spv"
       , vk::ShaderStageFlagBits::eVertex
     );
 
     auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
-        SHADERS + "/frag.spv"
+        SHADERS + "/model.frag.spv"
       , vk::ShaderStageFlagBits::eFragment
     );
 
@@ -78,9 +68,11 @@ void FrameGraph::PrepareGraphicsPipeline()
         fragShaderStageInfo,
     };
 
+    // TODO create a pipelineCreateInfo and just assign the descriptorSetLayouts,
+    // shaderStages, and renderpass
     mGraphicsPipelines.emplace(
-        "PostProcess"
-      , CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayouts, shaderStages)
+        "models"
+      , CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayoutBindings, shaderStages)
     );
 
 }

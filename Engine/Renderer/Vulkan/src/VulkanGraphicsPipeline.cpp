@@ -71,7 +71,7 @@ std::vector<vk::VertexInputAttributeDescription> Vertex::vertexInputAttributeDes
 vk::VertexInputBindingDescription Vertex::vertexInputBindingDescription;
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(
-    const std::vector<vk::UniqueDescriptorSetLayout> & descriptorSetLayouts
+    const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
   , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
 )
 {
@@ -110,8 +110,21 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
     auto dynamicState = vk::initializers::PipelineDynamicStateCreateInfo(static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
 
+    // Create UniqueDescriptorSetLayouts from the layout bindings parameter
+    for (auto setBindings : descriptorSetLayoutBindings)
+    {
+        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+            static_cast<uint32_t>(setBindings.size()),
+            setBindings.data()
+        );
+
+        mDescriptorSetLayouts.emplace_back(
+            mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo)
+        );
+    }
+
     // DescriptorSets
-    std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(descriptorSetLayouts);
+    std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
     const auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
     for (size_t i = 0; i < setLayouts.size(); ++i)
     {

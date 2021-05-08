@@ -29,10 +29,6 @@ private:
     void SceneHierarchy(SharedPtr<Scene> scene);
     void SetupModelsScene();
 
-    SharedPtr<VulkanMesh> meshPtr;
-    SharedPtr<VulkanVertexBuffer> vertexBufferPtr;
-    SharedPtr<VulkanBuffer> pVertexBuffer;
-    SharedPtr<VulkanIndexBuffer> indexBufferPtr;
     std::vector<SharedPtr<VulkanUniformBuffer>> cameraUBOs;
     std::vector<SharedPtr<VulkanUniformBuffer>> transformUBOs;
     std::vector<SharedPtr<VulkanUniformBuffer>> lightUBOs;

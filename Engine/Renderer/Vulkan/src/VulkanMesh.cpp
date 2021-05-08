@@ -22,10 +22,10 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
 {
     vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(Vertex) * vertices.size());
     indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
-    auto pipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
+    auto pipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
     // TODO swapchain size
     // TODO use vars for set indices
-    auto layout = std::vector(3, pipeline->mDescriptorSetLayouts[1].get());
+    auto layout = std::vector(3, pipeline->mDescriptorSetLayouts.at(1).get());
     auto allocInfo = vk::initializers::
         DescriptorSetAllocateInfo(
             VulkanContext::Get()->GetDescriptorPool(),
@@ -36,7 +36,6 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     material->descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
 
-    auto& descriptorSets = material->descriptorSets;
     if (material)
     {
         SharedPtr<VulkanTexture2D> albedo = std::static_pointer_cast<VulkanTexture2D>(
@@ -51,18 +50,18 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
         {
             if (albedo)
             {
-                albedo->UpdateDescriptors(descriptorSets[i].get(), 0);
+                albedo->UpdateDescriptors(material->descriptorSets[i].get(), 0);
             }
             if (normal)
             {
-                normal->UpdateDescriptors(descriptorSets[i].get(), 1);
+                normal->UpdateDescriptors(material->descriptorSets[i].get(), 1);
             }
             else
             {
                 // TODO create blank textures to satisfy layout?
-                // For not just use albedo tex
+                // For now just use albedo tex
                 CORE_WARN("No normal texture found, using albedo to satisfy layout");
-                albedo->UpdateDescriptors(descriptorSets[i].get(), 1);
+                albedo->UpdateDescriptors(material->descriptorSets[i].get(), 1);
             }
         }
     }
@@ -92,8 +91,9 @@ void VulkanMesh::OnUpdate(float dt)
 
 void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex)
 {
+    // TODO move to meshRenderer
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    auto pipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
+    auto pipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
     for (auto& submesh : submeshes)
     {
         // Bind descriptor of material

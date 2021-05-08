@@ -227,5 +227,5 @@ void VulkanTexture2D::UpdateDescriptors(vk::DescriptorSet dstSet, uint32_t dstBi
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pImageInfo = &imageInfo;
 
-    mDevice.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+    VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 }

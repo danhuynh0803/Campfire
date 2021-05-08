@@ -4,7 +4,6 @@
 
 vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 {
-    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
     auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
@@ -37,20 +36,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
-    // TODO replace set index with var
-    std::vector<vk::DescriptorSet> descriptorSets {
-        graphicsPipeline->mDescriptorSets[0][frame].get(),
-    };
-
-    commandBuffer.bindDescriptorSets(
-        vk::PipelineBindPoint::eGraphics,
-        graphicsPipeline->mPipelineLayout.get(),
-        0,
-        static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
-        0, nullptr
-    );
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->mPipeline.get());
 
     return commandBuffer;
 
