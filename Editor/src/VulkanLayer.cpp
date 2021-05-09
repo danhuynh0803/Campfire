@@ -5,6 +5,7 @@
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanUtil.h"
 #include "Vulkan/VulkanMesh.h"
+#include "Vulkan/VulkanInitializers.h"
 
 #include "Core/Input.h"
 #include "Core/Timer.h"
@@ -44,6 +45,107 @@ struct Light
 };
 const int maxNumLights = 100;
 std::array<Light, maxNumLights> lights;
+
+struct GlobalInfo
+{
+    std::vector<SharedPtr<VulkanUniformBuffer>> mCameraUBOs;
+    std::vector<SharedPtr<VulkanUniformBuffer>> mLightUBOs;
+    std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
+
+    void Init()
+    {
+        auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+        auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
+        auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
+
+        // Create global descriptorSet (Should be at set 0)
+        // TODO use enums instead of hardcoded ints later on
+        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+            VulkanContext::Get()->GetDescriptorPool(),
+            1,
+            &graphicsPipeline->mDescriptorSetLayouts.at(0).get()
+        );
+
+        mDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+
+        for (size_t i = 0; i < swapChainSize; ++i)
+        {
+            { // Create camera UBOs
+                mCameraUBOs.emplace_back(
+                    CreateSharedPtr<VulkanUniformBuffer>(
+                        sizeof(CameraUBO)
+                    )
+                );
+
+                BufferLayout cameraLayout =
+                {
+                    { ShaderDataType::MAT4, "view" },
+                    { ShaderDataType::MAT4, "proj" },
+                    { ShaderDataType::MAT4, "viewProj" },
+                };
+
+                mCameraUBOs[i]->UpdateDescriptorSet(
+                    mDescriptorSets.at(0).get(),
+                    cameraLayout, 0
+                );
+            }
+
+            // TODO switch to storage buffer
+            { // Create Light UBOs
+                mLightUBOs.emplace_back(
+                    CreateSharedPtr<VulkanUniformBuffer>(
+                        sizeof(lights) + sizeof(glm::vec4)
+                    )
+                );
+
+                BufferLayout lightLayout =
+                {
+                    { ShaderDataType::FLOAT4, "pos"       },
+                    { ShaderDataType::FLOAT4, "color"     },
+                    { ShaderDataType::FLOAT3, "dir"       },
+                    { ShaderDataType::FLOAT , "intensity" },
+                };
+
+                mLightUBOs[i]->UpdateDescriptorSet(
+                    mDescriptorSets.at(0).get(),
+                    1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
+                );
+            }
+        }
+    }
+
+    void Update(
+        const SharedPtr<Camera> & camera
+      , const SharedPtr<Scene> & scene
+      , int frameIdx
+    )
+    {
+        // Update camera ubo
+        cameraUBO.view = camera->GetViewMatrix();
+        cameraUBO.proj = camera->GetProjMatrix();
+        cameraUBO.proj[1][1] *= -1;
+        cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
+        mCameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
+
+        // Update light ubo
+        uint32_t numLights = 0;
+        auto group = scene->registry.group<LightComponent>(entt::get<TransformComponent>);
+        for (auto entity : group)
+        {
+            auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
+
+            Light light;
+            light.pos = glm::vec4(transformComponent.position, 0.0f);
+            light.dir = glm::vec3(0.0f);
+            light.intensity = lightComponent.intensity;
+            light.color = lightComponent.color;
+            lights[numLights++] = light;
+        }
+        mLightUBOs[frameIdx]->SetData(lights.data(), 0, sizeof(lights));
+        mLightUBOs[frameIdx]->SetData(&numLights, sizeof(lights), sizeof(uint32_t));
+    }
+
+} globalInfo;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -86,52 +188,7 @@ void VulkanLayer::OnAttach()
     );
     environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
 
-    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
-    auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
-    for (size_t i = 0; i < swapChainSize; ++i)
-    {
-        { // Create camera UBOs
-            cameraUBOs.emplace_back(
-                CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(CameraUBO)
-                )
-            );
-
-            BufferLayout cameraLayout =
-            {
-                { ShaderDataType::MAT4, "view" },
-                { ShaderDataType::MAT4, "proj" },
-                { ShaderDataType::MAT4, "viewProj" },
-            };
-
-            cameraUBOs[i]->UpdateDescriptorSet(
-                graphicsPipeline->mDescriptorSets[0][i].get(),
-                cameraLayout, 0
-            );
-        }
-
-        // TODO switch to storage buffer
-        { // Create Light UBOs
-            lightUBOs.emplace_back(
-                CreateSharedPtr<VulkanUniformBuffer>(
-                    sizeof(lights) + sizeof(glm::vec4)
-                )
-            );
-
-            BufferLayout lightLayout =
-            {
-                { ShaderDataType::FLOAT4, "pos"       },
-                { ShaderDataType::FLOAT4, "color"     },
-                { ShaderDataType::FLOAT3, "dir"       },
-                { ShaderDataType::FLOAT , "intensity" },
-            };
-
-            lightUBOs[i]->UpdateDescriptorSet(
-                graphicsPipeline->mDescriptorSets[0][i].get(),
-                1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
-            );
-        }
-    }
+    globalInfo.Init();
 }
 
 void VulkanLayer::OnDetach()
@@ -150,31 +207,9 @@ void VulkanLayer::OnUpdate(float dt)
     // Update camera
     cameraController.OnUpdate(dt);
 
-    // Update camera ubo
-    cameraUBO.view = editorCamera->GetViewMatrix();
-    cameraUBO.proj = editorCamera->GetProjMatrix();
-    cameraUBO.proj[1][1] *= -1;
-    cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
-    cameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
-
-    // Update light ubo
-    uint32_t numLights = 0;
-    auto group = scene->registry.group<LightComponent>(entt::get<TransformComponent>);
-    for (auto entity : group)
-    {
-        auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
-
-        Light light;
-        light.pos = glm::vec4(transformComponent.position, 0.0f);
-        light.dir = glm::vec3(0.0f);
-        light.intensity = lightComponent.intensity;
-        light.color = lightComponent.color;
-        lights[numLights++] = light;
-    }
-    lightUBOs[frameIdx]->SetData(lights.data(), 0, sizeof(lights));
-    lightUBOs[frameIdx]->SetData(&numLights, sizeof(lights), sizeof(uint32_t));
-
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
+
+    globalInfo.Update(editorCamera, scene, frameIdx);
 
     // TODO this should be called from the application loop
     vkImguiLayer->Begin();
@@ -188,7 +223,7 @@ void VulkanLayer::OnUpdate(float dt)
         auto commandBuffer = VulkanRenderer::BeginScene(frame);
         {
             std::vector<vk::DescriptorSet> descriptorSets{
-                graphicsPipeline->mDescriptorSets[0][frame].get(), // Camera, light ubo
+                globalInfo.mDescriptorSets.at(0).get(),
             };
 
             commandBuffer.bindDescriptorSets(
@@ -198,6 +233,7 @@ void VulkanLayer::OnUpdate(float dt)
                 static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
                 0, nullptr
             );
+
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->mPipeline.get());
 
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);

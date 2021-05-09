@@ -1,5 +1,4 @@
-#ifndef TRANSFORM_WIDGET_H
-#define TRANSFORM_WIDGET_H
+#pragma once
 
 #include <ImGuizmo.h>
 
@@ -26,6 +25,3 @@ private:
 
     ImGuizmo::MODE mode = ImGuizmo::LOCAL;
 };
-
-#endif // TRANSFORM_WIDGET_H
-

@@ -123,24 +123,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         );
     }
 
-    // DescriptorSets
     std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
-    const auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
-    for (size_t i = 0; i < setLayouts.size(); ++i)
-    {
-        // Create 3 descriptor sets per each unique descriptorSetLayout
-        // TODO: check if we actually need multiple? Would it suffice to just use
-        // the same set per frame?
-        std::vector<vk::DescriptorSetLayout> layouts { swapChainSize, setLayouts.at(i) };
-        auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
-            VulkanContext::Get()->GetDescriptorPool(),
-            static_cast<uint32_t>(layouts.size()),
-            layouts.data()
-        );
-
-        mDescriptorSets.emplace_back(mDevice.allocateDescriptorSetsUnique(allocInfo));
-    }
-
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
         static_cast<uint32_t>(setLayouts.size())

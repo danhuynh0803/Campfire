@@ -99,7 +99,7 @@ void VulkanContext::RecreateSwapChain()
 
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
 
-    //mGraphicsPipeline->RecreatePipeline();
+    mFrameGraph.ReconstructFrameGraph();
 
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();

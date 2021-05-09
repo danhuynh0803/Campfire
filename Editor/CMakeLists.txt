@@ -15,7 +15,7 @@ set(EDITOR_SRC
     src/Widgets/HierarchyWidget.cpp
     src/Widgets/InspectorWidget.cpp
     #src/Widgets/LogWidget.cpp
-    #src/Widgets/TransformWidget.cpp
+    src/Widgets/TransformWidget.cpp
     #src/Widgets/AssetBrowser.cpp
     #src/EditorLayer.cpp
     src/VulkanLayer.cpp

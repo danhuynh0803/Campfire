@@ -17,6 +17,14 @@ void FrameGraph::CreateRenderFrameGraph()
     PrepareGraphicsPipeline();
 }
 
+void FrameGraph::ReconstructFrameGraph()
+{
+    // TODO
+    // look into the dynamic structs for pipeline
+    // Recreate entire pipeline for now just for quick use
+    PrepareGraphicsPipeline();
+}
+
 void FrameGraph::PrepareGraphicsPipeline()
 {
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
@@ -42,7 +50,6 @@ void FrameGraph::PrepareGraphicsPipeline()
             lights,
         };
     }
-
 
     { // Material descriptors
         // Albedo map (or computeResolve)
@@ -81,11 +88,14 @@ void FrameGraph::PrepareGraphicsPipeline()
 
     // TODO create a pipelineCreateInfo and just assign the descriptorSetLayouts,
     // shaderStages, and renderpass
+    /*
     mGraphicsPipelines.emplace(
         "models"
       , CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayoutBindings, shaderStages)
     );
+    */
 
+    mGraphicsPipelines["models"] = CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayoutBindings, shaderStages);
 }
 
 void FrameGraph::CreateOpaque()

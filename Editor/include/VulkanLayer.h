@@ -33,10 +33,6 @@ private:
     void SceneHierarchy(SharedPtr<Scene> scene);
     void SetupModelsScene();
 
-    std::vector<SharedPtr<VulkanUniformBuffer>> cameraUBOs;
-    std::vector<SharedPtr<VulkanUniformBuffer>> transformUBOs;
-    std::vector<SharedPtr<VulkanUniformBuffer>> lightUBOs;
-    std::vector<SharedPtr<VulkanTexture2D>> textures;
     Timer timer;
 
     VulkanGraphicsPipeline::TransformPushConstBlock mPushConstBlock;

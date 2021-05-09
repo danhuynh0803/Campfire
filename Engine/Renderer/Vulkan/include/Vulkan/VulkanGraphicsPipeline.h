@@ -19,14 +19,11 @@ public:
     ~VulkanGraphicsPipeline() = default;
     void RecreatePipeline();
 
-    std::vector< std::vector<vk::UniqueDescriptorSet> > mDescriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
     vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
 
 private:
-    void CreateDescriptorSets();
-
     vk::Device mDevice;
 };
 

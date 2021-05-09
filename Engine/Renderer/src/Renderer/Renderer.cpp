@@ -1,6 +1,9 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/Renderer2D.h"
 
+// TODO wrap vulkan commands into renderCommands abstraction
+#include "Vulkan/VulkanContext.h"
+
 glm::mat4 Renderer::viewProjMatrix = glm::mat4(1.0f);
 SharedPtr<Shader> Renderer::shader;
 
@@ -133,6 +136,7 @@ void Renderer::DrawLines(const SharedPtr<Shader>& shader, const SharedPtr<Vertex
 void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 {
     RenderCommand::SetViewport(0, 0, width, height);
+    VulkanContext::Get()->RecreateSwapChain();
     // TODO update FBO data here when refactoring
     // Or maybe just make a renderer specifically for scenes
 }

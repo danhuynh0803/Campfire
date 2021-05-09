@@ -14,6 +14,9 @@ public:
 
     vk::RenderPass GetRenderPass(const std::string& label) { return mRenderPasses.at(label).get(); }
     SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline(const std::string& label) { return mGraphicsPipelines.at(label); }
+
+    void ReconstructFrameGraph();
+
 private:
     void CreateOpaque();
     void PrepareGraphicsPipeline();
