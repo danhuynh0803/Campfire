@@ -84,8 +84,8 @@ void HierarchyWidget::ShowHierarchy(SharedPtr<Scene>& activeScene, const SharedP
         // Skip entities that don't match the filter
         if (filter.PassFilter(tag.c_str()))
         {
-            RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
-            if (relationshipComp.numChildren == 0)
+            //RelationshipComponent& relationshipComp = entity.GetComponent<RelationshipComponent>();
+            //if (relationshipComp.numChildren == 0)
             {
                 // Object contains no children, so set as selectable leaf
                 node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet

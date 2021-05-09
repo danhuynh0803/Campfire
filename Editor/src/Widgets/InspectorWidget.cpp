@@ -27,7 +27,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
 {
     int isActiveID = 0;
     ImGui::PushID(isActiveID++);
-    ImGui::Checkbox("", &entity.GetComponent<ActiveComponent>().isActive);
+    //ImGui::Checkbox("", &entity.GetComponent<ActiveComponent>().isActive);
     ImGui::PopID();
     ImGui::SameLine();
 
