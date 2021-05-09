@@ -1,6 +1,10 @@
 #include <imgui.h>
 #include "Widgets/HierarchyWidget.h"
 #include "Core/Input.h"
+#include "Scene/Entity.h"
+#include "Scene/Component.h"
+#include "Scene/Scene.h"
+#include "Widgets/InspectorWidget.h"
 
 // TODO move to general header
 static void HelpMarker(const char* desc)

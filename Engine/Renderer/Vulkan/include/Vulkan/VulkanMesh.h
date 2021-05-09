@@ -9,6 +9,8 @@
 #include <assimp/postprocess.h>
 
 #include <vulkan/vulkan.hpp>
+
+#include "Core/Base.h"
 #include "Util/AABB.h"
 
 struct VulkanMaterial;
@@ -29,7 +31,6 @@ struct VulkanSubmesh
     };
 
     VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, SharedPtr<VulkanMaterial> m);
-    void UpdateDescriptors();
 
     uint32_t baseVertex;
     uint32_t baseIndex;

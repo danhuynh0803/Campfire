@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <lua.hpp>
 
+#include "Scene/Component.h"
+#include "Scene/Entity.h"
 #include "Widgets/InspectorWidget.h"
 #include "Core/FileSystem.h"
 #include "Renderer/Material.h"

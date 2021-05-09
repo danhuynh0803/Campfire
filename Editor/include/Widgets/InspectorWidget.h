@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Scene/Component.h"
-#include "Scene/Entity.h"
+#include <nlohmann/json.hpp>
+
+class Entity;
 
 class InspectorWidget
 {
@@ -11,7 +12,6 @@ public:
 
 private:
     void ShowJsonObject(const nlohmann::json& json);
-
     void ShowComponentMenu(Entity& entity);
 
     template <typename T>

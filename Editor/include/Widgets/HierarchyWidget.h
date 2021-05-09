@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Scene/Scene.h"
-#include "Widgets/InspectorWidget.h"
+#include "Scene/Entity.h"
+
+class Scene;
 
 class HierarchyWidget
 {
@@ -24,6 +25,5 @@ private:
 
     // For displaying entity properties
     Entity selectedEntity;
-    InspectorWidget wInspector;
     int selected = -1;
 };
