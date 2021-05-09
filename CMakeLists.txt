@@ -30,6 +30,5 @@ endif()
 
 add_subdirectory(Engine)
 add_subdirectory(Vendor)
-#add_subdirectory(Editor)
+add_subdirectory(Editor)
 #add_subdirectory(Game)
-add_subdirectory(VulkanApp)

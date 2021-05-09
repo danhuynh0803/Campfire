@@ -10,7 +10,7 @@
 #include "Renderer/Material.h"
 #include "Scene/SceneManager.h"
 #include "Command/CommandManager.h"
-#include "Scripting/LuaManager.h"
+//#include "Scripting/LuaManager.h"
 
 void InspectorWidget::ShowInspector(Entity& entity, bool* isOpen)
 {
@@ -776,7 +776,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
                 ImGui::OpenPopup("ComponentOptionsPopup");
             }
 
-            ShowJsonObject(LuaManager::GetLuaGlobal());
+            //ShowJsonObject(LuaManager::GetLuaGlobal());
             
             auto& sc = entity.GetComponent<ScriptComponent>();
 

@@ -1,6 +1,7 @@
 #include "Core/Application.h"
 #include "EntryPoint.h"
 #include "EditorLayer.h"
+#include "VulkanLayer.h"
 
 class EditorApplication : public Application
 {
@@ -12,7 +13,8 @@ public:
 
     virtual void OnInit() override
     {
-        PushLayer(new EditorLayer);
+        //PushLayer(new EditorLayer);
+        PushLayer(new VulkanLayer);
     }
 };
 

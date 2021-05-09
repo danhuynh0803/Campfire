@@ -1,22 +1,24 @@
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(EDITOR_HEADERS
-    include/Widgets/HierarchyWidget.h
-    include/Widgets/InspectorWidget.h
+    #include/Widgets/HierarchyWidget.h
+    #include/Widgets/InspectorWidget.h
     #include/Widgets/ImGuiLog.h
     #include/Widgets/LogWidget.h
-    include/Widgets/TransformWidget.h
-    include/Widgets/AssetBrowser.h
-    include/EditorLayer.h
+    #include/Widgets/TransformWidget.h
+    #include/Widgets/AssetBrowser.h
+    #include/EditorLayer.h
+    include/VulkanLayer.h
 )
 
 set(EDITOR_SRC
-    src/Widgets/HierarchyWidget.cpp
-    src/Widgets/InspectorWidget.cpp
+    #src/Widgets/HierarchyWidget.cpp
+    #src/Widgets/InspectorWidget.cpp
     #src/Widgets/LogWidget.cpp
-    src/Widgets/TransformWidget.cpp
-    src/Widgets/AssetBrowser.cpp
-    src/EditorLayer.cpp
+    #src/Widgets/TransformWidget.cpp
+    #src/Widgets/AssetBrowser.cpp
+    #src/EditorLayer.cpp
+    src/VulkanLayer.cpp
     src/EditorApplication.cpp
 )
 
@@ -46,7 +48,7 @@ target_link_libraries(
     Editor
     PRIVATE
         Engine
-        font-awesome-5
+        #font-awesome-5
 )
 
 set(FMOD_DIR "${CMAKE_SOURCE_DIR}/Vendor/fmod")

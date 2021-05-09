@@ -6,6 +6,17 @@
 
 #include <vector>
 
+void FrameGraph::CreateRenderFrameGraph()
+{
+    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
+    // Prepare renderpasses
+    CreateOpaque();
+
+    // Prepare pipelines
+    PrepareGraphicsPipeline();
+}
+
 void FrameGraph::PrepareGraphicsPipeline()
 {
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
@@ -147,15 +158,4 @@ void FrameGraph::CreateOpaque()
     renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
     mRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
-}
-
-void FrameGraph::CreateRenderFrameGraph()
-{
-    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-
-    // Prepare renderpasses
-    CreateOpaque();
-
-    // Prepare pipelines
-    PrepareGraphicsPipeline();
 }
