@@ -6,7 +6,7 @@
 Campfire is an in-progress game engine built using OpenGL and Vulkan. Most of the engine's features are currently disabled, as we work through switching to Vulkan, but are available on the [OpenGL branch](https://github.com/danhuynh0803/Campfire/tree/OpenGL).
 
 ## Sample Images
-![SampleScene](https://i.imgur.com/aNpakfb.jpg)
+![SampleScene](https://i.imgur.com/jZDVC6l.jpg)
 
 ## Dependencies
 Vulkan SDK: [1.2.148.1](https://vulkan.lunarg.com/sdk/home)
