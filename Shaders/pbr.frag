@@ -116,8 +116,7 @@ vec3 GetNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
-// =========================================
-void main()
+vec3 BasicPbr()
 {
     vec3 albedo = useAlbedoMap ? pow(texture(albedoMap, inUV).rgb * uAlbedo.rgb, vec3(2.2)) : uAlbedo.rgb;
     float metallic = useMetallicMap ? texture(metallicMap, inUV).r : uMetallic;
@@ -192,7 +191,24 @@ void main()
 
     color = color / (color + vec3(1.0f));
     // apply gamma correction
-    color = pow(color, vec3(1.0f/2.2f));
+    return pow(color, vec3(1.0f/2.2f));
+}
+
+float near = 0.1f;
+float far = 500.0f;
+
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0f - 1.0f;
+    return (2.0f * near * far) / (far + near - z * (far-near));
+}
+
+// =========================================
+void main()
+{
+    vec3 color = BasicPbr();
+
+    //color = vec3(LinearizeDepth(gl_FragCoord.z) / far);
 
     fragColor = vec4(color, 1.0f);
     fragColor = vec4(albedo, 1.0f);
