@@ -1184,14 +1184,32 @@ bool EditorLayer::OnMouseClick(MouseButtonPressedEvent& e)
                 float t = FLT_MAX;
                 if (ray.IntersectAABB(submesh.boundingBox, t))
                 {
-                    //LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
-                    //wHierarchy.OverrideSelectedEntity(entity, activeScene);
-                    if (t < tHit)
+                    // iterate over all submesh triangles
+                    for (size_t i = 0; i < submesh.indices.size(); i += 3)
                     {
-                        tHit = t;
-                        selectedEntity = entity;
+                        // Get triangle position using indices and vertices list
+                        glm::vec3 tri[3] = {
+                            submesh.vertices.at(
+                                submesh.indices.at(i)
+                            ).position,
+                            submesh.vertices.at(
+                                submesh.indices.at(i+1)
+                            ).position,
+                            submesh.vertices.at(
+                                submesh.indices.at(i+2)
+                            ).position,
+                        };
+
+                        if (ray.IntersectTriangle(tri[0], tri[1], tri[2], t))
+                        {
+                            if (t < tHit)
+                            {
+                                tHit = t;
+                                selectedEntity = entity;
+                            }
+                            //LOG_TRACE("Has hit for {0}", entity.GetComponent<TagComponent>().tag);
+                        }
                     }
-                    // TODO check if ray intersects the triangles for more precise picking
                 }
             }
         }
