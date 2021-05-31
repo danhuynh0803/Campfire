@@ -15,6 +15,16 @@
 namespace
 {
     std::vector<SharedPtr<Texture2D>> textureCache;
+
+    struct TextureMapUsage
+    {
+        bool useAlbedoMap    = false;
+        bool useMetallicMap  = false;
+        bool useNormalMap    = false;
+        bool useRoughnessMap = false;
+        bool useOcclusionMap = false;
+        bool useEmissiveMap  = false;
+    };
 }
 
 VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, SharedPtr<VulkanMaterial> m)
@@ -42,27 +52,85 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
             material->albedoMap
         );
 
+        SharedPtr<VulkanTexture2D> metallic = std::static_pointer_cast<VulkanTexture2D>(
+            material->metallicMap
+        );
+
         SharedPtr<VulkanTexture2D> normal = std::static_pointer_cast<VulkanTexture2D>(
             material->normalMap
         );
 
+        SharedPtr<VulkanTexture2D> roughness = std::static_pointer_cast<VulkanTexture2D>(
+            material->roughnessMap
+        );
+
+        SharedPtr<VulkanTexture2D> occlusion = std::static_pointer_cast<VulkanTexture2D>(
+            material->occlusionMap
+        );
+
+        SharedPtr<VulkanTexture2D> emissive = std::static_pointer_cast<VulkanTexture2D>(
+            material->emissiveMap
+        );
+
+        material->textureMapUsageUbo = CreateSharedPtr<VulkanUniformBuffer>(
+            sizeof(::TextureMapUsage)
+        );
+
+        BufferLayout usageLayout =
+        {
+            { ShaderDataType::BOOL, "useAlbedoMap"    },
+            { ShaderDataType::BOOL, "useMetallicMap"  },
+            { ShaderDataType::BOOL, "useNormalMap"    },
+            { ShaderDataType::BOOL, "useRoughnessMap" },
+            { ShaderDataType::BOOL, "useOcclusionMap" },
+            { ShaderDataType::BOOL, "useEmissiveMap"  },
+        };
+
         for (int i = 0; i < 3; ++i)
         {
-            if (albedo)
-            {
+            TextureMapUsage usage;
+
+            if (albedo) {
                 albedo->UpdateDescriptors(material->descriptorSets[i].get(), 0);
+                usage.useAlbedoMap = true;
             }
-            if (normal)
-            {
-                normal->UpdateDescriptors(material->descriptorSets[i].get(), 1);
+            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 0); }
+
+            if (metallic) {
+                metallic->UpdateDescriptors(material->descriptorSets[i].get(), 1);
+                usage.useMetallicMap = true;
             }
-            else
-            {
-                // TODO create blank textures to satisfy layout?
-                // For now just use albedo tex
-                CORE_WARN("No normal texture found, using albedo to satisfy layout");
-                albedo->UpdateDescriptors(material->descriptorSets[i].get(), 1);
+            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 1); }
+
+            if (normal) {
+                normal->UpdateDescriptors(material->descriptorSets[i].get(), 2);
+                usage.useNormalMap = true;
             }
+            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 2); }
+
+            if (roughness) {
+                roughness->UpdateDescriptors(material->descriptorSets[i].get(), 3);
+                usage.useRoughnessMap = true;
+            }
+            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 3); }
+
+            if (occlusion) {
+                occlusion->UpdateDescriptors(material->descriptorSets[i].get(), 4);
+                usage.useOcclusionMap = true;
+            }
+            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 4); }
+
+            if (emissive) {
+                emissive->UpdateDescriptors(material->descriptorSets[i].get(), 5);
+                usage.useEmissiveMap = true;
+            }
+            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 5); }
+
+            material->textureMapUsageUbo->UpdateDescriptorSet(
+                material->descriptorSets[i].get(), usageLayout, 6
+            );
+
+            material->textureMapUsageUbo->SetData(&usage, 6, sizeof(::TextureMapUsage));
         }
     }
 }
@@ -240,7 +308,7 @@ VulkanSubmesh VulkanMesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
 
         }
 
-        { // Diffuse
+        { // Diffuse/Albedo
             std::vector<SharedPtr<Texture2D>> textures =
                 LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE);
             if (textures.size() > 0)
@@ -255,29 +323,29 @@ VulkanSubmesh VulkanMesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
 
         }
 
-        //{ // Emmissive
-        //    std::vector<SharedPtr<Texture2D>> textures =
-        //        LoadMaterialTextures(meshMaterial, aiTextureType_EMISSIVE);
-        //    if (textures.size() > 0)
-        //    {
-        //        mat->emissiveMap = textures.at(0);
-        //        mat->useEmissiveMap = true;
-        //    }
-        //}
+        { // Emmissive
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_EMISSIVE);
+            if (textures.size() > 0)
+            {
+                mat->emissiveMap = textures.at(0);
+                mat->useEmissiveMap = true;
+            }
+        }
 
         { // Height
 
         }
 
-        //{ // Lightmap (Ambient Occlusion)
-        //    std::vector<SharedPtr<Texture2D>> textures =
-        //        LoadMaterialTextures(meshMaterial, aiTextureType_LIGHTMAP);
-        //    if (textures.size() > 0)
-        //    {
-        //        mat->ambientOcclusionMap = textures.at(0);
-        //        mat->useOcclusionMap = true;
-        //    }
-        //}
+        { // Lightmap (Ambient Occlusion)
+            std::vector<SharedPtr<Texture2D>> textures =
+                LoadMaterialTextures(meshMaterial, aiTextureType_LIGHTMAP);
+            if (textures.size() > 0)
+            {
+                mat->occlusionMap = textures.at(0);
+                mat->useOcclusionMap = true;
+            }
+        }
 
         { // Normal
             std::vector<SharedPtr<Texture2D>> textures =

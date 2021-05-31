@@ -36,8 +36,8 @@ float quadratic = 0.032f;
 layout (set = 1, binding = 0) uniform sampler2D uAlbedoMap;
 layout (set = 1, binding = 1) uniform sampler2D uMetallicMap;
 layout (set = 1, binding = 2) uniform sampler2D uNormalMap;
-layout (set = 1, binding = 4) uniform sampler2D uRoughnessMap;
-layout (set = 1, binding = 3) uniform sampler2D uAmbientOcclusionMap;
+layout (set = 1, binding = 3) uniform sampler2D uRoughnessMap;
+layout (set = 1, binding = 4) uniform sampler2D uAmbientOcclusionMap;
 layout (set = 1, binding = 5) uniform sampler2D uEmissiveMap;
 
 layout (set = 1, binding = 6) uniform TextureMapUsage
@@ -48,7 +48,7 @@ layout (set = 1, binding = 6) uniform TextureMapUsage
     bool useRoughnessMap;
     bool useOcclusionMap;
     bool useEmissiveMap;
-};
+} mapUsage;
 
 // =========================================
 float NormalDistributionGGX(vec3 N, vec3 H, float roughness)
@@ -134,16 +134,16 @@ vec3 PhongLighting(vec3 normal)
 
 vec3 BasicPbr()
 {
-    vec3 albedo = useAlbedoMap ? pow(texture(uAlbedoMap, inUV).rgb * vec3(1.0f), vec3(2.2)) : vec3(1.0f);
-    float metallic = useMetallicMap ? texture(uMetallicMap, inUV).r : 0.5f;
-    float roughness = useRoughnessMap ? texture(uRoughnessMap, inUV).r : 0.5f;
-    float ao = useOcclusionMap ? texture(uAmbientOcclusionMap, inUV).r : 0.5f;
+    vec3 albedo = mapUsage.useAlbedoMap ? pow(texture(uAlbedoMap, inUV).rgb * vec3(1.0f), vec3(2.2)) : vec3(1.0f);
+    float metallic = mapUsage.useMetallicMap ? texture(uMetallicMap, inUV).r : 0.5f;
+    float roughness = mapUsage.useRoughnessMap ? texture(uRoughnessMap, inUV).r : 0.5f;
+    float ao = mapUsage.useOcclusionMap ? texture(uAmbientOcclusionMap, inUV).r : 0.5f;
 
-    vec3 emission = useEmissiveMap ? texture(uEmissiveMap, inUV).rgb : vec3(0.0f);
-    emission *= 1.0f; //TODO
+    vec3 emission = mapUsage.useEmissiveMap ? texture(uEmissiveMap, inUV).rgb : vec3(0.0f);
+    emission *= 1.0f; //TODO replace with emissiveIntensity
     //emission *= uEmissiveIntensity;
 
-    vec3 N = useNormalMap ? GetNormalFromMap() : normalize(inNormal);
+    vec3 N = mapUsage.useNormalMap ? GetNormalFromMap() : normalize(inNormal);
 
     // TODO
     //vec3 V = normalize(inCamPos - inPos);
@@ -228,6 +228,7 @@ void main()
         discard;
     }
 
-    outColor = vec4(PhongLighting(normal), 1.0f);
+    //outColor = vec4(PhongLighting(normal), 1.0f);
+    outColor = vec4(BasicPbr(), 1.0f);
     //outColor = texColor;
 }

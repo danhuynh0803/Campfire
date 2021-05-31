@@ -25,7 +25,7 @@ void FrameGraph::ReconstructFrameGraph()
     PrepareGraphicsPipeline();
 }
 
-void FrameGraph::PrepareGraphicsPipeline()
+SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
 {
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
@@ -58,15 +58,50 @@ void FrameGraph::PrepareGraphicsPipeline()
             vk::ShaderStageFlagBits::eFragment,
             0);
 
-        // Normal map
-        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+        // Metallic map
+        auto metallic = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
             1);
 
+        // Normal map
+        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            2);
+
+        // Roughness map
+        auto roughness = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            3);
+
+        // Ambient Occlusion map
+        auto ambientOcclusion = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            4);
+
+        // Emissive map
+        auto emissive = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            5);
+
+        // TextureMap usage
+        auto mapUsage = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            6);
+
         descriptorSetLayoutBindings[1] = {
             albedo,
+            metallic,
             normal,
+            roughness,
+            ambientOcclusion,
+            emissive,
+            mapUsage,
         };
     }
 
@@ -86,16 +121,15 @@ void FrameGraph::PrepareGraphicsPipeline()
         fragShaderStageInfo,
     };
 
-    // TODO create a pipelineCreateInfo and just assign the descriptorSetLayouts,
-    // shaderStages, and renderpass
-    /*
-    mGraphicsPipelines.emplace(
-        "models"
-      , CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayoutBindings, shaderStages)
+    return CreateSharedPtr<VulkanGraphicsPipeline>(
+        descriptorSetLayoutBindings,
+        shaderStages
     );
-    */
+}
 
-    mGraphicsPipelines["models"] = CreateSharedPtr<VulkanGraphicsPipeline>(descriptorSetLayoutBindings, shaderStages);
+void FrameGraph::PrepareGraphicsPipeline()
+{
+    mGraphicsPipelines["models"] = CreateModelPipeline();
 }
 
 void FrameGraph::CreateOpaque()
