@@ -675,7 +675,7 @@ void InspectorWidget::ShowEntity(Entity& entity)
             // TODO reorganize this with range, type, etc
             //ImGui::DragFloat("Range", &light.linear, 0.01f);
 
-            ImGui::DragFloat("Intensity", &comp.intensity, 0.1f, 0.0f, 100.0f);
+            ImGui::DragFloat("Intensity", &comp.intensity, 0.1f, 0.0f, 1000.0f);
 
             if (ImGui::BeginPopup("ComponentOptionsPopup"))
             {

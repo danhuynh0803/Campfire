@@ -16,6 +16,7 @@ layout (set = 0, binding = 0) uniform Camera
     mat4 view;
     mat4 proj;
     mat4 viewProj;
+    vec3 pos;
 } camera;
 
 layout (push_constant) uniform PushConstants {
@@ -28,6 +29,6 @@ void main()
     gl_Position = camera.viewProj * pushConstants.model * vec4(aPos, 1.0);
 
     outPos = vec3(pushConstants.model * vec4(aPos, 1.0f));
-    outUV = aUV;
+    outUV = vec2(aUV.x, 1.0f - aUV.y);
     outNormal = mat3(transpose(inverse(pushConstants.model))) * aNormal;
 }

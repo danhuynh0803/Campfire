@@ -31,7 +31,7 @@ void main()
     gl_Position = viewProj * model * vec4(aPos, 1.0f);
     outPos = vec3(model*vec4(aPos, 1.0f));
     outUV = aUV;
-    outCamPos = pos.rgb;
+    outCamPos = pos.xyz;
 
     // TODO find a way to not do this too often
     // pass as uniform maybe?

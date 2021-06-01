@@ -129,7 +129,6 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
             material->textureMapUsageUbo->UpdateDescriptorSet(
                 material->descriptorSets[i].get(), usageLayout, 6
             );
-
             material->textureMapUsageUbo->SetData(&usage, 6, sizeof(::TextureMapUsage));
         }
     }

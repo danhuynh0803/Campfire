@@ -240,7 +240,7 @@ struct LightComponent
     // Attenuation factors
 
     // TODO replace with range and more user friendly light options
-    float intensity = 1.0f;
+    float intensity = 100.0f;
 
     float constant = 1.0f; // Should stay at 1.0f
     float linear = 0.09f;

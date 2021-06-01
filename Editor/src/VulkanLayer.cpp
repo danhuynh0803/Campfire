@@ -32,6 +32,7 @@ struct CameraUBO
     glm::mat4 view;
     glm::mat4 proj;
     glm::mat4 viewProj;
+    glm::vec4 pos;
 };
 static CameraUBO cameraUBO;
 
@@ -79,9 +80,10 @@ struct GlobalInfo
 
                 BufferLayout cameraLayout =
                 {
-                    { ShaderDataType::MAT4, "view" },
-                    { ShaderDataType::MAT4, "proj" },
-                    { ShaderDataType::MAT4, "viewProj" },
+                    { ShaderDataType::MAT4,   "view" },
+                    { ShaderDataType::MAT4,   "proj" },
+                    { ShaderDataType::MAT4,   "viewProj" },
+                    { ShaderDataType::FLOAT4, "pos" },
                 };
 
                 mCameraUBOs[i]->UpdateDescriptorSet(
@@ -125,6 +127,7 @@ struct GlobalInfo
         cameraUBO.proj = camera->GetProjMatrix();
         cameraUBO.proj[1][1] *= -1;
         cameraUBO.viewProj = cameraUBO.proj * cameraUBO.view;
+        cameraUBO.pos = glm::vec4(camera->pos, 1.0f);
         mCameraUBOs[frameIdx]->SetData(&cameraUBO, 0, sizeof(CameraUBO));
 
         // Update light ubo
@@ -169,7 +172,7 @@ void VulkanLayer::OnAttach()
                 0
             );
         light.AddComponent<LightComponent>();
-        light.GetComponent<LightComponent>().intensity = 20.0f;
+        light.GetComponent<LightComponent>().intensity = 100.0f;
     }
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -299,6 +302,8 @@ void VulkanLayer::OnImGuiRender()
     ImGui::Separator();
 
     ImGui::Text("Camera");
+    //ImGui::DragFloat3("Controller Position", (float*)&cameraController.position);
+    //ImGui::DragFloat3("Camera Position", (float*)&editorCamera->pos);
     ImGui::DragFloat("Speed", &cameraController.normalSpeed);
     ImGui::DragFloat("Near", &editorCamera->nearPlane);
     ImGui::DragFloat("Far", &editorCamera->farPlane);

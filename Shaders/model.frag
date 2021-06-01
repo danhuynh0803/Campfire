@@ -12,6 +12,15 @@ layout (location = 2) in vec3 inNormal;
 layout (location = 0) out vec4 outColor;
 
 // =========================================
+layout (set = 0, binding = 0) uniform Camera
+{
+    mat4 view;
+    mat4 proj;
+    mat4 viewProj;
+    vec4 pos;
+} camera;
+
+// =========================================
 // TODO replace with SSBO
 const int MAX_NUM_LIGHTS = 100;
 struct Light
@@ -135,9 +144,17 @@ vec3 PhongLighting(vec3 normal)
 vec3 BasicPbr()
 {
     vec3 albedo = mapUsage.useAlbedoMap ? pow(texture(uAlbedoMap, inUV).rgb * vec3(1.0f), vec3(2.2)) : vec3(1.0f);
-    float metallic = mapUsage.useMetallicMap ? texture(uMetallicMap, inUV).r : 0.5f;
-    float roughness = mapUsage.useRoughnessMap ? texture(uRoughnessMap, inUV).r : 0.5f;
-    float ao = mapUsage.useOcclusionMap ? texture(uAmbientOcclusionMap, inUV).r : 0.5f;
+    // TODO floor of sponza being set to vec3(1.0f) for some reason?
+    albedo = pow(texture(uAlbedoMap, inUV).rgb * vec3(1.0f), vec3(2.2));
+
+    if (texture(uAlbedoMap, inUV).a <= 0.01f)
+    {
+        discard;
+    }
+
+    float metallic = mapUsage.useMetallicMap ? texture(uMetallicMap, inUV).r : 0.0f;
+    float roughness = mapUsage.useRoughnessMap ? texture(uRoughnessMap, inUV).r : 1.0f;
+    float ao = mapUsage.useOcclusionMap ? texture(uAmbientOcclusionMap, inUV).r : 0.1f;
 
     vec3 emission = mapUsage.useEmissiveMap ? texture(uEmissiveMap, inUV).rgb : vec3(0.0f);
     emission *= 1.0f; //TODO replace with emissiveIntensity
@@ -145,9 +162,7 @@ vec3 BasicPbr()
 
     vec3 N = mapUsage.useNormalMap ? GetNormalFromMap() : normalize(inNormal);
 
-    // TODO
-    //vec3 V = normalize(inCamPos - inPos);
-    vec3 V = vec3(1.0f);
+    vec3 V = normalize(camera.pos.xyz - inPos);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -158,7 +173,7 @@ vec3 BasicPbr()
     for (int i = 0; i < lightBuffer.numLights; ++i)
     {
         Light light = lightBuffer.lights[i];
-        vec3 L = normalize(light.pos.rgb - inPos);
+        vec3 L = normalize(light.pos.xyz - inPos);
         // TODO enable change light type
         //uint type = uint(round(lights[i].attenFactors.w));
         //if (type == 0)
@@ -174,6 +189,7 @@ vec3 BasicPbr()
             float distance = length(light.pos.xyz - inPos);
             //attenuation = 1.0f / (attenFactor[0] + attenFactor[1]*distance + attenFactor[2]*(distance*distance));
             attenuation = 1.0f / (constant + linear*distance + quadratic*(distance*distance));
+            //attenuation = 1.0f / (distance * distance);
         }
 
         vec3 radiance = light.color.rgb * light.intensity * attenuation;
@@ -182,7 +198,6 @@ vec3 BasicPbr()
         float D = NormalDistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         vec3 F = FresnelSchlick(max(dot(H, V), 0.0f), F0);
-
 
         vec3 kS = F;
         vec3 kD = vec3(1.0f) - kS;
@@ -199,10 +214,14 @@ vec3 BasicPbr()
         vec3 specular = ( numerator / max(denom, 0.001f) );
 
         float NdotL = max(dot(N, L), 0.0f);
-        Lo += (kD * albedo/PI + specular) * radiance * NdotL;
+        //Lo += (kD * albedo/PI + specular) * radiance * NdotL;
+        //
+        //Lo += max(dot(N, L), 0.0f) * light.color.rgb * attenuation;
+        // TODO weird cutoff for light when adding specular and NdotL
+        Lo += (kD * albedo/PI) * radiance;
     }
 
-    vec3 ambient = vec3(0.03f) * albedo* ao;
+    vec3 ambient = vec3(0.03f) * albedo * ao;
     vec3 color = ambient + Lo + emission;
 
     // TODO for bloom postprocess
@@ -219,15 +238,6 @@ vec3 BasicPbr()
 
 void main()
 {
-    vec2 uv = vec2(inUV.x, 1.0f-inUV.y);
-    vec4 texColor = texture(uAlbedoMap, uv);
-    vec3 normal = GetNormalFromMap();
-
-    if (texColor.a <= 0.01f)
-    {
-        discard;
-    }
-
     //outColor = vec4(PhongLighting(normal), 1.0f);
     outColor = vec4(BasicPbr(), 1.0f);
     //outColor = texColor;

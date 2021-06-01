@@ -19,8 +19,10 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     // Get supported formats
     std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(surface);
     assert(!formats.empty());
+    // TODO switch to R16G16B16A16Sfloat
     swapChainImageFormat =
-        (formats[0].format == vk::Format::eUndefined) ? vk::Format::eB8G8R8A8Unorm : formats[0].format;
+        //(formats[0].format == vk::Format::eUndefined) ? vk::Format::eB8G8R8A8Unorm : formats[0].format;
+        vk::Format::eR16G16B16A16Unorm;
 
     vk::SurfaceCapabilitiesKHR surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
     if (surfaceCapabilities.currentExtent.width == (std::numeric_limits<uint32_t>::max)())

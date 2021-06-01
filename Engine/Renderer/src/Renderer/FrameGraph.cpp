@@ -34,7 +34,7 @@ SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
         // Camera
         auto camera = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eUniformBuffer,
-            vk::ShaderStageFlagBits::eVertex,
+            vk::ShaderStageFlagBits::eAllGraphics,
             0);
 
         // TODO switch to storage buffer
