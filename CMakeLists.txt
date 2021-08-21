@@ -32,3 +32,7 @@ add_subdirectory(Engine)
 add_subdirectory(Vendor)
 add_subdirectory(Editor)
 #add_subdirectory(Game)
+
+if(WIN32)
+add_subdirectory(NightOwl)
+endif()
