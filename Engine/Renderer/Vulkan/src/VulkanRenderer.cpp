@@ -19,7 +19,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
     extent.height = VulkanContext::Get()->GetSwapChain()->GetHeight();
 
     vk::Rect2D renderArea;
-    renderArea.offset = {0, 0};
+    renderArea.offset = vk::Offset2D {0, 0};
     renderArea.extent = extent;
 
     commandBuffer.begin(beginInfo);

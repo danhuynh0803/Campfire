@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.15)
 # Set all libs to be static
 option(BUILD_SHARED_LIBS OFF)
 
-# Vulkan
-find_package(Vulkan)
-#add_subdirectory(Campfire/Vendor/Vulkan-Hpp)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

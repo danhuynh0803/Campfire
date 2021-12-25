@@ -204,8 +204,8 @@ namespace vk::initializers
         info.minDepthBounds = 0.0f;
         info.maxDepthBounds = 1.0f;
         info.stencilTestEnable = false;
-        info.front = {};
-        info.back = {};
+        info.front = vk::StencilOpState{};
+        info.back  = vk::StencilOpState{};
 
         return info;
     }

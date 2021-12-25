@@ -218,7 +218,7 @@ void VulkanImGui::InitResources()
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = 1;
 
-        region.imageExtent = {
+        region.imageExtent = vk::Extent3D {
             static_cast<uint32_t>(texWidth),
             static_cast<uint32_t>(texHeight),
             1

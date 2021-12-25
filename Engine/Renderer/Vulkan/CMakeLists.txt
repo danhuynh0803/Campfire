@@ -53,6 +53,6 @@ target_sources(
 
 target_link_libraries(
     Engine
-    PUBLIC
+    PRIVATE
         Vulkan::Vulkan
 )

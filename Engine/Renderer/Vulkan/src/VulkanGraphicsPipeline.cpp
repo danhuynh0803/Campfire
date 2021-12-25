@@ -86,7 +86,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     auto viewport = vk::initializers::Viewport(0.0f, 0.0f, swapChainExtent.width, swapChainExtent.height, 0.0f, 1.0);
 
     vk::Rect2D scissors;
-    scissors.offset = {0, 0};
+    scissors.offset = VkOffset2D{0, 0};
     scissors.extent = swapChainExtent;
 
     auto viewportStateCreateInfo = vk::initializers::PipelineViewportStateCreateInfo(1, &viewport, 1, &scissors);
