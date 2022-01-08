@@ -17,13 +17,11 @@ VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
     // TODO aspectMask and format should be parameterized in api
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-    vk::DeviceSize imageSize = width * height * 4;
-
     // Create image
     mImage = vk::util::CreateUniqueImage(
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
-        vk::Format::eR8G8B8A8Srgb,
+        vk::Format::eR8G8B8A8Unorm,
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled
     );
@@ -38,9 +36,10 @@ VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
     // Transition image layout
     vk::util::SwitchImageLayout(
         mImage.get(),
-        vk::Format::eR8G8B8A8Srgb,
+        vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eUndefined,
-        vk::ImageLayout::eGeneral
+        vk::ImageLayout::eGeneral,
+        vk::DependencyFlagBits::eByRegion
     );
 
     // Create sampler
@@ -65,7 +64,7 @@ VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
     // Create ImageView
     mImageView = vk::util::CreateUniqueImageView(
         mImage.get(),
-        vk::Format::eR8G8B8A8Srgb,
+        vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );
 }
@@ -134,7 +133,8 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         mImage.get(),
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eUndefined,
-        vk::ImageLayout::eTransferDstOptimal
+        vk::ImageLayout::eTransferDstOptimal,
+        vk::DependencyFlagBits::eByRegion
     );
 
     // Now ready to copy data from staging buffer to the image
@@ -170,7 +170,8 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         mImage.get(),
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eTransferDstOptimal,
-        vk::ImageLayout::eShaderReadOnlyOptimal
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::DependencyFlagBits::eByRegion
     );
 
     // Create ImageView

@@ -91,7 +91,7 @@ namespace vk::util
             1, &commandBuffer);
     }
 
-    void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+    void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::DependencyFlagBits dependencyFlagBits)
     {
         vk::ImageMemoryBarrier barrier;
         barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
@@ -161,7 +161,7 @@ namespace vk::util
             cmdBuffer.pipelineBarrier(
                 srcStageFlags,
                 dstStageFlags,
-                vk::DependencyFlagBits::eViewLocalKHR,
+                dependencyFlagBits,
                 0, nullptr,
                 0, nullptr,
                 1, &barrier

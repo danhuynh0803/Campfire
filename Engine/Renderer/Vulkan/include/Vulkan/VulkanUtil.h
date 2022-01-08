@@ -12,7 +12,13 @@ namespace vk::util {
 
     void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
-    void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+    void SwitchImageLayout(
+        vk::Image image,
+        vk::Format format,
+        vk::ImageLayout oldLayout,
+        vk::ImageLayout newLayout,
+        vk::DependencyFlagBits dependencyFlagBits
+    );
 
     vk::UniqueImage CreateUniqueImage(
         uint32_t width, uint32_t height,

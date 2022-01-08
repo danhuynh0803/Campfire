@@ -161,7 +161,6 @@ void VulkanImGui::InitResources()
         vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst
     );
 
-
     // Allocate memory to image
     mFontMemory = vk::util::CreateUniqueDeviceMemory(
         mFontImage.get(),
@@ -203,7 +202,8 @@ void VulkanImGui::InitResources()
         mFontImage.get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eUndefined,
-        vk::ImageLayout::eTransferDstOptimal
+        vk::ImageLayout::eTransferDstOptimal,
+        vk::DependencyFlagBits::eByRegion
     );
 
     // Copy data from stagingBuffer to font image
@@ -238,7 +238,8 @@ void VulkanImGui::InitResources()
         mFontImage.get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eTransferDstOptimal,
-        vk::ImageLayout::eShaderReadOnlyOptimal
+        vk::ImageLayout::eShaderReadOnlyOptimal,
+        vk::DependencyFlagBits::eDeviceGroup
     );
 
     // Create font texture sampler
