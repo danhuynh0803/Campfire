@@ -7,6 +7,12 @@
 // #define STB_IMAGE_IMPLEMENTATION already set in OpenGLTexture.cpp
 #include <stb_image.h>
 
+static void GenerateMipmaps(vk::Image& image, int32_t width, int32_t height, uint32_t mipLevels);
+
+static uint32_t CalculateMaxMipLevel(uint32_t width, uint32_t height) {
+    return static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+}
+
 void VulkanTexture2D::SetData(void* data, uint32_t size)
 {
 }
@@ -18,9 +24,11 @@ VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
     // Create image
+    uint32_t mipLevels = CalculateMaxMipLevel(width, height);
     mImage = vk::util::CreateUniqueImage(
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
+        mipLevels,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled
@@ -36,6 +44,7 @@ VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
     // Transition image layout
     vk::util::SwitchImageLayout(
         mImage.get(),
+        mipLevels,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eUndefined,
         vk::ImageLayout::eGeneral,
@@ -64,6 +73,7 @@ VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
     // Create ImageView
     mImageView = vk::util::CreateUniqueImageView(
         mImage.get(),
+        1,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );
@@ -83,15 +93,14 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
     mWidth = width;
     mHeight = height;
-
-    vk::DeviceSize imageSize = width * height * 4;
+    vk::DeviceSize imageSize = mWidth * mHeight * 4;
 
     vk::UniqueBuffer stagingBuffer;
     vk::UniqueDeviceMemory stagingBufferMemory;
     vk::BufferUsageFlagBits stagingUsage = vk::BufferUsageFlagBits::eTransferSrc;
     vk::MemoryPropertyFlags stagingMemoryProperties =
-            vk::MemoryPropertyFlagBits::eHostVisible
-        | vk::MemoryPropertyFlagBits::eHostCoherent
+        vk::MemoryPropertyFlagBits::eHostVisible
+      | vk::MemoryPropertyFlagBits::eHostCoherent
     ;
 
     vk::util::CreateBuffer(
@@ -112,9 +121,11 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
     // Create the actual texture image
     vk::UniqueDeviceMemory textureImageMemory;
+    uint32_t mipLevels = CalculateMaxMipLevel(mWidth, mHeight);
     mImage = vk::util::CreateUniqueImage(
-        static_cast<uint32_t>(width),
-        static_cast<uint32_t>(height),
+        static_cast<uint32_t>(mWidth),
+        static_cast<uint32_t>(mHeight),
+        mipLevels,
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled
@@ -131,6 +142,7 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     // which is vk::ImageLayout::eTransferDstOptimal
     vk::util::SwitchImageLayout(
         mImage.get(),
+        mipLevels,
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eUndefined,
         vk::ImageLayout::eTransferDstOptimal,
@@ -151,8 +163,8 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
 
         region.imageOffset = vk::Offset3D {0, 0, 0};
         region.imageExtent = vk::Extent3D {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height),
+            static_cast<uint32_t>(mWidth),
+            static_cast<uint32_t>(mHeight),
             1
         };
 
@@ -168,15 +180,19 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
     // After data has been copied over, switch layout so that image is readable by shaders
     vk::util::SwitchImageLayout(
         mImage.get(),
+        mipLevels,
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eTransferDstOptimal,
         vk::ImageLayout::eShaderReadOnlyOptimal,
         vk::DependencyFlagBits::eByRegion
     );
 
+    GenerateMipmaps(mImage.get(), width, height, mipLevels);
+
     // Create ImageView
     mImageView = vk::util::CreateUniqueImageView(
         mImage.get(),
+        mipLevels,
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageAspectFlagBits::eColor
     );
@@ -188,8 +204,8 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         createInfo.minFilter = vk::Filter::eLinear;
         createInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
         createInfo.mipLodBias = 0.0f;
-        createInfo.minLod = 0.0f;
-        createInfo.maxLod = 0.0f;
+        createInfo.minLod = 0;
+        createInfo.maxLod = static_cast<float>(mipLevels);
         createInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
         createInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
         createInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
@@ -229,4 +245,106 @@ void VulkanTexture2D::UpdateDescriptors(vk::DescriptorSet dstSet, uint32_t dstBi
     descriptorWrite.pImageInfo = &imageInfo;
 
     VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+}
+
+void GenerateMipmaps(vk::Image& image, int32_t width, int32_t height, uint32_t mipLevels)
+{
+    auto cmdBuffer = vk::util::BeginSingleTimeCommands();
+
+    int32_t mipWidth  = width;
+    int32_t mipHeight = height;
+
+    // First need to transition to transfer
+    vk::ImageMemoryBarrier barrier {};
+    for (uint32_t i = 1; i < mipLevels; ++i)
+    {
+        barrier.image = image;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.oldLayout           = vk::ImageLayout::eTransferDstOptimal;
+        barrier.newLayout           = vk::ImageLayout::eTransferSrcOptimal;
+        barrier.srcAccessMask       = vk::AccessFlagBits::eTransferWrite;
+        barrier.dstAccessMask       = vk::AccessFlagBits::eTransferRead;
+
+        barrier.subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount     = 1;
+        barrier.subresourceRange.levelCount     = 1;
+        barrier.subresourceRange.baseMipLevel   = i - 1;
+
+        cmdBuffer.pipelineBarrier(
+            vk::PipelineStageFlagBits::eTransfer,
+            vk::PipelineStageFlagBits::eTransfer,
+            vk::DependencyFlagBits::eByRegion,
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+        );
+
+        // Blit for mipmaps
+        vk::ImageBlit blit {};
+        blit.srcOffsets[0]                 = vk::Offset3D{0, 0, 0};
+        blit.srcOffsets[1]                 = vk::Offset3D{mipWidth, mipHeight, 1};
+        blit.srcSubresource.aspectMask     = vk::ImageAspectFlagBits::eColor;
+        blit.srcSubresource.mipLevel       = i - 1;
+        blit.srcSubresource.baseArrayLayer = 0;
+        blit.srcSubresource.layerCount     = 1;
+
+        blit.dstOffsets[0] = vk::Offset3D{0, 0, 0};
+        blit.dstOffsets[1] = vk::Offset3D {
+                                mipWidth  > 1 ? mipWidth  / 2 : 1,
+                                mipHeight > 1 ? mipHeight / 2 : 1,
+                                1
+                             };
+        blit.dstSubresource.aspectMask     = vk::ImageAspectFlagBits::eColor;
+        blit.dstSubresource.mipLevel       = i;
+        blit.dstSubresource.baseArrayLayer = 0;
+        blit.dstSubresource.layerCount     = 1;
+
+        cmdBuffer.blitImage(
+            image,
+            vk::ImageLayout::eTransferSrcOptimal,
+            image,
+            vk::ImageLayout::eTransferDstOptimal,
+            1, &blit,
+            vk::Filter::eLinear
+        );
+
+        // Now transition each mip level to shader read layout using the same barrier
+        barrier.oldLayout     = vk::ImageLayout::eTransferSrcOptimal;
+        barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        cmdBuffer.pipelineBarrier(
+            vk::PipelineStageFlagBits::eTransfer,
+            vk::PipelineStageFlagBits::eFragmentShader,
+            vk::DependencyFlagBits::eByRegion,
+            0, nullptr,
+            0, nullptr,
+            1, &barrier
+        );
+
+        // Scale down the width and height for the next mipmap
+        if (mipWidth  > 1) mipWidth  /= 2;
+        if (mipHeight > 1) mipHeight /= 2;
+    }
+
+    // Also need to transition the final mip level from TransferDstOptimal to ShaderReadOnlyOptimal
+    barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+    barrier.oldLayout     = vk::ImageLayout::eTransferDstOptimal;
+    barrier.newLayout     = vk::ImageLayout::eShaderReadOnlyOptimal;
+    barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+    barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+    cmdBuffer.pipelineBarrier(
+        vk::PipelineStageFlagBits::eTransfer,
+        vk::PipelineStageFlagBits::eFragmentShader,
+        vk::DependencyFlagBits::eByRegion,
+        0, nullptr,
+        0, nullptr,
+        1, &barrier
+    );
+
+    vk::util::EndSingleTimeCommands(cmdBuffer);
 }

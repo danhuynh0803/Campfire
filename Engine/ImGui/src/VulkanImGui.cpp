@@ -156,6 +156,7 @@ void VulkanImGui::InitResources()
     // Create target image for copy
     mFontImage = vk::util::CreateUniqueImage(
         texWidth, texHeight,
+        1,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst
@@ -171,6 +172,7 @@ void VulkanImGui::InitResources()
     // Create image view
     mFontImageView = vk::util::CreateUniqueImageView(
         mFontImage.get(),
+        1,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );
@@ -200,6 +202,7 @@ void VulkanImGui::InitResources()
     // Prepare for transfer, switch image layout
     vk::util::SwitchImageLayout(
         mFontImage.get(),
+        1,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eUndefined,
         vk::ImageLayout::eTransferDstOptimal,
@@ -236,6 +239,7 @@ void VulkanImGui::InitResources()
     // Transition image for shader read
     vk::util::SwitchImageLayout(
         mFontImage.get(),
+        1,
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageLayout::eTransferDstOptimal,
         vk::ImageLayout::eShaderReadOnlyOptimal,

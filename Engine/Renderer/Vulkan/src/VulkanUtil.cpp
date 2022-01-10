@@ -3,6 +3,8 @@
 #include "Vulkan/VulkanInitializers.h"
 #include "Core/Log.h"
 
+#include <algorithm>
+
 namespace vk::util
 {
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
@@ -91,7 +93,7 @@ namespace vk::util
             1, &commandBuffer);
     }
 
-    void SwitchImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::DependencyFlagBits dependencyFlagBits)
+    void SwitchImageLayout(vk::Image image, uint32_t mipLevels, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::DependencyFlagBits dependencyFlagBits)
     {
         vk::ImageMemoryBarrier barrier;
         barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
@@ -102,11 +104,11 @@ namespace vk::util
         barrier.dstQueueFamilyIndex = 0;
         barrier.image = image;
         barrier.subresourceRange = {
-            vk::ImageAspectFlagBits::eColor,    // aspectMask
-            0,                                  // baseMipLevel
-            1,                                  // levelCount
-            0,                                  // baseArrayLayer
-            1                                   // layerCount
+            vk::ImageAspectFlagBits::eColor, // aspectMask
+            0,                               // baseMipLevel
+            mipLevels,                       // levelCount
+            0,                               // baseArrayLayer
+            1                                // layerCount
         };
 
         if (newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
@@ -171,27 +173,27 @@ namespace vk::util
 
     vk::UniqueImage CreateUniqueImage(
         uint32_t width, uint32_t height,
+        uint32_t mipLevels,
         vk::Format format,
         vk::ImageTiling tiling,
         vk::ImageUsageFlags usage
     )
     {
-        vk::ImageCreateInfo imageInfo;
-        imageInfo.imageType = vk::ImageType::e2D;
-        imageInfo.extent.width = width;
+        vk::ImageCreateInfo imageInfo {};
+        imageInfo.imageType     = vk::ImageType::e2D;
+        imageInfo.extent.width  = width;
         imageInfo.extent.height = height;
-        imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1;
-        imageInfo.arrayLayers = 1;
-
-        imageInfo.format = format;
-        imageInfo.tiling = tiling;
+        imageInfo.extent.depth  = 1;
+        imageInfo.mipLevels     = mipLevels;
+        imageInfo.arrayLayers   = 1;
+        imageInfo.format        = format;
+        imageInfo.tiling        = tiling;
         // eUndefined causes texels to be discared at first transition
         imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-        imageInfo.usage = usage;
-        imageInfo.sharingMode = vk::SharingMode::eExclusive;
+        imageInfo.usage         = usage;
+        imageInfo.sharingMode   = vk::SharingMode::eExclusive;
         // Multisampling spec, TODO so that images can be used with attachements
-        imageInfo.samples = vk::SampleCountFlagBits::e1;
+        imageInfo.samples       = vk::SampleCountFlagBits::e1;
 
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
         return device.createImageUnique(imageInfo);
@@ -212,17 +214,22 @@ namespace vk::util
         return device.allocateMemoryUnique(allocInfo);
     }
 
-    vk::UniqueImageView CreateUniqueImageView(vk::Image image, vk::Format format, vk::ImageAspectFlagBits aspectFlags)
+    vk::UniqueImageView CreateUniqueImageView(
+        vk::Image image,
+        uint32_t mipLevels,
+        vk::Format format,
+        vk::ImageAspectFlagBits aspectFlags
+    )
     {
         vk::ImageViewCreateInfo createInfo {};
-        createInfo.image = image;
+        createInfo.image    = image;
         createInfo.viewType = vk::ImageViewType::e2D;
-        createInfo.format = format;
+        createInfo.format   = format;
 
-        vk::ImageSubresourceRange subresourceRange;
+        vk::ImageSubresourceRange subresourceRange {};
         subresourceRange.aspectMask     = aspectFlags;
         subresourceRange.baseMipLevel   = 0;
-        subresourceRange.levelCount     = 1;
+        subresourceRange.levelCount     = mipLevels;
         subresourceRange.baseArrayLayer = 0;
         subresourceRange.layerCount     = 1;
         createInfo.subresourceRange = subresourceRange;

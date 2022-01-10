@@ -109,6 +109,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
         imageViews.emplace_back(
             vk::util::CreateUniqueImageView(
                 image,
+                1,
                 swapChainImageFormat,
                 vk::ImageAspectFlagBits::eColor
             )
@@ -120,6 +121,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     depthImage = vk::util::CreateUniqueImage(
         GetWidth(),
         GetHeight(),
+        1,
         depthFormat,
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eDepthStencilAttachment
@@ -134,6 +136,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     // Depth imageview
     depthImageView = vk::util::CreateUniqueImageView(
         depthImage.get(),
+        1,
         depthFormat,
         vk::ImageAspectFlagBits::eDepth
     );
@@ -141,6 +144,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     // Transition depth image to depth stencil optimal layout
     vk::util::SwitchImageLayout(
         depthImage.get(),
+        1,
         depthFormat,
         vk::ImageLayout::eUndefined,
         vk::ImageLayout::eDepthStencilAttachmentOptimal,
@@ -213,6 +217,7 @@ void VulkanSwapChain::Present()
     // Images must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout prior to presenting
     vk::util::SwitchImageLayout(
         swapChainImages.at(mImageIndex),
+        1,
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageLayout::eColorAttachmentOptimal,
         vk::ImageLayout::ePresentSrcKHR,

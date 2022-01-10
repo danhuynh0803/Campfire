@@ -4,7 +4,13 @@ namespace vk::util {
 
     uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
-    void CreateBuffer(uint32_t size, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags propertyFlags, vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& bufferMemory);
+    void CreateBuffer(
+        uint32_t size,
+        vk::BufferUsageFlags usageFlags,
+        vk::MemoryPropertyFlags propertyFlags,
+        vk::UniqueBuffer& buffer,
+        vk::UniqueDeviceMemory& bufferMemory
+    );
 
     void CopyBuffer(vk::UniqueBuffer& srcBuffer, vk::UniqueBuffer& dstBuffer, uint32_t size);
 
@@ -14,6 +20,7 @@ namespace vk::util {
 
     void SwitchImageLayout(
         vk::Image image,
+        uint32_t mipLevels,
         vk::Format format,
         vk::ImageLayout oldLayout,
         vk::ImageLayout newLayout,
@@ -22,6 +29,7 @@ namespace vk::util {
 
     vk::UniqueImage CreateUniqueImage(
         uint32_t width, uint32_t height,
+        uint32_t mipLevels,
         vk::Format format,
         vk::ImageTiling tiling,
         vk::ImageUsageFlags usage
@@ -34,6 +42,7 @@ namespace vk::util {
 
     vk::UniqueImageView CreateUniqueImageView(
         vk::Image image,
+        uint32_t mipLevels,
         vk::Format format,
         vk::ImageAspectFlagBits aspectFlags
     );
@@ -51,5 +60,4 @@ namespace vk::util {
     std::vector<vk::DescriptorSetLayout> ConvertUnique(
         const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
     );
-
 }
