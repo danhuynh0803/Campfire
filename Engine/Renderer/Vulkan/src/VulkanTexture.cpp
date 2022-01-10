@@ -128,7 +128,9 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
         mipLevels,
         vk::Format::eR8G8B8A8Srgb,
         vk::ImageTiling::eOptimal,
-        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled
+        vk::ImageUsageFlagBits::eTransferSrc
+          | vk::ImageUsageFlagBits::eTransferDst
+          | vk::ImageUsageFlagBits::eSampled
     );
 
     mImageMemory = vk::util::CreateUniqueDeviceMemory(
@@ -176,16 +178,6 @@ VulkanTexture2D::VulkanTexture2D(const std::string& path)
             &region
         );
     vk::util::EndSingleTimeCommands(cmdBuffer);
-
-    // After data has been copied over, switch layout so that image is readable by shaders
-    vk::util::SwitchImageLayout(
-        mImage.get(),
-        mipLevels,
-        vk::Format::eR8G8B8A8Srgb,
-        vk::ImageLayout::eTransferDstOptimal,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
-        vk::DependencyFlagBits::eByRegion
-    );
 
     GenerateMipmaps(mImage.get(), width, height, mipLevels);
 
@@ -256,21 +248,21 @@ void GenerateMipmaps(vk::Image& image, int32_t width, int32_t height, uint32_t m
 
     // First need to transition to transfer
     vk::ImageMemoryBarrier barrier {};
+    barrier.image = image;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.levelCount = 1;
+
     for (uint32_t i = 1; i < mipLevels; ++i)
     {
-        barrier.image = image;
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.oldLayout           = vk::ImageLayout::eTransferDstOptimal;
-        barrier.newLayout           = vk::ImageLayout::eTransferSrcOptimal;
-        barrier.srcAccessMask       = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask       = vk::AccessFlagBits::eTransferRead;
-
-        barrier.subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
-        barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount     = 1;
-        barrier.subresourceRange.levelCount     = 1;
-        barrier.subresourceRange.baseMipLevel   = i - 1;
+        barrier.subresourceRange.baseMipLevel = i - 1;
+        barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        barrier.newLayout = vk::ImageLayout::eTransferSrcOptimal;
+        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
 
         cmdBuffer.pipelineBarrier(
             vk::PipelineStageFlagBits::eTransfer,
