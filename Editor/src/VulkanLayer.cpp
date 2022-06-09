@@ -220,8 +220,8 @@ void VulkanLayer::OnUpdate(float dt)
     vkImguiLayer->End();
 
     auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
-
-    for (size_t frame = 0; frame < 3; ++frame)
+    auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
+    for (size_t frame = 0; frame < swapChainSize; ++frame)
     {
         auto commandBuffer = VulkanRenderer::BeginScene(frame);
         {

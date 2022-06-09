@@ -25,19 +25,23 @@ VulkanContext::VulkanContext(GLFWwindow* window)
 
     // Creating descriptor pool
     auto swapChainSize = static_cast<uint32_t>(mSwapChain->GetImages().size());
-    std::array<vk::DescriptorPoolSize, 3> poolSizes{};
+    std::array<vk::DescriptorPoolSize, 4> poolSizes{};
+    uint32_t descriptorCount = swapChainSize * 1000;
     poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-    poolSizes[0].descriptorCount = swapChainSize;
+    poolSizes[0].descriptorCount = descriptorCount;
     poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-    poolSizes[1].descriptorCount = swapChainSize;
+    poolSizes[1].descriptorCount = descriptorCount;
     poolSizes[2].type = vk::DescriptorType::eStorageImage;
-    poolSizes[2].descriptorCount = swapChainSize;
+    poolSizes[2].descriptorCount = descriptorCount;
+    poolSizes[3].type = vk::DescriptorType::eStorageBuffer;
+    poolSizes[3].descriptorCount = descriptorCount;
 
     vk::DescriptorPoolCreateInfo poolInfo;
     // TODO have poolsize be configurable
     poolInfo.maxSets = 10000 * swapChainSize;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     mDescriptorPool = mDevice->GetVulkanDevice().createDescriptorPoolUnique(poolInfo);
 
     mFrameGraph.CreateRenderFrameGraph();
