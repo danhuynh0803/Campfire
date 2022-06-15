@@ -22,3 +22,6 @@
 [submodule "Vendor/RuntimeCompiledCPlusPlus"]
 	path = Vendor/RuntimeCompiledCPlusPlus
 	url = https://github.com/danhuynh0803/RuntimeCompiledCPlusPlus
+[submodule "Vendor/shaderc"]
+	path = Vendor/shaderc
+	url = https://github.com/google/shaderc.git
