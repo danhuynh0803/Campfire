@@ -1,10 +1,41 @@
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
+#include <shaderc/shaderc.hpp>
 #include <fstream>
+
+std::vector<uint32_t> CompileFile(
+    const std::string& filepath,
+    shaderc_shader_kind kind,
+    const std::string& source,
+    bool optimize = false
+)
+{
+    shaderc::Compiler compiler;
+    shaderc::CompileOptions options;
+
+    if (optimize) {
+        options.SetOptimizationLevel(shaderc_optimization_level_size);
+    }
+
+    shaderc::SpvCompilationResult module = 
+        compiler.CompileGlslToSpv(source, kind, filepath.c_str(), options);
+
+    if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+    {
+        std::cerr << module.GetErrorMessage();
+        return std::vector<uint32_t>();
+    }
+
+    return { module.cbegin(), module.cend() };
+}
 
 VulkanShader::VulkanShader(const std::string& filepath)
     : name(filepath)
 {
+    // Check type of shader
+
+
+
     std::ifstream file(filepath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open())
