@@ -55,4 +55,7 @@ target_link_libraries(
     Engine
     PRIVATE
         Vulkan::Vulkan
+        $ENV{VULKAN_SDK}/lib/shaderc_combinedd.lib
+        # For release versions
+        #$ENV{VULKAN_SDK}/lib/shaderc_combined.lib
 )

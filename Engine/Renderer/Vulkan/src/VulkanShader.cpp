@@ -17,7 +17,7 @@ std::vector<uint32_t> CompileFile(
         options.SetOptimizationLevel(shaderc_optimization_level_size);
     }
 
-    shaderc::SpvCompilationResult module = 
+    shaderc::SpvCompilationResult module =
         compiler.CompileGlslToSpv(source, kind, filepath.c_str(), options);
 
     if (module.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -29,33 +29,89 @@ std::vector<uint32_t> CompileFile(
     return { module.cbegin(), module.cend() };
 }
 
-VulkanShader::VulkanShader(const std::string& filepath)
-    : name(filepath)
+shaderc_shader_kind GetShaderKindFromFileName(const std::string& filepath)
 {
-    // Check type of shader
+    const auto lastDot = filepath.find_last_of('.');
+    const auto ext = filepath.substr(lastDot + 1);
 
+    shaderc_shader_kind kind = shaderc_shader_kind::shaderc_glsl_infer_from_source;
 
+    if (ext == "comp")
+        kind = shaderc_shader_kind::shaderc_glsl_default_compute_shader;
+    else if (ext == "vert")
+        kind = shaderc_shader_kind::shaderc_glsl_default_vertex_shader;
+    else if (ext == "frag")
+        kind = shaderc_shader_kind::shaderc_glsl_default_fragment_shader;
+    else if (ext == "geom")
+        kind = shaderc_shader_kind::shaderc_glsl_default_geometry_shader;
+    else if (ext == "mesh")
+        kind = shaderc_shader_kind::shaderc_glsl_default_mesh_shader;
+    // TODO raytracing shader kind
 
-    std::ifstream file(filepath, std::ios::ate | std::ios::binary);
+    return kind;
+}
 
-    if (!file.is_open())
-    {
-        throw std::runtime_error("VulkanShader::Failed to open " + filepath);
+std::string GetShaderSource(const std::string& filepath)
+{
+    std::string shaderSource;
+    std::ifstream fileStream;
+    fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try {
+        fileStream.open(filepath);
+        std::stringstream shaderStream;
+        shaderStream << fileStream.rdbuf();
+        fileStream.close();
+        shaderSource = shaderStream.str();
+    } catch (std::ifstream::failure e) {
+        std::cerr << "ERROR Shader file not successfully read: " << filepath;
     }
 
-    size_t fileSize = (size_t)file.tellg();
-    std::vector<char> buffer;
-    buffer.resize(fileSize);
+    return shaderSource;
+}
 
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
+VulkanShader::VulkanShader(const std::string& filepath)
+    : mName(filepath)
+{
+    const auto lastDot = filepath.find_last_of('.');
+    const auto ext = filepath.substr(lastDot + 1);
 
-    file.close();
+    // Check type of shader
+    // if file is already spirv, then proceed as normal
+    if (ext == "spv")
+    {
+        std::ifstream file(filepath, std::ios::ate | std::ios::binary);
 
-    vk::ShaderModuleCreateInfo shaderInfo;
-    shaderInfo.flags = vk::ShaderModuleCreateFlags();
-    shaderInfo.codeSize = buffer.size();
-    shaderInfo.pCode = reinterpret_cast<const uint32_t*>(buffer.data());
+        if (!file.is_open())
+        {
+            throw std::runtime_error("VulkanShader::Failed to open " + filepath);
+        }
 
-    shaderModule = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createShaderModuleUnique(shaderInfo);
+        size_t fileSize = (size_t)file.tellg();
+        std::vector<char> buffer;
+        buffer.resize(fileSize);
+
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+
+        file.close();
+
+        vk::ShaderModuleCreateInfo shaderInfo;
+        shaderInfo.flags    = vk::ShaderModuleCreateFlags();
+        shaderInfo.codeSize = buffer.size();
+        shaderInfo.pCode    = reinterpret_cast<const uint32_t*>(buffer.data());
+        mShaderModule = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createShaderModuleUnique(shaderInfo);
+    }
+    else
+    {
+        // compile the glsl file
+        auto shaderKind   = GetShaderKindFromFileName(filepath);
+        auto shaderSrc    = GetShaderSource(filepath);
+        auto binary       = CompileFile(filepath, shaderKind, shaderSrc, false);
+
+        vk::ShaderModuleCreateInfo shaderInfo {};
+        shaderInfo.flags    = vk::ShaderModuleCreateFlags();
+        shaderInfo.codeSize = binary.size() * sizeof(uint32_t);
+        shaderInfo.pCode    = binary.data();
+        mShaderModule = VulkanContext::Get()->GetDevice()->GetVulkanDevice().createShaderModuleUnique(shaderInfo);
+    }
 }

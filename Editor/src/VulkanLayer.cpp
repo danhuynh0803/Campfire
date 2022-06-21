@@ -11,6 +11,7 @@
 #include "Core/Timer.h"
 #include "Core/ResourceManager.h" // ASSETS dir
 #include "Core/FileSystem.h"
+#include "Core/Log.h"
 
 #include "Scene/Scene.h"
 #include "Scene/Entity.h"
@@ -200,6 +201,8 @@ void VulkanLayer::OnDetach()
 
 void VulkanLayer::OnUpdate(float dt)
 {
+    ProcessUserInput();
+
     metricTimer -= dt;
 
     timer.Reset();
@@ -267,6 +270,16 @@ void VulkanLayer::OnUpdate(float dt)
     }
 }
 
+void VulkanLayer::ProcessUserInput()
+{
+    if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
+    {
+        ReconstructPipelines();
+        LOG_INFO("Finish reconstructing pipelines");
+        CORE_INFO("Finish reconstructing pipelines");
+    }
+}
+
 void VulkanLayer::OnImGuiRender()
 {
     static bool showHierarchy = true;
@@ -319,6 +332,13 @@ void VulkanLayer::OnEvent(Event& event)
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(VulkanLayer::OnWindowResize));
+}
+
+void VulkanLayer::ReconstructPipelines()
+{
+    auto ctx = VulkanContext::Get();
+    ctx->GetDevice()->GetVulkanDevice().waitIdle();
+    ctx->mFrameGraph.ReconstructFrameGraph();
 }
 
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)

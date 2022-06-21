@@ -1,8 +1,9 @@
 #include "Renderer/FrameGraph.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanUtil.h"
-#include "Vulkan/VulkanInitializers.h"
 #include "Core/ResourceManager.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanInitializers.h"
+#include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanUtil.h"
 
 #include <vector>
 
@@ -22,6 +23,8 @@ void FrameGraph::ReconstructFrameGraph()
     // TODO
     // look into the dynamic structs for pipeline
     // Recreate entire pipeline for now just for quick use
+    mGraphicsPipelines.clear();
+
     PrepareGraphicsPipeline();
 }
 
@@ -106,19 +109,31 @@ SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
     }
 
     // Shaders
-    auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
-        SHADERS + "/model.vert.spv"
-      , vk::ShaderStageFlagBits::eVertex
-    );
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/model.vert");
+    vk::PipelineShaderStageCreateInfo vsStageInfo{};
+    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
+    vsStageInfo.module = vs->GetShaderModule();
+    vsStageInfo.pName  = "main";
 
-    auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
-        SHADERS + "/model.frag.spv"
-      , vk::ShaderStageFlagBits::eFragment
-    );
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/model.frag");
+    vk::PipelineShaderStageCreateInfo fsStageInfo{};
+    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
+    fsStageInfo.module = fs->GetShaderModule();
+    fsStageInfo.pName  = "main";
+
+    //auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
+    //    SHADERS + "/model.vert.spv"
+    //  , vk::ShaderStageFlagBits::eVertex
+    //);
+
+    //auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
+    //    SHADERS + "/model.frag.spv"
+    //  , vk::ShaderStageFlagBits::eFragment
+    //);
 
     std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
-        vertShaderStageInfo,
-        fragShaderStageInfo,
+        vsStageInfo,
+        fsStageInfo,
     };
 
     return CreateSharedPtr<VulkanGraphicsPipeline>(

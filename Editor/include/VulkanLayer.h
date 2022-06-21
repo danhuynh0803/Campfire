@@ -32,6 +32,8 @@ public:
 private:
     void SceneHierarchy(SharedPtr<Scene> scene);
     void SetupModelsScene();
+    void ProcessUserInput();
+    void ReconstructPipelines();
 
     Timer timer;
 
