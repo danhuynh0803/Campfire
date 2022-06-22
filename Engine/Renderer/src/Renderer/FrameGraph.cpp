@@ -23,7 +23,7 @@ void FrameGraph::ReconstructFrameGraph()
     // TODO
     // look into the dynamic structs for pipeline
     // Recreate entire pipeline for now just for quick use
-    mGraphicsPipelines.clear();
+    //mGraphicsPipelines.clear();
 
     PrepareGraphicsPipeline();
 }

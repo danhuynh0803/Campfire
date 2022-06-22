@@ -23,6 +23,8 @@ std::vector<uint32_t> CompileFile(
     if (module.GetCompilationStatus() != shaderc_compilation_status_success)
     {
         std::cerr << module.GetErrorMessage();
+        // TODO if compilation fails, use a shader to indicate something is broken
+        // like the purple shader in unity
         return std::vector<uint32_t>();
     }
 

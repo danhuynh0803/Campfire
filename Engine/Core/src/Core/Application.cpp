@@ -113,6 +113,7 @@ void Application::OnEvent(Event& e)
     EventDispatcher dispatcher(e);
 
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
+    dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 
     for (auto revIt = layerStack.rbegin(); revIt != layerStack.rend(); ++revIt)
     {
@@ -133,11 +134,22 @@ void Application::OnEvent(Event& e)
 
 bool Application::OnWindowResize(WindowResizeEvent& e)
 {
-    if (e.GetWidth() == 0 || e.GetHeight() == 0)
+//#ifdef OPENGL
+    // For OpenGL's case since glfw handles minimization cases
+    //if (e.GetWidth() == 0 || e.GetHeight() == 0)
+    //{
+    //    // Don't propagate event further
+    //    // to avoid resizing framebuffer to 0 dimensions
+    //    return true;
+    //}
+//#endif
+    // Check for minimization case
+    int width = e.GetWidth(), height = e.GetHeight();
+    auto nativeWindow = GetWindow().GetNativeWindow();
+    while (width == 0 || height == 0)
     {
-        // Don't propagate event further
-        // to avoid resizing framebuffer to 0 dimensions
-        return true;
+        glfwGetFramebufferSize(static_cast<GLFWwindow*>(nativeWindow), &width, &height);
+        glfwWaitEvents();
     }
 
     CORE_INFO("Resize to {0} : {1}", e.GetWidth(), e.GetHeight());
@@ -145,9 +157,8 @@ bool Application::OnWindowResize(WindowResizeEvent& e)
     return false;
 }
 
-//not used
 bool Application::OnWindowClose(WindowCloseEvent& e)
 {
-    //isRunning = false;
+    isRunning = false;
     return false;
 }

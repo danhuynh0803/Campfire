@@ -68,7 +68,7 @@ void VulkanImGuiLayer::Begin()
     ImGuizmo::BeginFrame();
     //ImGui::TextUnformatted(device->properties.deviceName); // TODO
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 }
 
 // End of frame

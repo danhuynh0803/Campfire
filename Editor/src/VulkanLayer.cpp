@@ -179,17 +179,18 @@ void VulkanLayer::OnAttach()
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
     editorCamera->nearPlane = 0.001f;
     editorCamera->farPlane = 10000.0f;
-    cameraController.normalSpeed = 15;
+    cameraController.normalSpeed = 5;
     cameraController.SetActiveCamera(
         editorCamera,
-        glm::vec3(0.0f, 0.0f, 10.0f), // position
+        glm::vec3(0.0f, 0.0f, 1.0f), // position
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
     auto environment = scene->CreateEntity("environment");
-    environment.AddComponent<VulkanMeshComponent>(
-        ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-    );
+    //environment.AddComponent<VulkanMeshComponent>(
+    //    //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+    //    ASSETS + "/Models/helmet/scene.gltf"
+    //);
     environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
 
     globalInfo.Init();
@@ -344,9 +345,22 @@ void VulkanLayer::ReconstructPipelines()
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
 {
     // TODO update dynamicStates of pipeline (viewport width, etc)
+    if (e.GetWidth() == 0 || e.GetHeight() == 0) {
+        return true;
+    }
+
     editorCamera->width = e.GetWidth();
     editorCamera->height = e.GetHeight();
     editorCamera->SetProjection();
+
+    // Check for minimization case
+    //int width = e.GetWidth(), height = e.GetHeight();
+    //while (width == 0 || height == 0)
+    //{
+    //    width = e.GetWidth();
+    //    height = e.GetHeight();
+    //    glfwWaitEvents();
+    //}
 
     VulkanContext::Get()->RecreateSwapChain();
 

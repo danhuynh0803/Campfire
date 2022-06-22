@@ -135,8 +135,8 @@ void Renderer::DrawLines(const SharedPtr<Shader>& shader, const SharedPtr<Vertex
 
 void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 {
-    RenderCommand::SetViewport(0, 0, width, height);
-    VulkanContext::Get()->RecreateSwapChain();
+    //RenderCommand::SetViewport(0, 0, width, height);
+    //VulkanContext::Get()->RecreateSwapChain();
     // TODO update FBO data here when refactoring
     // Or maybe just make a renderer specifically for scenes
 }

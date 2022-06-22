@@ -99,7 +99,9 @@ void VulkanContext::RecreateSwapChain()
 {
     GetDevice()->GetVulkanDevice().waitIdle();
 
+    // TODO
     mSwapChain.reset();
+    CORE_INFO("mSwapChain useCount={0}", mSwapChain.use_count());
 
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
 
