@@ -44,7 +44,8 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     mDescriptorPool = mDevice->GetVulkanDevice().createDescriptorPoolUnique(poolInfo);
 
-    mFrameGraph.CreateRenderFrameGraph();
+    mFrameGraph = CreateSharedPtr<FrameGraph>();
+    mFrameGraph->CreateRenderFrameGraph();
 
     // TODO pipeline should be with material?
     mComputePipeline = CreateSharedPtr<VulkanComputePipeline>();
@@ -52,6 +53,18 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();
     mSwapChain->CreateBarriers();
+}
+
+VulkanContext::~VulkanContext()
+{
+    mSwapChain.reset();
+    mFrameGraph.reset();
+    mComputePipeline.reset();
+    mDescriptorPool.reset();
+    mGraphicsCommandPool.reset();
+    mComputeCommandPool.reset();
+    mDevice.reset();
+    sVulkanInstance.reset();
 }
 
 vk::CommandPool VulkanContext::GetCommandPool(QueueFamilyType type)
@@ -105,7 +118,7 @@ void VulkanContext::RecreateSwapChain()
 
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
 
-    mFrameGraph.ReconstructFrameGraph();
+    mFrameGraph->ReconstructFrameGraph();
 
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();

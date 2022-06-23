@@ -57,7 +57,7 @@ struct GlobalInfo
     void Init()
     {
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-        auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
+        auto graphicsPipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
         auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
 
         // Create global descriptorSet (Should be at set 0)
@@ -223,7 +223,7 @@ void VulkanLayer::OnUpdate(float dt)
     OnImGuiRender();
     vkImguiLayer->End();
 
-    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("models");
+    auto graphicsPipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
     auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
     for (size_t frame = 0; frame < swapChainSize; ++frame)
     {
@@ -339,7 +339,7 @@ void VulkanLayer::ReconstructPipelines()
 {
     auto ctx = VulkanContext::Get();
     ctx->GetDevice()->GetVulkanDevice().waitIdle();
-    ctx->mFrameGraph.ReconstructFrameGraph();
+    ctx->mFrameGraph->ReconstructFrameGraph();
 }
 
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)

@@ -15,7 +15,7 @@ class VulkanContext : public GraphicsContext
 {
 public:
     VulkanContext(GLFWwindow* windowHandle);
-    ~VulkanContext() {}
+    ~VulkanContext();
 
     virtual void Init() override;
     virtual void SwapBuffers() override;
@@ -36,19 +36,20 @@ public:
 
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
-    FrameGraph mFrameGraph;
+    SharedPtr<FrameGraph> mFrameGraph;
     SharedPtr<VulkanComputePipeline> mComputePipeline;
 
 private:
-    vk::UniqueDescriptorPool mDescriptorPool;
-    vk::UniqueCommandPool mGraphicsCommandPool;
-    vk::UniqueCommandPool mComputeCommandPool;
     vk::UniqueInstance CreateInstance();
+private:
     inline static vk::UniqueInstance sVulkanInstance;
     inline static SharedPtr<VulkanContext> sVulkanContextInstance;
+    SharedPtr<VulkanDevice> mDevice;
+    vk::UniqueCommandPool mGraphicsCommandPool;
+    vk::UniqueCommandPool mComputeCommandPool;
+    vk::UniqueDescriptorPool mDescriptorPool;
+    SharedPtr<VulkanSwapChain> mSwapChain;
+
     GLFWwindow* windowHandle;
     bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
-
-    SharedPtr<VulkanDevice> mDevice;
-    SharedPtr<VulkanSwapChain> mSwapChain;
 };

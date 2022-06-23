@@ -154,7 +154,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
     pipelineCreateInfo.pDynamicState = nullptr;
     pipelineCreateInfo.layout = mPipelineLayout.get();
-    pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph.GetRenderPass("opaque");
+    pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph->GetRenderPass("opaque");
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;
