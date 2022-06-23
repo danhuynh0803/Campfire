@@ -111,16 +111,8 @@ std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_
 void VulkanContext::RecreateSwapChain()
 {
     GetDevice()->GetVulkanDevice().waitIdle();
-
-    // TODO
     mSwapChain.reset();
-    CORE_INFO("mSwapChain useCount={0}", mSwapChain.use_count());
-
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
-
-    mFrameGraph->ReconstructFrameGraph();
-
-    // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();
     mSwapChain->CreateBarriers();
 }

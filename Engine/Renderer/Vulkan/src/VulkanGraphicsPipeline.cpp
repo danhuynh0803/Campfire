@@ -108,7 +108,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     // Setup dynamic state - these can be changed without recreating the pipeline
     std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eLineWidth };
 
-    auto dynamicState = vk::initializers::PipelineDynamicStateCreateInfo(static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
+    auto dynamicStateCreateInfo = vk::initializers::PipelineDynamicStateCreateInfo(static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
 
     // Create UniqueDescriptorSetLayouts from the layout bindings parameter
     for (auto setBindings : descriptorSetLayoutBindings)
@@ -152,7 +152,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
     pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
-    pipelineCreateInfo.pDynamicState = nullptr;
+    pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
     pipelineCreateInfo.layout = mPipelineLayout.get();
     pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph->GetRenderPass("opaque");
     pipelineCreateInfo.subpass = 0;

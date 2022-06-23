@@ -24,6 +24,15 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 
     commandBuffer.begin(beginInfo);
 
+    vk::Viewport viewport {};
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width  = extent.width;
+    viewport.height = extent.height;
+    viewport.minDepth = 0;
+    viewport.maxDepth = 1;
+    commandBuffer.setViewport(0, 1, &viewport);
+
     // Clear value
     std::array<vk::ClearValue, 2> clearValues;
     clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.3f, 0.3f, 1.0f } }));
