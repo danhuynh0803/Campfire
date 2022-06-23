@@ -28,11 +28,11 @@ namespace
         static vk::PipelineVertexInputStateCreateInfo* GetPipelineVertexInputState(const std::vector<VertexComponent>& components)
         {
             vertexInputBindingDescription = vk::initializers::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex);
-
+            vertexInputAttributeDescriptions.clear();
             uint32_t location = 0;
             for (auto component : components)
             {
-                vertexInputAttributeDescriptions.push_back(Vertex::InputAttributeDescription(0, location, component));
+                vertexInputAttributeDescriptions.emplace_back(Vertex::InputAttributeDescription(0, location, component));
                 location++;
             }
 
