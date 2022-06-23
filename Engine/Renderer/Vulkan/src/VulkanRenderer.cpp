@@ -24,6 +24,10 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 
     commandBuffer.begin(beginInfo);
 
+    // Set dynamic scissor
+    commandBuffer.setScissor(0, 1, &renderArea);
+
+    // Set dynamic viewport
     vk::Viewport viewport {};
     viewport.x = 0;
     viewport.y = 0;
