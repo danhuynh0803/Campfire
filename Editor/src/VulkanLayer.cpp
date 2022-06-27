@@ -188,8 +188,8 @@ void VulkanLayer::OnAttach()
 
     auto environment = scene->CreateEntity("environment");
     environment.AddComponent<VulkanMeshComponent>(
-        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-        ASSETS + "/Models/helmet/scene.gltf"
+        ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+        //ASSETS + "/Models/helmet/scene.gltf"
     );
     environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
 

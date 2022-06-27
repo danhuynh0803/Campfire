@@ -16,6 +16,9 @@ void FrameGraph::CreateRenderFrameGraph()
 
     // Prepare pipelines
     PrepareGraphicsPipeline();
+
+    // Raytrace compute
+    mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
 }
 
 void FrameGraph::ReconstructFrameGraph()
@@ -120,16 +123,6 @@ SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
     fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
     fsStageInfo.module = fs->GetShaderModule();
     fsStageInfo.pName  = "main";
-
-    //auto vertShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
-    //    SHADERS + "/model.vert.spv"
-    //  , vk::ShaderStageFlagBits::eVertex
-    //);
-
-    //auto fragShaderStageInfo = vk::initializers::PipelineShaderStageCreateInfo(
-    //    SHADERS + "/model.frag.spv"
-    //  , vk::ShaderStageFlagBits::eFragment
-    //);
 
     std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
         vsStageInfo,

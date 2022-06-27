@@ -22,13 +22,13 @@ private:
     void PrepareGraphicsPipeline();
 
     template <typename T>
-    using LabelMap = std::map<std::string, T>;
+    using LabelMap = std::unordered_map<std::string, T>;
     LabelMap<vk::UniqueRenderPass> mRenderPasses;
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;
     LabelMap<SharedPtr<VulkanGraphicsPipeline>> mGraphicsPipelines;
-    LabelMap<VulkanComputePipeline> mComputePipelines;
+    LabelMap<SharedPtr<VulkanComputePipeline>> mComputePipelines;
 
     //LabelMap<vk::Pipeline> mPipelines;
     //LabelMap<vk::SubpassDescription> mSubpasses;

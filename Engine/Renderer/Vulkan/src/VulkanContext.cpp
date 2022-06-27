@@ -47,9 +47,6 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     mFrameGraph = CreateSharedPtr<FrameGraph>();
     mFrameGraph->CreateRenderFrameGraph();
 
-    // TODO pipeline should be with material?
-    mComputePipeline = CreateSharedPtr<VulkanComputePipeline>();
-
     // These need to be created post-graphics pipeline
     mSwapChain->CreateFramebuffers();
     mSwapChain->CreateBarriers();
@@ -59,7 +56,6 @@ VulkanContext::~VulkanContext()
 {
     mSwapChain.reset();
     mFrameGraph.reset();
-    mComputePipeline.reset();
     mDescriptorPool.reset();
     mGraphicsCommandPool.reset();
     mComputeCommandPool.reset();

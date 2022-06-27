@@ -42,6 +42,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
     clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { 0.2f, 0.3f, 0.3f, 1.0f } }));
     clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
 
+    // TODO replace with dynamic rendering
     vk::RenderPassBeginInfo renderPassBeginInfo;
     renderPassBeginInfo.renderPass = VulkanContext::Get()->mFrameGraph->GetRenderPass("opaque");
     renderPassBeginInfo.framebuffer = framebuffer;

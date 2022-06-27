@@ -7,7 +7,7 @@ class VulkanComputePipeline
 {
 public:
     VulkanComputePipeline();
-    ~VulkanComputePipeline() = default;
+    ~VulkanComputePipeline() {}
     void RecreatePipeline();
 
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;

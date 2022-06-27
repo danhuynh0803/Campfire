@@ -1,6 +1,7 @@
 #include "Vulkan/VulkanComputePipeline.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanUtil.h"
+#include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanInitializers.h"
 #include "Core/ResourceManager.h"
 
@@ -40,12 +41,14 @@ VulkanComputePipeline::VulkanComputePipeline()
 
     mDescriptorSets = mDevice.allocateDescriptorSetsUnique(allocInfo);
 
-    auto computeShaderInfo = vk::initializers::PipelineShaderStageCreateInfo(
-        SHADERS + "/raytrace.comp.spv",
-        vk::ShaderStageFlagBits::eCompute);
+    auto shader = CreateSharedPtr<VulkanShader>(SHADERS + "/raytrace.comp");
+    vk::PipelineShaderStageCreateInfo shaderInfo {};
+    shaderInfo.stage  = vk::ShaderStageFlagBits::eCompute;
+    shaderInfo.module = shader->GetShaderModule();
+    shaderInfo.pName  = "main";
 
     vk::ComputePipelineCreateInfo pipelineCreateInfo {};
-    pipelineCreateInfo.stage = computeShaderInfo;
+    pipelineCreateInfo.stage = shaderInfo;
     pipelineCreateInfo.layout = mPipelineLayout.get();
     vk::PipelineCache pipelineCache;
     mPipeline = mDevice.createComputePipelineUnique(pipelineCache, pipelineCreateInfo);

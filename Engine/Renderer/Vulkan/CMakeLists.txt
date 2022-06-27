@@ -56,6 +56,7 @@ target_link_libraries(
     PRIVATE
         Vulkan::Vulkan
         $ENV{VULKAN_SDK}/lib/shaderc_combinedd.lib
-        # For release versions
-        #$ENV{VULKAN_SDK}/lib/shaderc_combined.lib
+        #$<$<CONFIG:Debug>:$ENV{VULKAN_SDK}/lib/shaderc_combinedd.lib
+        #$<$<CONFIG:RelWithDebInfo>:$ENV{VULKAN_SDK}/lib/shaderc_combinedd.lib
+        #$<$<CONFIG:Release>:$ENV{VULKAN_SDK}/lib/shaderc_combined.lib
 )
