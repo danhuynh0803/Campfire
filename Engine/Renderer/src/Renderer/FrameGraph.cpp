@@ -7,6 +7,11 @@
 
 #include <vector>
 
+FrameGraph::FrameGraph()
+{
+    // TODO move to a renderer specifically
+}
+
 void FrameGraph::CreateRenderFrameGraph()
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -23,11 +28,6 @@ void FrameGraph::CreateRenderFrameGraph()
 
 void FrameGraph::ReconstructFrameGraph()
 {
-    // TODO
-    // look into the dynamic structs for pipeline
-    // Recreate entire pipeline for now just for quick use
-    //mGraphicsPipelines.clear();
-
     PrepareGraphicsPipeline();
 }
 
@@ -138,6 +138,15 @@ SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
 void FrameGraph::PrepareGraphicsPipeline()
 {
     mGraphicsPipelines["models"] = CreateModelPipeline();
+}
+
+RenderPass& AddRenderPass(
+    const std::string& label,
+    RenderQueue queue)
+{
+    RenderPass pass;
+
+    return pass;
 }
 
 void FrameGraph::CreateOpaque()

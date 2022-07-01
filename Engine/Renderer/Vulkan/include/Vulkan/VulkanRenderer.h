@@ -2,6 +2,18 @@
 
 #include <vulkan/vulkan.hpp>
 
+class CommandBuffer
+{
+    VkCommandBuffer cmd;
+};
+
+class RenderContext
+{
+    // camera, light, any other global info
+
+    // scissor, viewport
+};
+
 class VulkanRenderer
 {
 public:

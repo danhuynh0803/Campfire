@@ -20,5 +20,5 @@ public:
 
 Application* CreateApplication()
 {
-    return new EditorApplication({"Campfire Editor", 1920, 1080});
+    return new EditorApplication({"Campfire Editor", 1280, 720});
 }
