@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include <fstream>
+#include "Vulkan/VulkanContext.h"
 
 namespace vk::initializers
 {

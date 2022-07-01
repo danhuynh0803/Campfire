@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.hpp>
 #include <vector>
 #include "Vulkan/VulkanInitializers.h"
+//#include "Core/Log.h"
 
 enum class PipelineType
 {
@@ -23,13 +24,17 @@ public:
     Pipeline(
         const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
       , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
-      , PipelineType type);
+      , PipelineType type
+    );
 
 private:
-
     vk::UniquePipeline CreateGraphicsPipeline(
-        const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
-      , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages);
+        const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
+    );
+
+    vk::UniquePipeline CreateComputePipeline(
+        const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
+    );
 
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
@@ -39,7 +44,7 @@ private:
     PipelineType type;
 };
 
-}
+} // cf
 
 //=============================================================================
 // Graphics pipeline related

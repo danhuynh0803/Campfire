@@ -8,6 +8,8 @@ cf::Pipeline::Pipeline(
 , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
 , PipelineType type)
 {
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
     // Create UniqueDescriptorSetLayouts from the layout bindings parameter
     for (auto setBindings : descriptorSetLayoutBindings)
     {
@@ -28,57 +30,68 @@ cf::Pipeline::Pipeline(
       , setLayouts.data()
     );
 
-    vk::PushConstantRange pushConstantRange = {};
-    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-    pushConstantRange.size = sizeof(TransformPushConstBlock);
-    pushConstantRange.offset = 0;
-
-    pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-    pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
-
-    mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
-
     switch (type)
     {
-    default:
     case PipelineType::eGraphics:
-        //mPipeline = CreateGraphicsPipeline();
-        break;
+    {
+        vk::PushConstantRange pushConstantRange = {};
+        pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+        pushConstantRange.size = sizeof(TransformPushConstBlock);
+        pushConstantRange.offset = 0;
 
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+        mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+
+        mPipeline = CreateGraphicsPipeline(shaderStages);
+        break;
+    }
     case PipelineType::eCompute:
         //mPipeline = CreateComputePipeline();
+        break;
+    case PipelineType::eRaytracing:
+        //mPipeline = CreateComputePipeline();
+        break;
+    default:
+        CORE_ERROR("No matching pipeline type specified during pipeline creation");
         break;
     }
 }
 
 vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
-  const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
-, const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages)
+    const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages)
 {
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-
     // Input assembly
-    auto inputAssemblyStateCreateInfo = vk::initializers::PipelineInputAssemblyStateCreateInfo(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
+    auto inputAssemblyStateCreateInfo =
+        vk::initializers::PipelineInputAssemblyStateCreateInfo(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
 
     // Setup viewports and scissor rect
     auto swapChain = VulkanContext::Get()->GetSwapChain();
     auto swapChainExtent = swapChain->GetExtent();
-    auto viewport = vk::initializers::Viewport(0.0f, 0.0f, swapChainExtent.width, swapChainExtent.height, 0.0f, 1.0);
+    auto viewport =
+        vk::initializers::Viewport(0.0f, 0.0f, swapChainExtent.width, swapChainExtent.height, 0.0f, 1.0);
 
     vk::Rect2D scissors;
     scissors.offset = VkOffset2D{0, 0};
     scissors.extent = swapChainExtent;
 
-    auto viewportStateCreateInfo = vk::initializers::PipelineViewportStateCreateInfo(1, &viewport, 1, &scissors);
+    auto viewportStateCreateInfo =
+        vk::initializers::PipelineViewportStateCreateInfo(1, &viewport, 1, &scissors);
 
     // Setup rasterizer
-    auto rasterizationStateCreateInfo = vk::initializers::PipelineRasterizationStateCreateInfo(vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise);
+    auto rasterizationStateCreateInfo =
+        vk::initializers::PipelineRasterizationStateCreateInfo(
+            vk::PolygonMode::eFill,
+            vk::CullModeFlagBits::eNone,
+            vk::FrontFace::eCounterClockwise);
 
     // Multisampling
-    auto multisampleCreateInfo = vk::initializers::PipelineMultisampleStateCreateInfo(vk::SampleCountFlagBits::e1);
+    auto multisampleCreateInfo =
+        vk::initializers::PipelineMultisampleStateCreateInfo(vk::SampleCountFlagBits::e1);
 
     // Depth and stencil operators
-    auto depthStencilCreateInfo = vk::initializers::PipelineDepthStencilStateCreateInfo(VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
+    auto depthStencilCreateInfo =
+        vk::initializers::PipelineDepthStencilStateCreateInfo(VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
 
     // Setup color blending
     auto colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
@@ -89,36 +102,6 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor, vk::DynamicState::eLineWidth };
 
     auto dynamicStateCreateInfo = vk::initializers::PipelineDynamicStateCreateInfo(static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
-
-    // Create UniqueDescriptorSetLayouts from the layout bindings parameter
-    for (auto setBindings : descriptorSetLayoutBindings)
-    {
-        auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-            static_cast<uint32_t>(setBindings.size()),
-            setBindings.data()
-        );
-
-        mDescriptorSetLayouts.emplace_back(
-            device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo)
-        );
-    }
-
-    std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
-    // Setup pipeline layout
-    auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
-        static_cast<uint32_t>(setLayouts.size())
-      , setLayouts.data()
-    );
-
-    vk::PushConstantRange pushConstantRange = {};
-    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-    pushConstantRange.size = sizeof(TransformPushConstBlock);
-    pushConstantRange.offset = 0;
-
-    pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-    pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
-
-    mPipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     // Create Graphics pipeline
     vk::GraphicsPipelineCreateInfo pipelineCreateInfo;
@@ -139,5 +122,6 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;
 
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
     return device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
 }
