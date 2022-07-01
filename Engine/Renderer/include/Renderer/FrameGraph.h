@@ -9,6 +9,8 @@
 struct AttachmentInfo
 {
     uint32_t samples;
+    uint32_t mipLevels = 1;
+    uint32_t x, y, z;
 };
 
 struct RenderPassInfo
@@ -21,7 +23,9 @@ struct RenderPassInfo
     uint32_t stencilStoreOp = 0;
 };
 
-enum RenderQueueFlagsBits
+namespace cf
+{
+enum class RenderQueueFlagsBits
 {
     eGraphics       = 1 << 0,
     eCompute        = 1 << 1,
@@ -29,6 +33,7 @@ enum RenderQueueFlagsBits
     eAsyncCompute   = 1 << 3,
     Count = 4
 };
+}
 using RenderQueue = uint32_t;
 
 class RenderPass
@@ -57,7 +62,6 @@ public:
 
 private:
     void CreateOpaque();
-    void PrepareGraphicsPipeline();
 
 private:
     template <typename T>

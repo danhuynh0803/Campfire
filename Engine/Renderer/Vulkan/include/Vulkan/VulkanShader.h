@@ -15,3 +15,8 @@ private:
     std::string mName;
     uint32_t mSize;
 };
+
+class Program
+{
+
+};

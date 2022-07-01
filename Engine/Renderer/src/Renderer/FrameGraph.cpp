@@ -7,9 +7,10 @@
 
 #include <vector>
 
+SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline();
+
 FrameGraph::FrameGraph()
 {
-    // TODO move to a renderer specifically
 }
 
 void FrameGraph::CreateRenderFrameGraph()
@@ -19,16 +20,15 @@ void FrameGraph::CreateRenderFrameGraph()
     // Prepare renderpasses
     CreateOpaque();
 
-    // Prepare pipelines
-    PrepareGraphicsPipeline();
-
-    // Raytrace compute
+    // Defer pipeline creation till after renderpass graph is made
+    mGraphicsPipelines["models"] = CreateModelPipeline();
     mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
 }
 
 void FrameGraph::ReconstructFrameGraph()
 {
-    PrepareGraphicsPipeline();
+    mGraphicsPipelines["models"] = CreateModelPipeline();
+    mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
 }
 
 SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
@@ -133,11 +133,6 @@ SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
         descriptorSetLayoutBindings,
         shaderStages
     );
-}
-
-void FrameGraph::PrepareGraphicsPipeline()
-{
-    mGraphicsPipelines["models"] = CreateModelPipeline();
 }
 
 RenderPass& AddRenderPass(
