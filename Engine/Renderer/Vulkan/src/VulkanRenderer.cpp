@@ -1,12 +1,12 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanContext.h"
+#include "Renderer/FrameGraph.h"
 
 vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 {
     auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
-    VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
     vk::CommandBufferBeginInfo beginInfo;
     // TODO: investigate if simulataneous use is faster or slower?
@@ -53,7 +53,6 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
     return commandBuffer;
-
 }
 
 void VulkanRenderer::EndScene(vk::CommandBuffer& commandBuffer)

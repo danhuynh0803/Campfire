@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.hpp>
 
+class VulkanUniformBuffer;
+
 struct VulkanMaterial
 {
     glm::vec4 baseColor = glm::vec4(1.0f);

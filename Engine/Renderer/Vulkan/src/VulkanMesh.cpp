@@ -1,6 +1,5 @@
 #include "Core/ResourceManager.h"
 #include "Util/AABB.h"
-#include "Renderer/Material.h"
 
 #include "Vulkan/VulkanRenderer.h"
 #include "Vulkan/VulkanTexture.h"
@@ -9,6 +8,11 @@
 #include "Vulkan/VulkanMaterial.h"
 #include "Vulkan/VulkanInitializers.h"
 #include "Vulkan/VulkanMaterial.h"
+#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanBuffer.h"
+
+#include "Renderer/Material.h"
+#include "Renderer/FrameGraph.h"
 
 #include <glm/glm.hpp>
 

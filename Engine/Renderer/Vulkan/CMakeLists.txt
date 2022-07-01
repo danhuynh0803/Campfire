@@ -22,8 +22,8 @@ set(VULKAN_HEADERS
     include/Vulkan/VulkanUtil.h
     include/Vulkan/VulkanInitializers.h
     include/Vulkan/VulkanMesh.h
-    include/Vulkan/VulkanGraphicsPipeline.h
-    include/Vulkan/VulkanComputePipeline.h
+    #include/Vulkan/VulkanGraphicsPipeline.h
+    #include/Vulkan/VulkanComputePipeline.h
     include/Vulkan/VulkanPipeline.h
 )
 
@@ -41,8 +41,8 @@ set(VULKAN_SRC
     #src/VulkanVertexArray.cpp
     src/VulkanUtil.cpp
     src/VulkanMesh.cpp
-    src/VulkanGraphicsPipeline.cpp
-    src/VulkanComputePipeline.cpp
+    #src/VulkanGraphicsPipeline.cpp
+    #src/VulkanComputePipeline.cpp
     src/VulkanPipeline.cpp
 )
 

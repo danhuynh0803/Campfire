@@ -2,7 +2,6 @@
 
 #include <vulkan/vulkan.hpp>
 #include <fstream>
-#include "Vulkan/VulkanContext.h"
 
 namespace vk::initializers
 {
@@ -262,6 +261,7 @@ namespace vk::initializers
         return pipelineLayoutCreateInfo;
     }
 
+    /*
     inline vk::ShaderModule LoadShaderModule(const std::string& filepath)
     {
         std::ifstream file(filepath, std::ios::ate | std::ios::binary);
@@ -299,4 +299,5 @@ namespace vk::initializers
 
         return shaderStageInfo;
     }
+    */
 }

@@ -2,13 +2,14 @@
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanInitializers.h"
 #include "Vulkan/VulkanUtil.h"
+#include "Renderer/FrameGraph.h"
 
 cf::Pipeline::Pipeline(
   const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
 , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
 , PipelineType type)
 {
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
     // Create UniqueDescriptorSetLayouts from the layout bindings parameter
     for (auto setBindings : descriptorSetLayoutBindings)
@@ -56,6 +57,63 @@ cf::Pipeline::Pipeline(
         CORE_ERROR("No matching pipeline type specified during pipeline creation");
         break;
     }
+}
+
+namespace cf
+{
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec2 uv;
+    glm::vec3 normal;
+
+    inline static vk::PipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo;
+    inline static vk::VertexInputBindingDescription vertexInputBindingDescription;
+    inline static std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
+
+    static vk::PipelineVertexInputStateCreateInfo* GetPipelineVertexInputState(const std::vector<VertexComponent>& components)
+    {
+        vertexInputBindingDescription = vk::initializers::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex);
+        vertexInputAttributeDescriptions.clear();
+        uint32_t location = 0;
+        for (auto component : components)
+        {
+            vertexInputAttributeDescriptions.emplace_back(Vertex::InputAttributeDescription(0, location, component));
+            location++;
+        }
+
+        pipelineVertexInputStateCreateInfo = vk::initializers::PipelineVertexInputStateCreateInfo(
+            1, &vertexInputBindingDescription,
+            static_cast<uint32_t>(vertexInputAttributeDescriptions.size()),
+            vertexInputAttributeDescriptions.data()
+        );
+
+        return &pipelineVertexInputStateCreateInfo;
+    }
+
+    static vk::VertexInputAttributeDescription InputAttributeDescription(
+        uint32_t binding,
+        uint32_t location,
+        VertexComponent component)
+    {
+        switch (component)
+        {
+        case VertexComponent::Position:
+            return vk::initializers::VertexInputAttributeDescription(binding, location, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos));
+        case VertexComponent::UV:
+            return vk::initializers::VertexInputAttributeDescription(binding, location, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv));
+        case VertexComponent::Normal:
+            return vk::initializers::VertexInputAttributeDescription(binding, location, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal));
+        default:
+            CORE_ERROR("No valid Input Attribute for specified component");
+        }
+    }
+};
+
+//vk::PipelineVertexInputStateCreateInfo Vertex::pipelineVertexInputStateCreateInfo;
+//std::vector<vk::VertexInputAttributeDescription> Vertex::vertexInputAttributeDescriptions;
+//vk::VertexInputBindingDescription Vertex::vertexInputBindingDescription;
+
 }
 
 vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
@@ -108,7 +166,10 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.flags = vk::PipelineCreateFlags();
     pipelineCreateInfo.stageCount = shaderStages.size();
     pipelineCreateInfo.pStages = shaderStages.data();
-    pipelineCreateInfo.pVertexInputState = Vertex::GetPipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
+    {
+        using namespace cf;
+        pipelineCreateInfo.pVertexInputState = Vertex::GetPipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
+    }
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
     pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
     pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;

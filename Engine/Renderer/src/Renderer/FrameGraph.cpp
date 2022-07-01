@@ -4,10 +4,15 @@
 #include "Vulkan/VulkanInitializers.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanUtil.h"
+//#include "Vulkan/VulkanGraphicsPipeline.h"
+//#include "Vulkan/VulkanComputePipeline.h"
+#include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanSwapChain.h"
 
 #include <vector>
 
-SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline();
+SharedPtr<cf::Pipeline> CreateModelPipeline();
 
 FrameGraph::FrameGraph()
 {
@@ -21,17 +26,18 @@ void FrameGraph::CreateRenderFrameGraph()
     CreateOpaque();
 
     // Defer pipeline creation till after renderpass graph is made
-    mGraphicsPipelines["models"] = CreateModelPipeline();
-    mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
+    mPipelines["models"] = CreateModelPipeline();
+    //mGraphicsPipelines["models"] = CreateModelPipeline();
+    //mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
 }
 
 void FrameGraph::ReconstructFrameGraph()
 {
-    mGraphicsPipelines["models"] = CreateModelPipeline();
-    mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
+    //mGraphicsPipelines["models"] = CreateModelPipeline();
+    //mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
 }
 
-SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
+SharedPtr<cf::Pipeline> CreateModelPipeline()
 {
     auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
 
@@ -129,9 +135,10 @@ SharedPtr<VulkanGraphicsPipeline> CreateModelPipeline()
         fsStageInfo,
     };
 
-    return CreateSharedPtr<VulkanGraphicsPipeline>(
+    return CreateSharedPtr<cf::Pipeline>(
         descriptorSetLayoutBindings,
-        shaderStages
+        shaderStages,
+        PipelineType::eGraphics
     );
 }
 

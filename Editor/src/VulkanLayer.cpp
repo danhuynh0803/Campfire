@@ -7,11 +7,16 @@
 #include "Vulkan/VulkanMesh.h"
 #include "Vulkan/VulkanInitializers.h"
 
+#include "Core/Application.h"
 #include "Core/Input.h"
 #include "Core/Timer.h"
 #include "Core/ResourceManager.h" // ASSETS dir
 #include "Core/FileSystem.h"
 #include "Core/Log.h"
+
+#include "ImGui/VulkanImGuiLayer.h"
+
+#include "Renderer/FrameGraph.h"
 
 #include "Scene/Scene.h"
 #include "Scene/Entity.h"
@@ -188,10 +193,10 @@ void VulkanLayer::OnAttach()
 
     auto environment = scene->CreateEntity("environment");
     environment.AddComponent<VulkanMeshComponent>(
-        ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-        //ASSETS + "/Models/helmet/scene.gltf"
+        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+        ASSETS + "/Models/helmet/scene.gltf"
     );
-    environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
+    environment.GetComponent<TransformComponent>().scale = glm::vec3(0.3f);
 
     globalInfo.Init();
 }

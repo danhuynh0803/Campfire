@@ -1,5 +1,9 @@
+#include "Renderer/FrameGraph.h"
+#include "Renderer/GraphicsContext.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanSwapChain.h"
 
 #include <limits>
 #include <vector>

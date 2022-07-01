@@ -3,8 +3,10 @@
 #include <map>
 #include <vector>
 #include <vulkan/vulkan.hpp>
-#include "Vulkan/VulkanGraphicsPipeline.h"
-#include "Vulkan/VulkanComputePipeline.h"
+#include "Core/Base.h"
+//#include "Vulkan/VulkanGraphicsPipeline.h"
+//#include "Vulkan/VulkanComputePipeline.h"
+#include "Vulkan/VulkanPipeline.h"
 
 struct AttachmentInfo
 {
@@ -23,8 +25,6 @@ struct RenderPassInfo
     uint32_t stencilStoreOp = 0;
 };
 
-namespace cf
-{
 enum class RenderQueueFlagsBits
 {
     eGraphics       = 1 << 0,
@@ -33,7 +33,6 @@ enum class RenderQueueFlagsBits
     eAsyncCompute   = 1 << 3,
     Count = 4
 };
-}
 using RenderQueue = uint32_t;
 
 class RenderPass
@@ -54,8 +53,9 @@ public:
     vk::RenderPass GetRenderPass(const std::string& label) {
         return mRenderPasses.at(label).get();
     }
-    SharedPtr<VulkanGraphicsPipeline> GetGraphicsPipeline(const std::string& label) {
-        return mGraphicsPipelines.at(label);
+
+    SharedPtr<cf::Pipeline> GetGraphicsPipeline(const std::string& label) {
+        return mPipelines.at(label);
     }
 
     void ReconstructFrameGraph();
@@ -70,8 +70,9 @@ private:
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;
-    LabelMap<SharedPtr<VulkanGraphicsPipeline>> mGraphicsPipelines;
-    LabelMap<SharedPtr<VulkanComputePipeline>> mComputePipelines;
+    //LabelMap<SharedPtr<VulkanGraphicsPipeline>> mGraphicsPipelines;
+    //LabelMap<SharedPtr<VulkanComputePipeline>> mComputePipelines;
+    LabelMap<SharedPtr<cf::Pipeline>> mPipelines;
     //LabelMap<vk::Pipeline> mPipelines;
     //LabelMap<vk::SubpassDescription> mSubpasses;
     //LabelMap<vk::SubpassDependency> mSubpassDependencies;

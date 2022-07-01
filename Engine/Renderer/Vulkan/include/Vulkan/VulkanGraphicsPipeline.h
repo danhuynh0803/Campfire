@@ -26,5 +26,3 @@ public:
 private:
     vk::Device mDevice;
 };
-
-

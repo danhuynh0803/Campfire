@@ -2,14 +2,16 @@
 
 #include <vector>
 #include <vulkan/vulkan.hpp>
-#include "Renderer/Renderer.h"
-#include "Renderer/FrameGraph.h"
+//#include "Renderer/FrameGraph.h"
+#include "Renderer/GraphicsContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanGraphicsPipeline.h"
-#include "Vulkan/VulkanComputePipeline.h"
 #include "Vulkan/VulkanSwapChain.h"
+//#include "Vulkan/VulkanGraphicsPipeline.h"
+//#include "Vulkan/VulkanComputePipeline.h"
+
 
 class GLFWwindow;
+class FrameGraph;
 
 class VulkanContext : public GraphicsContext
 {
@@ -33,11 +35,9 @@ public:
     vk::UniqueCommandPool CreateCommandPool(uint32_t queueFamilyIndex);
     std::vector<vk::UniqueCommandBuffer> CreateCommandBuffers(uint32_t size);
     vk::DescriptorPool GetDescriptorPool() { return mDescriptorPool.get(); }
-
     SharedPtr<VulkanSwapChain> GetSwapChain() { return mSwapChain; }
 
     SharedPtr<FrameGraph> mFrameGraph;
-    SharedPtr<VulkanComputePipeline> mComputePipeline;
 
 private:
     vk::UniqueInstance CreateInstance();
