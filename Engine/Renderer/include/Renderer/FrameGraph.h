@@ -62,6 +62,7 @@ public:
 
 private:
     void CreateOpaque();
+    void CreatePipelines();
 
 private:
     template <typename T>

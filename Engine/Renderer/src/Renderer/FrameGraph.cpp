@@ -1,11 +1,12 @@
-#include "Renderer/FrameGraph.h"
+#include "Core/Base.h"
 #include "Core/ResourceManager.h"
+
+#include "Renderer/FrameGraph.h"
+
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanInitializers.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanUtil.h"
-//#include "Vulkan/VulkanGraphicsPipeline.h"
-//#include "Vulkan/VulkanComputePipeline.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanSwapChain.h"
@@ -13,6 +14,35 @@
 #include <vector>
 
 SharedPtr<cf::Pipeline> CreateModelPipeline();
+
+SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
+{
+    std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings = {
+        // Bind 0: Output image
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
+        // Bind 1: Camera
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1),
+        // Bind 2: Lights
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 2),
+        // Bind 3: Spheres
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 3),
+        // Bind 4: Planes
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 4),
+    };
+
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets = { setLayoutBindings };
+
+    auto shader = CreateSharedPtr<VulkanShader>(SHADERS + "/raytrace.comp");
+    vk::PipelineShaderStageCreateInfo shaderInfo {};
+    shaderInfo.stage  = vk::ShaderStageFlagBits::eCompute;
+    shaderInfo.module = shader->GetShaderModule();
+    shaderInfo.pName  = "main";
+
+    return CreateSharedPtr<cf::Pipeline>(
+        descriptorSets,
+        shaderInfo,
+        PipelineType::eCompute);
+}
 
 FrameGraph::FrameGraph()
 {
@@ -26,9 +56,13 @@ void FrameGraph::CreateRenderFrameGraph()
     CreateOpaque();
 
     // Defer pipeline creation till after renderpass graph is made
+    CreatePipelines();
+}
+
+void FrameGraph::CreatePipelines()
+{
     mPipelines["models"] = CreateModelPipeline();
-    //mGraphicsPipelines["models"] = CreateModelPipeline();
-    //mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
+    mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
 
 void FrameGraph::ReconstructFrameGraph()

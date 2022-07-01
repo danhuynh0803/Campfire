@@ -6,6 +6,16 @@
 
 cf::Pipeline::Pipeline(
   const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
+, const vk::PipelineShaderStageCreateInfo & shaderStage
+, PipelineType type)
+    : Pipeline(
+        descriptorSetLayoutBindings,
+        std::vector<vk::PipelineShaderStageCreateInfo> { shaderStage },
+        type)
+{}
+
+cf::Pipeline::Pipeline(
+  const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
 , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
 , PipelineType type)
 {
@@ -31,27 +41,28 @@ cf::Pipeline::Pipeline(
       , setLayouts.data()
     );
 
+    // TODO generalize push descriptors
+    vk::PushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pushConstantRange.size = sizeof(TransformPushConstBlock);
+    pushConstantRange.offset = 0;
+
+    pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+    pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
+
     switch (type)
     {
     case PipelineType::eGraphics:
     {
-        vk::PushConstantRange pushConstantRange = {};
-        pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-        pushConstantRange.size = sizeof(TransformPushConstBlock);
-        pushConstantRange.offset = 0;
-
-        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
-        mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
-
         mPipeline = CreateGraphicsPipeline(shaderStages);
         break;
     }
     case PipelineType::eCompute:
-        //mPipeline = CreateComputePipeline();
+        mPipeline = CreateComputePipeline(shaderStages);
         break;
     case PipelineType::eRaytracing:
-        //mPipeline = CreateComputePipeline();
+        //mPipeline = CreateRaytracingPipeline();
         break;
     default:
         CORE_ERROR("No matching pipeline type specified during pipeline creation");
@@ -109,13 +120,10 @@ struct Vertex
         }
     }
 };
+} // Namespace cf
 
-//vk::PipelineVertexInputStateCreateInfo Vertex::pipelineVertexInputStateCreateInfo;
-//std::vector<vk::VertexInputAttributeDescription> Vertex::vertexInputAttributeDescriptions;
-//vk::VertexInputBindingDescription Vertex::vertexInputBindingDescription;
-
-}
-
+// ====================================================================================
+// Graphics pipeline
 vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages)
 {
@@ -183,6 +191,19 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;
 
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    return device.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    return mDevice.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+}
+
+// ====================================================================================
+// Compute pipeline
+vk::UniquePipeline cf::Pipeline::CreateComputePipeline(
+    const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages)
+{
+    vk::ComputePipelineCreateInfo pipelineCreateInfo {};
+    // Assume compute shader is the first shader in the list since pipeline can only use one shader
+    pipelineCreateInfo.stage = shaderStages.at(0);
+    pipelineCreateInfo.layout = mPipelineLayout.get();
+    // TODO cache for quicker perf
+    vk::PipelineCache pipelineCache;
+    return mDevice.createComputePipelineUnique(pipelineCache, pipelineCreateInfo);
 }

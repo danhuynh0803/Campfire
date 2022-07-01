@@ -21,6 +21,11 @@ class Pipeline
 {
 public:
     Pipeline(
+        const std::vector<std::vector<vk::DescriptorSetLayoutBinding>>& descriptorSetLayoutBindings
+      , const vk::PipelineShaderStageCreateInfo& shaderStage
+      , PipelineType type);
+
+    Pipeline(
         const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
       , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
       , PipelineType type
