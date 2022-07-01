@@ -24,6 +24,7 @@ set(VULKAN_HEADERS
     include/Vulkan/VulkanMesh.h
     include/Vulkan/VulkanGraphicsPipeline.h
     include/Vulkan/VulkanComputePipeline.h
+    include/Vulkan/VulkanPipeline.h
 )
 
 set(VULKAN_SRC
@@ -42,6 +43,7 @@ set(VULKAN_SRC
     src/VulkanMesh.cpp
     src/VulkanGraphicsPipeline.cpp
     src/VulkanComputePipeline.cpp
+    src/VulkanPipeline.cpp
 )
 
 target_sources(

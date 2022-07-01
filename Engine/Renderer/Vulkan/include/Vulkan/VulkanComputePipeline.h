@@ -12,8 +12,9 @@ public:
 
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
     vk::UniqueDescriptorSetLayout mDescriptorSetLayout;
-    vk::UniquePipeline mPipeline;
     vk::UniquePipelineLayout mPipelineLayout;
+    vk::UniquePipeline mPipeline;
+
     std::vector<vk::UniqueCommandBuffer> mCmdBuffers;
     vk::DescriptorImageInfo mDescriptorImageInfo;
 

@@ -53,6 +53,7 @@ VulkanComputePipeline::VulkanComputePipeline()
     vk::PipelineCache pipelineCache;
     mPipeline = mDevice.createComputePipelineUnique(pipelineCache, pipelineCreateInfo);
 
+    // TODO move to framegraph
     // Create empty texture to bind for storing compute output
     mTexture = CreateSharedPtr<VulkanTexture2D>(1920, 1080);
 

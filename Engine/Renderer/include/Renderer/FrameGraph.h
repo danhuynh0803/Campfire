@@ -27,7 +27,7 @@ enum RenderQueueFlagsBits
     eCompute        = 1 << 1,
     eAsyncGraphics  = 1 << 2,
     eAsyncCompute   = 1 << 3,
-    eCount
+    Count = 4
 };
 using RenderQueue = uint32_t;
 
