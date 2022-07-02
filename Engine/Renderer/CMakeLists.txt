@@ -7,6 +7,7 @@ target_include_directories(
 set(RENDERER_HEADERS
     include/Renderer/Buffer.h
     include/Renderer/Framebuffer.h
+    include/Renderer/GlobalInfo.h
     include/Renderer/GraphicsContext.h
     include/Renderer/Material.h
     include/Renderer/Mesh.h

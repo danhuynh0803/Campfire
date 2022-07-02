@@ -6,6 +6,10 @@
 //#include "Vulkan/VulkanInitializers.h"
 //#include "Core/Log.h"
 
+struct DescriptorSet
+{
+    vk::UniqueDescriptorSet descriptorSet;
+};
 
 enum class PipelineType
 {

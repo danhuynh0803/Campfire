@@ -1,23 +1,28 @@
 #pragma once
 
-#include <map>
-#include <vector>
-#include <vulkan/vulkan.hpp>
 #include "Core/Base.h"
-//#include "Vulkan/VulkanGraphicsPipeline.h"
-//#include "Vulkan/VulkanComputePipeline.h"
+#include <vulkan/vulkan.hpp>
 #include "Vulkan/VulkanPipeline.h"
 
-struct AttachmentInfo
+#include <map>
+#include <vector>
+
+struct ColorAttachment
 {
     uint32_t samples;
     uint32_t mipLevels = 1;
     uint32_t x, y, z;
 };
 
+struct DepthStencilAttachment
+{
+
+};
+
 struct RenderPassInfo
 {
-    std::vector<AttachmentInfo> attachments;
+    std::vector<ColorAttachment> attachments;
+    DepthStencilAttachment depthStencilAttachment;
     uint32_t numAttachments = 0;
     uint32_t loadOp         = 0;
     uint32_t storeOp        = 0;
