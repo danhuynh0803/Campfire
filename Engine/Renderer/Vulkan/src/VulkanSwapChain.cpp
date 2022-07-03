@@ -240,7 +240,7 @@ void VulkanSwapChain::Present()
     mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
-void VulkanSwapChain::CreateFramebuffers()
+void VulkanSwapChain::CreateFramebuffers(const vk::RenderPass renderPass)
 {
     swapChainFramebuffers.resize(imageViews.size());
 
@@ -254,7 +254,7 @@ void VulkanSwapChain::CreateFramebuffers()
 
         vk::FramebufferCreateInfo framebufferCreateInfo;
         framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
-        framebufferCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph->GetRenderPass("opaque");
+        framebufferCreateInfo.renderPass = renderPass;
         framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferCreateInfo.pAttachments = attachments.data();
         framebufferCreateInfo.width = swapChainExtent.width;

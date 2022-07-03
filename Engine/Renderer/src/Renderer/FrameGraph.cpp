@@ -13,6 +13,10 @@
 
 #include <vector>
 
+FrameGraph::FrameGraph()
+{
+}
+
 SharedPtr<cf::Pipeline> CreateModelPipeline();
 
 SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
@@ -42,10 +46,6 @@ SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
         descriptorSets,
         shaderInfo,
         PipelineType::eCompute);
-}
-
-FrameGraph::FrameGraph()
-{
 }
 
 void FrameGraph::CreateRenderFrameGraph()

@@ -6,6 +6,8 @@
 #include "Scene/Entity.h"
 #include "Scene/Component.h"
 
+namespace global
+{
 //========================================================
 struct CameraUBO
 {
@@ -129,3 +131,230 @@ struct GlobalInfo
         mLightUBOs[frameIdx]->SetData(&numLights, sizeof(lights), sizeof(uint32_t));
     }
 };
+} // namespace global
+
+namespace rt
+{
+
+enum MatType
+{
+    DIFF = 0,
+    SPEC = 1,
+    REFR = 2,
+};
+
+struct Sphere
+{
+    glm::vec3 pos;
+    float radius;
+    glm::vec4 emission;
+    glm::vec4 albedo;
+    int mat;
+    int id;
+    glm::vec2 padding;
+};
+
+//========================================================
+struct Plane
+{
+    glm::vec3 normal;
+    float distance;
+    glm::vec3 albedo;
+    float specular;
+    int mat;
+    int id;
+    glm::vec2 padding;
+};
+
+struct RayTraceScene
+{
+    std::vector<Sphere> spheres;
+    SharedPtr<VulkanBuffer> sphereSSBO;
+    std::vector<Plane> planes;
+    SharedPtr<VulkanBuffer> planeSSBO;
+
+    void Init()
+    {
+        // SCENE
+        // { float radius,          { float3 position },        { float4 emission },          { float4 albedo },       material }
+        //int id = 0;
+        //spheres = {
+        //    { 1  , {  0, 0, 0    }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.85f, .35f, .35f, 1.0f }, MatType::DIFF, id++ }, // Left
+        //    { 1e5f  , {  1e5f + 1.0f, 40.8f, 81.6f    }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.85f, .35f, .35f, 1.0f }, MatType::DIFF, id++ }, // Left
+        //    { 1e5f  , { -1e5f + 99.0f, 40.8f, 81.6f   }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.35f, .35f, .85f, 1.0f }, MatType::DIFF, id++ }, // Right
+        //    { 1e5f  , {  50.0f, 40.8f, 1e5f           }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.75f, .75f, .75f, 1.0f }, MatType::DIFF, id++ }, // Back
+        //    { 1e5f  , {  50.0f, 40.8f, -1e5f + 600.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 1.00f, 1.0f, 1.0f, 1.0f }, MatType::DIFF, id++ }, // Frnt
+        //    { 1e5f  , {  50.0f, 1e5f, 81.6f           }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.75f, .75f, .75f, 1.0f }, MatType::DIFF, id++ }, // Botm
+        //    { 1e5f  , {  50.0f, -1e5f + 81.6f, 81.6f  }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.75f, .75f, .75f, 1.0f }, MatType::DIFF, id++ }, // Top
+        //    { 16.5f , {  27.0f, 16.5f, 47.0f          }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.90f, 0.1f, 0.1f, 1.0f }, MatType::DIFF, id++ }, // small sphere 1
+        //    { 16.5f , {  73.0f, 16.5f, 78.0f          }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.10f, 0.3f, 1.0f, 1.0f }, MatType::SPEC, id++ }, // small sphere 2
+        //    { 600.0f, {  50.0f, 681.6f - .77f, 81.6f  }, { 2.0f, 1.8f, 1.6f, 0.0f }, { 0.00f, 0.0f, 0.0f, 1.0f }, MatType::DIFF, id++ }, // Light
+        //};
+
+
+        int maxRow = 10;
+        int maxCol = 10;
+        int id = 0;
+        for (int i = 0; i < maxRow; ++i)
+        {
+            for (int j = 0; j < maxCol; ++j)
+            {
+                Sphere sphere{};
+                sphere.radius = 0.5f;
+                sphere.pos = glm::vec3(j, i, 0);
+                sphere.emission = glm::vec4(0.0f);
+                sphere.albedo = glm::vec4((float)j / maxCol, (float)i / maxRow, 1.0f, 1.0f);
+                sphere.mat = 0;
+                sphere.id = id++;
+
+                spheres.push_back(sphere);
+            }
+        }
+
+
+        planes = {
+            { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, MatType::DIFF, 0 },
+        };
+    }
+
+    //auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
+    //auto computePipeline = VulkanContext::Get()->mComputePipeline;
+
+    void Update()
+    {
+        //{ // -- sphere SSBO
+        //    // TODO: No need to flush since coherent, but investigate
+        //    // what the performance hit is since we're not using
+        //    // device local memory
+        //    sphereSSBO = CreateSharedPtr<VulkanBuffer>(
+        //        vk::BufferUsageFlagBits::eStorageBuffer,
+        //        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        //        spheres.size() * sizeof(Sphere),
+        //        vk::SharingMode::eExclusive
+        //        );
+
+        //    void* data = sphereSSBO->Map();
+        //    memcpy(data, spheres.data(), spheres.size() * sizeof(Sphere));
+
+        //    // Update DescriptorSet
+        //    vk::DescriptorBufferInfo bufferInfo{};
+        //    bufferInfo.buffer = sphereSSBO->mBuffer.get();
+        //    bufferInfo.offset = 0;
+        //    bufferInfo.range = sphereSSBO->mSize;
+
+        //    vk::WriteDescriptorSet writeInfo{};
+        //    writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
+        //    writeInfo.dstBinding = 3;
+        //    writeInfo.dstArrayElement = 0;
+        //    writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+        //    writeInfo.descriptorCount = 1;
+        //    writeInfo.pBufferInfo = &bufferInfo;
+
+        //    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+        //}
+
+        //{ // -- plane SSBO
+        //    planeSSBO = CreateSharedPtr<VulkanBuffer>(
+        //        vk::BufferUsageFlagBits::eStorageBuffer,
+        //        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        //        planes.size() * sizeof(Plane),
+        //        vk::SharingMode::eExclusive
+        //        );
+
+        //    void* data = planeSSBO->Map();
+        //    memcpy(data, planes.data(), planes.size() * sizeof(Plane));
+
+        //    // Update DescriptorSet
+        //    vk::DescriptorBufferInfo bufferInfo{};
+        //    bufferInfo.buffer = sphereSSBO->mBuffer.get();
+        //    bufferInfo.offset = 0;
+        //    bufferInfo.range = sphereSSBO->mSize;
+
+        //    vk::WriteDescriptorSet writeInfo{};
+        //    writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
+        //    writeInfo.dstBinding = 4;
+        //    writeInfo.dstArrayElement = 0;
+        //    writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+        //    writeInfo.descriptorCount = 1;
+        //    writeInfo.pBufferInfo = &bufferInfo;
+
+        //    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+        //}
+
+        //// Update post compute graphics descriptorset that reads in the processed image
+        //vk::WriteDescriptorSet writeInfo{};
+        //writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
+        //writeInfo.dstBinding = 0;
+        //writeInfo.dstArrayElement = 0;
+        //writeInfo.descriptorCount = 1;
+        //writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        //writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
+
+        //mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
+
+    //vk::FenceCreateInfo fenceInfo;
+    //fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    //computeFence = mDevice.createFenceUnique(fenceInfo);
+
+    //auto computePipeline = VulkanContext::Get()->mComputePipeline;
+    //vk::CommandBufferBeginInfo cmdBufferInfo{};
+    //auto& cmdBuffer = computePipeline->mCmdBuffers.at(0);
+    //// Dispatch compute command
+    //cmdBuffer->begin(cmdBufferInfo);
+    //cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
+    //cmdBuffer->bindDescriptorSets(
+    //    vk::PipelineBindPoint::eCompute,
+    //    computePipeline->mPipelineLayout.get(),
+    //    0,
+    //    1, &computePipeline->mDescriptorSets.at(0).get(),
+    //    0, nullptr
+    //);
+    //cmdBuffer->dispatch(computePipeline->mTexture->GetWidth() / 16, computePipeline->mTexture->GetHeight() / 16, 1);
+    //cmdBuffer->end();
+
+    //// Submit compute command
+    //vk::SubmitInfo computeSubmitInfo{};
+    //computeSubmitInfo.commandBufferCount = 1;
+    //computeSubmitInfo.pCommandBuffers = &VulkanContext::Get()->mComputePipeline->mCmdBuffers.at(0).get();
+
+    //mDevice.waitForFences(computeFence.get(), VK_TRUE, UINT64_MAX);
+    //mDevice.resetFences(computeFence.get());
+    //auto computeQueue = VulkanContext::Get()->GetDevice()->GetQueue(QueueFamilyType::COMPUTE);
+    //computeQueue.submit(computeSubmitInfo, computeFence.get());
+
+    //// TODO add image barrier from compute to fragment
+
+    //for (size_t frame = 0; frame < 3; ++frame)
+    //{
+    //    auto commandBuffer = VulkanRenderer::BeginScene(frame);
+    //    {
+    //        mPushConstBlock.model = glm::mat4(1.0f);
+    //        commandBuffer.pushConstants(
+    //            VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
+    //            vk::ShaderStageFlagBits::eVertex,
+    //            0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
+    //            &mPushConstBlock
+    //        );
+
+    //        commandBuffer.bindDescriptorSets(
+    //            vk::PipelineBindPoint::eGraphics,
+    //            VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
+    //            1,
+    //            1,
+    //            &VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[1][0].get(),
+    //            0,
+    //            nullptr
+    //        );
+
+    //        VulkanRenderer::DrawIndexed(commandBuffer, vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), indexBufferPtr->GetCount());
+
+    //        vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+    //    }
+    //    VulkanRenderer::EndScene(commandBuffer);
+    //}
+
+    //}
+};
+
+} // namespace raytrace

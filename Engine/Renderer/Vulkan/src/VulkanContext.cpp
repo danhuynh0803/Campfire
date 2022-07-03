@@ -52,7 +52,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     mFrameGraph->CreateRenderFrameGraph();
 
     // These need to be created post-graphics pipeline
-    mSwapChain->CreateFramebuffers();
+    //mSwapChain->CreateFramebuffers();
     mSwapChain->CreateBarriers();
 }
 
@@ -113,8 +113,8 @@ void VulkanContext::RecreateSwapChain()
     GetDevice()->GetVulkanDevice().waitIdle();
     mSwapChain.reset();
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
-    mSwapChain->CreateFramebuffers();
-    mSwapChain->CreateBarriers();
+    //mSwapChain->CreateFramebuffers();
+    //mSwapChain->CreateBarriers();
 }
 
 void VulkanContext::SwapBuffers()

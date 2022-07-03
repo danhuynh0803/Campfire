@@ -32,7 +32,8 @@ static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
-static GlobalInfo globalInfo;
+static global::GlobalInfo globalInfo;
+static FrameGraph frameGraph;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -45,7 +46,7 @@ void VulkanLayer::OnAttach()
 {
     scene = CreateSharedPtr<Scene>();
 
-    const int maxLights = 5;
+    const int maxLights = 1;
     for (int i = 0; i < maxLights; ++i)
     {
         auto light = scene->CreateEntity("light");
@@ -70,13 +71,35 @@ void VulkanLayer::OnAttach()
     );
 
     auto environment = scene->CreateEntity("environment");
-    environment.AddComponent<VulkanMeshComponent>(
-        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-        ASSETS + "/Models/helmet/scene.gltf"
-    );
+    //environment.AddComponent<VulkanMeshComponent>(
+    //    //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+    //    ASSETS + "/Models/helmet/scene.gltf"
+    //);
     environment.GetComponent<TransformComponent>().scale = glm::vec3(0.3f);
 
     globalInfo.Init();
+
+    // Post-process
+    //// TODO replace with just one triangle for projection quad
+    //float vertices[] =
+    //{
+    //    -1.0f,  1.0f, 0.0f,     0, 1,   0, 0, 0,
+    //    -1.0f, -1.0f, 0.0f,     0, 0,   0, 0, 0,
+    //     1.0f, -1.0f, 0.0f,     1, 0,   0, 0, 0,
+    //     1.0f,  1.0f, 0.0f,     1, 1,   0, 0, 0,
+    //};
+
+    //uint32_t indices[] =
+    //{
+    //    0, 1, 2,
+    //    2, 3, 0,
+    //};
+
+    //vertexBufferPtr = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
+    //indexBufferPtr = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
+    frameGraph.CreateRenderFrameGraph();
+
+    VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));
 }
 
 void VulkanLayer::OnDetach()
@@ -192,6 +215,12 @@ void VulkanLayer::OnImGuiRender()
     ImGui::Text(props.deviceName);
     std::string timerText(std::to_string(frameTime) + " ms/frame");
     ImGui::Text(timerText.c_str());
+
+    ImGui::Separator();
+
+    // TODO display pipelines
+    // TODO display log
+
     ImGui::End();
 
     ImGui::Begin("Controls");
@@ -213,7 +242,6 @@ void VulkanLayer::OnImGuiRender()
 void VulkanLayer::OnEvent(Event& event)
 {
     cameraController.OnEvent(event);
-
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(VulkanLayer::OnWindowResize));
 }
