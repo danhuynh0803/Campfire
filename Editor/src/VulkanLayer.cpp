@@ -263,7 +263,7 @@ bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
     editorCamera->height = e.GetHeight();
     editorCamera->SetProjection();
 
-    VulkanContext::Get()->RecreateSwapChain();
+    VulkanContext::Get()->RecreateSwapChain(frameGraph.GetRenderPass("opaque"));
 
     return false;
 }

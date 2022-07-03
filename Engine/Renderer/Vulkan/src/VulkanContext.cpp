@@ -107,14 +107,13 @@ std::vector<vk::UniqueCommandBuffer> VulkanContext::CreateCommandBuffers(uint32_
     return GetDevice()->GetVulkanDevice().allocateCommandBuffersUnique(commandBufferAllocInfo);
 }
 
-
-void VulkanContext::RecreateSwapChain()
+void VulkanContext::RecreateSwapChain(const vk::RenderPass& renderPass)
 {
     GetDevice()->GetVulkanDevice().waitIdle();
     mSwapChain.reset();
     mSwapChain = CreateSharedPtr<VulkanSwapChain>(windowHandle);
-    //mSwapChain->CreateFramebuffers();
-    //mSwapChain->CreateBarriers();
+    mSwapChain->CreateFramebuffers(renderPass);
+    mSwapChain->CreateBarriers();
 }
 
 void VulkanContext::SwapBuffers()

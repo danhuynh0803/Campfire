@@ -22,7 +22,7 @@ public:
     std::vector<vk::Image> GetImages() { return swapChainImages; }
     vk::Extent2D GetExtent() { return swapChainExtent; }
 
-    void CreateFramebuffers(const vk::RenderPass renderPass);
+    void CreateFramebuffers(const vk::RenderPass& renderPass);
     void CreateBarriers();
 
     uint32_t GetWidth() { return mWidth; }

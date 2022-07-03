@@ -240,7 +240,7 @@ void VulkanSwapChain::Present()
     mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
-void VulkanSwapChain::CreateFramebuffers(const vk::RenderPass renderPass)
+void VulkanSwapChain::CreateFramebuffers(const vk::RenderPass& renderPass)
 {
     swapChainFramebuffers.resize(imageViews.size());
 
