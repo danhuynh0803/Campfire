@@ -176,8 +176,8 @@ struct RayTraceScene
     {
         mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-        int maxRow = 10;
-        int maxCol = 10;
+        int maxRow = 1;
+        int maxCol = 5;
         int id = 0;
         for (int i = 0; i < maxRow; ++i)
         {
@@ -185,7 +185,7 @@ struct RayTraceScene
             {
                 Sphere sphere{};
                 sphere.radius = 0.5f;
-                sphere.pos = glm::vec3(j, i, 0);
+                sphere.pos = glm::vec3(j+sphere.radius, i, 0);
                 sphere.emission = glm::vec4(0.0f);
                 sphere.albedo = glm::vec4((float)j / maxCol, (float)i / maxRow, 1.0f, 1.0f);
                 sphere.mat = 0;
@@ -267,49 +267,9 @@ struct RayTraceScene
         }
     }
 
-    void Update()
+    void Update(float dt)
     {
-        // Update post compute graphics descriptorset that reads in the processed image
-        //vk::WriteDescriptorSet writeInfo{};
-        //writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
-        //writeInfo.dstBinding = 0;
-        //writeInfo.dstArrayElement = 0;
-        //writeInfo.descriptorCount = 1;
-        //writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        //writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
-
-        //mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
     }
-
-    //vk::FenceCreateInfo fenceInfo;
-    //fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-    //computeFence = mDevice.createFenceUnique(fenceInfo);
-
-    //auto computePipeline = VulkanContext::Get()->mComputePipeline;
-    //vk::CommandBufferBeginInfo cmdBufferInfo{};
-    //auto& cmdBuffer = computePipeline->mCmdBuffers.at(0);
-    //// Dispatch compute command
-    //cmdBuffer->begin(cmdBufferInfo);
-    //cmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-    //cmdBuffer->bindDescriptorSets(
-    //    vk::PipelineBindPoint::eCompute,
-    //    computePipeline->mPipelineLayout.get(),
-    //    0,
-    //    1, &computePipeline->mDescriptorSets.at(0).get(),
-    //    0, nullptr
-    //);
-    //cmdBuffer->dispatch(computePipeline->mTexture->GetWidth() / 16, computePipeline->mTexture->GetHeight() / 16, 1);
-    //cmdBuffer->end();
-
-    //// Submit compute command
-    //vk::SubmitInfo computeSubmitInfo{};
-    //computeSubmitInfo.commandBufferCount = 1;
-    //computeSubmitInfo.pCommandBuffers = &VulkanContext::Get()->mComputePipeline->mCmdBuffers.at(0).get();
-
-    //mDevice.waitForFences(computeFence.get(), VK_TRUE, UINT64_MAX);
-    //mDevice.resetFences(computeFence.get());
-    //auto computeQueue = VulkanContext::Get()->GetDevice()->GetQueue(QueueFamilyType::COMPUTE);
-    //computeQueue.submit(computeSubmitInfo, computeFence.get());
 
     //// TODO add image barrier from compute to fragment
 };
