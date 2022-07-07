@@ -42,7 +42,8 @@ void FrameGraph::CreatePipelines()
 void FrameGraph::ReconstructFrameGraph()
 {
     //mGraphicsPipelines["models"] = CreateModelPipeline();
-    mPipelines["postprocess"] = CreatePostProcessPipeline();
+    //mPipelines["postprocess"] = CreatePostProcessPipeline();
+    mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
 
 SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
