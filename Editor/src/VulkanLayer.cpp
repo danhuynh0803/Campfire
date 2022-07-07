@@ -43,6 +43,8 @@ static SharedPtr<cf::Pipeline> postProcessPipeline;
 static std::vector<vk::UniqueDescriptorSet> computeResolveDescriptorSet;
 static std::vector<vk::UniqueCommandBuffer> computeCmdBuffers;
 static vk::UniqueFence computeFence;
+static vk::DescriptorImageInfo descriptorImageInfo;
+static SharedPtr<VulkanTexture2D> blankTexture;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -125,16 +127,15 @@ void VulkanLayer::OnAttach()
         &computePipeline->mDescriptorSetLayouts.at(1).get()
     );
 
-    auto blankTexture = CreateSharedPtr<VulkanTexture2D>(1920, 1080);
+    blankTexture = CreateSharedPtr<VulkanTexture2D>(1920, 1080);
     computeResolveDescriptorSet = mDevice.allocateDescriptorSetsUnique(descriptorInfo);
 
-    vk::DescriptorImageInfo descriptorImageInfo {};
     descriptorImageInfo.sampler     = blankTexture->GetSampler();
     descriptorImageInfo.imageView   = blankTexture->GetImageView();
     descriptorImageInfo.imageLayout = vk::ImageLayout::eGeneral;
 
     vk::WriteDescriptorSet writeInfo {};
-    writeInfo.dstSet = computeResolveDescriptorSet[0].get();
+    writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
     writeInfo.dstBinding = 0;
     writeInfo.dstArrayElement = 0;
     writeInfo.descriptorCount = 1;
@@ -182,7 +183,7 @@ void VulkanLayer::OnUpdate(float dt)
     auto computeCmdBuf = computeCmdBuffers.at(0).get();
 
     std::vector<vk::DescriptorSet> computeDescriptorSets = {
-        globalInfo.mDescriptorSets.at(0).get(),           // Set0 - camera,lights
+        globalInfo.mDescriptorSets.at(0).get(),     // Set0 - camera,lights
         computeResolveDescriptorSet.at(0).get(),    // Set1 - resolve image
         rayTraceScene.mDescriptorSets.at(0).get(),  // Set2 - scene data
     };
@@ -195,7 +196,7 @@ void VulkanLayer::OnUpdate(float dt)
             computePipeline->mPipelineLayout.get(),
             0,  // first set
             static_cast<uint32_t>(computeDescriptorSets.size()),  // descriptor set count
-            computeDescriptorSets.data(), // pDescriptorSets
+            computeDescriptorSets.data(),
             0,  // dynamicOffsetCount
             nullptr // pDyanmicOffsets
         );
