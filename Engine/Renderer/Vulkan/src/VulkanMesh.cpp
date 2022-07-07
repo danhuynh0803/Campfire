@@ -131,7 +131,7 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
             else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 5); }
 
             material->textureMapUsageUbo->UpdateDescriptorSet(
-                material->descriptorSets[i].get(), usageLayout, 6
+                material->descriptorSets[i], usageLayout, 6
             );
             material->textureMapUsageUbo->SetData(&usage, 6, sizeof(::TextureMapUsage));
         }

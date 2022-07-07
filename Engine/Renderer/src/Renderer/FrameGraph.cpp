@@ -48,36 +48,15 @@ void FrameGraph::ReconstructFrameGraph()
 
 SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
 {
-    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
-    { // Environment descriptors
-        // Camera
-        auto camera = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eUniformBuffer,
-            vk::ShaderStageFlagBits::eAllGraphics,
-            0);
-
-        // TODO switch to storage buffer
-        // Lights
-        auto lights = vk::initializers::DescriptorSetLayoutBinding(
-            vk::DescriptorType::eUniformBuffer,
-            vk::ShaderStageFlagBits::eFragment,
-            1);
-
-        // Set 0
-        descriptorSetLayoutBindings[0] = {
-            camera,
-            lights,
-        };
-    }
-
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
     { // Compute Resolve
         auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
             0);
 
-        // Set 1
-        descriptorSetLayoutBindings[1] = {
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
             computeResolve,
         };
     }

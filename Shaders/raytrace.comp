@@ -8,7 +8,7 @@ layout (set = 1, binding = 0, rgba8) uniform writeonly image2D resultImage;
 #define INF 1000.0
 
 // =========================================
-layout (set = 0, binding = 1) uniform Camera
+layout (set = 0, binding = 0) uniform Camera
 {
     mat4 view;
     mat4 proj;
@@ -116,12 +116,13 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD)
 
             vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
 
-            return
-                spheres[hitId].diffuse
-              * lightBuffer.lights[0].color.rgb
-              * lightBuffer.lights[0].intensity
-              * max(0.0f, dot(l, normal))
-            ;
+            return spheres[hitId].diffuse;
+            //return
+            //    spheres[hitId].diffuse
+            //  * lightBuffer.lights[0].color.rgb
+            //  * lightBuffer.lights[0].intensity
+            //  * max(0.0f, dot(l, normal))
+            //;
         }
     }
 
@@ -133,19 +134,17 @@ void main()
 {
     ivec2 dim = imageSize(resultImage);
     vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
-    //uv = vec2(uv.x, 1.0f - uv.y);
 
-    //mat4 invView = inverse(camera.view);
-    //vec3 rayO = vec3(invView[3][0], invView[3][1], invView[3][2]);
+    mat4 invView = inverse(camera.view);
+    vec3 rayO = vec3(invView[3][0], invView[3][1], invView[3][2]);
 
-    //vec4 ndcUV = vec4(uv*2.0f - 1.0f, 0.0f, 1.0f);
-    //vec4 worldPos = inverse(camera.viewProj) * ndcUV;
-    //worldPos /= worldPos.w;
+    vec4 ndcUV = vec4(uv*2.0f - 1.0f, 0.0f, 1.0f);
+    vec4 worldPos = inverse(camera.viewProj) * ndcUV;
+    worldPos /= worldPos.w;
 
-    //vec3 rayD = normalize(worldPos.xyz - rayO);
+    vec3 rayD = normalize(worldPos.xyz - rayO);
 
-    //vec3 color = RenderScene(rayO, rayD);
-    //
-    vec3 color = vec3(uv, 1.0f);
+    vec3 color = RenderScene(rayO, rayD);
+
     imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
 }

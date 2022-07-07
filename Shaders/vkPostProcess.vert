@@ -10,14 +10,6 @@ layout (location = 0) out vec3 outPos;
 layout (location = 1) out vec2 outUV;
 layout (location = 2) out vec3 outNormal;
 
-// =========================================
-layout (set = 0, binding = 0) uniform Camera
-{
-    mat4 view;
-    mat4 proj;
-    mat4 viewProj;
-} camera;
-
 layout (push_constant) uniform PushConstants {
     mat4 model;
 } pushConstants;
@@ -25,8 +17,7 @@ layout (push_constant) uniform PushConstants {
 // =========================================
 void main()
 {
-    //gl_Position = camera.viewProj * pushConstants.model * vec4(aPos, 1.0);
-    gl_Position = vec4(aPos.x, -aPos.y, aPos.z, 1.0);
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 
     outPos = vec3(pushConstants.model * vec4(aPos, 1.0f));
     outUV = aUV;

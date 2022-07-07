@@ -130,7 +130,7 @@ void VulkanUniformBuffer::SetData(void* inputData, uint32_t offset, uint32_t siz
     device.unmapMemory(bufferMemory.get());
 }
 
-void VulkanUniformBuffer::UpdateDescriptorSet(vk::DescriptorSet dstSet, uint32_t blockIndex, uint32_t size)
+void VulkanUniformBuffer::UpdateDescriptorSet(vk::UniqueDescriptorSet& dstSet, uint32_t blockIndex, uint32_t size)
 {
     vk::DescriptorBufferInfo bufferInfo{};
     bufferInfo.buffer = GetBuffer();
@@ -138,7 +138,7 @@ void VulkanUniformBuffer::UpdateDescriptorSet(vk::DescriptorSet dstSet, uint32_t
     bufferInfo.range = size;
 
     vk::WriteDescriptorSet descriptorWrite{};
-    descriptorWrite.dstSet = dstSet;
+    descriptorWrite.dstSet = dstSet.get();
     descriptorWrite.dstBinding = blockIndex;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
@@ -168,7 +168,7 @@ void VulkanUniformBuffer::SetLayout(uint32_t blockIndex, uint32_t size)
     VulkanContext::Get()->GetDevice()->GetVulkanDevice().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 }
 
-void VulkanUniformBuffer::UpdateDescriptorSet(vk::DescriptorSet dstSet, const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
+void VulkanUniformBuffer::UpdateDescriptorSet(vk::UniqueDescriptorSet& dstSet, const BufferLayout& layout, uint32_t blockIndex, uint32_t count)
 {
     vk::DescriptorBufferInfo bufferInfo{};
     bufferInfo.buffer = GetBuffer();
@@ -177,7 +177,7 @@ void VulkanUniformBuffer::UpdateDescriptorSet(vk::DescriptorSet dstSet, const Bu
     bufferInfo.range = layout.GetStride() * count;
 
     vk::WriteDescriptorSet descriptorWrite{};
-    descriptorWrite.dstSet = dstSet;
+    descriptorWrite.dstSet = dstSet.get();
     descriptorWrite.dstBinding = blockIndex;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;

@@ -25,7 +25,20 @@ std::vector<uint32_t> CompileFile(
         std::cerr << module.GetErrorMessage();
         // TODO if compilation fails, use a shader to indicate something is broken
         // like the purple shader in unity
-        return std::vector<uint32_t>();
+
+        // Use error.comp to indidicate shader compilation issue,
+        // instead of crashing
+        if (kind == shaderc_shader_kind::shaderc_glsl_default_compute_shader)
+        {
+            //shaderc::SpvCompilationResult module =
+            //    compiler.CompileGlslToSpv(source, kind, filepath.c_str(), options);
+            return  std::vector<uint32_t>();
+        }
+        // No error shaders yet for other kinds
+        else
+        {
+            return  std::vector<uint32_t>();
+        }
     }
 
     return { module.cbegin(), module.cend() };

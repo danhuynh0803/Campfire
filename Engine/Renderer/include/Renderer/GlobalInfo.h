@@ -40,7 +40,6 @@ struct RenderContext
     void Init(const SharedPtr<cf::Pipeline>& pipeline)
     {
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-        auto graphicsPipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
         auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
 
         // Create global descriptorSet (Should be at set 0)
@@ -52,10 +51,6 @@ struct RenderContext
         );
 
         mDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
-        for (size_t i = 0; i < swapChainSize; ++i)
-        {
-            //mDescriptorSets.emplace_back(uniqueDescriptorSet.at(0).get()); 
-        }
 
         for (size_t i = 0; i < swapChainSize; ++i)
         {
@@ -75,7 +70,7 @@ struct RenderContext
                 };
 
                 mCameraUBOs[i]->UpdateDescriptorSet(
-                    mDescriptorSets.at(0).get(),
+                    mDescriptorSets.at(0),
                     cameraLayout, 0
                 );
             }
@@ -97,7 +92,7 @@ struct RenderContext
                 };
 
                 mLightUBOs[i]->UpdateDescriptorSet(
-                    mDescriptorSets.at(0).get(),
+                    mDescriptorSets.at(0),
                     1, maxNumLights*lightLayout.GetStride() + sizeof(glm::vec4)
                 );
             }
@@ -169,15 +164,15 @@ struct Plane
 
 struct RayTraceScene
 {
-    std::vector<Sphere> spheres;
     SharedPtr<VulkanBuffer> sphereSSBO;
-    std::vector<Plane> planes;
     SharedPtr<VulkanBuffer> planeSSBO;
+    std::vector<Sphere> spheres;
+    std::vector<Plane> planes;
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 
     vk::Device mDevice;
 
-    void Init(vk::DescriptorSetLayout dstLayout)
+    void Init(const SharedPtr<cf::Pipeline>& pipeline)
     {
         mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
@@ -207,7 +202,8 @@ struct RayTraceScene
         vk::DescriptorSetAllocateInfo info {};
         info.descriptorPool = VulkanContext::Get()->GetDescriptorPool();
         info.descriptorSetCount = 1;
-        info.pSetLayouts = &dstLayout;
+        // Use layout from set 2 of compute pipeline, which is for scene data
+        info.pSetLayouts = &pipeline->mDescriptorSetLayouts.at(2).get();
 
         mDescriptorSets = mDevice.allocateDescriptorSetsUnique(info);
 
@@ -255,9 +251,9 @@ struct RayTraceScene
 
             // Update DescriptorSet
             vk::DescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = sphereSSBO->mBuffer.get();
+            bufferInfo.buffer = planeSSBO->mBuffer.get();
             bufferInfo.offset = 0;
-            bufferInfo.range = sphereSSBO->mSize;
+            bufferInfo.range = planeSSBO->mSize;
 
             vk::WriteDescriptorSet writeInfo{};
             writeInfo.dstSet = mDescriptorSets.at(0).get();

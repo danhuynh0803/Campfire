@@ -32,7 +32,8 @@ static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
-static global::RenderContext globalInfo;
+static global::RenderContext globalInfoCompute;
+static global::RenderContext globalInfoGraphics;
 static global::RayTraceScene rayTraceScene;
 static FrameGraph frameGraph;
 static SharedPtr<VulkanVertexBuffer> postProcessVbo;
@@ -111,14 +112,14 @@ void VulkanLayer::OnAttach()
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));
 
-    graphicsPipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
+    graphicsPipeline = frameGraph.GetPipeline("models");
     postProcessPipeline = frameGraph.GetPipeline("postprocess");
     computePipeline = frameGraph.GetPipeline("raytrace");
 
-    //globalInfo.Init(graphicsPipeline);
-    globalInfo.Init(computePipeline);
+    globalInfoGraphics.Init(graphicsPipeline);
+    globalInfoCompute.Init(computePipeline);
     // Create descriptor sets using layout from set 2 from compute pipeline
-    rayTraceScene.Init(computePipeline->mDescriptorSetLayouts.at(2).get());
+    rayTraceScene.Init(computePipeline);
 
     // Compute resolve image descriptor set
     auto descriptorInfo = vk::initializers::DescriptorSetAllocateInfo(
@@ -126,29 +127,52 @@ void VulkanLayer::OnAttach()
         1,
         &computePipeline->mDescriptorSetLayouts.at(1).get()
     );
-
-    blankTexture = CreateSharedPtr<VulkanTexture2D>(1920, 1080);
     computeResolveDescriptorSet = mDevice.allocateDescriptorSetsUnique(descriptorInfo);
-
-    descriptorImageInfo.sampler     = blankTexture->GetSampler();
-    descriptorImageInfo.imageView   = blankTexture->GetImageView();
-    descriptorImageInfo.imageLayout = vk::ImageLayout::eGeneral;
-
-    vk::WriteDescriptorSet writeInfo {};
-    writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
-    writeInfo.dstBinding = 0;
-    writeInfo.dstArrayElement = 0;
-    writeInfo.descriptorCount = 1;
-    writeInfo.descriptorType = vk::DescriptorType::eStorageImage;
-    writeInfo.pImageInfo = &descriptorImageInfo;
-
-    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    auto swapChain = VulkanContext::Get()->GetSwapChain();
+    ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
 
     vk::CommandBufferAllocateInfo cmdBufInfo {};
     cmdBufInfo.commandPool = VulkanContext::Get()->GetCommandPool(QueueFamilyType::COMPUTE);
     cmdBufInfo.level = vk::CommandBufferLevel::ePrimary;
     cmdBufInfo.commandBufferCount = 1;
     computeCmdBuffers = mDevice.allocateCommandBuffersUnique(cmdBufInfo);
+}
+
+void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
+{
+    blankTexture = CreateSharedPtr<VulkanTexture2D>(width, height);
+
+    descriptorImageInfo.sampler = blankTexture->GetSampler();
+    descriptorImageInfo.imageView = blankTexture->GetImageView();
+    descriptorImageInfo.imageLayout = vk::ImageLayout::eGeneral;
+
+    // Write for compute resolve set
+    {
+        vk::WriteDescriptorSet writeInfo{};
+        writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
+        writeInfo.dstBinding = 0;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorCount = 1;
+        writeInfo.descriptorType = vk::DescriptorType::eStorageImage;
+        writeInfo.pImageInfo = &descriptorImageInfo;
+
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
+    // Write for post process pipeline read
+    {
+        auto postProcPipeline = frameGraph.GetPipeline("postprocess");
+        vk::WriteDescriptorSet writeInfo{};
+        // TODO wrap descriptorSet into some API
+        // so it can be more easily understood that we're accessing set n
+        writeInfo.dstSet = postProcPipeline->mDescriptorSets[0].get();
+        writeInfo.dstBinding = 0;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorCount = 1;
+        writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        writeInfo.pImageInfo = &descriptorImageInfo;
+
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
 }
 
 void VulkanLayer::OnDetach()
@@ -171,7 +195,8 @@ void VulkanLayer::OnUpdate(float dt)
 
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
-    globalInfo.Update(editorCamera, scene, frameIdx);
+    globalInfoCompute.Update(editorCamera, scene, frameIdx);
+    globalInfoGraphics.Update(editorCamera, scene, frameIdx);
 
     // TODO this should be called from the application loop
     vkImguiLayer->Begin();
@@ -183,14 +208,26 @@ void VulkanLayer::OnUpdate(float dt)
     auto computeCmdBuf = computeCmdBuffers.at(0).get();
 
     std::vector<vk::DescriptorSet> computeDescriptorSets = {
-        globalInfo.mDescriptorSets.at(0).get(),     // Set0 - camera,lights
-        computeResolveDescriptorSet.at(0).get(),    // Set1 - resolve image
-        rayTraceScene.mDescriptorSets.at(0).get(),  // Set2 - scene data
+        globalInfoCompute.mDescriptorSets.at(0).get(), // Set0 - camera,lights
+        computeResolveDescriptorSet.at(0).get(),       // Set1 - resolve image
+        rayTraceScene.mDescriptorSets.at(0).get(),     // Set2 - scene data
     };
 
     vk::CommandBufferBeginInfo beginInfo {};
     computeCmdBuf.begin(beginInfo);
         // Compute image write
+        //std::vector<vk::DescriptorSet> descriptorSets{
+        //    globalInfoCompute.mDescriptorSets.at(0).get(),
+        //};
+
+        //computeCmdBuf.bindDescriptorSets(
+        //    vk::PipelineBindPoint::eCompute,
+        //    computePipeline->mPipelineLayout.get(),
+        //    0,
+        //    static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
+        //    0, nullptr
+        //);
+
         computeCmdBuf.bindDescriptorSets(
             vk::PipelineBindPoint::eCompute,
             computePipeline->mPipelineLayout.get(),
@@ -200,8 +237,10 @@ void VulkanLayer::OnUpdate(float dt)
             0,  // dynamicOffsetCount
             nullptr // pDyanmicOffsets
         );
+
         computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-        computeCmdBuf.dispatch(1920/16, 1080/16, 1);
+        // TODO generalize dispatch parameters
+        computeCmdBuf.dispatch(blankTexture->GetWidth()/16, blankTexture->GetHeight()/16, 1);
     computeCmdBuf.end();
 
     // Submit compute command
@@ -223,48 +262,60 @@ void VulkanLayer::OnUpdate(float dt)
     {
         auto commandBuffer = VulkanRenderer::BeginScene(frame);
         {
-            std::vector<vk::DescriptorSet> descriptorSets{
-                globalInfo.mDescriptorSets.at(0).get(),
-            };
-
+            // TODO read from descriptor with compute image
             commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
                 postProcessPipeline->mPipelineLayout.get(),
-                0,
-                static_cast<uint32_t>(descriptorSets.size()),
-                descriptorSets.data(),
-                0, nullptr
-            );
-
-            // TODO write to descriptor with compute image
-            commandBuffer.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                postProcessPipeline->mPipelineLayout.get(),
-                1,
-                static_cast<uint32_t>(computeResolveDescriptorSet.size()),
-                &computeResolveDescriptorSet[0].get(),
+                0, // set
+                1, // size
+                &postProcessPipeline->mDescriptorSets[0].get(),
                 0,
                 nullptr
             );
 
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, postProcessPipeline->mPipeline.get());
 
+            /*
+            std::vector<vk::DescriptorSet> descriptorSets{
+                globalInfoGraphics.mDescriptorSets.at(0).get(),
+            };
+
+            commandBuffer.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                graphicsPipeline->mPipelineLayout.get(),
+                0,
+                static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
+                0, nullptr
+            );
+            commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->mPipeline.get());
+            */
+
+            mPushConstBlock.model = glm::mat4(1.0f);
+            commandBuffer.pushConstants(
+                postProcessPipeline->mPipelineLayout.get(),
+                vk::ShaderStageFlagBits::eVertex,
+                0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
+                &mPushConstBlock);
+
+
             // TODO render off screen
-            //auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
-            //for (auto entity : group)
-            //{
-            //    auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
+            /*
+            auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
+            for (auto entity : group)
+            {
+                auto [transformComponent, meshComponent, tagComponent] = group.get<TransformComponent, VulkanMeshComponent, TagComponent>(entity);
 
-            //    mPushConstBlock.model = transformComponent;
-            //    commandBuffer.pushConstants(
-            //        graphicsPipeline->mPipelineLayout.get(),
-            //        vk::ShaderStageFlagBits::eVertex,
-            //        0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
-            //        &mPushConstBlock);
+                mPushConstBlock.model = transformComponent;
+                commandBuffer.pushConstants(
+                    graphicsPipeline->mPipelineLayout.get(),
+                    vk::ShaderStageFlagBits::eVertex,
+                    0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
+                    &mPushConstBlock);
 
-            //    // Draw mesh
-            //    meshComponent.mesh->Draw(commandBuffer, frame);
-            //}
+                // Draw mesh
+                meshComponent.mesh->Draw(commandBuffer, frame);
+            }
+            */
 
             // Post process quad
             VulkanRenderer::DrawIndexed(
@@ -334,7 +385,6 @@ void VulkanLayer::OnImGuiRender()
     ImGui::End();
 
     ImGui::Begin("Controls");
-
     ImGui::Separator();
 
     ImGui::Text("Camera");
@@ -343,6 +393,20 @@ void VulkanLayer::OnImGuiRender()
     ImGui::DragFloat("Speed", &cameraController.normalSpeed);
     ImGui::DragFloat("Near", &editorCamera->nearPlane);
     ImGui::DragFloat("Far", &editorCamera->farPlane);
+
+    ImGui::Separator();
+
+    ImGui::Text("Camera");
+    ImGui::DragFloat("Speed", &cameraController.normalSpeed);
+    ImGui::DragFloat("Near", &editorCamera->nearPlane);
+    ImGui::DragFloat("Far", &editorCamera->farPlane);
+
+    ImGui::Text("Inverse View Matrix");
+    glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
+    ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
+    ImGui::DragFloat4("", (float*)&invView[1], 0.01f);
+    ImGui::DragFloat4("", (float*)&invView[2], 0.01f);
+    ImGui::DragFloat4("", (float*)&invView[3], 0.01f);
 
     ImGui::Separator();
 
@@ -376,6 +440,7 @@ bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
     editorCamera->SetProjection();
 
     VulkanContext::Get()->RecreateSwapChain(frameGraph.GetRenderPass("opaque"));
+    ResizeTexture(e.GetWidth(), e.GetHeight());
 
     return false;
 }

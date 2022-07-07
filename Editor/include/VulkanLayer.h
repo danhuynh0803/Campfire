@@ -23,6 +23,7 @@ public:
     ~VulkanLayer() = default;
 
     virtual void OnAttach() override;
+    void ResizeTexture(uint32_t width, uint32_t height);
     virtual void OnDetach() override;
     virtual void OnUpdate(float dt) override;
     virtual void OnImGuiRender() override;

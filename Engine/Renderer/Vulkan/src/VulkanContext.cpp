@@ -40,7 +40,7 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     poolSizes[3].type = vk::DescriptorType::eStorageBuffer;
     poolSizes[3].descriptorCount = descriptorCount;
 
-    vk::DescriptorPoolCreateInfo poolInfo;
+    vk::DescriptorPoolCreateInfo poolInfo {};
     // TODO have poolsize be configurable
     poolInfo.maxSets = 10000 * swapChainSize;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
