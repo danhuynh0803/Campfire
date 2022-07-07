@@ -2,13 +2,13 @@
 
 // =========================================
 layout (local_size_x = 16, local_size_y = 16) in;
-layout (binding = 0, rgba8) uniform writeonly image2D resultImage;
+layout (set = 1, binding = 0, rgba8) uniform writeonly image2D resultImage;
 
 #define EPSILON 0.0001
 #define INF 1000.0
 
 // =========================================
-layout (binding = 1) uniform Camera
+layout (set = 0, binding = 1) uniform Camera
 {
     mat4 view;
     mat4 proj;
@@ -26,7 +26,7 @@ struct Light
     float intensity;
 };
 
-layout (binding = 2) uniform Lights
+layout (set = 0, binding = 1) uniform Lights
 {
     Light lights[MAX_NUM_LIGHTS];
     uint numLights;
@@ -42,7 +42,7 @@ struct Sphere
     int id;
 };
 
-layout (std140, binding = 3) buffer Spheres
+layout (std140, set = 2, binding = 0) buffer Spheres
 {
     Sphere spheres[];
 };
@@ -57,7 +57,7 @@ struct Plane
     int id;
 };
 
-layout (std140, binding = 4) buffer Planes
+layout (std140, set = 2, binding = 1) buffer Planes
 {
     Plane planes[];
 };

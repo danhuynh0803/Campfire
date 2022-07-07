@@ -292,20 +292,60 @@ void FrameGraph::CreateOpaque()
 
 SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
 {
-    std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings = {
-        // Bind 0: Output image
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
-        // Bind 1: Camera
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1),
-        // Bind 2: Lights
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 2),
-        // Bind 3: Spheres
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 3),
-        // Bind 4: Planes
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 4),
-    };
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(3);
 
-    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets = { setLayoutBindings };
+    { // Environment descriptors
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            0);
+
+        // Lights
+        auto lights = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            1);
+
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
+            camera,
+            lights,
+        };
+    }
+
+    { // Compute Resolve
+        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eStorageImage,
+            vk::ShaderStageFlagBits::eCompute,
+            0);
+
+        // Set 1
+        descriptorSetLayoutBindings[1] = {
+            computeResolve,
+        };
+    }
+
+    { // Scene data
+        auto spheres = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eStorageBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            0);
+
+        // Bind 4: Planes
+        auto planes = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eStorageBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            1);
+
+        // Set 2
+        descriptorSetLayoutBindings[2] = {
+            spheres,
+            planes
+        };
+    }
+
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets = { descriptorSetLayoutBindings };
 
     auto shader = CreateSharedPtr<VulkanShader>(SHADERS + "/raytrace.comp");
     vk::PipelineShaderStageCreateInfo shaderInfo {};

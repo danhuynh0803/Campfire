@@ -37,8 +37,8 @@ cf::Pipeline::Pipeline(
     std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
     // Setup pipeline layout
     auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
-        static_cast<uint32_t>(setLayouts.size())
-      , setLayouts.data()
+        static_cast<uint32_t>(setLayouts.size()),
+        setLayouts.data()
     );
 
     // Generate descriptor sets associated with each pipeline

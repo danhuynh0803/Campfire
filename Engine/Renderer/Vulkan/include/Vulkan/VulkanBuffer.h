@@ -78,8 +78,8 @@ public:
     virtual void SetData(void* data, uint32_t offset, uint32_t size) override;
 
     void UpdateDescriptorSet(vk::DescriptorSet dstSet, uint32_t blockIndex, uint32_t size);
-    virtual void SetLayout(uint32_t blockIndex, uint32_t size) override;
     void UpdateDescriptorSet(vk::DescriptorSet dstSet, const BufferLayout& layout, uint32_t blockIndex, uint32_t count = 1);
+    virtual void SetLayout(uint32_t blockIndex, uint32_t size) override;
     virtual void SetLayout(const BufferLayout& layout, uint32_t blockIndex, uint32_t count = 1) override;
 
     vk::Buffer GetBuffer() { return buffer.get(); }

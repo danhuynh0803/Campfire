@@ -5,6 +5,7 @@
 #include "Scene/Scene.h"
 #include "Scene/Entity.h"
 #include "Scene/Component.h"
+#include "Renderer/FrameGraph.h"
 
 namespace global
 {
@@ -26,7 +27,7 @@ struct Light
     float intensity;
 };
 
-struct GlobalInfo
+struct RenderContext
 {
     CameraUBO cameraUBO;
     static const int maxNumLights = 100;
@@ -36,7 +37,7 @@ struct GlobalInfo
     std::vector<SharedPtr<VulkanUniformBuffer>> mLightUBOs;
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 
-    void Init()
+    void Init(const SharedPtr<cf::Pipeline>& pipeline)
     {
         auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
         auto graphicsPipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
@@ -47,10 +48,14 @@ struct GlobalInfo
         auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
             VulkanContext::Get()->GetDescriptorPool(),
             1,
-            &graphicsPipeline->mDescriptorSetLayouts.at(0).get()
+            &pipeline->mDescriptorSetLayouts.at(0).get()
         );
 
         mDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+        for (size_t i = 0; i < swapChainSize; ++i)
+        {
+            //mDescriptorSets.emplace_back(uniqueDescriptorSet.at(0).get()); 
+        }
 
         for (size_t i = 0; i < swapChainSize; ++i)
         {
@@ -131,10 +136,6 @@ struct GlobalInfo
         mLightUBOs[frameIdx]->SetData(&numLights, sizeof(lights), sizeof(uint32_t));
     }
 };
-} // namespace global
-
-namespace rt
-{
 
 enum MatType
 {
@@ -172,25 +173,13 @@ struct RayTraceScene
     SharedPtr<VulkanBuffer> sphereSSBO;
     std::vector<Plane> planes;
     SharedPtr<VulkanBuffer> planeSSBO;
+    std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 
-    void Init()
+    vk::Device mDevice;
+
+    void Init(vk::DescriptorSetLayout dstLayout)
     {
-        // SCENE
-        // { float radius,          { float3 position },        { float4 emission },          { float4 albedo },       material }
-        //int id = 0;
-        //spheres = {
-        //    { 1  , {  0, 0, 0    }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.85f, .35f, .35f, 1.0f }, MatType::DIFF, id++ }, // Left
-        //    { 1e5f  , {  1e5f + 1.0f, 40.8f, 81.6f    }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.85f, .35f, .35f, 1.0f }, MatType::DIFF, id++ }, // Left
-        //    { 1e5f  , { -1e5f + 99.0f, 40.8f, 81.6f   }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.35f, .35f, .85f, 1.0f }, MatType::DIFF, id++ }, // Right
-        //    { 1e5f  , {  50.0f, 40.8f, 1e5f           }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.75f, .75f, .75f, 1.0f }, MatType::DIFF, id++ }, // Back
-        //    { 1e5f  , {  50.0f, 40.8f, -1e5f + 600.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 1.00f, 1.0f, 1.0f, 1.0f }, MatType::DIFF, id++ }, // Frnt
-        //    { 1e5f  , {  50.0f, 1e5f, 81.6f           }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.75f, .75f, .75f, 1.0f }, MatType::DIFF, id++ }, // Botm
-        //    { 1e5f  , {  50.0f, -1e5f + 81.6f, 81.6f  }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.75f, .75f, .75f, 1.0f }, MatType::DIFF, id++ }, // Top
-        //    { 16.5f , {  27.0f, 16.5f, 47.0f          }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.90f, 0.1f, 0.1f, 1.0f }, MatType::DIFF, id++ }, // small sphere 1
-        //    { 16.5f , {  73.0f, 16.5f, 78.0f          }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.10f, 0.3f, 1.0f, 1.0f }, MatType::SPEC, id++ }, // small sphere 2
-        //    { 600.0f, {  50.0f, 681.6f - .77f, 81.6f  }, { 2.0f, 1.8f, 1.6f, 0.0f }, { 0.00f, 0.0f, 0.0f, 1.0f }, MatType::DIFF, id++ }, // Light
-        //};
-
+        mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
         int maxRow = 10;
         int maxCol = 10;
@@ -211,18 +200,17 @@ struct RayTraceScene
             }
         }
 
-
         planes = {
             { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, MatType::DIFF, 0 },
         };
-    }
 
-    //auto graphicsPipeline = VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess");
-    //auto computePipeline = VulkanContext::Get()->mComputePipeline;
+        vk::DescriptorSetAllocateInfo info {};
+        info.descriptorPool = VulkanContext::Get()->GetDescriptorPool();
+        info.descriptorSetCount = 1;
+        info.pSetLayouts = &dstLayout;
 
-    void Update()
-    {
-    /*
+        mDescriptorSets = mDevice.allocateDescriptorSetsUnique(info);
+
         { // -- sphere SSBO
             // TODO: No need to flush since coherent, but investigate
             // what the performance hit is since we're not using
@@ -244,8 +232,8 @@ struct RayTraceScene
             bufferInfo.range = sphereSSBO->mSize;
 
             vk::WriteDescriptorSet writeInfo{};
-            writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
-            writeInfo.dstBinding = 3;
+            writeInfo.dstSet = mDescriptorSets.at(0).get();
+            writeInfo.dstBinding = 0;
             writeInfo.dstArrayElement = 0;
             writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
             writeInfo.descriptorCount = 1;
@@ -272,8 +260,8 @@ struct RayTraceScene
             bufferInfo.range = sphereSSBO->mSize;
 
             vk::WriteDescriptorSet writeInfo{};
-            writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
-            writeInfo.dstBinding = 4;
+            writeInfo.dstSet = mDescriptorSets.at(0).get();
+            writeInfo.dstBinding = 1;
             writeInfo.dstArrayElement = 0;
             writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
             writeInfo.descriptorCount = 1;
@@ -281,18 +269,20 @@ struct RayTraceScene
 
             mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
         }
+    }
 
+    void Update()
+    {
         // Update post compute graphics descriptorset that reads in the processed image
-        vk::WriteDescriptorSet writeInfo{};
-        writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
-        writeInfo.dstBinding = 0;
-        writeInfo.dstArrayElement = 0;
-        writeInfo.descriptorCount = 1;
-        writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
+        //vk::WriteDescriptorSet writeInfo{};
+        //writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
+        //writeInfo.dstBinding = 0;
+        //writeInfo.dstArrayElement = 0;
+        //writeInfo.descriptorCount = 1;
+        //writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        //writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
 
-        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
-    */
+        //mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
     }
 
     //vk::FenceCreateInfo fenceInfo;
@@ -328,4 +318,4 @@ struct RayTraceScene
     //// TODO add image barrier from compute to fragment
 };
 
-} // namespace raytrace
+} // namespace global

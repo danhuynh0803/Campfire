@@ -32,7 +32,8 @@ static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
-static global::GlobalInfo globalInfo;
+static global::RenderContext globalInfo;
+static global::RayTraceScene rayTraceScene;
 static FrameGraph frameGraph;
 static SharedPtr<VulkanVertexBuffer> postProcessVbo;
 static SharedPtr<VulkanIndexBuffer> postProcessIbo;
@@ -41,6 +42,7 @@ static SharedPtr<cf::Pipeline> computePipeline;
 static SharedPtr<cf::Pipeline> postProcessPipeline;
 static std::vector<vk::UniqueDescriptorSet> computeResolveDescriptorSet;
 static std::vector<vk::UniqueCommandBuffer> computeCmdBuffers;
+static vk::UniqueFence computeFence;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -84,8 +86,6 @@ void VulkanLayer::OnAttach()
     //);
     //environment.GetComponent<TransformComponent>().scale = glm::vec3(0.3f);
 
-    globalInfo.Init();
-
     // Post-process
     //// TODO replace with just one triangle for projection quad
     float vertices[] =
@@ -113,11 +113,16 @@ void VulkanLayer::OnAttach()
     postProcessPipeline = frameGraph.GetPipeline("postprocess");
     computePipeline = frameGraph.GetPipeline("raytrace");
 
+    //globalInfo.Init(graphicsPipeline);
+    globalInfo.Init(computePipeline);
+    // Create descriptor sets using layout from set 2 from compute pipeline
+    rayTraceScene.Init(computePipeline->mDescriptorSetLayouts.at(2).get());
+
     // Compute resolve image descriptor set
     auto descriptorInfo = vk::initializers::DescriptorSetAllocateInfo(
         VulkanContext::Get()->GetDescriptorPool(),
         1,
-        &postProcessPipeline->mDescriptorSetLayouts.at(1).get()
+        &computePipeline->mDescriptorSetLayouts.at(1).get()
     );
 
     auto blankTexture = CreateSharedPtr<VulkanTexture2D>(1920, 1080);
@@ -126,7 +131,7 @@ void VulkanLayer::OnAttach()
     vk::DescriptorImageInfo descriptorImageInfo {};
     descriptorImageInfo.sampler     = blankTexture->GetSampler();
     descriptorImageInfo.imageView   = blankTexture->GetImageView();
-    descriptorImageInfo.imageLayout = blankTexture->GetImageLayout();
+    descriptorImageInfo.imageLayout = vk::ImageLayout::eGeneral;
 
     vk::WriteDescriptorSet writeInfo {};
     writeInfo.dstSet = computeResolveDescriptorSet[0].get();
@@ -175,20 +180,42 @@ void VulkanLayer::OnUpdate(float dt)
     computePipeline = frameGraph.GetPipeline("raytrace");
     // Compute dispatch
     auto computeCmdBuf = computeCmdBuffers.at(0).get();
+
+    std::vector<vk::DescriptorSet> computeDescriptorSets = {
+        globalInfo.mDescriptorSets.at(0).get(),           // Set0 - camera,lights
+        computeResolveDescriptorSet.at(0).get(),    // Set1 - resolve image
+        rayTraceScene.mDescriptorSets.at(0).get(),  // Set2 - scene data
+    };
+
     vk::CommandBufferBeginInfo beginInfo {};
     computeCmdBuf.begin(beginInfo);
-        computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
+        // Compute image write
         computeCmdBuf.bindDescriptorSets(
             vk::PipelineBindPoint::eCompute,
             computePipeline->mPipelineLayout.get(),
-            0,
-            1,
-            &computePipeline->mDescriptorSets.at(0).get(),
-            0,
-            nullptr
+            0,  // first set
+            static_cast<uint32_t>(computeDescriptorSets.size()),  // descriptor set count
+            computeDescriptorSets.data(), // pDescriptorSets
+            0,  // dynamicOffsetCount
+            nullptr // pDyanmicOffsets
         );
+        computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
         computeCmdBuf.dispatch(1920/16, 1080/16, 1);
     computeCmdBuf.end();
+
+    // Submit compute command
+    vk::SubmitInfo computeSubmitInfo{};
+    computeSubmitInfo.commandBufferCount = 1;
+    computeSubmitInfo.pCommandBuffers = &computeCmdBuffers.at(0).get();
+
+    vk::FenceCreateInfo fenceInfo;
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    computeFence = mDevice.createFenceUnique(fenceInfo);
+
+    mDevice.waitForFences(computeFence.get(), VK_TRUE, UINT64_MAX);
+    mDevice.resetFences(computeFence.get());
+    auto computeQueue = VulkanContext::Get()->GetDevice()->GetQueue(QueueFamilyType::COMPUTE);
+    computeQueue.submit(computeSubmitInfo, computeFence.get());
 
     auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
     for (size_t frame = 0; frame < swapChainSize; ++frame)
