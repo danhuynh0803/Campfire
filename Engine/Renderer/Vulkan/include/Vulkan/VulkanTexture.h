@@ -22,6 +22,7 @@ public:
 
     vk::ImageView GetImageView() { return mImageView.get(); }
     vk::Sampler GetSampler() { return mSampler.get(); }
+    vk::ImageLayout GetImageLayout() { return mImageLayout; }
 
 private:
     vk::Device mDevice;

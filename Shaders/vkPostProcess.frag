@@ -35,5 +35,6 @@ layout (set = 1, binding = 0) uniform sampler2D uComputeResolve;
 // =========================================
 void main()
 {
-    outColor = texture(uComputeResolve, inUV);
+    //outColor = texture(uComputeResolve, inUV);
+    outColor = vec4(inUV, 1.0f, 1.0f);
 }

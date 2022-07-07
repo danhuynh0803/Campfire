@@ -41,14 +41,27 @@ cf::Pipeline::Pipeline(
       , setLayouts.data()
     );
 
-    // TODO generalize push descriptors
-    vk::PushConstantRange pushConstantRange = {};
-    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-    pushConstantRange.size = sizeof(TransformPushConstBlock);
-    pushConstantRange.offset = 0;
+    // Generate descriptor sets associated with each pipeline
+    const auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
+    //std::vector<vk::DescriptorSetLayout> layouts { swapChainSize, setLayouts };
+    auto allocInfo = vk::initializers::DescriptorSetAllocateInfo(
+        VulkanContext::Get()->GetDescriptorPool(),
+        static_cast<uint32_t>(setLayouts.size()),
+        setLayouts.data());
 
-    pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-    pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    mDescriptorSets = mDevice.allocateDescriptorSetsUnique(allocInfo);
+
+    // TODO generalize push descriptors
+    if (type == PipelineType::eGraphics)
+    {
+        vk::PushConstantRange pushConstantRange = {};
+        pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+        pushConstantRange.size = sizeof(TransformPushConstBlock);
+        pushConstantRange.offset = 0;
+
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+    }
     mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     switch (type)

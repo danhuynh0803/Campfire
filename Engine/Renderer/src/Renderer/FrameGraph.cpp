@@ -18,35 +18,8 @@ FrameGraph::FrameGraph()
 }
 
 SharedPtr<cf::Pipeline> CreateModelPipeline();
-
-SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
-{
-    std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings = {
-        // Bind 0: Output image
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
-        // Bind 1: Camera
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1),
-        // Bind 2: Lights
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 2),
-        // Bind 3: Spheres
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 3),
-        // Bind 4: Planes
-        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 4),
-    };
-
-    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets = { setLayoutBindings };
-
-    auto shader = CreateSharedPtr<VulkanShader>(SHADERS + "/raytrace.comp");
-    vk::PipelineShaderStageCreateInfo shaderInfo {};
-    shaderInfo.stage  = vk::ShaderStageFlagBits::eCompute;
-    shaderInfo.module = shader->GetShaderModule();
-    shaderInfo.pName  = "main";
-
-    return CreateSharedPtr<cf::Pipeline>(
-        descriptorSets,
-        shaderInfo,
-        PipelineType::eCompute);
-}
+SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
+SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
 
 void FrameGraph::CreateRenderFrameGraph()
 {
@@ -62,19 +35,79 @@ void FrameGraph::CreateRenderFrameGraph()
 void FrameGraph::CreatePipelines()
 {
     mPipelines["models"] = CreateModelPipeline();
+    mPipelines["postprocess"] = CreatePostProcessPipeline();
     mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
 
 void FrameGraph::ReconstructFrameGraph()
 {
     //mGraphicsPipelines["models"] = CreateModelPipeline();
-    //mComputePipelines["raytrace"] = CreateSharedPtr<VulkanComputePipeline>();
+    mPipelines["postprocess"] = CreatePostProcessPipeline();
+}
+
+SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
+{
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
+    { // Environment descriptors
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eAllGraphics,
+            0);
+
+        // TODO switch to storage buffer
+        // Lights
+        auto lights = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
+            camera,
+            lights,
+        };
+    }
+
+    { // Compute Resolve
+        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
+
+        // Set 1
+        descriptorSetLayoutBindings[1] = {
+            computeResolve,
+        };
+    }
+
+    // Shaders
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert");
+    vk::PipelineShaderStageCreateInfo vsStageInfo{};
+    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
+    vsStageInfo.module = vs->GetShaderModule();
+    vsStageInfo.pName  = "main";
+
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag");
+    vk::PipelineShaderStageCreateInfo fsStageInfo{};
+    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
+    fsStageInfo.module = fs->GetShaderModule();
+    fsStageInfo.pName  = "main";
+
+    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
+        vsStageInfo,
+        fsStageInfo,
+    };
+
+    return CreateSharedPtr<cf::Pipeline>(
+        descriptorSetLayoutBindings,
+        shaderStages,
+        PipelineType::eGraphics
+    );
 }
 
 SharedPtr<cf::Pipeline> CreateModelPipeline()
 {
-    auto swapChainImages = VulkanContext::Get()->GetSwapChain()->GetImages();
-
     std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
     { // Environment descriptors
         // Camera
@@ -98,7 +131,7 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
     }
 
     { // Material descriptors
-        // Albedo map (or computeResolve)
+        // Albedo map
         auto albedo = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
@@ -256,3 +289,34 @@ void FrameGraph::CreateOpaque()
 
     mRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
 }
+
+SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
+{
+    std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings = {
+        // Bind 0: Output image
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 0),
+        // Bind 1: Camera
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1),
+        // Bind 2: Lights
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 2),
+        // Bind 3: Spheres
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 3),
+        // Bind 4: Planes
+        vk::initializers::DescriptorSetLayoutBinding(vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 4),
+    };
+
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets = { setLayoutBindings };
+
+    auto shader = CreateSharedPtr<VulkanShader>(SHADERS + "/raytrace.comp");
+    vk::PipelineShaderStageCreateInfo shaderInfo {};
+    shaderInfo.stage  = vk::ShaderStageFlagBits::eCompute;
+    shaderInfo.module = shader->GetShaderModule();
+    shaderInfo.pName  = "main";
+
+    return CreateSharedPtr<cf::Pipeline>(
+        descriptorSets,
+        shaderInfo,
+        PipelineType::eCompute);
+}
+
+

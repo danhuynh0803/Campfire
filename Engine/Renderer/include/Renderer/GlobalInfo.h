@@ -222,75 +222,77 @@ struct RayTraceScene
 
     void Update()
     {
-        //{ // -- sphere SSBO
-        //    // TODO: No need to flush since coherent, but investigate
-        //    // what the performance hit is since we're not using
-        //    // device local memory
-        //    sphereSSBO = CreateSharedPtr<VulkanBuffer>(
-        //        vk::BufferUsageFlagBits::eStorageBuffer,
-        //        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        //        spheres.size() * sizeof(Sphere),
-        //        vk::SharingMode::eExclusive
-        //        );
+    /*
+        { // -- sphere SSBO
+            // TODO: No need to flush since coherent, but investigate
+            // what the performance hit is since we're not using
+            // device local memory
+            sphereSSBO = CreateSharedPtr<VulkanBuffer>(
+                vk::BufferUsageFlagBits::eStorageBuffer,
+                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+                spheres.size() * sizeof(Sphere),
+                vk::SharingMode::eExclusive
+            );
 
-        //    void* data = sphereSSBO->Map();
-        //    memcpy(data, spheres.data(), spheres.size() * sizeof(Sphere));
+            void* data = sphereSSBO->Map();
+            memcpy(data, spheres.data(), spheres.size() * sizeof(Sphere));
 
-        //    // Update DescriptorSet
-        //    vk::DescriptorBufferInfo bufferInfo{};
-        //    bufferInfo.buffer = sphereSSBO->mBuffer.get();
-        //    bufferInfo.offset = 0;
-        //    bufferInfo.range = sphereSSBO->mSize;
+            // Update DescriptorSet
+            vk::DescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = sphereSSBO->mBuffer.get();
+            bufferInfo.offset = 0;
+            bufferInfo.range = sphereSSBO->mSize;
 
-        //    vk::WriteDescriptorSet writeInfo{};
-        //    writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
-        //    writeInfo.dstBinding = 3;
-        //    writeInfo.dstArrayElement = 0;
-        //    writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
-        //    writeInfo.descriptorCount = 1;
-        //    writeInfo.pBufferInfo = &bufferInfo;
+            vk::WriteDescriptorSet writeInfo{};
+            writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
+            writeInfo.dstBinding = 3;
+            writeInfo.dstArrayElement = 0;
+            writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+            writeInfo.descriptorCount = 1;
+            writeInfo.pBufferInfo = &bufferInfo;
 
-        //    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
-        //}
+            mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+        }
 
-        //{ // -- plane SSBO
-        //    planeSSBO = CreateSharedPtr<VulkanBuffer>(
-        //        vk::BufferUsageFlagBits::eStorageBuffer,
-        //        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-        //        planes.size() * sizeof(Plane),
-        //        vk::SharingMode::eExclusive
-        //        );
+        { // -- plane SSBO
+            planeSSBO = CreateSharedPtr<VulkanBuffer>(
+                vk::BufferUsageFlagBits::eStorageBuffer,
+                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+                planes.size() * sizeof(Plane),
+                vk::SharingMode::eExclusive
+            );
 
-        //    void* data = planeSSBO->Map();
-        //    memcpy(data, planes.data(), planes.size() * sizeof(Plane));
+            void* data = planeSSBO->Map();
+            memcpy(data, planes.data(), planes.size() * sizeof(Plane));
 
-        //    // Update DescriptorSet
-        //    vk::DescriptorBufferInfo bufferInfo{};
-        //    bufferInfo.buffer = sphereSSBO->mBuffer.get();
-        //    bufferInfo.offset = 0;
-        //    bufferInfo.range = sphereSSBO->mSize;
+            // Update DescriptorSet
+            vk::DescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = sphereSSBO->mBuffer.get();
+            bufferInfo.offset = 0;
+            bufferInfo.range = sphereSSBO->mSize;
 
-        //    vk::WriteDescriptorSet writeInfo{};
-        //    writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
-        //    writeInfo.dstBinding = 4;
-        //    writeInfo.dstArrayElement = 0;
-        //    writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
-        //    writeInfo.descriptorCount = 1;
-        //    writeInfo.pBufferInfo = &bufferInfo;
+            vk::WriteDescriptorSet writeInfo{};
+            writeInfo.dstSet = computePipeline->mDescriptorSets.at(0).get();
+            writeInfo.dstBinding = 4;
+            writeInfo.dstArrayElement = 0;
+            writeInfo.descriptorType = vk::DescriptorType::eStorageBuffer;
+            writeInfo.descriptorCount = 1;
+            writeInfo.pBufferInfo = &bufferInfo;
 
-        //    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
-        //}
+            mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+        }
 
-        //// Update post compute graphics descriptorset that reads in the processed image
-        //vk::WriteDescriptorSet writeInfo{};
-        //writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
-        //writeInfo.dstBinding = 0;
-        //writeInfo.dstArrayElement = 0;
-        //writeInfo.descriptorCount = 1;
-        //writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        //writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
+        // Update post compute graphics descriptorset that reads in the processed image
+        vk::WriteDescriptorSet writeInfo{};
+        writeInfo.dstSet = graphicsPipeline->mDescriptorSets[1][0].get();
+        writeInfo.dstBinding = 0;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorCount = 1;
+        writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        writeInfo.pImageInfo = &computePipeline->mDescriptorImageInfo;
 
-        //mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    */
     }
 
     //vk::FenceCreateInfo fenceInfo;
@@ -324,37 +326,6 @@ struct RayTraceScene
     //computeQueue.submit(computeSubmitInfo, computeFence.get());
 
     //// TODO add image barrier from compute to fragment
-
-    //for (size_t frame = 0; frame < 3; ++frame)
-    //{
-    //    auto commandBuffer = VulkanRenderer::BeginScene(frame);
-    //    {
-    //        mPushConstBlock.model = glm::mat4(1.0f);
-    //        commandBuffer.pushConstants(
-    //            VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
-    //            vk::ShaderStageFlagBits::eVertex,
-    //            0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
-    //            &mPushConstBlock
-    //        );
-
-    //        commandBuffer.bindDescriptorSets(
-    //            vk::PipelineBindPoint::eGraphics,
-    //            VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mPipelineLayout.get(),
-    //            1,
-    //            1,
-    //            &VulkanContext::Get()->mFrameGraph.GetGraphicsPipeline("PostProcess")->mDescriptorSets[1][0].get(),
-    //            0,
-    //            nullptr
-    //        );
-
-    //        VulkanRenderer::DrawIndexed(commandBuffer, vertexBufferPtr->GetBuffer(), indexBufferPtr->GetBuffer(), indexBufferPtr->GetCount());
-
-    //        vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
-    //    }
-    //    VulkanRenderer::EndScene(commandBuffer);
-    //}
-
-    //}
 };
 
 } // namespace raytrace

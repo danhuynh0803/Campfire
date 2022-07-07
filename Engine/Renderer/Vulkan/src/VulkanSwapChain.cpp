@@ -44,6 +44,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     std::vector<vk::PresentModeKHR> presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
     for (const auto& presentMode : presentModes)
     {
+        // Use triple-buffer when available
         if (presentMode == vk::PresentModeKHR::eMailbox)
         {
             swapchainPresentMode = vk::PresentModeKHR::eMailbox;
@@ -73,7 +74,7 @@ VulkanSwapChain::VulkanSwapChain(GLFWwindow* window)
     swapChainCreateInfo.imageColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
     swapChainCreateInfo.imageExtent = swapChainExtent;
     swapChainCreateInfo.imageArrayLayers = 1;
-    swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+    swapChainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage;
     swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
     swapChainCreateInfo.preTransform = preTransform;
     swapChainCreateInfo.compositeAlpha = compositeAlpha;

@@ -95,6 +95,10 @@ public:
         return mRenderPasses.at(label).get();
     }
 
+    SharedPtr<cf::Pipeline> GetPipeline(const std::string& label) {
+        return mPipelines.at(label);
+    }
+
     SharedPtr<cf::Pipeline> GetGraphicsPipeline(const std::string& label) {
         return mPipelines.at(label);
     }
