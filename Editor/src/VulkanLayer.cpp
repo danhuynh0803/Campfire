@@ -396,11 +396,6 @@ void VulkanLayer::OnImGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Camera");
-    ImGui::DragFloat("Speed", &cameraController.normalSpeed);
-    ImGui::DragFloat("Near", &editorCamera->nearPlane);
-    ImGui::DragFloat("Far", &editorCamera->farPlane);
-
     ImGui::Text("Inverse View Matrix");
     glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
     ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
