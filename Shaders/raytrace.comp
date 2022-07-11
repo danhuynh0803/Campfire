@@ -64,6 +64,11 @@ layout (std140, set = 2, binding = 1) buffer Planes
     Plane planes[];
 };
 
+//bool QuadIntersect(in vec3 rayO, in vec3 rayD, in Quad quad, inout float t)
+//{
+//
+//}
+
 bool SphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere, inout float t)
 {
     vec3 oc = rayO - sphere.pos;
@@ -92,8 +97,9 @@ bool SphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere, inout float t
 
 vec3 RenderScene(inout vec3 rayO, inout vec3 rayD)
 {
-    int hitId = -1;
     float currT = INF;
+    vec3 accuColor = vec3(0.1f);
+
     for (int i = 0; i < spheres.length(); ++i)
     {
         float t = INF;
@@ -101,33 +107,30 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD)
         {
             if ((t > EPSILON) && (t < currT))
             {
-                hitId = spheres[i].id;
                 currT = t;
+
+                Sphere sphere = spheres[i];
+                vec3 hitPos = rayO + currT*rayD;
+                vec3 normal = (hitPos - sphere.pos) / sphere.radius;
+
+                vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
+
+                accuColor =
+                    spheres[i].albedo.rgb
+                  * lightBuffer.lights[0].color.rgb
+                  //* lightBuffer.lights[0].intensity
+                  * max(0.0f, dot(l, normal))
+                ;
             }
         }
     }
 
-    // Get color of hit id
-    for (int i = 0; i < spheres.length(); ++i)
+    for (int i = 0; i < planes.length(); ++i)
     {
-        if (hitId == i)
-        {
-            Sphere sphere = spheres[hitId];
-            vec3 hitPos = rayO + currT*rayD;
-            vec3 normal = (hitPos - sphere.pos) / sphere.radius;
-
-            vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
-
-            return
-                spheres[hitId].albedo.rgb
-              * lightBuffer.lights[0].color.rgb
-              //* lightBuffer.lights[0].intensity
-              * max(0.0f, dot(l, normal))
-            ;
-        }
     }
 
-    return vec3(0.1f);
+
+    return accuColor;
 }
 
 // =========================================
