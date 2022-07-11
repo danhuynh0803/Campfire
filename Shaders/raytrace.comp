@@ -6,6 +6,36 @@ layout (set = 1, binding = 0, rgba8) uniform writeonly image2D resultImage;
 
 #define EPSILON 0.0001
 #define INF 10000.0
+#define MAX_BOUNCES 1
+#define RAY_NUDGE 0.01
+const float minimumRayHitDist = 0.01f;
+const float c_pi = 3.14159265359f;
+const float c_twopi = 2.0f * c_pi;
+
+uint wang_hash(inout uint seed)
+{
+    seed = uint(seed ^ uint(61)) ^ uint(seed >> uint(16));
+    seed *= uint(9);
+    seed = seed ^ (seed >> 4);
+    seed *= uint(0x27d4eb2d);
+    seed = seed ^ (seed >> 15);
+    return seed;
+}
+
+float RandomFloat01(inout uint state)
+{
+    return float(wang_hash(state)) / 4294967296.0;
+}
+
+vec3 RandomUnitVector(inout uint state)
+{
+    float z = RandomFloat01(state) * 2.0f - 1.0f;
+    float a = RandomFloat01(state) * c_twopi;
+    float r = sqrt(1.0f - z * z);
+    float x = r * cos(a);
+    float y = r * sin(a);
+    return vec3(x, y, z);
+}
 
 // =========================================
 layout (set = 0, binding = 0) uniform Camera
@@ -32,13 +62,21 @@ layout (set = 0, binding = 1) uniform Lights
     uint numLights;
 } lightBuffer;
 
+struct RayHitInfo
+{
+    float dist;
+    vec3 normal;
+    vec3 albedo;
+    vec3 emission;
+};
+
 // =========================================
 struct Sphere
 {
     vec3 pos;
     float radius;
-    vec4 emission;
-    vec4 albedo;
+    vec3 emission;
+    vec3 albedo;
     int mat;
     int id;
 };
@@ -49,27 +87,117 @@ layout (std140, set = 2, binding = 0) buffer Spheres
 };
 
 // =========================================
-struct Plane
+struct Quad
 {
-    vec3 normal;
-    float distance;
+    vec3 a, b, c, d;
+    vec3 emission;
     vec3 albedo;
-    float specular;
     int mat;
     int id;
 };
 
-layout (std140, set = 2, binding = 1) buffer Planes
+layout (std140, set = 2, binding = 1) buffer Quads
 {
-    Plane planes[];
+    Quad quads[];
 };
 
-//bool QuadIntersect(in vec3 rayO, in vec3 rayD, in Quad quad, inout float t)
-//{
-//
-//}
+float ScalarTriple(vec3 u, vec3 v, vec3 w)
+{
+    return dot(cross(u,v), w);
+}
 
-bool SphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere, inout float t)
+bool QuadIntersect(
+    in vec3 rayPos,
+    in vec3 rayDir,
+    inout RayHitInfo info,
+    in vec3 a,
+    in vec3 b,
+    in vec3 c,
+    in vec3 d)
+{
+    // calculate normal and flip vertices order if needed
+    vec3 normal = normalize(cross(c-a, c-b));
+    if (dot(normal, rayDir) > 0.0f)
+    {
+        normal *= -1.0f;
+
+        vec3 temp = d;
+        d = a;
+        a = temp;
+
+        temp = b;
+        b = c;
+        c = temp;
+    }
+
+    vec3 p = rayPos;
+    vec3 q = rayPos + rayDir;
+    vec3 pq = q - p;
+    vec3 pa = a - p;
+    vec3 pb = b - p;
+    vec3 pc = c - p;
+
+    // determine which triangle to test against by testing against diagonal first
+    vec3 m = cross(pc, pq);
+    float v = dot(pa, m);
+    vec3 intersectPos;
+    if (v >= 0.0f)
+    {
+        // test against triangle a,b,c
+        float u = -dot(pb, m);
+        if (u < 0.0f) return false;
+        float w = ScalarTriple(pq, pb, pa);
+        if (w < 0.0f) return false;
+        float denom = 1.0f / (u+v+w);
+        u*=denom;
+        v*=denom;
+        w*=denom;
+        intersectPos = u*a+v*b+w*c;
+    }
+    else
+    {
+        vec3 pd = d - p;
+        float u = dot(pd, m);
+        if (u < 0.0f) return false;
+        float w = ScalarTriple(pq, pa, pd);
+        if (w < 0.0f) return false;
+        v = -v;
+        float denom = 1.0f / (u+v+w);
+        u*=denom;
+        v*=denom;
+        w*=denom;
+        intersectPos = u*a+v*d+w*c;
+    }
+
+    float dist;
+    if (abs(rayDir.x) > 0.1f)
+    {
+        dist = (intersectPos.x - rayPos.x) / rayDir.x;
+    }
+    else if (abs(rayDir.y) > 0.1f)
+    {
+        dist = (intersectPos.y - rayPos.y) / rayDir.y;
+    }
+    else
+    {
+        dist = (intersectPos.z - rayPos.z) / rayDir.z;
+    }
+
+    if (dist > minimumRayHitDist && dist < info.dist)
+    {
+        info.dist = dist;
+        info.normal = normal;
+        return true;
+    }
+
+    return false;
+}
+
+bool SphereIntersect(
+    in vec3 rayO,
+    in vec3 rayD,
+    inout RayHitInfo hitInfo,
+    in Sphere sphere)
 {
     vec3 oc = rayO - sphere.pos;
     float a = dot(rayD, rayD);
@@ -77,58 +205,90 @@ bool SphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere, inout float t
     float c = dot(oc, oc) - sphere.radius*sphere.radius;
 
     // Roots exist if discriminant value >= 0
-    float disc = b*b - 4*a*c;
-    if (disc >= 0)
+    float discr = b*b - 4*a*c;
+    if (discr < 0.0f) {
+        return false;
+    }
+
+    float invDenom = 0.5f / a; // 1/(2a)
+    bool isInside = false;
+    float dist = (-b - sqrt(discr)) * invDenom;
+    if (dist < 0.0f)
     {
-        float invDenom = 0.5f / a; // 1/(2a)
-        // Get closest value of intersection which is stored as lowest t value
-        float tPos = (b + sqrt(disc)) * invDenom;
-        float tNeg = (b - sqrt(disc)) * invDenom;
+        isInside = true;
+        dist = (-b + sqrt(discr)) * invDenom;
+    }
 
-        //t = tPos >= EPSILON ? tPos : t;
-        //t = tNeg >= EPSILON && tNeg < t ? tNeg : t;
-        t = (-b - sqrt(disc)) / (2.0f * a);
-
+    // Get closest value of intersection which is stored as lowest t value
+    if (dist > minimumRayHitDist && dist < hitInfo.dist)
+    {
+        hitInfo.dist = dist;
+        vec3 hitPos = rayO + dist*rayD;
+        hitInfo.normal = normalize(hitPos - sphere.pos)
+                       * (isInside ? -1.0f : 1.0f);
         return true;
     }
 
     return false;
 }
 
-vec3 RenderScene(inout vec3 rayO, inout vec3 rayD)
+void TestSceneIntersection(in vec3 rayO, in vec3 rayD, inout RayHitInfo hitInfo)
 {
-    float currT = INF;
     vec3 accuColor = vec3(0.1f);
 
     for (int i = 0; i < spheres.length(); ++i)
     {
-        float t = INF;
-        if (SphereIntersect(rayO, rayD, spheres[i], t))
+        //float t = INF;
+        if (SphereIntersect(rayO, rayD, hitInfo, spheres[i]))
         {
-            if ((t > EPSILON) && (t < currT))
-            {
-                currT = t;
-
-                Sphere sphere = spheres[i];
-                vec3 hitPos = rayO + currT*rayD;
-                vec3 normal = (hitPos - sphere.pos) / sphere.radius;
-
-                vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
-
-                accuColor =
-                    spheres[i].albedo.rgb
-                  * lightBuffer.lights[0].color.rgb
-                  //* lightBuffer.lights[0].intensity
-                  * max(0.0f, dot(l, normal))
-                ;
-            }
+            Sphere sphere = spheres[i];
+            hitInfo.albedo = sphere.albedo;
+            hitInfo.emission = sphere.emission;
         }
     }
 
-    for (int i = 0; i < planes.length(); ++i)
+    for (int i = 0; i < quads.length(); ++i)
     {
     }
+}
 
+vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
+{
+    vec3 accuColor = vec3(0.0f);
+    vec3 currRayPos = rayO;
+    vec3 currRayDir = rayD;
+    vec3 colorMask = vec3(1.0f);
+    for (int bounce = 0; bounce < MAX_BOUNCES; ++bounce)
+    {
+        RayHitInfo hitInfo;
+        hitInfo.dist = INF;
+
+        TestSceneIntersection(rayO, rayD, hitInfo);
+
+        // Hit nothing within the scene
+        if (hitInfo.dist == INF)
+            break;
+
+        vec3 hitPos = currRayPos + hitInfo.dist*currRayDir;
+        vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
+
+        // Calculate new ray pos by offsetting it slightly to prevent
+        // self-intersections
+        currRayPos =
+            (currRayPos + currRayDir*hitInfo.dist)
+          + (hitInfo.normal * RAY_NUDGE)
+        ;
+
+        accuColor += hitInfo.albedo.rgb
+                   * lightBuffer.lights[0].color.rgb
+                   //* lightBuffer.lights[0].intensity
+                   * max(0.0f, dot(l, hitInfo.normal))
+        ;
+
+        currRayDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        accuColor += hitInfo.emission * colorMask;
+        colorMask *= hitInfo.albedo;
+    }
 
     return accuColor;
 }
@@ -139,6 +299,12 @@ void main()
     ivec2 dim = imageSize(resultImage);
     vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
 
+    uint rngState = uint(uint(gl_GlobalInvocationID.x)*uint(1835)
+                       + uint(gl_GlobalInvocationID.y)*uint(3467)
+                       //+ uint(frameNumber) * uint(24623))
+                       | uint(1));
+
+
     mat4 invView = inverse(camera.view);
     vec3 rayO = vec3(invView[3][0], invView[3][1], invView[3][2]);
 
@@ -148,7 +314,7 @@ void main()
 
     vec3 rayD = normalize(worldPos.xyz - rayO);
 
-    vec3 color = RenderScene(rayO, rayD);
+    vec3 color = RenderScene(rayO, rayD, rngState);
 
     imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
 }

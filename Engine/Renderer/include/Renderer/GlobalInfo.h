@@ -143,20 +143,24 @@ struct Sphere
 {
     glm::vec3 pos;
     float radius;
-    glm::vec4 emission;
-    glm::vec4 albedo;
+    glm::vec3 emission;
+    float pad0;
+    glm::vec3 albedo;
+    float pad1;
     int mat;
     int id;
-    glm::vec2 padding;
+    glm::vec2 pad2;
 };
 
 //========================================================
-struct Plane
+struct Quad
 {
-    glm::vec3 normal;
-    float distance;
+    glm::vec3 a,b,c,d;
+    float pad0;
+    glm::vec3 emission;
+    float pad1;
     glm::vec3 albedo;
-    float specular;
+    float pad2;
     int mat;
     int id;
     glm::vec2 padding;
@@ -165,9 +169,9 @@ struct Plane
 struct RayTraceScene
 {
     SharedPtr<VulkanBuffer> sphereSSBO;
-    SharedPtr<VulkanBuffer> planeSSBO;
+    SharedPtr<VulkanBuffer> quadSSBO;
     std::vector<Sphere> spheres;
-    std::vector<Plane> planes;
+    std::vector<Quad> quads;
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
 
     vk::Device mDevice;
@@ -186,18 +190,25 @@ struct RayTraceScene
                 Sphere sphere{};
                 sphere.radius = 0.5f;
                 sphere.pos = glm::vec3(j+sphere.radius, i, 0);
-                sphere.emission = glm::vec4(0.0f);
-                sphere.albedo = glm::vec4((float)j / maxCol, (float)i / maxRow, 1.0f, 1.0f);
-                sphere.mat = 0;
+                sphere.emission = glm::vec3(0.0f);
+                sphere.albedo = glm::vec3((float)j / maxCol, (float)i / maxRow, 1.0f);
+                sphere.mat = MatType::DIFF;
                 sphere.id = id++;
 
-                spheres.push_back(sphere);
+                spheres.emplace_back(sphere);
             }
         }
 
-        planes = {
-            { glm::vec3(0, 0, -7), 5, glm::vec3(0, 0, 1), 32, MatType::DIFF, 0 },
-        };
+        Quad light {};
+        light.a = glm::vec3(0);
+        light.b = glm::vec3(0);
+        light.c = glm::vec3(0);
+        light.d = glm::vec3(0);
+        light.emission = glm::vec3(10000.0f);
+        light.albedo = glm::vec3(1.0f);
+        light.mat = MatType::DIFF;
+        light.id = 0;
+        quads.emplace_back(light);
 
         vk::DescriptorSetAllocateInfo info {};
         info.descriptorPool = VulkanContext::Get()->GetDescriptorPool();
@@ -238,22 +249,22 @@ struct RayTraceScene
             mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
         }
 
-        { // -- plane SSBO
-            planeSSBO = CreateSharedPtr<VulkanBuffer>(
+        { // -- quad SSBO
+            quadSSBO = CreateSharedPtr<VulkanBuffer>(
                 vk::BufferUsageFlagBits::eStorageBuffer,
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-                planes.size() * sizeof(Plane),
+                quads.size() * sizeof(Quad),
                 vk::SharingMode::eExclusive
             );
 
-            void* data = planeSSBO->Map();
-            memcpy(data, planes.data(), planes.size() * sizeof(Plane));
+            void* data = quadSSBO->Map();
+            memcpy(data, quads.data(), quads.size() * sizeof(Quad));
 
             // Update DescriptorSet
             vk::DescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = planeSSBO->mBuffer.get();
+            bufferInfo.buffer = quadSSBO->mBuffer.get();
             bufferInfo.offset = 0;
-            bufferInfo.range = planeSSBO->mSize;
+            bufferInfo.range = quadSSBO->mSize;
 
             vk::WriteDescriptorSet writeInfo{};
             writeInfo.dstSet = mDescriptorSets.at(0).get();
