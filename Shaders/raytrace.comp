@@ -4,10 +4,8 @@
 layout (local_size_x = 16, local_size_y = 16) in;
 layout (set = 1, binding = 0, rgba8) uniform writeonly image2D resultImage;
 
-#define EPSILON 0.0001
-#define INF 10000.0
-#define MAX_BOUNCES 1
-#define RAY_NUDGE 0.01
+const float infinity = 10000.0f;
+const float rayNudge = 0.01f;
 const float minimumRayHitDist = 0.01f;
 const float c_pi = 3.14159265359f;
 const float c_twopi = 2.0f * c_pi;
@@ -36,6 +34,10 @@ vec3 RandomUnitVector(inout uint state)
     float y = r * sin(a);
     return vec3(x, y, z);
 }
+
+layout (push_constant) uniform PushConstants {
+    uint frameNumber;
+} pushConstants;
 
 // =========================================
 layout (set = 0, binding = 0) uniform Camera
@@ -68,6 +70,7 @@ struct RayHitInfo
     vec3 normal;
     vec3 albedo;
     vec3 emission;
+    int material;
 };
 
 // =========================================
@@ -234,20 +237,67 @@ bool SphereIntersect(
 
 void TestSceneIntersection(in vec3 rayO, in vec3 rayD, inout RayHitInfo hitInfo)
 {
-    vec3 accuColor = vec3(0.1f);
 
-    for (int i = 0; i < spheres.length(); ++i)
-    {
-        if (SphereIntersect(rayO, rayD, hitInfo, spheres[i]))
+    // Based on SSBO from application
+    //for (int i = 0; i < spheres.length(); ++i)
+    //{
+    //    if (SphereIntersect(rayO, rayD, hitInfo, spheres[i]))
+    //    {
+    //        Sphere sphere = spheres[i];
+    //        hitInfo.albedo = sphere.albedo;
+    //        hitInfo.emission = sphere.emission;
+    //    }
+    //}
+
+    //for (int i = 0; i < quads.length(); ++i)
+    //{
+    //}
+    //
+
+    { // light
+        Sphere sphere;
+        sphere.pos = vec3(10.0f, 1.0f, -20.0f);
+        sphere.radius = 5.0f;
+        if (SphereIntersect(rayO, rayD, hitInfo, sphere))
         {
-            Sphere sphere = spheres[i];
-            hitInfo.albedo = sphere.albedo;
-            hitInfo.emission = sphere.emission;
+            hitInfo.albedo = vec3(0.0f);
+            hitInfo.emission = vec3(1.0f, 0.8f, 0.7f) * 20.0f;
         }
     }
 
-    for (int i = 0; i < quads.length(); ++i)
     {
+        Sphere sphere;
+        sphere.pos = vec3(0.0f, 1.0f, -20.0f);
+        sphere.radius = 2.5f;
+        if (SphereIntersect(rayO, rayD, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(1.0f, 0.0f, 0.0f);
+            hitInfo.emission = vec3(0.0f);
+        }
+    }
+
+    {
+        Sphere sphere;
+        sphere.pos = vec3(10.0f, 1.0f, -20.0f);
+        sphere.radius = 5.0f;
+        if (SphereIntersect(rayO, rayD, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(0.0f);
+            hitInfo.emission = vec3(1.0f, 0.8f, 0.7f) * 20.0f;
+        }
+    }
+
+    // Back panel
+    {
+        vec3 A = vec3(-15.0f, -15.0f, -25.0f);
+        vec3 B = vec3( 15.0f, -15.0f, -25.0f);
+        vec3 C = vec3( 15.0f,  15.0f, -25.0f);
+        vec3 D = vec3(-15.0f,  15.0f, -25.0f);
+        if (QuadIntersect(rayO, rayD, hitInfo, A, B, C, D))
+        {
+            hitInfo.albedo = vec3(0.03f);
+            hitInfo.emission = vec3(0.0f);
+        }
     }
 }
 
@@ -257,34 +307,34 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
     vec3 currRayPos = rayO;
     vec3 currRayDir = rayD;
     vec3 colorMask = vec3(1.0f);
-    for (int bounce = 0; bounce < MAX_BOUNCES; ++bounce)
+
+    const uint maxBounces = 8;
+    for (int bounce = 0; bounce < maxBounces; ++bounce)
     {
         RayHitInfo hitInfo;
-        hitInfo.dist = INF;
+        hitInfo.dist = infinity;
 
-        TestSceneIntersection(rayO, rayD, hitInfo);
+        TestSceneIntersection(currRayPos, currRayDir, hitInfo);
 
         // Hit nothing within the scene
-        if (hitInfo.dist == INF)
+        if (hitInfo.dist == infinity)
             break;
 
         vec3 hitPos = currRayPos + hitInfo.dist*currRayDir;
-        vec3 l = normalize(lightBuffer.lights[0].pos.xyz - hitPos);
 
         // Calculate new ray pos by offsetting it slightly to prevent
         // self-intersections
         currRayPos =
             (currRayPos + currRayDir*hitInfo.dist)
-          + (hitInfo.normal * RAY_NUDGE)
+          + (hitInfo.normal * rayNudge)
         ;
 
-        //accuColor += hitInfo.albedo.rgb
-        //           * lightBuffer.lights[0].color.rgb
-        //           //* lightBuffer.lights[0].intensity
-        //           * max(0.0f, dot(l, hitInfo.normal))
-        //;
-
         currRayDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        //if (bounce == 1) {
+        //    accuColor = hitInfo.albedo;
+        //    break;
+        //}
+
         accuColor += hitInfo.emission * colorMask;
         colorMask *= hitInfo.albedo;
     }
@@ -300,8 +350,8 @@ void main()
 
     uint rngState = uint(uint(gl_GlobalInvocationID.x)*uint(1835)
                        + uint(gl_GlobalInvocationID.y)*uint(3467)
-                       //+ uint(frameNumber) * uint(24623))
-                       | uint(1));
+                       + uint(pushConstants.frameNumber)*uint(24623))
+                       | uint(1);
 
     mat4 invView = inverse(camera.view);
     vec3 rayO = vec3(invView[3][0], invView[3][1], invView[3][2]);

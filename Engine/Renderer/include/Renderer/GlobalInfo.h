@@ -189,7 +189,7 @@ struct RayTraceScene
             {
                 Sphere sphere{};
                 sphere.radius = 0.5f;
-                sphere.pos = glm::vec3(j+sphere.radius, i, 0);
+                sphere.pos = glm::vec3(j+sphere.radius, i, -25.0f);
                 sphere.emission = glm::vec3(1000.0f);
                 sphere.albedo = glm::vec3((float)j / maxCol, (float)i / maxRow, 1.0f);
                 sphere.mat = MatType::DIFF;

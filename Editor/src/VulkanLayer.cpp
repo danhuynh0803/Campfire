@@ -213,6 +213,7 @@ void VulkanLayer::OnUpdate(float dt)
         rayTraceScene.mDescriptorSets.at(0).get(),     // Set2 - scene data
     };
 
+    static unsigned int frameNumber = 0;
     vk::CommandBufferBeginInfo beginInfo {};
     computeCmdBuf.begin(beginInfo);
         // Compute image write
@@ -240,6 +241,13 @@ void VulkanLayer::OnUpdate(float dt)
 
         computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
         // TODO generalize dispatch parameters
+
+        computeCmdBuf.pushConstants(
+            computePipeline->mPipelineLayout.get(),
+            vk::ShaderStageFlagBits::eCompute,
+            0, sizeof(unsigned int),
+            &frameNumber);
+        frameNumber++;
         computeCmdBuf.dispatch(blankTexture->GetWidth()/16, blankTexture->GetHeight()/16, 1);
     computeCmdBuf.end();
 
