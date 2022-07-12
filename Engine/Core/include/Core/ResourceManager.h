@@ -27,6 +27,10 @@ public:
     inline static SharedPtr<Texture2D> GetTexture(uint32_t index) { return mTextureMaster.at(index); }
     inline static std::vector<SharedPtr<Texture2D>> GetTextureMaster() { return mTextureMaster; }
 
+    static std::vector<uint32_t> GetCompiledShader(const std::string& filepath);
+    // TODO wrapper
+    static std::unordered_map<std::string, std::vector<uint32_t>> mCompiledShaders;
+
 private:
     static std::vector<SharedPtr<Texture2D>> mTextureMaster;
     static std::unordered_map<std::string, SharedPtr<Texture2D>> mCachedTextureMap;

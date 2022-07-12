@@ -62,6 +62,11 @@ cf::Pipeline::Pipeline(
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
     }
+    else if (type == PipelineType::eCompute)
+    {
+        vk::PushConstantRange pushConstantRange = {};
+    }
+
     mPipelineLayout = mDevice.createPipelineLayoutUnique(pipelineLayoutCreateInfo);
 
     switch (type)

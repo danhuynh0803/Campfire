@@ -1,9 +1,10 @@
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
+#include "Core/ResourceManager.h"
 #include <shaderc/shaderc.hpp>
 #include <fstream>
 
-std::vector<uint32_t> CompileFile(
+std::vector<uint32_t> VulkanShader::CompileFile(
     const std::string& filepath,
     shaderc_shader_kind kind,
     const std::string& source,
@@ -26,20 +27,13 @@ std::vector<uint32_t> CompileFile(
         // TODO if compilation fails, use a shader to indicate something is broken
         // like the purple shader in unity
 
-        // Use error.comp to indidicate shader compilation issue,
-        // instead of crashing
-        if (kind == shaderc_shader_kind::shaderc_glsl_default_compute_shader)
-        {
-            //shaderc::SpvCompilationResult module =
-            //    compiler.CompileGlslToSpv(source, kind, filepath.c_str(), options);
-            return  std::vector<uint32_t>();
-        }
-        // No error shaders yet for other kinds
-        else
-        {
-            return  std::vector<uint32_t>();
-        }
+        // If not compiled successfully, return the last working module
+        // rather than just crashing from an invalid module
+        return ResourceManager::mCompiledShaders[filepath];
     }
+
+    // Update with latest successfully compiled module
+    ResourceManager::mCompiledShaders[filepath] = { module.cbegin(), module.cend() };
 
     return { module.cbegin(), module.cend() };
 }

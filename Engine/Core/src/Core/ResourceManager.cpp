@@ -8,6 +8,7 @@ std::vector<SharedPtr<Texture2D>> ResourceManager::mTextureMaster;
 std::unordered_map<std::string, SharedPtr<Texture2D>> ResourceManager::mCachedTextureMap;
 std::unordered_map<std::string, SharedPtr<Mesh>> ResourceManager::mCachedMeshMap;
 std::unordered_map<std::string, Entity> ResourceManager::mCachedEntityMap;
+std::unordered_map<std::string, std::vector<uint32_t>> ResourceManager::mCompiledShaders;
 std::unordered_map<std::string, nlohmann::json> ResourceManager::mPrefabMap;
 
 std::string ResourceManager::mAssetsPath = "../../Assets";
@@ -57,4 +58,10 @@ Entity ResourceManager::GetEntityWithTag(const std::string& tag)
         return Entity {};
     }
     return mCachedEntityMap.at(tag);
+}
+
+std::vector<uint32_t> ResourceManager::GetCompiledShader(const std::string& filepath)
+{
+    // TODO
+    return mCompiledShaders.at(filepath);
 }
