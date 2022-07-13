@@ -46,6 +46,7 @@ static std::vector<vk::UniqueCommandBuffer> computeCmdBuffers;
 static vk::UniqueFence computeFence;
 static vk::DescriptorImageInfo descriptorImageInfo;
 static SharedPtr<VulkanTexture2D> blankTexture;
+static unsigned int frameNumber = 0;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -213,7 +214,6 @@ void VulkanLayer::OnUpdate(float dt)
         rayTraceScene.mDescriptorSets.at(0).get(),     // Set2 - scene data
     };
 
-    static unsigned int frameNumber = 0;
     vk::CommandBufferBeginInfo beginInfo {};
     computeCmdBuf.begin(beginInfo);
         // Compute image write
@@ -240,7 +240,6 @@ void VulkanLayer::OnUpdate(float dt)
         );
 
         computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-        // TODO generalize dispatch parameters
 
         computeCmdBuf.pushConstants(
             computePipeline->mPipelineLayout.get(),
@@ -248,7 +247,28 @@ void VulkanLayer::OnUpdate(float dt)
             0, sizeof(unsigned int),
             &frameNumber);
         frameNumber++;
-        computeCmdBuf.dispatch(blankTexture->GetWidth()/16, blankTexture->GetHeight()/16, 1);
+
+        // TODO generalize dispatch parameters
+        //computeCmdBuf.dispatch(blankTexture->GetWidth() / 16, blankTexture->GetHeight() / 16, 1);
+
+        //vk::MemoryBarrier2KHR memoryBarrier {};
+        //memoryBarrier.srcStageMask  = vk::PipelineStageFlagBits2KHR::e2ComputeShader;
+        //memoryBarrier.srcAccessMask = vk::AccessFlagBits2KHR::e2ShaderStorageWrite;
+        //memoryBarrier.dstStageMask = vk::PipelineStageFlagBits2KHR::e2ComputeShader;
+        //memoryBarrier.dstAccessMask = vk::AccessFlagBits2KHR::e2ShaderStorageRead;
+
+        //vk::DependencyInfoKHR dependencyInfo {};
+        //dependencyInfo.memoryBarrierCount = 1;
+        //dependencyInfo.pMemoryBarriers = &memoryBarrier;
+
+        //auto func = (PFN_vkCmdPipelineBarrier2KHR) vkGetInstanceProcAddr(static_cast<VkInstance>(VulkanContext::GetInstance()), "vkCmdPipelineBarrier2KHR");
+        //if (func == nullptr) {
+        //    CORE_ERROR("vkCmdPipelineBarrier2KHR not supported");
+        //}
+        //func(static_cast<VkCommandBuffer>(computeCmdBuf), &static_cast<VkDependencyInfoKHR>(dependencyInfo));
+        //computeCmdBuf.pipelineBarrier2KHR(dependencyInfo);
+
+        computeCmdBuf.dispatch(blankTexture->GetWidth() / 16, blankTexture->GetHeight() / 16, 1);
     computeCmdBuf.end();
 
     // Submit compute command
@@ -353,6 +373,11 @@ void VulkanLayer::ProcessUserInput()
         ReconstructPipelines();
         //LOG_INFO("Finish reconstructing pipelines");
         CORE_INFO("Finish reconstructing pipelines");
+    }
+
+    if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
+    {
+        frameNumber = 0;
     }
 }
 
