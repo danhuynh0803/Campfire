@@ -77,6 +77,8 @@ struct RayHitInfo
     vec3 emission;
     int material;
     float specPercentage;
+    float ior; // index of refraction
+    bool fromInside;
 };
 
 // =========================================
@@ -197,6 +199,8 @@ bool QuadIntersect(
     {
         info.dist = dist;
         info.normal = normal;
+        // TODO might be needed for 3d polygons, for now return false since quads are 2d
+        //info.fromInside = false;
         return true;
     }
 
@@ -236,6 +240,7 @@ bool SphereIntersect(
         vec3 hitPos = rayO + dist*rayD;
         hitInfo.normal = normalize(hitPos - sphere.pos)
                        * (isInside ? -1.0f : 1.0f);
+        hitInfo.fromInside = isInside;
         return true;
     }
 
@@ -256,22 +261,23 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
         }
     }
 
     // back wall mirror
-    //{
-    //    vec3 A = vec3(-5.6f, -5.6f, -34.9f);
-    //    vec3 B = vec3( 5.6f, -5.6f, -34.9f);
-    //    vec3 C = vec3( 5.6f,  5.6f, -34.9f);
-    //    vec3 D = vec3(-5.6f,  5.6f, -34.9f);
-    //    if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
-    //    {
-    //        hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
-    //        hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
-    //        hitInfo.specPercentage = 0.9f;
-    //    }
-    //}
+    {
+        vec3 A = vec3(-5.6f, -5.6f, -34.9f);
+        vec3 B = vec3( 5.6f, -5.6f, -34.9f);
+        vec3 C = vec3( 5.6f,  5.6f, -34.9f);
+        vec3 D = vec3(-5.6f,  5.6f, -34.9f);
+        if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
+        {
+            hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
+            hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+            hitInfo.specPercentage = 0.9f;
+        }
+    }
 
     // floor
     {
@@ -284,6 +290,7 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.specPercentage = 0.9f;
+            hitInfo.ior = 1.0f;
         }
     }
 
@@ -298,6 +305,7 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
         }
     }
 
@@ -312,6 +320,7 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
             hitInfo.albedo = vec3(0.7f, 0.1f, 0.1f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
         }
     }
 
@@ -323,9 +332,11 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
         vec3 D = scalar * vec3( 12.5f,  12.6f, -35.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
-            hitInfo.albedo = vec3(0.1f, 0.7f, 0.1f);
+            //hitInfo.albedo = vec3(0.1f, 0.7f, 0.1f);
+            hitInfo.albedo = vec3(0.1f, 0.1f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
         }
     }
 
@@ -340,68 +351,84 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
             hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.emission = vec3(1.0f, 0.9f, 0.7f) * 8.0f;
             hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
         }
     }
 
 
-    int maxRow = 8;
-    int maxCol = 8;
-    for (int i = 0; i <= maxRow; ++i)
-    {
-        for (int j = 0; j <= maxCol; ++j)
+    //int maxRow = 8;
+    //int maxCol = 8;
+    //for (int i = 0; i <= maxRow; ++i)
+    //{
+    //    for (int j = 0; j <= maxCol; ++j)
+    //    {
+    //        {
+    //            Sphere sphere;
+    //            vec3 pos = vec3(2.5f*j-10.0f, 2.5f*i-10.0f, -25.0f);
+    //            sphere.pos = pos;
+    //            sphere.radius = 1.0f;
+    //            if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+    //            {
+    //                hitInfo.albedo = vec3(float(j)/maxCol, float(i)/maxRow, 0.8f);
+    //                hitInfo.emission = vec3(0.0f);
+    //                hitInfo.specPercentage = (i+j)/float(maxRow+maxCol);
+    //            }
+    //        }
+    //    }
+    //}
+
+    { // left sphere
+        Sphere sphere;
+        sphere.pos = vec3(-3.5f, 2.5f, -25.0f);
+        sphere.radius = 2.5f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
         {
-            {
-                Sphere sphere;
-                vec3 pos = vec3(2.5f*j-10.0f, 2.5f*i-10.0f, -25.0f);
-                sphere.pos = pos;
-                sphere.radius = 1.0f;
-                if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-                {
-                    hitInfo.albedo = vec3(float(j)/maxCol, float(i)/maxRow, 0.8f);
-                    hitInfo.emission = vec3(0.0f);
-                    hitInfo.specPercentage = (i+j)/float(maxRow+maxCol);
-                }
-            }
+            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
+            hitInfo.emission = vec3(0.0f);
+            hitInfo.specPercentage = 1.0f;
+            hitInfo.ior = 1.0f;
         }
     }
 
-    //{ // left sphere
-    //    Sphere sphere;
-    //    sphere.pos = vec3(-3.5f, 2.5f, -25.0f);
-    //    sphere.radius = 2.5f;
-    //    if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-    //    {
-    //        hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
-    //        hitInfo.emission = vec3(0.0f);
-    //        hitInfo.specPercentage = 1.0f;
-    //    }
-    //}
+    { // middle sphere
+        Sphere sphere;
+        sphere.pos = vec3(-5.0f, -7.5f, -15.0f);
+        sphere.radius = 3.5f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
+            hitInfo.emission = vec3(0.0f);
+            hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.4f;
+        }
+    }
 
-    //{ // middle sphere
-    //    Sphere sphere;
-    //    sphere.pos = vec3(-5.0f, -7.5f, -25.0f);
-    //    sphere.radius = 3.5f;
-    //    if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-    //    {
-    //        hitInfo.albedo = vec3(1.0f, 0.6f, 1.0f);
-    //        hitInfo.emission = vec3(0.0f);
-    //        hitInfo.specPercentage = 0.5f;
-    //    }
-    //}
-
-    //{ // right sphere
-    //    Sphere sphere;
-    //    sphere.pos = vec3(3.5f, -5.0f, -25.0f);
-    //    sphere.radius = 2.5f;
-    //    if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-    //    {
-    //        hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
-    //        hitInfo.emission = vec3(0.0f);
-    //        hitInfo.specPercentage = 1.0f;
-    //    }
-    //}
+    { // behind middle sphere
+        Sphere sphere;
+        sphere.pos = vec3(-5.0f, -7.5f, -35.0f);
+        sphere.radius = 5.0f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(1.0f, 0.8f, 0.2f);
+            hitInfo.emission = vec3(0.0f);
+            hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
+        }
+    }
 
 
+    { // right sphere
+        Sphere sphere;
+        sphere.pos = vec3(3.5f, -5.0f, -25.0f);
+        sphere.radius = 2.5f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
+            hitInfo.emission = vec3(0.0f);
+            hitInfo.specPercentage = 0.0f;
+            hitInfo.ior = 1.0f;
+        }
+    }
 
     //{ // sphere light
     //    Sphere sphere;
@@ -427,6 +454,7 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
     {
         RayHitInfo hitInfo;
         hitInfo.dist = infinity;
+        hitInfo.fromInside = false;
 
         CornellBoxSceneIntersection(currRayPos, currRayDir, hitInfo);
 
@@ -434,18 +462,37 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         if (hitInfo.dist == infinity)
             break;
 
-        vec3 hitPos = currRayPos + hitInfo.dist*currRayDir;
 
+        // TODO use bool for enabling refraction
+        if (hitInfo.ior > 1.01f)
+        {
+            currRayPos =
+                (currRayPos + currRayDir*hitInfo.dist)
+              - (hitInfo.normal * rayNudge)
+            ;
+        }
+        else
+        {
+            currRayPos =
+                (currRayPos + currRayDir*hitInfo.dist)
+              + (hitInfo.normal * rayNudge)
+            ;
+
+        }
         // Calculate new ray pos by offsetting it slightly to prevent
         // self-intersections
-        currRayPos =
-            (currRayPos + currRayDir*hitInfo.dist)
-          + (hitInfo.normal * rayNudge)
-        ;
-
         vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
         vec3 specularDir = reflect(currRayDir, hitInfo.normal);
-        currRayDir = mix(diffuseDir, specularDir, hitInfo.specPercentage);
+
+        if (hitInfo.ior > 1.01f) {
+            vec3 refractDir = refract(currRayDir, hitInfo.normal,
+                    hitInfo.fromInside ? hitInfo.ior : 1.0f/hitInfo.ior
+            );
+            currRayDir = refractDir;
+        }
+        else {
+            currRayDir = mix(diffuseDir, specularDir, hitInfo.specPercentage);
+        }
 
         //if (hitInfo.material == REFL) {
         //    accuColor = currRayDir;
@@ -458,7 +505,8 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         //}
 
         accuColor += hitInfo.emission * colorMask;
-        colorMask *= hitInfo.albedo;
+        if (hitInfo.ior < 1.01f)
+            colorMask *= hitInfo.albedo;
     }
 
     return accuColor;
