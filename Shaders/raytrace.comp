@@ -10,6 +10,10 @@ const float minimumRayHitDist = 0.01f;
 const float c_pi = 3.14159265359f;
 const float c_twopi = 2.0f * c_pi;
 
+const int DIFF = 0;
+const int REFL = 1;
+const int REFR = 2;
+
 uint wang_hash(inout uint seed)
 {
     seed = uint(seed ^ uint(61)) ^ uint(seed >> uint(16));
@@ -83,6 +87,7 @@ struct Sphere
     int mat;
     int id;
 };
+
 
 layout (std140, set = 2, binding = 0) buffer Spheres
 {
@@ -312,7 +317,6 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
-            //hitInfo.emission = vec3(1.0f, 0.9f, 0.7f) * 20.0f;
             hitInfo.emission = vec3(1.0f, 0.9f, 0.7f) * 5.0f;
         }
     }
@@ -325,6 +329,7 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
         {
             hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
             hitInfo.emission = vec3(0.0f);
+            hitInfo.material = REFL;
         }
     }
 
@@ -338,72 +343,6 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
     //        hitInfo.emission = vec3(1.0f, 0.8f, 0.7f) * 20.0f;
     //    }
     //}
-}
-
-void TestSceneIntersection(in vec3 rayO, in vec3 rayD, inout RayHitInfo hitInfo)
-{
-
-    // Based on SSBO from application
-    //for (int i = 0; i < spheres.length(); ++i)
-    //{
-    //    if (SphereIntersect(rayO, rayD, hitInfo, spheres[i]))
-    //    {
-    //        Sphere sphere = spheres[i];
-    //        hitInfo.albedo = sphere.albedo;
-    //        hitInfo.emission = sphere.emission;
-    //    }
-    //}
-
-    //for (int i = 0; i < quads.length(); ++i)
-    //{
-    //}
-    //
-
-    { // light
-        Sphere sphere;
-        sphere.pos = vec3(10.0f, 1.0f, -20.0f);
-        sphere.radius = 5.0f;
-        if (SphereIntersect(rayO, rayD, hitInfo, sphere))
-        {
-            hitInfo.albedo = vec3(0.0f);
-            hitInfo.emission = vec3(1.0f, 0.8f, 0.7f) * 20.0f;
-        }
-    }
-
-    {
-        Sphere sphere;
-        sphere.pos = vec3(0.0f, 1.0f, -20.0f);
-        sphere.radius = 2.5f;
-        if (SphereIntersect(rayO, rayD, hitInfo, sphere))
-        {
-            hitInfo.albedo = vec3(1.0f, 0.0f, 0.0f);
-            hitInfo.emission = vec3(0.0f);
-        }
-    }
-
-    {
-        Sphere sphere;
-        sphere.pos = vec3(10.0f, 1.0f, -20.0f);
-        sphere.radius = 5.0f;
-        if (SphereIntersect(rayO, rayD, hitInfo, sphere))
-        {
-            hitInfo.albedo = vec3(0.0f);
-            hitInfo.emission = vec3(1.0f, 0.8f, 0.7f) * 20.0f;
-        }
-    }
-
-    // Back panel
-    {
-        vec3 A = vec3(-25.0f, -25.0f, -25.0f);
-        vec3 B = vec3( 25.0f, -25.0f, -25.0f);
-        vec3 C = vec3( 25.0f,  25.0f, -25.0f);
-        vec3 D = vec3(-25.0f,  25.0f, -25.0f);
-        if (QuadIntersect(rayO, rayD, hitInfo, A, B, C, D))
-        {
-            hitInfo.albedo = vec3(0.03f);
-            hitInfo.emission = vec3(0.0f);
-        }
-    }
 }
 
 vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
@@ -434,13 +373,29 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
           + (hitInfo.normal * rayNudge)
         ;
 
-        currRayDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
-        //if (bounce == 2) {
+        switch (hitInfo.material)
+        {
+        default:
+        case DIFF:
+            currRayDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+            break;
+        case REFL:
+            currRayDir = normalize(reflect(currRayDir, normalize(hitInfo.normal)));
+            break;
+        case REFR:
+            break;
+        }
+
+        //if (hitInfo.material == REFL) {
+        //    accuColor = currRayDir;
+        //    break;
+        //}
+        //if (bounce == 1)
+        //{
         //    accuColor = hitInfo.albedo;
         //    break;
         //}
 
-        //accuColor += hitInfo.albedo/10.0f;
         accuColor += hitInfo.emission * colorMask;
         colorMask *= hitInfo.albedo;
     }
