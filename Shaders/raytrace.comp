@@ -4,6 +4,7 @@
 layout (local_size_x = 16, local_size_y = 16) in;
 layout (set = 1, binding = 0, rgba8) uniform image2D resultImage;
 
+const float epsilon = 0.001f;
 const float infinity = 10000.0f;
 const float rayNudge = 0.01f;
 const float minimumRayHitDist = 0.01f;
@@ -75,6 +76,7 @@ struct RayHitInfo
     vec3 albedo;
     vec3 emission;
     int material;
+    float specPercentage;
 };
 
 // =========================================
@@ -245,66 +247,85 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
     float scalar = 1.0f;
     // back wall
     {
-        vec3 A = scalar * vec3(-12.6f, -12.6f, -25.0f);
-        vec3 B = scalar * vec3( 12.6f, -12.6f, -25.0f);
-        vec3 C = scalar * vec3( 12.6f,  12.6f, -25.0f);
-        vec3 D = scalar * vec3(-12.6f,  12.6f, -25.0f);
+        vec3 A = scalar * vec3(-12.6f, -12.6f, -35.0f);
+        vec3 B = scalar * vec3( 12.6f, -12.6f, -35.0f);
+        vec3 C = scalar * vec3( 12.6f,  12.6f, -35.0f);
+        vec3 D = scalar * vec3(-12.6f,  12.6f, -35.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+            hitInfo.specPercentage = 0.0f;
         }
     }
 
+    // back wall mirror
+    //{
+    //    vec3 A = vec3(-5.6f, -5.6f, -34.9f);
+    //    vec3 B = vec3( 5.6f, -5.6f, -34.9f);
+    //    vec3 C = vec3( 5.6f,  5.6f, -34.9f);
+    //    vec3 D = vec3(-5.6f,  5.6f, -34.9f);
+    //    if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
+    //    {
+    //        hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
+    //        hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+    //        hitInfo.specPercentage = 0.9f;
+    //    }
+    //}
+
     // floor
     {
-        vec3 A = scalar * vec3(-12.6f, -12.45f, -25.0f);
-        vec3 B = scalar * vec3( 12.6f, -12.45f, -25.0f);
+        vec3 A = scalar * vec3(-12.6f, -12.45f, -35.0f);
+        vec3 B = scalar * vec3( 12.6f, -12.45f, -35.0f);
         vec3 C = scalar * vec3( 12.6f, -12.45f, -15.0f);
         vec3 D = scalar * vec3(-12.6f, -12.45f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+            hitInfo.specPercentage = 0.9f;
         }
     }
 
     // ceiling
     {
-        vec3 A = scalar * vec3(-12.6f, 12.5f, -25.0f);
-        vec3 B = scalar * vec3( 12.6f, 12.5f, -25.0f);
+        vec3 A = scalar * vec3(-12.6f, 12.5f, -35.0f);
+        vec3 B = scalar * vec3( 12.6f, 12.5f, -35.0f);
         vec3 C = scalar * vec3( 12.6f, 12.5f, -15.0f);
         vec3 D = scalar * vec3(-12.6f, 12.5f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+            hitInfo.specPercentage = 0.0f;
         }
     }
 
     // left wall
     {
-        vec3 A = scalar * vec3(-12.5f, -12.6f, -25.0f);
+        vec3 A = scalar * vec3(-12.5f, -12.6f, -35.0f);
         vec3 B = scalar * vec3(-12.5f, -12.6f, -15.0f);
         vec3 C = scalar * vec3(-12.5f,  12.6f, -15.0f);
-        vec3 D = scalar * vec3(-12.5f,  12.6f, -25.0f);
+        vec3 D = scalar * vec3(-12.5f,  12.6f, -35.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.1f, 0.1f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+            hitInfo.specPercentage = 0.0f;
         }
     }
 
     // right wall
     {
-        vec3 A = scalar * vec3( 12.5f, -12.6f, -25.0f);
+        vec3 A = scalar * vec3( 12.5f, -12.6f, -35.0f);
         vec3 B = scalar * vec3( 12.5f, -12.6f, -15.0f);
         vec3 C = scalar * vec3( 12.5f,  12.6f, -15.0f);
-        vec3 D = scalar * vec3( 12.5f,  12.6f, -25.0f);
+        vec3 D = scalar * vec3( 12.5f,  12.6f, -35.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.1f, 0.7f, 0.1f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
+            hitInfo.specPercentage = 0.0f;
         }
     }
 
@@ -318,20 +339,47 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
         {
             hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.emission = vec3(1.0f, 0.9f, 0.7f) * 5.0f;
+            hitInfo.specPercentage = 0.0f;
+        }
+    }
+
+    { // left sphere
+        Sphere sphere;
+        sphere.pos = vec3(-3.5f, 2.5f, -25.0f);
+        sphere.radius = 2.5f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
+            hitInfo.emission = vec3(0.0f);
+            hitInfo.specPercentage = 1.0f;
         }
     }
 
     { // middle sphere
         Sphere sphere;
-        sphere.pos = vec3(0.0f, -7.5f, -20.0f);
-        sphere.radius = 5.0f;
+        sphere.pos = vec3(-5.0f, -7.5f, -25.0f);
+        sphere.radius = 3.5f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo.albedo = vec3(1.0f, 0.6f, 1.0f);
+            hitInfo.emission = vec3(0.0f);
+            hitInfo.specPercentage = 0.5f;
+        }
+    }
+
+    { // right sphere
+        Sphere sphere;
+        sphere.pos = vec3(3.5f, -5.0f, -25.0f);
+        sphere.radius = 2.5f;
         if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
         {
             hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
             hitInfo.emission = vec3(0.0f);
-            hitInfo.material = REFL;
+            hitInfo.specPercentage = 0.1f;
         }
     }
+
+
 
     //{ // sphere light
     //    Sphere sphere;
@@ -373,18 +421,9 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
           + (hitInfo.normal * rayNudge)
         ;
 
-        switch (hitInfo.material)
-        {
-        default:
-        case DIFF:
-            currRayDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
-            break;
-        case REFL:
-            currRayDir = normalize(reflect(currRayDir, normalize(hitInfo.normal)));
-            break;
-        case REFR:
-            break;
-        }
+        vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        vec3 specularDir = reflect(currRayDir, hitInfo.normal);
+        currRayDir = mix(diffuseDir, specularDir, hitInfo.specPercentage);
 
         //if (hitInfo.material == REFL) {
         //    accuColor = currRayDir;
