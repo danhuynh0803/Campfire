@@ -331,53 +331,75 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     // light
     {
-        vec3 A = scalar * vec3(-5.0f, 12.4f, -22.5f);
-        vec3 B = scalar * vec3( 5.0f, 12.4f, -22.5f);
+        vec3 A = scalar * vec3(-5.0f, 12.4f, -27.5f);
+        vec3 B = scalar * vec3( 5.0f, 12.4f, -27.5f);
         vec3 C = scalar * vec3( 5.0f, 12.4f, -17.5f);
         vec3 D = scalar * vec3(-5.0f, 12.4f, -17.5f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.emission = vec3(1.0f, 0.9f, 0.7f) * 5.0f;
+            hitInfo.emission = vec3(1.0f, 0.9f, 0.7f) * 8.0f;
             hitInfo.specPercentage = 0.0f;
         }
     }
 
-    { // left sphere
-        Sphere sphere;
-        sphere.pos = vec3(-3.5f, 2.5f, -25.0f);
-        sphere.radius = 2.5f;
-        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+
+    int maxRow = 8;
+    int maxCol = 8;
+    for (int i = 0; i <= maxRow; ++i)
+    {
+        for (int j = 0; j <= maxCol; ++j)
         {
-            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
-            hitInfo.emission = vec3(0.0f);
-            hitInfo.specPercentage = 1.0f;
+            {
+                Sphere sphere;
+                vec3 pos = vec3(2.5f*j-10.0f, 2.5f*i-10.0f, -25.0f);
+                sphere.pos = pos;
+                sphere.radius = 1.0f;
+                if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+                {
+                    hitInfo.albedo = vec3(float(j)/maxCol, float(i)/maxRow, 0.8f);
+                    hitInfo.emission = vec3(0.0f);
+                    hitInfo.specPercentage = (i+j)/float(maxRow+maxCol);
+                }
+            }
         }
     }
 
-    { // middle sphere
-        Sphere sphere;
-        sphere.pos = vec3(-5.0f, -7.5f, -25.0f);
-        sphere.radius = 3.5f;
-        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-        {
-            hitInfo.albedo = vec3(1.0f, 0.6f, 1.0f);
-            hitInfo.emission = vec3(0.0f);
-            hitInfo.specPercentage = 0.5f;
-        }
-    }
+    //{ // left sphere
+    //    Sphere sphere;
+    //    sphere.pos = vec3(-3.5f, 2.5f, -25.0f);
+    //    sphere.radius = 2.5f;
+    //    if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+    //    {
+    //        hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
+    //        hitInfo.emission = vec3(0.0f);
+    //        hitInfo.specPercentage = 1.0f;
+    //    }
+    //}
 
-    { // right sphere
-        Sphere sphere;
-        sphere.pos = vec3(3.5f, -5.0f, -25.0f);
-        sphere.radius = 2.5f;
-        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-        {
-            hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
-            hitInfo.emission = vec3(0.0f);
-            hitInfo.specPercentage = 0.1f;
-        }
-    }
+    //{ // middle sphere
+    //    Sphere sphere;
+    //    sphere.pos = vec3(-5.0f, -7.5f, -25.0f);
+    //    sphere.radius = 3.5f;
+    //    if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+    //    {
+    //        hitInfo.albedo = vec3(1.0f, 0.6f, 1.0f);
+    //        hitInfo.emission = vec3(0.0f);
+    //        hitInfo.specPercentage = 0.5f;
+    //    }
+    //}
+
+    //{ // right sphere
+    //    Sphere sphere;
+    //    sphere.pos = vec3(3.5f, -5.0f, -25.0f);
+    //    sphere.radius = 2.5f;
+    //    if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+    //    {
+    //        hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
+    //        hitInfo.emission = vec3(0.0f);
+    //        hitInfo.specPercentage = 1.0f;
+    //    }
+    //}
 
 
 
