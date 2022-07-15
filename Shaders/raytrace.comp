@@ -3,6 +3,7 @@
 // =========================================
 layout (local_size_x = 16, local_size_y = 16) in;
 layout (set = 1, binding = 0, rgba8) uniform image2D resultImage;
+layout (set = 1, binding = 1) uniform sampler2D wallImage;
 
 const float epsilon = 0.001f;
 const float infinity = 10000.0f;
@@ -15,7 +16,7 @@ const int DIFF = 0;
 const int REFL = 1;
 const int REFR = 2;
 
-uint wang_hash(inout uint seed)
+uint WangHash(inout uint seed)
 {
     seed = uint(seed ^ uint(61)) ^ uint(seed >> uint(16));
     seed *= uint(9);
@@ -27,11 +28,12 @@ uint wang_hash(inout uint seed)
 
 float RandomFloat01(inout uint state)
 {
-    return float(wang_hash(state)) / 4294967296.0; // uint max
+    return float(WangHash(state)) / 4294967296.0; // uint max
 }
 
 vec3 RandomUnitVector(inout uint state)
 {
+    // Uniform sampling of hemisphere
     float z = RandomFloat01(state) * 2.0f - 1.0f;
     float a = RandomFloat01(state) * c_twopi;
     float r = sqrt(1.0f - z * z);
@@ -289,7 +291,6 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
     //vec3 minBound = vec3(0.0f);
     //vec3 maxBound = vec3(20.0f, 30.0f, -35.0f);
 
-    float scalar = 1.0f;
     // back wall
     {
         vec3 A = vec3(-12.6f, -12.6f, -35.0f);
@@ -299,23 +300,43 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             vec2 uv = GetUv(A, C, (rayPos + hitInfo.dist*rayDir));
-            vec2 maxTiles = ivec2(5, 5);
+            vec3 wallTexColor = texture(wallImage, vec2(uv.x, 1.-uv.y)).rgb;
+            vec2 maxTiles = ivec2(2, 2);
             uv *= maxTiles;
             vec2 iuv = floor(uv);
 
             bool isTiled =
-                mod(iuv.x + iuv.y, 2) == 0
+                //mod(iuv.x + iuv.y, 2) == 0
+                false
             ;
 
             vec3 tileColor = isTiled
                 ? vec3(0.2f,0.8f,1.0f)
                 : vec3(1.0f,0.8f,0.7f)
             ;
-            hitInfo.albedo = tileColor;
-            hitInfo.emission = isTiled ? vec3(0.0f) : hitInfo.albedo * 5.0f;
-            //hitInfo.emission = vec3(0.0f);
-            hitInfo.specPercentage = isTiled ? 1.0f : 0.0f;
+            hitInfo.albedo =
+                tileColor
+              * wallTexColor
+            ;
+            //hitInfo.emission = isTiled ? vec3(0.0f) : hitInfo.albedo * 2.0f;
+            bool isBlue = wallTexColor.b > 0.3f
+                       && wallTexColor.r < 0.5f
+                       && wallTexColor.g < 0.5f
+            ;
+
+            bool isYellow = wallTexColor.b < 0.3f
+                       && wallTexColor.r > 0.7f
+                       && wallTexColor.g > 0.7f
+            ;
+
+            //bool isTargetColor =
+            //    isBlue
+            // || isYellow
+            ;
+            hitInfo.emission = wallTexColor * 3.0f;
+            hitInfo.specPercentage = 0.0f;
             hitInfo.ior = 1.0f;
+
         }
     }
 
@@ -383,19 +404,23 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
     }
 
     // light
-    {
-        vec3 A = vec3(-5.0f, 12.4f, -27.5f);
-        vec3 B = vec3( 5.0f, 12.4f, -27.5f);
-        vec3 C = vec3( 5.0f, 12.4f, -17.5f);
-        vec3 D = vec3(-5.0f, 12.4f, -17.5f);
-        if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
-        {
-            hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.emission = vec3(0.9f, 0.8f, 0.65f) * 5.0f;
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-        }
-    }
+    //{
+    //    vec3 A = vec3(-5.0f, 12.4f, -27.5f);
+    //    vec3 B = vec3( 5.0f, 12.4f, -27.5f);
+    //    vec3 C = vec3( 5.0f, 12.4f, -17.5f);
+    //    vec3 D = vec3(-5.0f, 12.4f, -17.5f);
+    //    //vec3 A = vec3(-5.0f, 0.4f, -17.5f);
+    //    //vec3 B = vec3( 5.0f, 0.4f, -17.5f);
+    //    //vec3 C = vec3( 5.0f, 8.4f, -17.5f);
+    //    //vec3 D = vec3(-5.0f, 8.4f, -17.5f);
+    //    if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
+    //    {
+    //        hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
+    //        hitInfo.emission = vec3(0.9f, 0.8f, 0.65f) * 5.0f;
+    //        hitInfo.specPercentage = 0.0f;
+    //        hitInfo.ior = 1.0f;
+    //    }
+    //}
 
     float radius = 2.0f;
     float spacing = 2.5f * radius;
@@ -407,7 +432,7 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         {
             {
                 Sphere sphere;
-                vec3 pos = vec3(spacing*j-10.0f, spacing*i-5.0f, -25.0f);
+                vec3 pos = vec3(spacing*j-10.0f, spacing*i-10.0f, -25.0f);
                 sphere.pos = pos;
                 sphere.radius = radius;
                 if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
@@ -428,7 +453,7 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         {
             {
                 Sphere sphere;
-                vec3 pos = vec3(spacing*j-10.0f, spacing*i-10.0f, -25.0f);
+                vec3 pos = vec3(spacing*j-10.0f, spacing*i-5.0f, -25.0f);
                 sphere.pos = pos;
                 sphere.radius = radius;
                 if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))

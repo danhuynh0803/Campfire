@@ -300,9 +300,15 @@ SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
             vk::ShaderStageFlagBits::eCompute,
             0);
 
+        auto wallTexture = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eCompute,
+            1);
+
         // Set 1
         descriptorSetLayoutBindings[1] = {
             computeResolve,
+            wallTexture
         };
     }
 

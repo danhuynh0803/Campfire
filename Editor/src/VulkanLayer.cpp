@@ -46,6 +46,7 @@ static std::vector<vk::UniqueCommandBuffer> computeCmdBuffers;
 static vk::UniqueFence computeFence;
 static vk::DescriptorImageInfo descriptorImageInfo;
 static SharedPtr<VulkanTexture2D> blankTexture;
+static SharedPtr<VulkanTexture2D> wallTexture;
 static unsigned int frameNumber = 0;
 
 //========================================================
@@ -132,6 +133,25 @@ void VulkanLayer::OnAttach()
     auto swapChain = VulkanContext::Get()->GetSwapChain();
     ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
 
+    // Wall texture
+    wallTexture = CreateSharedPtr<VulkanTexture2D>(
+        ASSETS + "/Textures/stainedGlass2.jpg"
+    );
+    // Submit texture data to descriptorSet
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    imageInfo.imageView = wallTexture->GetImageView();
+    imageInfo.sampler = wallTexture->GetSampler();
+
+    vk::WriteDescriptorSet writeInfo{};
+    writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
+    writeInfo.dstBinding = 1;
+    writeInfo.dstArrayElement = 0;
+    writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    writeInfo.descriptorCount = 1;
+    writeInfo.pImageInfo = &imageInfo;
+    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+
     vk::CommandBufferAllocateInfo cmdBufInfo {};
     cmdBufInfo.commandPool = VulkanContext::Get()->GetCommandPool(QueueFamilyType::COMPUTE);
     cmdBufInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -159,6 +179,7 @@ void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
 
         mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
     }
+
     // Write for post process pipeline read
     {
         auto postProcPipeline = frameGraph.GetPipeline("postprocess");
