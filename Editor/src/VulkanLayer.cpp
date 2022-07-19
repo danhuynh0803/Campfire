@@ -48,7 +48,13 @@ static vk::DescriptorImageInfo descriptorImageInfo;
 static SharedPtr<VulkanTexture2D> blankTexture;
 static SharedPtr<VulkanTexture2D> albedoMap;
 static SharedPtr<VulkanTexture2D> metallicMap;
-static unsigned int frameNumber = 0;
+
+// params.x = frameNumber
+// params.y = isWhitted
+// params.z = N/A
+// params.w = N/A
+static glm::vec4 params = glm::vec4(0);
+static bool isWhitted = false;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -272,13 +278,14 @@ void VulkanLayer::OnUpdate(float dt)
         );
 
         computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-        // Send frameNumber via push constant
+        // Send rendering parameters via push constant
         computeCmdBuf.pushConstants(
             computePipeline->mPipelineLayout.get(),
             vk::ShaderStageFlagBits::eCompute,
-            0, sizeof(unsigned int),
-            &frameNumber);
-        frameNumber++;
+            0, sizeof(glm::vec4),
+            &params);
+        // Increment frame number
+        params.x++;
 
         computeCmdBuf.dispatch(blankTexture->GetWidth() / 16, blankTexture->GetHeight() / 16, 1);
     computeCmdBuf.end();
@@ -389,7 +396,8 @@ void VulkanLayer::ProcessUserInput()
 
     if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
-        frameNumber = 0;
+        // Reset frame number per user movement
+        params.x = 0;
     }
 }
 
@@ -416,40 +424,44 @@ void VulkanLayer::OnImGuiRender()
     }
 
     ImGui::Begin("Metrics");
-    auto gpu = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
-    auto props = gpu.getProperties();
-    ImGui::Text(props.deviceName);
-    std::string timerText(std::to_string(frameTime) + " ms/frame");
-    ImGui::Text(timerText.c_str());
-
-    ImGui::Separator();
-
-    // TODO display pipelines
-    // TODO display log
-
+    {
+        auto gpu = VulkanContext::Get()->GetDevice()->GetVulkanPhysicalDevice();
+        auto props = gpu.getProperties();
+        ImGui::Text(props.deviceName);
+        std::string timerText(std::to_string(frameTime) + " ms/frame");
+        ImGui::Text(timerText.c_str());
+        ImGui::Separator();
+    }
     ImGui::End();
 
     ImGui::Begin("Controls");
-    ImGui::Separator();
+    {
+        ImGui::Separator();
 
-    ImGui::Text("Camera");
-    //ImGui::DragFloat3("Controller Position", (float*)&cameraController.position);
-    //ImGui::DragFloat3("Camera Position", (float*)&editorCamera->pos);
-    ImGui::DragFloat("Speed", &cameraController.normalSpeed);
-    ImGui::DragFloat("Near", &editorCamera->nearPlane);
-    ImGui::DragFloat("Far", &editorCamera->farPlane);
+        ImGui::Text("Rendering Params");
+        ImGui::Checkbox("Direct Illumination", &isWhitted);
+        params.y = static_cast<float>(isWhitted);
 
-    ImGui::Separator();
+        ImGui::Separator();
 
-    ImGui::Text("Inverse View Matrix");
-    glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
-    ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
-    ImGui::DragFloat4("", (float*)&invView[1], 0.01f);
-    ImGui::DragFloat4("", (float*)&invView[2], 0.01f);
-    ImGui::DragFloat4("", (float*)&invView[3], 0.01f);
+        ImGui::Text("Camera");
+        //ImGui::DragFloat3("Controller Position", (float*)&cameraController.position);
+        //ImGui::DragFloat3("Camera Position", (float*)&editorCamera->pos);
+        ImGui::DragFloat("Speed", &cameraController.normalSpeed);
+        ImGui::DragFloat("Near", &editorCamera->nearPlane);
+        ImGui::DragFloat("Far", &editorCamera->farPlane);
 
-    ImGui::Separator();
+        ImGui::Separator();
 
+        ImGui::Text("Inverse View Matrix");
+        glm::mat4 invView = glm::inverse(editorCamera->GetViewMatrix());
+        ImGui::DragFloat4("", (float*)&invView[0], 0.01f);
+        ImGui::DragFloat4("", (float*)&invView[1], 0.01f);
+        ImGui::DragFloat4("", (float*)&invView[2], 0.01f);
+        ImGui::DragFloat4("", (float*)&invView[3], 0.01f);
+
+        ImGui::Separator();
+    }
     ImGui::End();
 }
 
