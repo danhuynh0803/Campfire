@@ -52,9 +52,10 @@ static SharedPtr<VulkanTexture2D> metallicMap;
 // params.x = frameNumber
 // params.y = isWhitted
 // params.z = N/A
-// params.w = N/A
+// params.w = isNotCulmulateSamples
 static glm::vec4 params = glm::vec4(0);
 static bool isWhitted = false;
+static bool isCulmulateSamples = true;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -74,11 +75,11 @@ void VulkanLayer::OnAttach()
         light.GetComponent<TransformComponent>().position =
             glm::vec3(
                 0.0f,
-                11.99f,
+                11.5f,
                 0.0f
             );
         light.AddComponent<LightComponent>();
-        light.GetComponent<LightComponent>().intensity = 100.0f;
+        light.GetComponent<LightComponent>().intensity = 1.0f;
     }
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -441,6 +442,9 @@ void VulkanLayer::OnImGuiRender()
         ImGui::Text("Rendering Params");
         ImGui::Checkbox("Direct Illumination", &isWhitted);
         params.y = static_cast<float>(isWhitted);
+
+        ImGui::Checkbox("Accumulate Samples", &isCulmulateSamples);
+        params.w = static_cast<float>(isCulmulateSamples);
 
         ImGui::Separator();
 

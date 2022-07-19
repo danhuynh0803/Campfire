@@ -47,8 +47,8 @@ layout (push_constant) uniform PushConstants {
     vec4 params;
     // params.x = frameNumber
     // params.y = isWhitted
-    // params.z = N/A
-    // params.w = N/A
+    // params.z =
+    // params.w = isCulmulateSamples
 } pushConstants;
 
 // =========================================
@@ -560,6 +560,21 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
         }
     }
 
+    // Light sphere from buffer
+    {
+        Light light = lightBuffer.lights[0];
+        Sphere sphere;
+        sphere.pos = light.pos.xyz;
+        sphere.radius = light.intensity;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = light.color.rgb;
+            hitInfo.emission = light.color.rgb * light.intensity;
+            hitInfo.isLight = true;
+        }
+    }
+
     { // left sphere
         Sphere sphere;
         sphere.pos = vec3(-3.5f, -9.0f, -5.0f);
@@ -610,7 +625,10 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         vec3 lightDir = normalize(light.pos.xyz - hitPos);
         float diffuse = max(dot(lightDir, hitInfo.normal), 0.0f);
         accuColor = hitInfo.albedo;
-        accuColor *= diffuse * light.color.rgb;
+        // Apply shading if hitPos is not emissive
+        if (!hitInfo.isLight) {
+            accuColor *= diffuse * light.color.rgb;
+        }
 
         { // Check if x is occluded by other scene objects
             RayHitInfo shadowInfo = DefaultRayHitInfo();
@@ -622,13 +640,12 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
                 accuColor *= vec3(0.1f);
             }
         }
-
     }
 
     return accuColor;
 }
 
-vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
+vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
 {
     vec3 accuColor = vec3(0.0f);
     vec3 currRayPos = rayO;
@@ -718,45 +735,20 @@ void main()
     //vec3 rayDir = normalize(jitteredWorldPos.xyz - rayOrigin);
     //rayDir = normalize(rayDir + vec3(jitter, 0.0f));
 
-    if (isWhitted == 1.0)
-    {
-        vec3 color = RayTraceScene(rayOrigin, rayDir, rngState);
-        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
+    vec3 color;
+    if (isWhitted == 1.0) {
+        color = RayTraceScene(rayOrigin, rayDir, rngState);
     }
-    else
-    {
-        vec3 color = RenderScene(rayOrigin, rayDir, rngState);
+    else {
+        color = PathTraceScene(rayOrigin, rayDir, rngState);
+    }
+
+    float isCulmulateSamples = pushConstants.params.w;
+    if (isCulmulateSamples == 0.0) {
+        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
+    } else {
         vec3 oldColor = imageLoad(resultImage, ivec2(gl_GlobalInvocationID.xy)).rgb;
         vec3 newColor = mix(oldColor, color, 1.0f/(frameNumber+1));
         imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(newColor, 1.0f));
     }
-}
-
-// =========================================
-void main1()
-{
-    // 1. Calculate uv
-    ivec2 dim = imageSize(resultImage);
-    vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
-
-    // 2. Extract camera position from inverse view matrix
-    mat4 invView = inverse(camera.view);
-    vec3 rayOrigin = vec3(invView[3][0],
-                          invView[3][1],
-                          invView[3][2]);
-
-    // 3. Convert uv to normalized device coordinates (clip space)
-    vec4 ndcUV = vec4(uv*2.0f - 1.0f, 0.0f, 1.0f);
-
-    // 4. Convert from clip space to world space
-    vec4 worldPos = inverse(camera.viewProj) * ndcUV;
-    worldPos /= worldPos.w;
-
-    // 5. Calculate world position ray direction
-    vec3 rayDir = normalize(worldPos.xyz - rayOrigin);
-
-    // 5. Store ray direction as a color
-    vec3 color = rayDir;
-    imageStore(resultImage,
-        ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
 }
