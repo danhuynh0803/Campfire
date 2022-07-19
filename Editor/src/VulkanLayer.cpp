@@ -89,7 +89,7 @@ void VulkanLayer::OnAttach()
     cameraController.normalSpeed = 5;
     cameraController.SetActiveCamera(
         editorCamera,
-        glm::vec3(0.0f, 0.0f, 1.0f), // position
+        glm::vec3(0.0f, 0.0f, 30.0f), // position
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 

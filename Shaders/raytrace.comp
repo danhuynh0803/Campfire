@@ -287,16 +287,12 @@ vec2 GetSphereUv(in vec3 spherePos, in vec3 hitPos)
 
 void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitInfo hitInfo)
 {
-    // TODO
-    //vec3 minBound = vec3(0.0f);
-    //vec3 maxBound = vec3(20.0f, 30.0f, -35.0f);
-
     // back wall
     {
-        vec3 A = vec3(-12.6f, -12.6f, -35.0f);
-        vec3 B = vec3( 12.6f, -12.6f, -35.0f);
-        vec3 C = vec3( 12.6f,  12.6f, -35.0f);
-        vec3 D = vec3(-12.6f,  12.6f, -35.0f);
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 C = vec3( 12.0f,  12.0f, -15.0f);
+        vec3 D = vec3(-12.0f,  12.0f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             vec3 uv = GetQuadUv(A, C, (rayPos + hitInfo.dist*rayDir));
@@ -321,15 +317,16 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
             hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = tileColor;
             hitInfo.emission = mix(vec3(0.0f), tileColor*3.0f, isTiled);
+            hitInfo.isLight = bool(isTiled);
         }
     }
 
     // floor
     {
-        vec3 A = vec3(-12.6f, -12.45f, -35.0f);
-        vec3 B = vec3( 12.6f, -12.45f, -35.0f);
-        vec3 C = vec3( 12.6f, -12.45f, -5.0f);
-        vec3 D = vec3(-12.6f, -12.45f, -5.0f);
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 C = vec3( 12.0f, -12.0f,  15.0f);
+        vec3 D = vec3(-12.0f, -12.0f,  15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             vec3 uv = GetQuadUv(D, B, (rayPos + hitInfo.dist*rayDir));
@@ -345,10 +342,10 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
 
     // ceiling
     {
-        vec3 A = vec3(-12.6f, 12.5f, -35.0f);
-        vec3 B = vec3( 12.6f, 12.5f, -35.0f);
-        vec3 C = vec3( 12.6f, 12.5f, -5.0f);
-        vec3 D = vec3(-12.6f, 12.5f, -5.0f);
+        vec3 A = vec3(-12.0f, 12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, 12.0f, -15.0f);
+        vec3 C = vec3( 12.0f, 12.0f,  15.0f);
+        vec3 D = vec3(-12.0f, 12.0f,  15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo = DefaultRayHitInfo();
@@ -358,10 +355,10 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
 
     // left wall
     {
-        vec3 A = vec3(-12.5f, -12.6f, -35.0f);
-        vec3 B = vec3(-12.5f, -12.6f, -5.0f);
-        vec3 C = vec3(-12.5f,  12.6f, -5.0f);
-        vec3 D = vec3(-12.5f,  12.6f, -35.0f);
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3(-12.0f, -12.0f,  15.0f);
+        vec3 C = vec3(-12.0f,  12.0f,  15.0f);
+        vec3 D = vec3(-12.0f,  12.0f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo = DefaultRayHitInfo();
@@ -371,10 +368,10 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
 
     // right wall
     {
-        vec3 A = vec3( 12.5f, -12.6f, -35.0f);
-        vec3 B = vec3( 12.5f, -12.6f, -5.0f);
-        vec3 C = vec3( 12.5f,  12.6f, -5.0f);
-        vec3 D = vec3( 12.5f,  12.6f, -35.0f);
+        vec3 A = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f,  15.0f);
+        vec3 C = vec3( 12.0f,  12.0f,  15.0f);
+        vec3 D = vec3( 12.0f,  12.0f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo = DefaultRayHitInfo();
@@ -384,20 +381,20 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
 
     // light
     {
-        vec3 A = vec3(-8.0f, 12.4f, -27.5f);
-        vec3 B = vec3( 8.0f, 12.4f, -27.5f);
-        vec3 C = vec3( 8.0f, 12.4f, -17.5f);
-        vec3 D = vec3(-8.0f, 12.4f, -17.5f);
-        //vec3 A = vec3(-5.0f, 0.4f, -17.5f);
-        //vec3 B = vec3( 5.0f, 0.4f, -17.5f);
-        //vec3 C = vec3( 5.0f, 8.4f, -17.5f);
-        //vec3 D = vec3(-5.0f, 8.4f, -17.5f);
+        float lightScale = 5.0f;
+        vec3 A = vec3(-lightScale, 11.99f, -lightScale);
+        vec3 B = vec3( lightScale, 11.99f, -lightScale);
+        vec3 C = vec3( lightScale, 11.99f,  lightScale);
+        vec3 D = vec3(-lightScale, 11.99f,  lightScale);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo = DefaultRayHitInfo();
-            hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.emission = vec3(0.9f, 0.8f, 0.65f) * 5.0f;
+            vec3 lightColor = vec3(0.9f, 0.8f, 0.65f);
+            hitInfo.albedo = vec3(0.0f);
+            hitInfo.emission = lightColor * 5.0f;
+            // disable light
             hitInfo.emission = vec3(0.0f);
+            hitInfo.isLight = false;
         }
     }
 
@@ -412,7 +409,7 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         {
             {
                 Sphere sphere;
-                vec3 pos = vec3(spacing*j-10.0f, spacing*i-10.0f, -25.0f);
+                vec3 pos = vec3(spacing*j-10.0f, spacing*i-10.0f, 0.0f);
                 sphere.pos = pos;
                 sphere.radius = radius;
                 if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
@@ -432,7 +429,7 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         {
             {
                 Sphere sphere;
-                vec3 pos = vec3(spacing*j-10.0f, spacing*i-5.0f, -25.0f);
+                vec3 pos = vec3(spacing*j-10.0f, spacing*i-5.0f, 0.0f);
                 sphere.pos = pos;
                 sphere.radius = radius;
                 if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
@@ -450,7 +447,7 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         Light light = lightBuffer.lights[0];
         Sphere sphere;
         sphere.pos = light.pos.xyz;
-        sphere.radius = light.intensity;
+        sphere.radius = light.pos.w;
         if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
         {
             hitInfo = DefaultRayHitInfo();

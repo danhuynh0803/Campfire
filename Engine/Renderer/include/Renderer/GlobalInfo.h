@@ -121,7 +121,16 @@ struct RenderContext
             auto [transformComponent, lightComponent] = group.get<TransformComponent, LightComponent>(entity);
 
             Light light;
-            light.pos = glm::vec4(transformComponent.position, 0.0f);
+            glm::vec3 scale = transformComponent.scale;
+            float maxScale = (scale.x > scale.y)
+                ? (scale.x > scale.z)
+                    ? scale.x : scale.z
+                : (scale.y > scale.z)
+                    ? scale.y
+                    : scale.z
+            ;
+
+            light.pos = glm::vec4(transformComponent.position, maxScale);
             light.dir = glm::vec3(0.0f);
             light.intensity = lightComponent.intensity;
             light.color = lightComponent.color;
