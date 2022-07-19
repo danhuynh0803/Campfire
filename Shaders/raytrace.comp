@@ -586,11 +586,10 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
     vec3 accuColor = vec3(0.0f);
     vec3 currRayPos = rayO;
     vec3 currRayDir = rayD;
-    vec3 colorMask = vec3(1.0f);
     const uint maxBounces = 1;
     for (int bounce = 0; bounce < maxBounces; ++bounce)
     {
-        // Initialize Ray payload;
+        // Initialize ray payload and material parameters
         RayHitInfo hitInfo = DefaultRayHitInfo();
         hitInfo.dist = infinity;
 
@@ -602,23 +601,21 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
 
         // Calculate new ray pos by offsetting it slightly to prevent
         // self-intersections
-        vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
-        vec3 specularDir = reflect(currRayDir, hitInfo.normal);
-
         vec3 hitPos = (currRayPos + currRayDir*hitInfo.dist)
                     + (hitInfo.normal * rayNudge);
 
-        Light light = lightBuffer.lights[0];
+        Light light = lightBuffer.lights[0]; // Point light
         vec3 lightDir = normalize(light.pos.xyz - hitPos);
-        accuColor = hitInfo.albedo;
         float diffuse = max(dot(lightDir, hitInfo.normal), 0.0f);
+        accuColor = hitInfo.albedo;
         accuColor *= diffuse * light.color.rgb;
 
-        // Check if x is occluded by other scene objects
-        {
+        { // Check if x is occluded by other scene objects
             RayHitInfo shadowInfo = DefaultRayHitInfo();
             shadowInfo.dist = infinity;
             CornellBoxSceneIntersection(hitPos, lightDir, shadowInfo);
+            // Hit object in scene that's not a light,
+            // thus point X is occluded
             if (shadowInfo.dist < infinity && !shadowInfo.isLight) {
                 accuColor *= vec3(0.1f);
             }
