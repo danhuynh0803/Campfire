@@ -300,26 +300,33 @@ SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
             vk::ShaderStageFlagBits::eCompute,
             0);
 
-        auto wallTexture = vk::initializers::DescriptorSetLayoutBinding(
+        auto albedoMap = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eCompute,
             1);
 
+       auto metallicMap = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eCompute,
+            2);
+
         // Set 1
         descriptorSetLayoutBindings[1] = {
             computeResolve,
-            wallTexture
+            albedoMap,
+            metallicMap,
         };
     }
 
     { // Scene data
+        // Spheres
         auto spheres = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eStorageBuffer,
             vk::ShaderStageFlagBits::eCompute,
             0);
 
-        // Bind 4: Planes
-        auto planes = vk::initializers::DescriptorSetLayoutBinding(
+        // Quads
+        auto quads = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eStorageBuffer,
             vk::ShaderStageFlagBits::eCompute,
             1);
@@ -327,7 +334,7 @@ SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
         // Set 2
         descriptorSetLayoutBindings[2] = {
             spheres,
-            planes
+            quads
         };
     }
 

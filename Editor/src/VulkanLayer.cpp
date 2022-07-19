@@ -46,7 +46,8 @@ static std::vector<vk::UniqueCommandBuffer> computeCmdBuffers;
 static vk::UniqueFence computeFence;
 static vk::DescriptorImageInfo descriptorImageInfo;
 static SharedPtr<VulkanTexture2D> blankTexture;
-static SharedPtr<VulkanTexture2D> wallTexture;
+static SharedPtr<VulkanTexture2D> albedoMap;
+static SharedPtr<VulkanTexture2D> metallicMap;
 static unsigned int frameNumber = 0;
 
 //========================================================
@@ -134,23 +135,46 @@ void VulkanLayer::OnAttach()
     ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
 
     // Wall texture
-    wallTexture = CreateSharedPtr<VulkanTexture2D>(
-        ASSETS + "/Textures/stainedGlass2.jpg"
-    );
-    // Submit texture data to descriptorSet
-    vk::DescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    imageInfo.imageView = wallTexture->GetImageView();
-    imageInfo.sampler = wallTexture->GetSampler();
+    {
+        albedoMap = CreateSharedPtr<VulkanTexture2D>(
+            ASSETS + "/Textures/pbr/rusted_iron/albedo.png"
+        );
+        // Submit texture data to descriptorSet
+        vk::DescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        imageInfo.imageView = albedoMap->GetImageView();
+        imageInfo.sampler = albedoMap->GetSampler();
 
-    vk::WriteDescriptorSet writeInfo{};
-    writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
-    writeInfo.dstBinding = 1;
-    writeInfo.dstArrayElement = 0;
-    writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-    writeInfo.descriptorCount = 1;
-    writeInfo.pImageInfo = &imageInfo;
-    mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+        vk::WriteDescriptorSet writeInfo{};
+        writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
+        writeInfo.dstBinding = 1;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        writeInfo.descriptorCount = 1;
+        writeInfo.pImageInfo = &imageInfo;
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
+
+    {
+        metallicMap = CreateSharedPtr<VulkanTexture2D>(
+            ASSETS + "/Textures/pbr/rusted_iron/metallic.png"
+        );
+
+        // Submit texture data to descriptorSet
+        vk::DescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        imageInfo.imageView = metallicMap->GetImageView();
+        imageInfo.sampler = metallicMap->GetSampler();
+
+        vk::WriteDescriptorSet writeInfo{};
+        writeInfo.dstSet = computeResolveDescriptorSet.at(0).get();
+        writeInfo.dstBinding = 2;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        writeInfo.descriptorCount = 1;
+        writeInfo.pImageInfo = &imageInfo;
+        mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
+    }
 
     vk::CommandBufferAllocateInfo cmdBufInfo {};
     cmdBufInfo.commandPool = VulkanContext::Get()->GetCommandPool(QueueFamilyType::COMPUTE);
@@ -226,7 +250,6 @@ void VulkanLayer::OnUpdate(float dt)
     vkImguiLayer->End();
 
     computePipeline = frameGraph.GetPipeline("raytrace");
-    // Compute dispatch
     auto computeCmdBuf = computeCmdBuffers.at(0).get();
 
     std::vector<vk::DescriptorSet> computeDescriptorSets = {
@@ -237,57 +260,25 @@ void VulkanLayer::OnUpdate(float dt)
 
     vk::CommandBufferBeginInfo beginInfo {};
     computeCmdBuf.begin(beginInfo);
-        // Compute image write
-        //std::vector<vk::DescriptorSet> descriptorSets{
-        //    globalInfoCompute.mDescriptorSets.at(0).get(),
-        //};
-
-        //computeCmdBuf.bindDescriptorSets(
-        //    vk::PipelineBindPoint::eCompute,
-        //    computePipeline->mPipelineLayout.get(),
-        //    0,
-        //    static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
-        //    0, nullptr
-        //);
 
         computeCmdBuf.bindDescriptorSets(
             vk::PipelineBindPoint::eCompute,
             computePipeline->mPipelineLayout.get(),
-            0,  // first set
-            static_cast<uint32_t>(computeDescriptorSets.size()),  // descriptor set count
+            0, // first set
+            static_cast<uint32_t>(computeDescriptorSets.size()), // descriptor set count
             computeDescriptorSets.data(),
-            0,  // dynamicOffsetCount
+            0, // dynamicOffsetCount
             nullptr // pDyanmicOffsets
         );
 
         computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
-
+        // Send frameNumber via push constant
         computeCmdBuf.pushConstants(
             computePipeline->mPipelineLayout.get(),
             vk::ShaderStageFlagBits::eCompute,
             0, sizeof(unsigned int),
             &frameNumber);
         frameNumber++;
-
-        // TODO generalize dispatch parameters
-        //computeCmdBuf.dispatch(blankTexture->GetWidth() / 16, blankTexture->GetHeight() / 16, 1);
-
-        //vk::MemoryBarrier2KHR memoryBarrier {};
-        //memoryBarrier.srcStageMask  = vk::PipelineStageFlagBits2KHR::e2ComputeShader;
-        //memoryBarrier.srcAccessMask = vk::AccessFlagBits2KHR::e2ShaderStorageWrite;
-        //memoryBarrier.dstStageMask = vk::PipelineStageFlagBits2KHR::e2ComputeShader;
-        //memoryBarrier.dstAccessMask = vk::AccessFlagBits2KHR::e2ShaderStorageRead;
-
-        //vk::DependencyInfoKHR dependencyInfo {};
-        //dependencyInfo.memoryBarrierCount = 1;
-        //dependencyInfo.pMemoryBarriers = &memoryBarrier;
-
-        //auto func = (PFN_vkCmdPipelineBarrier2KHR) vkGetInstanceProcAddr(static_cast<VkInstance>(VulkanContext::GetInstance()), "vkCmdPipelineBarrier2KHR");
-        //if (func == nullptr) {
-        //    CORE_ERROR("vkCmdPipelineBarrier2KHR not supported");
-        //}
-        //func(static_cast<VkCommandBuffer>(computeCmdBuf), &static_cast<VkDependencyInfoKHR>(dependencyInfo));
-        //computeCmdBuf.pipelineBarrier2KHR(dependencyInfo);
 
         computeCmdBuf.dispatch(blankTexture->GetWidth() / 16, blankTexture->GetHeight() / 16, 1);
     computeCmdBuf.end();
