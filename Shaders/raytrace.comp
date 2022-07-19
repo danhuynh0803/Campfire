@@ -628,9 +628,8 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         // Apply shading if hitPos is not emissive
         if (!hitInfo.isLight) {
             accuColor *= diffuse * light.color.rgb;
-        }
 
-        { // Check if x is occluded by other scene objects
+            // Check if x is occluded by other scene objects
             RayHitInfo shadowInfo = DefaultRayHitInfo();
             shadowInfo.dist = infinity;
             CornellBoxSceneIntersection(hitPos, lightDir, shadowInfo);
