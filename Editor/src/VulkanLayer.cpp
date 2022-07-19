@@ -67,9 +67,9 @@ void VulkanLayer::OnAttach()
         auto light = scene->CreateEntity("light");
         light.GetComponent<TransformComponent>().position =
             glm::vec3(
-                50 * (i - maxLights * 0.5f),
-                30,
-                0
+                0.0f,
+                11.99f,
+                0.0f
             );
         light.AddComponent<LightComponent>();
         light.GetComponent<LightComponent>().intensity = 100.0f;

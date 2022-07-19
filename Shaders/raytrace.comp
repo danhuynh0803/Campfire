@@ -339,8 +339,8 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
             hitInfo.albedo = wallTexColor.rgb;
             //hitInfo.albedo = vec3(uv.xz, 0.0f);
             hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.specPercentage = metallicColor.r * 0.95f;
-            //hitInfo.specPercentage = 0.0f;
+            //hitInfo.specPercentage = metallicColor.r * 0.95f;
+            hitInfo.specPercentage = 0.0f;
             hitInfo.ior = 1.0f;
             hitInfo.isRefractive = false;
         }
@@ -472,10 +472,10 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 {
     // back wall
     {
-        vec3 A = vec3(-12.6f, -12.6f, -35.0f);
-        vec3 B = vec3( 12.6f, -12.6f, -35.0f);
-        vec3 C = vec3( 12.6f,  12.6f, -35.0f);
-        vec3 D = vec3(-12.6f,  12.6f, -35.0f);
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 C = vec3( 12.0f,  12.0f, -15.0f);
+        vec3 D = vec3(-12.0f,  12.0f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
@@ -487,10 +487,10 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     // floor
     {
-        vec3 A = vec3(-12.6f, -12.45f, -35.0f);
-        vec3 B = vec3( 12.6f, -12.45f, -35.0f);
-        vec3 C = vec3( 12.6f, -12.45f, -5.0f);
-        vec3 D = vec3(-12.6f, -12.45f, -5.0f);
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 C = vec3( 12.0f, -12.0f,  15.0f);
+        vec3 D = vec3(-12.0f, -12.0f,  15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
@@ -502,10 +502,10 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     // ceiling
     {
-        vec3 A = vec3(-12.6f, 12.5f, -35.0f);
-        vec3 B = vec3( 12.6f, 12.5f, -35.0f);
-        vec3 C = vec3( 12.6f, 12.5f, -5.0f);
-        vec3 D = vec3(-12.6f, 12.5f, -5.0f);
+        vec3 A = vec3(-12.0f, 12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, 12.0f, -15.0f);
+        vec3 C = vec3( 12.0f, 12.0f,  15.0f);
+        vec3 D = vec3(-12.0f, 12.0f,  15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
@@ -517,10 +517,10 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     // left wall
     {
-        vec3 A = vec3(-12.5f, -12.6f, -35.0f);
-        vec3 B = vec3(-12.5f, -12.6f, -5.0f);
-        vec3 C = vec3(-12.5f,  12.6f, -5.0f);
-        vec3 D = vec3(-12.5f,  12.6f, -35.0f);
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3(-12.0f, -12.0f,  15.0f);
+        vec3 C = vec3(-12.0f,  12.0f,  15.0f);
+        vec3 D = vec3(-12.0f,  12.0f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             hitInfo.albedo = vec3(0.7f, 0.1f, 0.1f);
@@ -532,10 +532,10 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     // right wall
     {
-        vec3 A = vec3( 12.5f, -12.6f, -35.0f);
-        vec3 B = vec3( 12.5f, -12.6f, -5.0f);
-        vec3 C = vec3( 12.5f,  12.6f, -5.0f);
-        vec3 D = vec3( 12.5f,  12.6f, -35.0f);
+        vec3 A = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f, 15.0f);
+        vec3 C = vec3( 12.0f,  12.0f, 15.0f);
+        vec3 D = vec3( 12.0f,  12.0f, -15.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
             //hitInfo.albedo = vec3(0.1f, 0.7f, 0.1f);
@@ -549,14 +549,20 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     // light
     {
-        vec3 A = vec3(-5.0f, 12.4f, -27.5f);
-        vec3 B = vec3( 5.0f, 12.4f, -27.5f);
-        vec3 C = vec3( 5.0f, 12.4f, -17.5f);
-        vec3 D = vec3(-5.0f, 12.4f, -17.5f);
+        float lightScale = 1.0f;
+        vec3 A = vec3(-lightScale, 11.99f, -lightScale);
+        vec3 B = vec3( lightScale, 11.99f, -lightScale);
+        vec3 C = vec3( lightScale, 11.99f,  lightScale);
+        vec3 D = vec3(-lightScale, 11.99f,  lightScale);
+        //vec3 A = vec3(-5.0f, 11.99f, -10.0f);
+        //vec3 B = vec3( 5.0f, 11.99f, -10.0f);
+        //vec3 C = vec3( 5.0f, 11.99f, 10.0f);
+        //vec3 D = vec3(-5.0f, 11.99f, 10.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
-            hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.emission = vec3(0.9f, 0.8f, 0.65f) * 5.0f;
+            vec3 lightColor = vec3(0.9f, 0.8f, 0.65f);
+            hitInfo.albedo = lightColor;
+            hitInfo.emission = lightColor * 5.0f;
             hitInfo.specPercentage = 0.0f;
             hitInfo.ior = 1.0f;
         }
@@ -564,8 +570,8 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     { // left sphere
         Sphere sphere;
-        sphere.pos = vec3(-3.5f, 2.5f, -25.0f);
-        sphere.radius = 2.5f;
+        sphere.pos = vec3(-3.5f, -9.0f, -5.0f);
+        sphere.radius = 3.0f;
         if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
         {
             hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
@@ -577,8 +583,8 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
 
     { // right sphere
         Sphere sphere;
-        sphere.pos = vec3(3.5f, -9.0f, -25.0f);
-        sphere.radius = 2.5f;
+        sphere.pos = vec3(3.5f, -9.0f, 5.0f);
+        sphere.radius = 3.0f;
         if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
         {
             hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
@@ -587,6 +593,44 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
             hitInfo.ior = 1.0f;
         }
     }
+}
+
+vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
+{
+    vec3 accuColor = vec3(0.0f);
+    vec3 currRayPos = rayO;
+    vec3 currRayDir = rayD;
+    vec3 colorMask = vec3(1.0f);
+    const uint maxBounces = 1;
+    for (int bounce = 0; bounce < maxBounces; ++bounce)
+    {
+        // Initialize Ray payload;
+        RayHitInfo hitInfo = DefaultRayHitInfo();
+        hitInfo.dist = infinity;
+        hitInfo.fromInside = false;
+
+        // Perform ray intersections on all scene objects
+        CornellBoxSceneIntersection(currRayPos, currRayDir, hitInfo);
+
+        // Hit nothing within the scene
+        if (hitInfo.dist == infinity) break;
+
+        // Calculate new ray pos by offsetting it slightly to prevent
+        // self-intersections
+        vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        vec3 specularDir = reflect(currRayDir, hitInfo.normal);
+
+        vec3 hitPos = currRayPos * currRayDir*hitInfo.dist;
+        Light light = lightBuffer.lights[0];
+        vec3 lightDir = normalize(light.pos.xyz - hitPos);
+        float diffuse = max(dot(hitInfo.normal, lightDir), 0.0f);
+
+        accuColor = hitInfo.albedo * diffuse * light.color.xyz;
+
+        // Check if x is occluded by other scene objects
+    }
+
+    return accuColor;
 }
 
 vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
@@ -642,6 +686,7 @@ vec3 RenderScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
     return accuColor;
 }
 
+//#define RAYTRACE 0
 void main()
 {
     uint rngState = uint(uint(gl_GlobalInvocationID.x)*uint(1835)
@@ -677,11 +722,15 @@ void main()
     //vec3 rayDir = normalize(jitteredWorldPos.xyz - rayOrigin);
     //rayDir = normalize(rayDir + vec3(jitter, 0.0f));
 
+#ifdef RAYTRACE
+    vec3 color = RayTraceScene(rayOrigin, rayDir, rngState);
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0f));
+#else
     vec3 color = RenderScene(rayOrigin, rayDir, rngState);
-
     vec3 oldColor = imageLoad(resultImage, ivec2(gl_GlobalInvocationID.xy)).rgb;
     vec3 newColor = mix(oldColor, color, 1.0f/(pushConstants.frameNumber+1));
     imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(newColor, 1.0f));
+#endif
 }
 
 // =========================================
