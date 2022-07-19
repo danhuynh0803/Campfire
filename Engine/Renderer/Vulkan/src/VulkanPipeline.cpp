@@ -66,7 +66,7 @@ cf::Pipeline::Pipeline(
     {
         vk::PushConstantRange pushConstantRange = {};
         pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eCompute;
-        pushConstantRange.size = sizeof(glm::vec4);
+        pushConstantRange.size = sizeof(glm::ivec4);
         pushConstantRange.offset = 0;
 
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;

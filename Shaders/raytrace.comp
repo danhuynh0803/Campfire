@@ -44,10 +44,10 @@ vec3 RandomUnitVector(inout uint state)
 }
 
 layout (push_constant) uniform PushConstants {
-    vec4 params;
+    ivec4 params;
     // params.x = frameNumber
     // params.y = isWhitted
-    // params.z =
+    // params.z = selectedScene
     // params.w = isCulmulateSamples
 } pushConstants;
 
@@ -317,13 +317,10 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
                 vec3 gradient = vec3(0.1, 0.1, 1.0);
                 tileColor = mix(tileColor, gradient, uv.y);
             }
+
+            hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = tileColor;
-            //hitInfo.albedo = vec3(uv.xy, 0.0f);
             hitInfo.emission = mix(vec3(0.0f), tileColor*3.0f, isTiled);
-            //hitInfo.emission = vec3(0.0f);
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-            hitInfo.isRefractive = false;
         }
     }
 
@@ -340,13 +337,9 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
             vec3 wallTexColor = texture(albedoMap, uv.xz).rgb;
             vec3 metallicColor = texture(metallicMap, uv.xz).rgb;
 
+            hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = wallTexColor.rgb;
-            //hitInfo.albedo = vec3(uv.xz, 0.0f);
-            hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
-            //hitInfo.specPercentage = metallicColor.r * 0.95f;
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-            hitInfo.isRefractive = false;
+            hitInfo.specPercentage = metallicColor.r * 0.95f;
         }
     }
 
@@ -358,11 +351,8 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         vec3 D = vec3(-12.6f, 12.5f, -5.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
+            hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
-            hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-            hitInfo.isRefractive = false;
         }
     }
 
@@ -374,11 +364,8 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         vec3 D = vec3(-12.5f,  12.6f, -35.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
+            hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = vec3(0.7f, 0.1f, 0.1f);
-            hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-            hitInfo.isRefractive = false;
         }
     }
 
@@ -390,13 +377,8 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         vec3 D = vec3( 12.5f,  12.6f, -35.0f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
-            //hitInfo.albedo = vec3(0.1f, 0.7f, 0.1f);
-            //hitInfo.albedo = vec3(0.1f, 0.1f, 0.7f);
+            hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = vec3(0.2f, 0.3f, 1.0f);
-            hitInfo.emission = vec3(0.0f, 0.0f, 0.0f);
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-            hitInfo.isRefractive = false;
         }
     }
 
@@ -412,13 +394,10 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
         //vec3 D = vec3(-5.0f, 8.4f, -17.5f);
         if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
         {
+            hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = vec3(0.0f, 0.0f, 0.0f);
             hitInfo.emission = vec3(0.9f, 0.8f, 0.65f) * 5.0f;
-            //hitInfo.emission = vec3(0.9f, 0.8f, 0.65f) * 2.0f;
             hitInfo.emission = vec3(0.0f);
-            hitInfo.specPercentage = 0.0f;
-            hitInfo.ior = 1.0f;
-            hitInfo.isRefractive = false;
         }
     }
 
@@ -438,10 +417,8 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
                 sphere.radius = radius;
                 if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
                 {
-                    //hitInfo.albedo = vec3(float(j)/maxCol, float(i)/maxRow, 0.8f);
+                    hitInfo = DefaultRayHitInfo();
                     hitInfo.albedo = vec3(0.8f);
-                    hitInfo.emission = vec3(0.0f);
-                    hitInfo.specPercentage = 0.0f;
                     hitInfo.ior = 1.1f + j*0.1f;
                     hitInfo.isRefractive = true;
                 }
@@ -460,14 +437,26 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
                 sphere.radius = radius;
                 if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
                 {
-                    //hitInfo.albedo = vec3(float(j)/maxCol, float(i)/maxRow, 0.8f);
+                    hitInfo = DefaultRayHitInfo();
                     hitInfo.albedo = vec3(0.8f);
-                    hitInfo.emission = vec3(0.0f);
                     hitInfo.specPercentage = float(j)/float(maxCol);
-                    hitInfo.ior = 1.0f;
-                    hitInfo.isRefractive = false;
                 }
             }
+        }
+    }
+
+    // Light sphere from buffer
+    {
+        Light light = lightBuffer.lights[0];
+        Sphere sphere;
+        sphere.pos = light.pos.xyz;
+        sphere.radius = light.intensity;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = light.color.rgb;
+            hitInfo.emission = light.color.rgb * light.intensity;
+            hitInfo.isLight = true;
         }
     }
 }
@@ -540,25 +529,25 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
     }
 
     // light
-    {
-        float lightScale = 5.0f;
-        vec3 A = vec3(-lightScale, 11.99f, -lightScale);
-        vec3 B = vec3( lightScale, 11.99f, -lightScale);
-        vec3 C = vec3( lightScale, 11.99f,  lightScale);
-        vec3 D = vec3(-lightScale, 11.99f,  lightScale);
-        //vec3 A = vec3(-5.0f, 11.99f, -10.0f);
-        //vec3 B = vec3( 5.0f, 11.99f, -10.0f);
-        //vec3 C = vec3( 5.0f, 11.99f, 10.0f);
-        //vec3 D = vec3(-5.0f, 11.99f, 10.0f);
-        if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
-        {
-            hitInfo = DefaultRayHitInfo();
-            vec3 lightColor = vec3(0.9f, 0.8f, 0.65f);
-            hitInfo.albedo = lightColor;
-            hitInfo.emission = lightColor * 5.0f;
-            hitInfo.isLight = true;
-        }
-    }
+    //{
+    //    float lightScale = 5.0f;
+    //    vec3 A = vec3(-lightScale, 11.99f, -lightScale);
+    //    vec3 B = vec3( lightScale, 11.99f, -lightScale);
+    //    vec3 C = vec3( lightScale, 11.99f,  lightScale);
+    //    vec3 D = vec3(-lightScale, 11.99f,  lightScale);
+    //    //vec3 A = vec3(-5.0f, 11.99f, -10.0f);
+    //    //vec3 B = vec3( 5.0f, 11.99f, -10.0f);
+    //    //vec3 C = vec3( 5.0f, 11.99f, 10.0f);
+    //    //vec3 D = vec3(-5.0f, 11.99f, 10.0f);
+    //    if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D))
+    //    {
+    //        hitInfo = DefaultRayHitInfo();
+    //        vec3 lightColor = vec3(0.9f, 0.8f, 0.65f);
+    //        hitInfo.albedo = lightColor;
+    //        hitInfo.emission = lightColor * 5.0f;
+    //        hitInfo.isLight = true;
+    //    }
+    //}
 
     // Light sphere from buffer
     {
@@ -598,12 +587,26 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
     }
 }
 
+void TestSceneIntersection(inout vec3 rayO, inout vec3 rayD, inout RayHitInfo hitInfo)
+{
+    switch (uint(pushConstants.params.z))
+    {
+    default:
+    case 0:
+        CornellBoxSceneIntersection(rayO, rayD, hitInfo);
+        break;
+    case 1:
+        CornellBoxSceneIntersection2(rayO, rayD, hitInfo);
+        break;
+    }
+}
+
 vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
 {
     vec3 accuColor = vec3(0.0f);
     vec3 currRayPos = rayO;
     vec3 currRayDir = rayD;
-    const uint maxBounces = 1;
+    const uint maxBounces = 1; // 1 for direct illumination
     for (int bounce = 0; bounce < maxBounces; ++bounce)
     {
         // Initialize ray payload and material parameters
@@ -611,7 +614,7 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         hitInfo.dist = infinity;
 
         // Perform ray intersections on all scene objects
-        CornellBoxSceneIntersection(currRayPos, currRayDir, hitInfo);
+        TestSceneIntersection(currRayPos, currRayDir, hitInfo);
 
         // Hit nothing within the scene
         if (hitInfo.dist == infinity) break;
@@ -632,15 +635,14 @@ vec3 RayTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
             // Check if x is occluded by other scene objects
             RayHitInfo shadowInfo = DefaultRayHitInfo();
             shadowInfo.dist = infinity;
-            CornellBoxSceneIntersection(hitPos, lightDir, shadowInfo);
+            TestSceneIntersection(hitPos, lightDir, shadowInfo);
             // Hit object in scene that's not a light,
             // thus point X is occluded
             if (shadowInfo.dist < infinity && !shadowInfo.isLight) {
-                accuColor *= vec3(0.1f);
+                accuColor *= vec3(0.0f);
             }
         }
     }
-
     return accuColor;
 }
 
@@ -659,7 +661,7 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         hitInfo.fromInside = false;
 
         // Perform ray intersections on all scene objects
-        CornellBoxSceneIntersection(currRayPos, currRayDir, hitInfo);
+        TestSceneIntersection(currRayPos, currRayDir, hitInfo);
 
         // Hit nothing within the scene
         if (hitInfo.dist == infinity) break;

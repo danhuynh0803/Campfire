@@ -51,11 +51,12 @@ static SharedPtr<VulkanTexture2D> metallicMap;
 
 // params.x = frameNumber
 // params.y = isWhitted
-// params.z = N/A
-// params.w = isNotCulmulateSamples
-static glm::vec4 params = glm::vec4(0);
+// params.z = selectedScene
+// params.w = isCulmulateSamples
+static glm::ivec4 params = glm::ivec4(0);
 static bool isWhitted = false;
 static bool isCulmulateSamples = true;
+static int  selectedScene = 0;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -75,11 +76,11 @@ void VulkanLayer::OnAttach()
         light.GetComponent<TransformComponent>().position =
             glm::vec3(
                 0.0f,
-                11.5f,
+                7.0f,
                 0.0f
             );
         light.AddComponent<LightComponent>();
-        light.GetComponent<LightComponent>().intensity = 1.0f;
+        light.GetComponent<LightComponent>().intensity = 5.0f;
     }
 
     editorCamera = CreateSharedPtr<Camera>(1600, 900, 0.1f, 1000.0f);
@@ -440,11 +441,41 @@ void VulkanLayer::OnImGuiRender()
         ImGui::Separator();
 
         ImGui::Text("Rendering Params");
-        ImGui::Checkbox("Direct Illumination", &isWhitted);
-        params.y = static_cast<float>(isWhitted);
 
-        ImGui::Checkbox("Accumulate Samples", &isCulmulateSamples);
-        params.w = static_cast<float>(isCulmulateSamples);
+        { // Auto actions when toggling whitted
+            bool lastValue = isWhitted;
+            ImGui::Checkbox("Direct Illumination", &isWhitted);
+            params.y = static_cast<float>(isWhitted);
+
+            if (lastValue != isWhitted)
+            {
+                // Auto switch off culmulate samples when we switch to whitted
+                if (lastValue == false)
+                    isCulmulateSamples = false;
+                // switch on culmulate samples when switching to path tracer
+                else {
+                    isCulmulateSamples = true;
+                }
+                params.x = 0; // refresh frame
+            }
+        }
+
+        { // Refresh frame when we toggle isCulmulateSamples
+            bool lastValue = isCulmulateSamples;
+            ImGui::Checkbox("Accumulate Samples", &isCulmulateSamples);
+            params.w = static_cast<float>(isCulmulateSamples);
+            if (lastValue != isCulmulateSamples)
+                params.x = 0; // refresh frame
+        }
+
+        { // Refresh frame when we select new scene
+            uint32_t lastValue = selectedScene;
+            ImGui::RadioButton("Scene A", &selectedScene, 0); ImGui::SameLine();
+            ImGui::RadioButton("Scene B", &selectedScene, 1); ImGui::SameLine();
+            params.z = selectedScene;
+            if (lastValue != selectedScene)
+                params.x = 0; // refresh frame
+        }
 
         ImGui::Separator();
 
