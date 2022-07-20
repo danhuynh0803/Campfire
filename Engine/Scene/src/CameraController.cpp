@@ -1,3 +1,4 @@
+#include "..\include\Scene\CameraController.h"
 #include "Scene/CameraController.h"
 #include "Core/Base.h"
 #include "Core/Input.h"
@@ -18,6 +19,15 @@ void CameraController::SetActiveCamera(const SharedPtr<Camera>& camera, const gl
     position = pos;
     pitch = euler.x;
     yaw -= euler.y;
+}
+
+void CameraController::ResetActiveCamera(const SharedPtr<Camera>& camera, const glm::vec3& pos, const glm::vec3& euler)
+{
+    activeCamera = camera;
+    position = pos;
+
+    pitch = euler.x;
+    yaw = -90.0f - euler.y;
 }
 
 void CameraController::OnEvent(Event& e)

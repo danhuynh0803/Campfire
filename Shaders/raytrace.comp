@@ -460,6 +460,17 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
 
 void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInfo hitInfo)
 {
+    { // left sphere
+        Sphere sphere;
+        sphere.pos = vec3(-3.5f, -9.0f, -5.0f);
+        sphere.radius = 3.0f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
+        {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
+        }
+    }
+
     // back wall
     {
         vec3 A = vec3(-12.0f, -12.0f, -15.0f);
@@ -551,24 +562,13 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
         Light light = lightBuffer.lights[0];
         Sphere sphere;
         sphere.pos = light.pos.xyz;
-        sphere.radius = light.intensity;
+        sphere.radius = light.pos.w;
         if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
         {
             hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = light.color.rgb;
             hitInfo.emission = light.color.rgb * light.intensity;
             hitInfo.isLight = true;
-        }
-    }
-
-    { // left sphere
-        Sphere sphere;
-        sphere.pos = vec3(-3.5f, -9.0f, -5.0f);
-        sphere.radius = 3.0f;
-        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere))
-        {
-            hitInfo = DefaultRayHitInfo();
-            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
         }
     }
 
@@ -584,6 +584,54 @@ void CornellBoxSceneIntersection(in vec3 rayPos, in vec3 rayDir, inout RayHitInf
     }
 }
 
+void MyTestScene(in vec3 rayPos, in vec3 rayDir, inout RayHitInfo hitInfo)
+{
+    {// left sphere
+        Sphere sphere;
+        sphere.pos = vec3(-3.5f, -9.0f, -5.0f);
+        sphere.radius = 3.0f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere)) {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = vec3(1.0f, 1.0f, 1.0f);
+        }
+    }
+
+    {// floor
+        vec3 A = vec3(-12.0f, -12.0f, -15.0f);
+        vec3 B = vec3( 12.0f, -12.0f, -15.0f);
+        vec3 C = vec3( 12.0f, -12.0f,  15.0f);
+        vec3 D = vec3(-12.0f, -12.0f,  15.0f);
+        if (QuadIntersect(rayPos, rayDir, hitInfo, A, B, C, D)) {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = vec3(0.7f, 0.7f, 0.7f);
+        }
+    }
+
+    {// Light sphere from SSBO
+        Light light = lightBuffer.lights[0];
+        Sphere sphere;
+        sphere.pos = light.pos.xyz;
+        sphere.radius = light.pos.w;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere)) {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = light.color.rgb;
+            hitInfo.emission = light.color.rgb * light.intensity;
+            hitInfo.isLight = true;
+        }
+    }
+
+    {// right sphere
+        Sphere sphere;
+        sphere.pos = vec3(3.5f, -9.0f, 5.0f);
+        sphere.radius = 3.0f;
+        if (SphereIntersect(rayPos, rayDir, hitInfo, sphere)) {
+            hitInfo = DefaultRayHitInfo();
+            hitInfo.albedo = vec3(0.0f, 0.6f, 1.0f);
+        }
+    }
+}
+
+
 void TestSceneIntersection(inout vec3 rayO, inout vec3 rayD, inout RayHitInfo hitInfo)
 {
     switch (uint(pushConstants.params.z))
@@ -594,6 +642,9 @@ void TestSceneIntersection(inout vec3 rayO, inout vec3 rayD, inout RayHitInfo hi
         break;
     case 1:
         CornellBoxSceneIntersection2(rayO, rayD, hitInfo);
+        break;
+    case 2:
+        MyTestScene(rayO, rayD, hitInfo);
         break;
     }
 }
@@ -655,7 +706,6 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         // Initialize Ray payload;
         RayHitInfo hitInfo = DefaultRayHitInfo();
         hitInfo.dist = infinity;
-        hitInfo.fromInside = false;
 
         // Perform ray intersections on all scene objects
         TestSceneIntersection(currRayPos, currRayDir, hitInfo);
@@ -663,7 +713,10 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         // Hit nothing within the scene
         if (hitInfo.dist == infinity) break;
 
+        // Calculate new ray pos by offsetting it slightly to prevent
+        // self-intersections
         if (hitInfo.isRefractive) {
+            // Transmit light ray into object using -1*normal
             currRayPos =
                 (currRayPos + currRayDir*hitInfo.dist)
               - (hitInfo.normal * rayNudge);
@@ -673,14 +726,13 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
                 (currRayPos + currRayDir*hitInfo.dist)
               + (hitInfo.normal * rayNudge);
         }
-        // Calculate new ray pos by offsetting it slightly to prevent
-        // self-intersections
+
         vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
         vec3 specularDir = reflect(currRayDir, hitInfo.normal);
 
         if (hitInfo.isRefractive) {
             vec3 refractDir = refract(currRayDir, hitInfo.normal,
-                    hitInfo.fromInside ? hitInfo.ior : 1.0f/hitInfo.ior
+                hitInfo.fromInside ? hitInfo.ior : 1.0f/hitInfo.ior
             );
             currRayDir = refractDir;
         }
@@ -692,7 +744,6 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         if (!hitInfo.isRefractive)
             colorMask *= hitInfo.albedo;
     }
-
     return accuColor;
 }
 

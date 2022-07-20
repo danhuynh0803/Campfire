@@ -79,6 +79,12 @@ void VulkanLayer::OnAttach()
                 7.0f,
                 0.0f
             );
+        light.GetComponent<TransformComponent>().scale =
+            glm::vec3(
+                2.0f,
+                0.0f,
+                0.0f
+            );
         light.AddComponent<LightComponent>();
         light.GetComponent<LightComponent>().intensity = 5.0f;
     }
@@ -401,6 +407,17 @@ void VulkanLayer::ProcessUserInput()
         // Reset frame number per user movement
         params.x = 0;
     }
+
+    // Reset camera position
+    if (Input::GetKeyDown(KEY_F))
+    {
+        cameraController.ResetActiveCamera(
+            editorCamera,
+            glm::vec3(0.0f, 0.0f, 30.0f), // position
+            glm::vec3(0.0f, 0.0f, 0.0f)   // euler angles
+        );
+        params.x = 0;
+    }
 }
 
 void VulkanLayer::OnImGuiRender()
@@ -472,6 +489,7 @@ void VulkanLayer::OnImGuiRender()
             uint32_t lastValue = selectedScene;
             ImGui::RadioButton("Scene A", &selectedScene, 0); ImGui::SameLine();
             ImGui::RadioButton("Scene B", &selectedScene, 1); ImGui::SameLine();
+            ImGui::RadioButton("MyTest", &selectedScene, 2); ImGui::SameLine();
             params.z = selectedScene;
             if (lastValue != selectedScene)
                 params.x = 0; // refresh frame
