@@ -34,12 +34,12 @@ float RandomFloat01(inout uint state)
 
 vec3 RandomUnitVector(inout uint state)
 {
-    // Uniform sampling of hemisphere
-    float z = RandomFloat01(state) * 2.0f - 1.0f;
-    float a = RandomFloat01(state) * c_twopi;
-    float r = sqrt(1.0f - z * z);
-    float x = r * cos(a);
-    float y = r * sin(a);
+    // Uniform sampling of sphere
+    float z = 1.0f - 2.0f*RandomFloat01(state);
+    float r = sqrt(max(0.0f, 1.0f - z * z));
+    float phi = c_twopi * RandomFloat01(state);
+    float x = r * cos(phi);
+    float y = r * sin(phi);
     return vec3(x, y, z);
 }
 
@@ -273,8 +273,8 @@ bool SphereIntersect(
 
 vec3 GetQuadUv(in vec3 minBound, in vec3 maxBound, in vec3 pos)
 {
-    vec3 dim = abs(maxBound - minBound);
-    vec3 uv = abs(pos - minBound)/dim;
+    vec3 dim = (maxBound - minBound);
+    vec3 uv = (pos - minBound)/dim;
     return uv;
 }
 
@@ -706,31 +706,27 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         // Initialize Ray payload;
         RayHitInfo hitInfo = DefaultRayHitInfo();
         hitInfo.dist = infinity;
-
         // Perform ray intersections on all scene objects
         TestSceneIntersection(currRayPos, currRayDir, hitInfo);
-
         // Hit nothing within the scene
         if (hitInfo.dist == infinity) break;
 
-        // Calculate new ray pos by offsetting it slightly to prevent
-        // self-intersections
         if (hitInfo.isRefractive) {
-            // Transmit light ray into object using -1*normal
-            currRayPos =
-                (currRayPos + currRayDir*hitInfo.dist)
-              - (hitInfo.normal * rayNudge);
+            // If refractive, transmit light ray into object using -1*normal
+            currRayPos = (currRayPos + currRayDir*hitInfo.dist) - (hitInfo.normal * rayNudge);
         }
         else {
-            currRayPos =
-                (currRayPos + currRayDir*hitInfo.dist)
-              + (hitInfo.normal * rayNudge);
+            // Calculate new ray pos by offsetting it slightly to prevent self-intersections
+            currRayPos = (currRayPos + currRayDir*hitInfo.dist) + (hitInfo.normal * rayNudge);
         }
 
+        // Random ray direction for lambertian (diffuse) materials
         vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        // Pure reflection direction
         vec3 specularDir = reflect(currRayDir, hitInfo.normal);
-
         if (hitInfo.isRefractive) {
+            // Refraction direction based on ratio of refractive indices
+            // 1.0f for n1 being index of air
             vec3 refractDir = refract(currRayDir, hitInfo.normal,
                 hitInfo.fromInside ? hitInfo.ior : 1.0f/hitInfo.ior
             );
