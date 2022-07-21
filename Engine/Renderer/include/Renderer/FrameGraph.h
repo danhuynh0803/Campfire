@@ -108,6 +108,9 @@ public:
 private:
     void CreateOpaque();
     void CreatePipelines();
+    SharedPtr<cf::Pipeline> CreateModelPipeline();
+    SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
+    SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
 
 private:
     LabelMap<vk::UniqueRenderPass> mRenderPasses;

@@ -17,10 +17,6 @@ FrameGraph::FrameGraph()
 {
 }
 
-SharedPtr<cf::Pipeline> CreateModelPipeline();
-SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
-SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
-
 void FrameGraph::CreateRenderFrameGraph()
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -34,7 +30,7 @@ void FrameGraph::CreateRenderFrameGraph()
 
 void FrameGraph::CreatePipelines()
 {
-    mPipelines["models"] = CreateModelPipeline();
+    //mPipelines["models"] = CreateModelPipeline();
     mPipelines["postprocess"] = CreatePostProcessPipeline();
     mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
@@ -46,7 +42,7 @@ void FrameGraph::ReconstructFrameGraph()
     mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
 
-SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
+SharedPtr<cf::Pipeline> FrameGraph::CreatePostProcessPipeline()
 {
     std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
     { // Compute Resolve
@@ -62,13 +58,13 @@ SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
     }
 
     // Shaders
-    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert");
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert.spv");
     vk::PipelineShaderStageCreateInfo vsStageInfo{};
     vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
     vsStageInfo.module = vs->GetShaderModule();
     vsStageInfo.pName  = "main";
 
-    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag");
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag.spv");
     vk::PipelineShaderStageCreateInfo fsStageInfo{};
     fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
     fsStageInfo.module = fs->GetShaderModule();
@@ -82,11 +78,12 @@ SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
     return CreateSharedPtr<cf::Pipeline>(
         descriptorSetLayoutBindings,
         shaderStages,
-        PipelineType::eGraphics
+        PipelineType::eGraphics,
+        mRenderPasses["opaque"]
     );
 }
 
-SharedPtr<cf::Pipeline> CreateModelPipeline()
+SharedPtr<cf::Pipeline> FrameGraph::CreateModelPipeline()
 {
     std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
     { // Environment descriptors
@@ -185,7 +182,8 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
     return CreateSharedPtr<cf::Pipeline>(
         descriptorSetLayoutBindings,
         shaderStages,
-        PipelineType::eGraphics
+        PipelineType::eGraphics,
+        mRenderPasses["opaque"]
     );
 }
 
@@ -200,8 +198,6 @@ RenderPass& AddRenderPass(
 
 void FrameGraph::CreateOpaque()
 {
-    const std::string label = "opaque";
-
     // Color Attachment
     vk::AttachmentDescription colorAttachment;
     colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
@@ -267,10 +263,11 @@ void FrameGraph::CreateOpaque()
     renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
     renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
+    const std::string label = "opaque";
     mRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
 }
 
-SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
+SharedPtr<cf::Pipeline> FrameGraph::CreateRaytracingComputePipeline()
 {
     std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(3);
 
@@ -346,10 +343,5 @@ SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
     shaderInfo.module = shader->GetShaderModule();
     shaderInfo.pName  = "main";
 
-    return CreateSharedPtr<cf::Pipeline>(
-        descriptorSets,
-        shaderInfo,
-        PipelineType::eCompute);
+    return CreateSharedPtr<cf::Pipeline>(descriptorSets, shaderInfo);
 }
-
-

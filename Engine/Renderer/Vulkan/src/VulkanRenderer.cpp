@@ -3,7 +3,7 @@
 #include "Vulkan/VulkanContext.h"
 #include "Renderer/FrameGraph.h"
 
-vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
+vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame, const vk::RenderPass& renderPass)
 {
     auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
@@ -44,7 +44,7 @@ vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame)
 
     // TODO replace with dynamic rendering
     vk::RenderPassBeginInfo renderPassBeginInfo;
-    renderPassBeginInfo.renderPass = VulkanContext::Get()->mFrameGraph->GetRenderPass("opaque");
+    renderPassBeginInfo.renderPass = renderPass;
     renderPassBeginInfo.framebuffer = framebuffer;
     renderPassBeginInfo.renderArea = renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

@@ -57,6 +57,7 @@ static glm::ivec4 params = glm::ivec4(0);
 static bool isWhitted = false;
 static bool isCulmulateSamples = true;
 static int  selectedScene = 0;
+static uint32_t frameNumber;
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -129,11 +130,11 @@ void VulkanLayer::OnAttach()
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));
 
-    graphicsPipeline = frameGraph.GetPipeline("models");
+    //graphicsPipeline = frameGraph.GetPipeline("models");
     postProcessPipeline = frameGraph.GetPipeline("postprocess");
     computePipeline = frameGraph.GetPipeline("raytrace");
 
-    globalInfoGraphics.Init(graphicsPipeline);
+    //globalInfoGraphics.Init(graphicsPipeline);
     globalInfoCompute.Init(computePipeline);
     // Create descriptor sets using layout from set 2 from compute pipeline
     rayTraceScene.Init(computePipeline);
@@ -256,7 +257,7 @@ void VulkanLayer::OnUpdate(float dt)
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
     globalInfoCompute.Update(editorCamera, scene, frameIdx);
-    globalInfoGraphics.Update(editorCamera, scene, frameIdx);
+    //globalInfoGraphics.Update(editorCamera, scene, frameIdx);
 
     // TODO this should be called from the application loop
     vkImguiLayer->Begin();
@@ -285,6 +286,7 @@ void VulkanLayer::OnUpdate(float dt)
             nullptr // pDyanmicOffsets
         );
 
+        params.x = frameNumber;
         computeCmdBuf.bindPipeline(vk::PipelineBindPoint::eCompute, computePipeline->mPipeline.get());
         // Send rendering parameters via push constant
         computeCmdBuf.pushConstants(
@@ -293,7 +295,7 @@ void VulkanLayer::OnUpdate(float dt)
             0, sizeof(glm::vec4),
             &params);
         // Increment frame number
-        params.x++;
+        frameNumber++;
 
         computeCmdBuf.dispatch(blankTexture->GetWidth() / 16, blankTexture->GetHeight() / 16, 1);
     computeCmdBuf.end();
@@ -315,7 +317,7 @@ void VulkanLayer::OnUpdate(float dt)
     auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
     for (size_t frame = 0; frame < swapChainSize; ++frame)
     {
-        auto commandBuffer = VulkanRenderer::BeginScene(frame);
+        auto commandBuffer = VulkanRenderer::BeginScene(frame, frameGraph.GetRenderPass("opaque"));
         {
             // TODO read from descriptor with compute image
             commandBuffer.bindDescriptorSets(
@@ -405,7 +407,7 @@ void VulkanLayer::ProcessUserInput()
     if (Input::GetMouseButton(MOUSE_BUTTON_RIGHT))
     {
         // Reset frame number per user movement
-        params.x = 0;
+        frameNumber = 0;
     }
 
     // Reset camera position
@@ -416,7 +418,7 @@ void VulkanLayer::ProcessUserInput()
             glm::vec3(0.0f, 0.0f, 30.0f), // position
             glm::vec3(0.0f, 0.0f, 0.0f)   // euler angles
         );
-        params.x = 0;
+        frameNumber = 0;
     }
 }
 
@@ -473,7 +475,7 @@ void VulkanLayer::OnImGuiRender()
                 else {
                     isCulmulateSamples = true;
                 }
-                params.x = 0; // refresh frame
+                frameNumber = 0;
             }
         }
 
@@ -482,7 +484,7 @@ void VulkanLayer::OnImGuiRender()
             ImGui::Checkbox("Accumulate Samples", &isCulmulateSamples);
             params.w = static_cast<float>(isCulmulateSamples);
             if (lastValue != isCulmulateSamples)
-                params.x = 0; // refresh frame
+                frameNumber = 0;
         }
 
         { // Refresh frame when we select new scene
@@ -492,7 +494,7 @@ void VulkanLayer::OnImGuiRender()
             ImGui::RadioButton("MyTest", &selectedScene, 2); ImGui::SameLine();
             params.z = selectedScene;
             if (lastValue != selectedScene)
-                params.x = 0; // refresh frame
+                frameNumber = 0;
         }
 
         ImGui::Separator();
@@ -546,6 +548,7 @@ bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
 
     VulkanContext::Get()->RecreateSwapChain(frameGraph.GetRenderPass("opaque"));
     ResizeTexture(e.GetWidth(), e.GetHeight());
+    frameNumber = 0;
 
     return false;
 }

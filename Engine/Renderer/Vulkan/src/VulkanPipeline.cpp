@@ -6,18 +6,20 @@
 
 cf::Pipeline::Pipeline(
   const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
-, const vk::PipelineShaderStageCreateInfo & shaderStage
-, PipelineType type)
+, const vk::PipelineShaderStageCreateInfo & shaderStage)
     : Pipeline(
         descriptorSetLayoutBindings,
         std::vector<vk::PipelineShaderStageCreateInfo> { shaderStage },
-        type)
+        PipelineType::eCompute,
+        vk::UniqueRenderPass{})
 {}
 
 cf::Pipeline::Pipeline(
   const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
 , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
-, PipelineType type)
+, PipelineType type
+, const vk::UniqueRenderPass& renderPass
+)
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
@@ -78,7 +80,7 @@ cf::Pipeline::Pipeline(
     {
     case PipelineType::eGraphics:
     {
-        mPipeline = CreateGraphicsPipeline(shaderStages);
+        mPipeline = CreateGraphicsPipeline(shaderStages, renderPass);
         break;
     }
     case PipelineType::eCompute:
@@ -148,7 +150,9 @@ struct Vertex
 // ====================================================================================
 // Graphics pipeline
 vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
-    const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages)
+    const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
+  , const vk::UniqueRenderPass& renderPass
+)
 {
     // Input assembly
     auto inputAssemblyStateCreateInfo =
@@ -209,7 +213,7 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
     pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
     pipelineCreateInfo.layout = mPipelineLayout.get();
-    pipelineCreateInfo.renderPass = VulkanContext::Get()->mFrameGraph->GetRenderPass("opaque");
+    pipelineCreateInfo.renderPass = renderPass.get();
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;

@@ -48,8 +48,8 @@ VulkanContext::VulkanContext(GLFWwindow* window)
     poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     mDescriptorPool = mDevice->GetVulkanDevice().createDescriptorPoolUnique(poolInfo);
 
-    mFrameGraph = CreateSharedPtr<FrameGraph>();
-    mFrameGraph->CreateRenderFrameGraph();
+    //mFrameGraph = CreateSharedPtr<FrameGraph>();
+    //mFrameGraph->CreateRenderFrameGraph();
 
     // These need to be created post-graphics pipeline
     //mSwapChain->CreateFramebuffers();

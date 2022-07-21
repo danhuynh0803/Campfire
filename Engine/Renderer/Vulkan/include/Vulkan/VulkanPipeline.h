@@ -27,12 +27,13 @@ public:
     Pipeline(
         const std::vector<std::vector<vk::DescriptorSetLayoutBinding>>& descriptorSetLayoutBindings
       , const vk::PipelineShaderStageCreateInfo& shaderStage
-      , PipelineType type);
+    );
 
     Pipeline(
         const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
       , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
       , PipelineType type
+      , const vk::UniqueRenderPass& renderPass
     );
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
@@ -42,6 +43,7 @@ public:
 private:
     vk::UniquePipeline CreateGraphicsPipeline(
         const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
+      , const vk::UniqueRenderPass& renderPass
     );
 
     vk::UniquePipeline CreateComputePipeline(
