@@ -32,6 +32,34 @@ float RandomFloat01(inout uint state)
     return float(WangHash(state)) / 4294967296.0; // uint max
 }
 
+// From PBRT 13.6.3 Cosine-Weighted Hemisphere Sampling
+vec2 ConcentricMappingDisk(inout uint state)
+{
+    vec2 u = vec2(RandomFloat01(state), RandomFloat01(state));
+    // Map uniform random numbers to [-1, 1]
+    vec2 uOffset = 2.0f*u - vec2(1);
+
+    if (uOffset.x == 0 && uOffset.y == 0)
+        return vec2(0);
+
+    // Apply concentric mapping to point
+    float theta, r;
+    if (abs(uOffset.x) > abs(uOffset.y)) {
+        r = uOffset.x;
+        theta = c_pi*0.25f * (uOffset.y/uOffset.x);
+    } else {
+        r = uOffset.y;
+        theta = c_pi*0.5f - c_pi*0.25f * (uOffset.x/uOffset.y);
+    }
+    return r * vec2(cos(theta), sin(theta));
+}
+vec3 CosineWeighted(inout uint state)
+{
+    vec2 d = ConcentricMappingDisk(state);
+    float z = sqrt(max(0.0f, 1.0f-d.x*d.x - d.y*d.y));
+    return vec3(d.x, d.y, z);
+}
+
 vec3 RandomUnitVector(inout uint state)
 {
     // Uniform sampling of sphere
@@ -316,7 +344,7 @@ void CornellBoxSceneIntersection2(in vec3 rayPos, in vec3 rayDir, inout RayHitIn
 
             hitInfo = DefaultRayHitInfo();
             hitInfo.albedo = tileColor;
-            hitInfo.emission = mix(vec3(0.0f), tileColor*3.0f, isTiled);
+            hitInfo.emission = mix(vec3(0.0f), tileColor*5.0f, isTiled);
             hitInfo.isLight = bool(isTiled);
         }
     }
@@ -721,7 +749,16 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         }
 
         // Random ray direction for lambertian (diffuse) materials
-        vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        //vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        // generate orthonormal basis
+        vec3 N = hitInfo.normal;
+        vec3 Nt = abs(N.x) > abs(N.y) ? vec3(N.z, 0, -N.x) : vec3(0, -N.z, N.y);
+        Nt = normalize(Nt);
+        vec3 Nb = cross(N, Nt);
+        // Cosine weighted ray direction for lambertian (diffuse) materials
+        //vec3 diffuseDir = normalize(hitInfo.normal + RandomUnitVector(rngState));
+        vec3 cosDir = CosineWeighted(rngState);
+        vec3 diffuseDir = normalize(Nt*cosDir.x + Nb*cosDir.y + N*cosDir.z);
         // Pure reflection direction
         vec3 specularDir = reflect(currRayDir, hitInfo.normal);
         if (hitInfo.isRefractive) {
@@ -737,6 +774,7 @@ vec3 PathTraceScene(inout vec3 rayO, inout vec3 rayD, inout uint rngState)
         }
 
         accuColor += hitInfo.emission * colorMask;
+        //accuColor *= max(dot(hitInfo.normal, currRayDir), 0.0f);
         if (!hitInfo.isRefractive)
             colorMask *= hitInfo.albedo;
     }
