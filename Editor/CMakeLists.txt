@@ -8,6 +8,7 @@ set(EDITOR_HEADERS
     include/Widgets/TransformWidget.h
     #include/Widgets/AssetBrowser.h
     #include/EditorLayer.h
+    include/RayTracingLayer.h
     include/VulkanLayer.h
 )
 
@@ -18,6 +19,7 @@ set(EDITOR_SRC
     src/Widgets/TransformWidget.cpp
     #src/Widgets/AssetBrowser.cpp
     #src/EditorLayer.cpp
+    src/RayTracingLayer.cpp
     src/VulkanLayer.cpp
     src/EditorApplication.cpp
 )
