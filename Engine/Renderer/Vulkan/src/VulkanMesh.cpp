@@ -1,3 +1,4 @@
+#include "Vulkan/VulkanMesh.h"
 #include "Core/ResourceManager.h"
 #include "Util/AABB.h"
 
@@ -39,16 +40,17 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
     auto pipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
     // TODO swapchain size
     // TODO use vars for set indices
-    auto layout = std::vector(3, pipeline->mDescriptorSetLayouts.at(1).get());
+    /*
+    auto layouts = std::vector(3, layout);
     auto allocInfo = vk::initializers::
         DescriptorSetAllocateInfo(
             VulkanContext::Get()->GetDescriptorPool(),
-            static_cast<uint32_t>(layout.size()),
-            layout.data()
+            static_cast<uint32_t>(layouts.size()),
+            layouts.data()
         );
-
+    */
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    material->descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+    //material->descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
 
     if (material)
     {
@@ -90,7 +92,8 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
             { ShaderDataType::BOOL, "useEmissiveMap"  },
         };
 
-        for (int i = 0; i < 3; ++i)
+        // TODO dont need 3
+        for (size_t i = 0; i < 3; ++i)
         {
             TextureMapUsage usage;
 

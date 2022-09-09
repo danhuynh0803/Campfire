@@ -30,16 +30,16 @@ void FrameGraph::CreateRenderFrameGraph()
 
 void FrameGraph::CreatePipelines()
 {
-    //mPipelines["models"] = CreateModelPipeline();
-    mPipelines["postprocess"] = CreatePostProcessPipeline();
-    mPipelines["raytrace"] = CreateRaytracingComputePipeline();
+    mPipelines["models"] = CreateModelPipeline();
+    //mPipelines["postprocess"] = CreatePostProcessPipeline();
+    //mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
 
 void FrameGraph::ReconstructFrameGraph()
 {
-    //mGraphicsPipelines["models"] = CreateModelPipeline();
+    mPipelines["models"] = CreateModelPipeline();
     //mPipelines["postprocess"] = CreatePostProcessPipeline();
-    mPipelines["raytrace"] = CreateRaytracingComputePipeline();
+    //mPipelines["raytrace"] = CreateRaytracingComputePipeline();
 }
 
 SharedPtr<cf::Pipeline> FrameGraph::CreatePostProcessPipeline()

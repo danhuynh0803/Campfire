@@ -50,6 +50,7 @@ struct VulkanSubmesh
 class VulkanMesh
 {
 public:
+    VulkanMesh();
     VulkanMesh(const std::string& filename);
     ~VulkanMesh();
 

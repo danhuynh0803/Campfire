@@ -38,13 +38,8 @@ private:
     void ReconstructPipelines();
 
     Timer timer;
-
     VulkanGraphicsPipeline::TransformPushConstBlock mPushConstBlock;
-
     SharedPtr<Scene> scene;
-
-    vk::UniqueFence computeFence;
-
     vk::Device mDevice;
 
     // Widgets
