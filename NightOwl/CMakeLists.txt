@@ -45,5 +45,8 @@ set_property(TARGET NightOwl PROPERTY VS_DOTNET_REFERENCES
     "System"
     "System.Core"
     "System.Data"
+    "System.Drawing"
     "System.Windows.Forms"
 )
+
+set(CMAKE_CSharp_FLAGS "/platform:AnyCPU")
