@@ -12,6 +12,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Setup Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
       - name: Checkout
         uses: actions/checkout@v2
         with:
