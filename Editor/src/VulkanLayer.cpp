@@ -39,8 +39,6 @@ static SharedPtr<cf::Pipeline> modelPipeline;
 static SharedPtr<cf::Pipeline> postProcessPipeline;
 static vk::DescriptorImageInfo descriptorImageInfo;
 
-static LabelMap<SharedPtr<cf::Pipeline>> pipelines;
-
 //SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
 //{
 //    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
@@ -488,6 +486,8 @@ void VulkanLayer::ReconstructPipelines()
 {
     auto ctx = VulkanContext::Get();
     ctx->GetDevice()->GetVulkanDevice().waitIdle();
+
+    modelPipeline = CreateModelPipeline();
 }
 
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
