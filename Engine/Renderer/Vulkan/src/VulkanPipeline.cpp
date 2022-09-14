@@ -11,14 +11,14 @@ cf::Pipeline::Pipeline(
         descriptorSetLayoutBindings,
         std::vector<vk::PipelineShaderStageCreateInfo> { shaderStage },
         PipelineType::eCompute,
-        vk::UniqueRenderPass{})
+        vk::RenderPass{})
 {}
 
 cf::Pipeline::Pipeline(
   const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
 , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
 , PipelineType type
-, const vk::UniqueRenderPass& renderPass
+, const vk::RenderPass& renderPass
 )
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -151,7 +151,7 @@ struct Vertex
 // Graphics pipeline
 vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
-  , const vk::UniqueRenderPass& renderPass
+  , const vk::RenderPass& renderPass
 )
 {
     // Input assembly
@@ -213,7 +213,7 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
     pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
     pipelineCreateInfo.layout = mPipelineLayout.get();
-    pipelineCreateInfo.renderPass = renderPass.get();
+    pipelineCreateInfo.renderPass = renderPass;
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;

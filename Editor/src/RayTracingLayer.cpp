@@ -28,6 +28,8 @@
 
 #include <array>
 
+SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
+
 static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 static double frameTime = 0;
@@ -126,7 +128,7 @@ void RayTracingLayer::OnAttach()
     postProcessVbo = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     postProcessIbo = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
-    frameGraph.CreateRenderFrameGraph();
+    frameGraph.Prepare();
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));
 
@@ -551,4 +553,83 @@ bool RayTracingLayer::OnWindowResize(WindowResizeEvent& e)
     frameNumber = 0;
 
     return false;
+}
+
+SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline()
+{
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(3);
+
+    { // Environment descriptors
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            0);
+
+        // Lights
+        auto lights = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            1);
+
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
+            camera,
+            lights,
+        };
+    }
+
+    { // Compute Resolve
+        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eStorageImage,
+            vk::ShaderStageFlagBits::eCompute,
+            0);
+
+        auto albedoMap = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eCompute,
+            1);
+
+       auto metallicMap = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eCompute,
+            2);
+
+        // Set 1
+        descriptorSetLayoutBindings[1] = {
+            computeResolve,
+            albedoMap,
+            metallicMap,
+        };
+    }
+
+    { // Scene data
+        // Spheres
+        auto spheres = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eStorageBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            0);
+
+        // Quads
+        auto quads = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eStorageBuffer,
+            vk::ShaderStageFlagBits::eCompute,
+            1);
+
+        // Set 2
+        descriptorSetLayoutBindings[2] = {
+            spheres,
+            quads
+        };
+    }
+
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets = { descriptorSetLayoutBindings };
+
+    auto shader = CreateSharedPtr<VulkanShader>(SHADERS + "/raytrace.comp");
+    vk::PipelineShaderStageCreateInfo shaderInfo {};
+    shaderInfo.stage  = vk::ShaderStageFlagBits::eCompute;
+    shaderInfo.module = shader->GetShaderModule();
+    shaderInfo.pName  = "main";
+
+    return CreateSharedPtr<cf::Pipeline>(descriptorSets, shaderInfo);
 }

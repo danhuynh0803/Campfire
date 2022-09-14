@@ -18,6 +18,7 @@
 
 #include "Renderer/FrameGraph.h"
 #include "Renderer/GlobalInfo.h"
+#include "Vulkan/VulkanShader.h"
 
 #include "Scene/Scene.h"
 #include "Scene/Entity.h"
@@ -34,9 +35,157 @@ static global::RenderContext globalInfoGraphics;
 static FrameGraph frameGraph;
 static SharedPtr<VulkanVertexBuffer> postProcessVbo;
 static SharedPtr<VulkanIndexBuffer> postProcessIbo;
-static SharedPtr<cf::Pipeline> graphicsPipeline;
+static SharedPtr<cf::Pipeline> modelPipeline;
 static SharedPtr<cf::Pipeline> postProcessPipeline;
 static vk::DescriptorImageInfo descriptorImageInfo;
+
+static LabelMap<SharedPtr<cf::Pipeline>> pipelines;
+
+//SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
+//{
+//    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
+//    { // Compute Resolve
+//        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
+//            vk::DescriptorType::eCombinedImageSampler,
+//            vk::ShaderStageFlagBits::eFragment,
+//            0);
+//
+//        // Set 0
+//        descriptorSetLayoutBindings[0] = {
+//            computeResolve,
+//        };
+//    }
+//
+//    // Shaders
+//    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert.spv");
+//    vk::PipelineShaderStageCreateInfo vsStageInfo{};
+//    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
+//    vsStageInfo.module = vs->GetShaderModule();
+//    vsStageInfo.pName  = "main";
+//
+//    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag.spv");
+//    vk::PipelineShaderStageCreateInfo fsStageInfo{};
+//    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
+//    fsStageInfo.module = fs->GetShaderModule();
+//    fsStageInfo.pName  = "main";
+//
+//    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
+//        vsStageInfo,
+//        fsStageInfo,
+//    };
+//
+//    return CreateSharedPtr<cf::Pipeline>(
+//        descriptorSetLayoutBindings,
+//        shaderStages,
+//        PipelineType::eGraphics,
+//        frameGraph.GetRenderPass("opaque")
+//    );
+//}
+
+SharedPtr<cf::Pipeline> CreateModelPipeline()
+{
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
+    { // Environment descriptors
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eAllGraphics,
+            0);
+
+        // TODO switch to storage buffer
+        // Lights
+        auto lights = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
+            camera,
+            lights,
+        };
+    }
+
+    { // Material descriptors
+        // Albedo map
+        auto albedo = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
+
+        // Metallic map
+        auto metallic = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        // Normal map
+        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            2);
+
+        // Roughness map
+        auto roughness = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            3);
+
+        // Ambient Occlusion map
+        auto ambientOcclusion = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            4);
+
+        // Emissive map
+        auto emissive = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            5);
+
+        // TextureMap usage
+        auto mapUsage = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            6);
+
+        descriptorSetLayoutBindings[1] = {
+            albedo,
+            metallic,
+            normal,
+            roughness,
+            ambientOcclusion,
+            emissive,
+            mapUsage,
+        };
+    }
+
+    // Shaders
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/model.vert");
+    vk::PipelineShaderStageCreateInfo vsStageInfo{};
+    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
+    vsStageInfo.module = vs->GetShaderModule();
+    vsStageInfo.pName  = "main";
+
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/model.frag");
+    vk::PipelineShaderStageCreateInfo fsStageInfo{};
+    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
+    fsStageInfo.module = fs->GetShaderModule();
+    fsStageInfo.pName  = "main";
+
+    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
+        vsStageInfo,
+        fsStageInfo,
+    };
+
+    return CreateSharedPtr<cf::Pipeline>(
+        descriptorSetLayoutBindings,
+        shaderStages,
+        PipelineType::eGraphics,
+        frameGraph.GetRenderPass("opaque")
+    );
+}
+
 
 //========================================================
 VulkanLayer::VulkanLayer()
@@ -98,15 +247,15 @@ void VulkanLayer::OnAttach()
     postProcessVbo = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     postProcessIbo = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
-    frameGraph.CreateRenderFrameGraph();
+    frameGraph.Prepare();
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));
 
-    graphicsPipeline = frameGraph.GetPipeline("models");
+    modelPipeline = CreateModelPipeline();
     // TODO setup postprocess as compute
     //postProcessPipeline = frameGraph.GetPipeline("postprocess");
 
-    globalInfoGraphics.Init(graphicsPipeline);
+    globalInfoGraphics.Init(modelPipeline);
     auto swapChain = VulkanContext::Get()->GetSwapChain();
     ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
 
@@ -200,12 +349,12 @@ void VulkanLayer::OnUpdate(float dt)
 
             commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
-                graphicsPipeline->mPipelineLayout.get(),
+                modelPipeline->mPipelineLayout.get(),
                 0,
                 static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(),
                 0, nullptr
             );
-            commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline->mPipeline.get());
+            commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, modelPipeline->mPipeline.get());
 
             // TODO render off screen
             auto group = scene->registry.group<VulkanMeshComponent>(entt::get<TransformComponent, TagComponent>);
@@ -215,7 +364,7 @@ void VulkanLayer::OnUpdate(float dt)
 
                 mPushConstBlock.model = transformComponent;
                 commandBuffer.pushConstants(
-                    graphicsPipeline->mPipelineLayout.get(),
+                    modelPipeline->mPipelineLayout.get(),
                     vk::ShaderStageFlagBits::eVertex,
                     0, sizeof(VulkanGraphicsPipeline::TransformPushConstBlock),
                     &mPushConstBlock);
@@ -340,9 +489,6 @@ void VulkanLayer::ReconstructPipelines()
 {
     auto ctx = VulkanContext::Get();
     ctx->GetDevice()->GetVulkanDevice().waitIdle();
-
-    // TODO reconstruct async
-    frameGraph.ReconstructFrameGraph();
 }
 
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)

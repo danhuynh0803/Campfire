@@ -78,6 +78,7 @@ private:
     std::string name;
     std::string directory;
     std::vector<SharedPtr<MaterialInstance>> materials;
+    vk::PipelineLayout mPipelineLayout;
 
 private: // assimp related
     //Assimp::Importer importer;

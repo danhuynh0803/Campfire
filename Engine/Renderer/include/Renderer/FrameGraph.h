@@ -14,6 +14,11 @@ struct AttachmentInfo
 {
     vk::Format format       = vk::Format::eUndefined;
     uint32_t samples        = 1;
+
+    // TODO rendergraph should build this
+    vk::Image image;
+    vk::DeviceMemory memory;
+    vk::ImageView imageView;
 };
 
 struct RenderPassInfo
@@ -74,6 +79,11 @@ class RenderPass
     }
 
 private:
+    int32_t width, height;
+    vk::Framebuffer frameBuffer;
+    vk::Sampler sampler;
+    vk::DescriptorImageInfo descriptorImageInfo;
+
     LabelMap<vk::SubpassDescription> subpasses;
     LabelMap<vk::SubpassDependency> subpassDependencies;
     vk::UniqueRenderPass uniqueRenderPass;
@@ -84,7 +94,7 @@ class FrameGraph
 public:
     FrameGraph();
     ~FrameGraph() {}
-    void CreateRenderFrameGraph();
+    void Prepare();
 
     RenderPass& AddRenderPass(
         const std::string& label,
@@ -95,29 +105,20 @@ public:
         return mRenderPasses.at(label).get();
     }
 
-    SharedPtr<cf::Pipeline> GetPipeline(const std::string& label) {
-        return mPipelines.at(label);
-    }
-
-    SharedPtr<cf::Pipeline> GetGraphicsPipeline(const std::string& label) {
-        return mPipelines.at(label);
-    }
-
     void ReconstructFrameGraph();
 
 private:
     void CreateOpaque();
-    void CreatePipelines();
-    SharedPtr<cf::Pipeline> CreateModelPipeline();
-    SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
-    SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
+    //void CreatePipelines();
+    //SharedPtr<cf::Pipeline> CreateModelPipeline();
+    //SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
+    //SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
 
 private:
     LabelMap<vk::UniqueRenderPass> mRenderPasses;
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;
-    LabelMap<SharedPtr<cf::Pipeline>> mPipelines;
     //LabelMap<vk::SubpassDescription> mSubpasses;
     //LabelMap<vk::SubpassDependency> mSubpassDependencies;
     vk::Device mDevice;

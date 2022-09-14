@@ -19,7 +19,7 @@ set(EDITOR_SRC
     src/Widgets/TransformWidget.cpp
     #src/Widgets/AssetBrowser.cpp
     #src/EditorLayer.cpp
-    src/RayTracingLayer.cpp
+    #src/RayTracingLayer.cpp
     src/VulkanLayer.cpp
     src/EditorApplication.cpp
 )
