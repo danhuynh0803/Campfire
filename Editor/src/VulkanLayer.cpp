@@ -261,14 +261,12 @@ void VulkanLayer::OnAttach()
     ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
 
     // Scene Info
-    /*
     auto environment = scene->CreateEntity("environment");
     environment.AddComponent<VulkanMeshComponent>(
-        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-        ASSETS + "/Models/helmet/scene.gltf",
+        ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+        //ASSETS + "/Models/helmet/scene.gltf"
     );
-    environment.GetComponent<TransformComponent>().scale = glm::vec3(0.3f);
-    */
+    environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
 }
 
 void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
