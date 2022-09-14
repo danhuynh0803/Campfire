@@ -37,20 +37,79 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
 {
     vertexBuffer = CreateSharedPtr<VulkanVertexBuffer>(vertices.data(), sizeof(Vertex) * vertices.size());
     indexBuffer = CreateSharedPtr<VulkanIndexBuffer>(indices.data(), indices.size());
-    //auto pipeline = VulkanContext::Get()->mFrameGraph->GetGraphicsPipeline("models");
-    // TODO swapchain size
-    // TODO use vars for set indices
-    /*
-    auto layouts = std::vector(3, layout);
+
+
+    // TODO handled by material
+    std::vector<vk::DescriptorSetLayoutBinding> descriptorSet{};
+    { // Material descriptors
+        // Albedo map
+        auto albedo = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
+
+        // Metallic map
+        auto metallic = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        // Normal map
+        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            2);
+
+        // Roughness map
+        auto roughness = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            3);
+
+        // Ambient Occlusion map
+        auto ambientOcclusion = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            4);
+
+        // Emissive map
+        auto emissive = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            5);
+
+        // TextureMap usage
+        auto mapUsage = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eFragment,
+            6);
+
+        descriptorSet = {
+            albedo,
+            metallic,
+            normal,
+            roughness,
+            ambientOcclusion,
+            emissive,
+            mapUsage,
+        };
+    }
+
+    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+        descriptorSet.size(),
+        descriptorSet.data()
+    );
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    material->mDescriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo));
+
     auto allocInfo = vk::initializers::
         DescriptorSetAllocateInfo(
             VulkanContext::Get()->GetDescriptorPool(),
-            static_cast<uint32_t>(layouts.size()),
-            layouts.data()
+            material->mDescriptorSetLayouts.size(),
+            &material->mDescriptorSetLayouts[0].get()
         );
-    */
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    //material->descriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
+    material->mDescriptorSets = device.allocateDescriptorSetsUnique(allocInfo);
 
     if (material)
     {
@@ -92,52 +151,48 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
             { ShaderDataType::BOOL, "useEmissiveMap"  },
         };
 
-        // TODO dont need 3
-        for (size_t i = 0; i < 3; ++i)
-        {
-            TextureMapUsage usage;
+        TextureMapUsage usage;
 
-            if (albedo) {
-                albedo->UpdateDescriptors(material->descriptorSets[i].get(), 0);
-                usage.useAlbedoMap = true;
-            }
-            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 0); }
-
-            if (metallic) {
-                metallic->UpdateDescriptors(material->descriptorSets[i].get(), 1);
-                usage.useMetallicMap = true;
-            }
-            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 1); }
-
-            if (normal) {
-                normal->UpdateDescriptors(material->descriptorSets[i].get(), 2);
-                usage.useNormalMap = true;
-            }
-            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 2); }
-
-            if (roughness) {
-                roughness->UpdateDescriptors(material->descriptorSets[i].get(), 3);
-                usage.useRoughnessMap = true;
-            }
-            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 3); }
-
-            if (occlusion) {
-                occlusion->UpdateDescriptors(material->descriptorSets[i].get(), 4);
-                usage.useOcclusionMap = true;
-            }
-            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 4); }
-
-            if (emissive) {
-                emissive->UpdateDescriptors(material->descriptorSets[i].get(), 5);
-                usage.useEmissiveMap = true;
-            }
-            else { albedo->UpdateDescriptors(material->descriptorSets[i].get(), 5); }
-
-            material->textureMapUsageUbo->UpdateDescriptorSet(
-                material->descriptorSets[i], usageLayout, 6
-            );
-            material->textureMapUsageUbo->SetData(&usage, 6, sizeof(::TextureMapUsage));
+        if (albedo) {
+            albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 0);
+            usage.useAlbedoMap = true;
         }
+        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 0); }
+
+        if (metallic) {
+            metallic->UpdateDescriptors(material->mDescriptorSets[0].get(), 1);
+            usage.useMetallicMap = true;
+        }
+        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 1); }
+
+        if (normal) {
+            normal->UpdateDescriptors(material->mDescriptorSets[0].get(), 2);
+            usage.useNormalMap = true;
+        }
+        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 2); }
+
+        if (roughness) {
+            roughness->UpdateDescriptors(material->mDescriptorSets[0].get(), 3);
+            usage.useRoughnessMap = true;
+        }
+        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 3); }
+
+        if (occlusion) {
+            occlusion->UpdateDescriptors(material->mDescriptorSets[0].get(), 4);
+            usage.useOcclusionMap = true;
+        }
+        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 4); }
+
+        if (emissive) {
+            emissive->UpdateDescriptors(material->mDescriptorSets[0].get(), 5);
+            usage.useEmissiveMap = true;
+        }
+        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 5); }
+
+        material->textureMapUsageUbo->UpdateDescriptorSet(
+            material->mDescriptorSets[0], usageLayout, 6
+        );
+        material->textureMapUsageUbo->SetData(&usage, 6, sizeof(::TextureMapUsage));
     }
 }
 
@@ -163,7 +218,7 @@ void VulkanMesh::OnUpdate(float dt)
     // TODO for animations
 }
 
-void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex)
+void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout)
 {
     // TODO move to meshRenderer
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -173,10 +228,10 @@ void VulkanMesh::Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex)
         // Bind descriptor of material
         commandBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
-            mPipelineLayout,
+            pipelineLayout,
             1,
             1,
-            &submesh.material->descriptorSets[frameIndex].get(),
+            &submesh.material->mDescriptorSets[0].get(),
             0, nullptr
         );
 

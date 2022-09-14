@@ -56,7 +56,7 @@ public:
 
     void OnUpdate(float dt);
 
-    void Draw(vk::CommandBuffer commandBuffer, uint32_t frameIndex);
+    void Draw(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout);
 
     static SharedPtr<VulkanMesh> Create(const std::string& filename);
 

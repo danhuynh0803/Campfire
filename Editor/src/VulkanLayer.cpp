@@ -106,6 +106,7 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
         };
     }
 
+    // TODO use spirv-cross to get descriptors layout
     { // Material descriptors
         // Albedo map
         auto albedo = vk::initializers::DescriptorSetLayoutBinding(
@@ -370,7 +371,7 @@ void VulkanLayer::OnUpdate(float dt)
                     &mPushConstBlock);
 
                 // Draw mesh
-                meshComponent.mesh->Draw(commandBuffer, frame);
+                meshComponent.mesh->Draw(commandBuffer, modelPipeline->mPipelineLayout.get());
             }
 
             // Post process quad

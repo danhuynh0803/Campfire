@@ -31,6 +31,7 @@ struct VulkanMaterial
 
     SharedPtr<VulkanUniformBuffer> textureMapUsageUbo = nullptr;
 
-    std::vector<vk::UniqueDescriptorSet> descriptorSets;
-    vk::Pipeline pipeline;
+    std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
+    std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
+    vk::Pipeline mPipeline;
 };
