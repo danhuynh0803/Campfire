@@ -25,15 +25,20 @@ void FrameGraph::Prepare()
     CreateOpaque();
 }
 
-RenderPass& AddRenderPass(
+RenderPass& FrameGraph::AddRenderPass(
     const std::string& label,
     RenderQueue queue)
 {
-    RenderPass pass;
+    auto& it = mRenderPasses.find(label);
+    if (it != mRenderPasses.end()) {
+        return it->second;
+    }
 
-    return pass;
+    mRenderPasses.emplace(label, RenderPass{});
+    return mRenderPasses.find(label)->second;
 }
 
+// TODO handled by application
 void FrameGraph::CreateOpaque()
 {
     // Color Attachment
@@ -102,5 +107,5 @@ void FrameGraph::CreateOpaque()
     renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
     const std::string label = "opaque";
-    mRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
+    tempRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
 }

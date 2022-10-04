@@ -317,6 +317,25 @@ void VulkanLayer::OnAttach()
     postProcessVbo = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     postProcessIbo = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
+    { // deferred opaque renderpass
+        auto& opaquePass = frameGraph.AddRenderPass("opaque", RenderQueueFlagsBits::eGraphics);
+        // TODO refactor attachment handling with subpass class
+        { // deferred mrt subpass
+            auto& desc = opaquePass.AddSubpass("mrt");
+            desc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+            desc.colorAttachmentCount = 1;
+            //desc.pColorAttachments = &colorAttachmentRef;
+            //desc.pDepthStencilAttachment = &depthAttachmentRef;
+        }
+
+        { // post process composition subpass
+            auto& desc = opaquePass.AddSubpass("postprocess");
+            desc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+            desc.colorAttachmentCount = 1;
+            //desc.pColorAttachments = &colorAttachmentRef;
+            //desc.pDepthStencilAttachment = &depthAttachmentRef;
+        }
+    }
     frameGraph.Prepare();
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));

@@ -9,6 +9,7 @@
 
 template <typename T>
 using LabelMap = std::map<std::string, T>;
+
 struct AttachmentInfo
 {
     vk::Format format = vk::Format::eUndefined;
@@ -38,7 +39,7 @@ struct RenderPassInfo
     vk::AttachmentReference depthStencilAttachment;
 };
 
-enum class RenderQueueFlagsBits
+enum RenderQueueFlagsBits
 {
     eGraphics       = 1 << 0,
     eCompute        = 1 << 1,
@@ -48,20 +49,23 @@ enum class RenderQueueFlagsBits
 };
 using RenderQueue = uint32_t;
 
+struct SubPass
+{
+};
+
 class RenderPass
 {
-    /*
-    vk::SubpassDescription& AddSubpass(const std::string& name)
+public:
+    vk::SubpassDescription& AddSubpass(const std::string& label)
     {
-        auto& it = subpasses.find(name);
-        if (it != subpasses.end()) {
+        auto& it = mSubpasses.find(label);
+        if (it != mSubpasses.end()) {
             return it->second;
         }
 
-        subpasses.emplace(name);
-        return subpasses.find(name)->second;
+        mSubpasses.emplace(label, vk::SubpassDescription{});
+        return mSubpasses.find(label)->second;
     }
-    */
 
     vk::RenderPass& Get() {
         return uniqueRenderPass.get();
@@ -91,7 +95,7 @@ private:
     vk::Sampler sampler;
     vk::DescriptorImageInfo descriptorImageInfo;
 
-    LabelMap<vk::SubpassDescription> subpasses;
+    LabelMap<vk::SubpassDescription> mSubpasses;
     LabelMap<vk::SubpassDependency> subpassDependencies;
     vk::UniqueRenderPass uniqueRenderPass;
 };
@@ -109,7 +113,7 @@ public:
     );
 
     vk::RenderPass GetRenderPass(const std::string& label) {
-        return mRenderPasses.at(label).get();
+        return tempRenderPasses.at(label).get();
     }
 
     void ReconstructFrameGraph();
@@ -122,7 +126,8 @@ private:
     //SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
 
 private:
-    LabelMap<vk::UniqueRenderPass> mRenderPasses;
+    LabelMap<RenderPass> mRenderPasses;
+    LabelMap<vk::UniqueRenderPass> tempRenderPasses;
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;

@@ -61,11 +61,11 @@ void VulkanRenderer::EndScene(vk::CommandBuffer& commandBuffer)
     commandBuffer.end();
 }
 
-void VulkanRenderer::DrawIndexed(vk::CommandBuffer& commandBuffer, vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t count)
+void VulkanRenderer::DrawIndexed(vk::CommandBuffer& commandBuffer, vk::Buffer vertexBuffer, vk::Buffer indexBuffer, uint32_t indexCount)
 {
     vk::Buffer vertexBuffers[] = { vertexBuffer };
     vk::DeviceSize offsets[] = { 0 };
     commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
     commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
-    commandBuffer.drawIndexed(count, 1, 0, 0, 0);
+    commandBuffer.drawIndexed(indexCount, 1, 0, 0, 0);
 }
