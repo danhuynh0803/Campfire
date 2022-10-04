@@ -153,11 +153,12 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
 
         TextureMapUsage usage;
 
-        if (albedo) {
+        // TODO update with fixed color if any of the texture maps are not available
+        //if (albedo)
+        {
             albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 0);
             usage.useAlbedoMap = true;
         }
-        else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 0); }
 
         if (metallic) {
             metallic->UpdateDescriptors(material->mDescriptorSets[0].get(), 1);
@@ -189,6 +190,8 @@ VulkanSubmesh::VulkanSubmesh(std::vector<Vertex> v, std::vector<uint32_t> i, Sha
         }
         else { albedo->UpdateDescriptors(material->mDescriptorSets[0].get(), 5); }
 
+        // TODO texture map usage values are differing
+        // Maybe an offset issue
         material->textureMapUsageUbo->UpdateDescriptorSet(
             material->mDescriptorSets[0], usageLayout, 6
         );
@@ -378,12 +381,17 @@ VulkanSubmesh VulkanMesh::LoadSubmesh(aiMesh* mesh, const aiScene* scene)
                 mat->albedoMap = textures.at(0);
                 mat->useAlbedoMap = true;
             }
+            else
+            {
+                CORE_INFO("Missing diffuse texture map?");
+            }
         }
 
         { // Displacement
 
         }
 
+        // TODO BUG emissive map getting triggered on AMD hardware?
         { // Emmissive
             std::vector<SharedPtr<Texture2D>> textures =
                 LoadMaterialTextures(meshMaterial, aiTextureType_EMISSIVE);

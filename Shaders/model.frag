@@ -143,9 +143,12 @@ vec3 PhongLighting(vec3 normal)
 
 vec3 BasicPbr()
 {
-    vec3 albedo = mapUsage.useAlbedoMap ? pow(texture(uAlbedoMap, inUV).rgb * vec3(1.0f), vec3(2.2)) : vec3(1.0f);
-    // TODO floor of sponza being set to vec3(1.0f) for some reason?
-    albedo = pow(texture(uAlbedoMap, inUV).rgb * vec3(1.0f), vec3(2.2));
+    vec3 albedo = mapUsage.useAlbedoMap
+        ? pow(texture(uAlbedoMap, inUV).rgb, vec3(2.2))
+        : vec3(1.0f)
+    ;
+
+    albedo = pow(texture(uAlbedoMap, inUV).rgb, vec3(2.2));
 
     if (texture(uAlbedoMap, inUV).a <= 0.01f)
     {
@@ -157,6 +160,7 @@ vec3 BasicPbr()
     float ao = mapUsage.useOcclusionMap ? texture(uAmbientOcclusionMap, inUV).r : 0.1f;
 
     vec3 emission = mapUsage.useEmissiveMap ? texture(uEmissiveMap, inUV).rgb : vec3(0.0f);
+
     emission *= 1.0f; //TODO replace with emissiveIntensity
     //emission *= uEmissiveIntensity;
 
@@ -222,15 +226,7 @@ vec3 BasicPbr()
     }
 
     vec3 ambient = vec3(0.03f) * albedo * ao;
-    vec3 color = ambient + Lo + emission;
-
-    // TODO for bloom postprocess
-    //float brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
-    //if (brightness > 1.0f)
-    //    brightColor = vec4(color, 1.0f);
-    //else
-    //    brightColor = vec4(vec3(0.0f), 1.0f);
-
+    vec3 color = ambient + Lo; //+ emission;
     color = color / (color + vec3(1.0f));
     // apply gamma correction
     return pow(color, vec3(1.0f/2.2f));
@@ -240,5 +236,8 @@ void main()
 {
     //outColor = vec4(PhongLighting(normal), 1.0f);
     outColor = vec4(BasicPbr(), 1.0f);
-    //outColor = texColor;
+    vec4 albedo = texture(uAlbedoMap, inUV);
+    vec4 metallic = texture(uMetallicMap, inUV);
+
+    //outColor = albedo * metallic;
 }
