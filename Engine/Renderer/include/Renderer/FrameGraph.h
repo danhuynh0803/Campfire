@@ -9,16 +9,24 @@
 
 template <typename T>
 using LabelMap = std::map<std::string, T>;
-
 struct AttachmentInfo
 {
-    vk::Format format       = vk::Format::eUndefined;
-    uint32_t samples        = 1;
+    vk::Format format = vk::Format::eUndefined;
+    uint32_t samples  = 1;
 
-    // TODO rendergraph should build this
     vk::Image image;
     vk::DeviceMemory memory;
     vk::ImageView imageView;
+};
+
+struct Framebuffer
+{
+    std::vector<AttachmentInfo> attachments;
+    uint32_t width;
+    uint32_t height;
+    uint32_t layers;
+    vk::RenderPass renderPass;
+    vk::Framebuffer framebuffer;
 };
 
 struct RenderPassInfo
@@ -80,7 +88,6 @@ class RenderPass
 
 private:
     int32_t width, height;
-    vk::Framebuffer frameBuffer;
     vk::Sampler sampler;
     vk::DescriptorImageInfo descriptorImageInfo;
 

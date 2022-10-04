@@ -35,6 +35,7 @@ static global::RenderContext globalInfoGraphics;
 static FrameGraph frameGraph;
 static SharedPtr<VulkanVertexBuffer> postProcessVbo;
 static SharedPtr<VulkanIndexBuffer> postProcessIbo;
+static SharedPtr<cf::Pipeline> deferredPipeline;
 static SharedPtr<cf::Pipeline> modelPipeline;
 static SharedPtr<cf::Pipeline> postProcessPipeline;
 static vk::DescriptorImageInfo descriptorImageInfo;
@@ -82,9 +83,79 @@ static LabelMap<SharedPtr<cf::Pipeline>> pipelines;
 //    );
 //}
 
+SharedPtr<cf::Pipeline> CreateDeferredPipeline()
+{
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets(2);
+    { // Environment descriptors
+        // Camera
+        auto camera = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eUniformBuffer,
+            vk::ShaderStageFlagBits::eAllGraphics,
+            0);
+
+        // Set 0
+        descriptorSets[0] = {
+            camera,
+        };
+    }
+
+    // Textures to write out to MRTs
+    { // Material descriptors
+        // Albedo map
+        auto albedo = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
+
+        // Metallic map
+        auto metallic = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            1);
+
+        // Normal map
+        auto normal = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            2);
+
+        descriptorSets[1] = {
+            albedo,
+            metallic,
+            normal,
+        };
+    }
+
+    // Shaders
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/deferred.vert");
+    vk::PipelineShaderStageCreateInfo vsStageInfo{};
+    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
+    vsStageInfo.module = vs->GetShaderModule();
+    vsStageInfo.pName  = "main";
+
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/deferred.frag");
+    vk::PipelineShaderStageCreateInfo fsStageInfo{};
+    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
+    fsStageInfo.module = fs->GetShaderModule();
+    fsStageInfo.pName  = "main";
+
+    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
+        vsStageInfo,
+        fsStageInfo,
+    };
+
+    // TODO crate deferred pass
+    return CreateSharedPtr<cf::Pipeline>(
+        descriptorSets,
+        shaderStages,
+        PipelineType::eGraphics,
+        frameGraph.GetRenderPass("deferred")
+    );
+}
+
 SharedPtr<cf::Pipeline> CreateModelPipeline()
 {
-    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(2);
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets(2);
     { // Environment descriptors
         // Camera
         auto camera = vk::initializers::DescriptorSetLayoutBinding(
@@ -100,7 +171,7 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
             1);
 
         // Set 0
-        descriptorSetLayoutBindings[0] = {
+        descriptorSets[0] = {
             camera,
             lights,
         };
@@ -150,7 +221,7 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
             vk::ShaderStageFlagBits::eFragment,
             6);
 
-        descriptorSetLayoutBindings[1] = {
+        descriptorSets[1] = {
             albedo,
             metallic,
             normal,
@@ -180,7 +251,7 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
     };
 
     return CreateSharedPtr<cf::Pipeline>(
-        descriptorSetLayoutBindings,
+        descriptorSets,
         shaderStages,
         PipelineType::eGraphics,
         frameGraph.GetRenderPass("opaque")
