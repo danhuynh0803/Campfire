@@ -2,6 +2,13 @@
 
 #include <vulkan/vulkan.hpp>
 
+struct FrameBufferInfo
+{
+    vk::Image image;
+    vk::DeviceMemory memory;
+    vk::ImageView imageView;
+};
+
 class VulkanFramebuffer
 {
 public:

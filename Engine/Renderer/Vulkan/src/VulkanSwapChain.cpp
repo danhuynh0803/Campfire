@@ -253,7 +253,7 @@ void VulkanSwapChain::CreateFramebuffers(const vk::RenderPass& renderPass)
             depthImageView.get(),
         };
 
-        vk::FramebufferCreateInfo framebufferCreateInfo;
+        vk::FramebufferCreateInfo framebufferCreateInfo {};
         framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
         framebufferCreateInfo.renderPass = renderPass;
         framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());

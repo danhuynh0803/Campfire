@@ -21,8 +21,16 @@ void FrameGraph::Prepare()
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
-    // Prepare renderpasses
-    CreateOpaque();
+    // Prepare final on-screen pass for swapchain FBs
+    CreateOnScreenPass();
+
+    // Iterate over renderpasses and create bare vkObjects
+    for (const auto& rp : mRenderPasses)
+    {
+
+    }
+
+    // Generate FBs
 }
 
 RenderPass& FrameGraph::AddRenderPass(
@@ -39,8 +47,10 @@ RenderPass& FrameGraph::AddRenderPass(
 }
 
 // TODO handled by application
-void FrameGraph::CreateOpaque()
+void FrameGraph::CreateOnScreenPass()
 {
+    const std::string label = "forwardOpaque";
+
     // Color Attachment
     vk::AttachmentDescription colorAttachment;
     colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
@@ -106,6 +116,5 @@ void FrameGraph::CreateOpaque()
     renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
     renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
-    const std::string label = "opaque";
     tempRenderPasses.emplace(label, mDevice.createRenderPassUnique(renderPassCreateInfo));
 }

@@ -81,6 +81,11 @@ static vk::DescriptorImageInfo descriptorImageInfo;
 //    );
 //}
 
+void CreateOffscreenFramebuffer()
+{
+
+}
+
 SharedPtr<cf::Pipeline> CreateDeferredPipeline()
 {
     std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSets(2);
@@ -252,7 +257,7 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
         descriptorSets,
         shaderStages,
         PipelineType::eGraphics,
-        frameGraph.GetRenderPass("opaque")
+        frameGraph.GetRenderPass("forwardOpaque")
     );
 }
 
@@ -294,7 +299,7 @@ void VulkanLayer::OnAttach()
     cameraController.normalSpeed = 5;
     cameraController.SetActiveCamera(
         editorCamera,
-        glm::vec3(0.0f, 0.0f, 30.0f), // position
+        glm::vec3(0.0f, 0.0f, 5.0f), // position
         glm::vec3(0.0f, 0.0f, 0.0f) // euler angles
     );
 
@@ -338,7 +343,7 @@ void VulkanLayer::OnAttach()
     }
     frameGraph.Prepare();
 
-    VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("opaque"));
+    VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("forwardOpaque"));
 
     modelPipeline = CreateModelPipeline();
     // TODO setup postprocess as compute
@@ -351,10 +356,11 @@ void VulkanLayer::OnAttach()
     // Scene Info
     auto environment = scene->CreateEntity("environment");
     environment.AddComponent<VulkanMeshComponent>(
-        ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-        //ASSETS + "/Models/helmet/scene.gltf"
+        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+        ASSETS + "/Models/helmet/scene.gltf"
     );
-    environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
+    // Minify sponza model scaling
+    //environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
 }
 
 void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
@@ -414,10 +420,76 @@ void VulkanLayer::OnUpdate(float dt)
     vkImguiLayer->End();
 
     auto swapChainSize = VulkanContext::Get()->GetSwapChain()->GetImages().size();
+
+    // For now, all rendering will be at the same resolution
+    // but this should reference the renderpass width/height
+    vk::Extent2D extent {};
+    extent.width = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    extent.height = VulkanContext::Get()->GetSwapChain()->GetHeight();
+
+    vk::Rect2D renderArea {};
+    renderArea.offset = vk::Offset2D {0, 0};
+    renderArea.extent = extent;
+
+    // Set dynamic viewport
+    vk::Viewport viewport {};
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width  = extent.width;
+    viewport.height = extent.height;
+    viewport.minDepth = 0;
+    viewport.maxDepth = 1;
+
     for (size_t frame = 0; frame < swapChainSize; ++frame)
     {
-        auto commandBuffer = VulkanRenderer::BeginScene(frame, frameGraph.GetRenderPass("opaque"));
+        auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
+
+        vk::CommandBufferBeginInfo beginInfo {};
+        beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
+        beginInfo.pInheritanceInfo = nullptr;
+        commandBuffer.begin(beginInfo);
+
+        commandBuffer.setScissor(0, 1, &renderArea);
+        commandBuffer.setViewport(0, 1, &viewport);
+
+        // Clear value
+        std::array<vk::ClearValue, 2> clearValues;
+        // Off-screen depth pass
         {
+            clearValues[0].color = vk::ClearColorValue(
+                std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 1.0f })
+            );
+            clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+            vk::RenderPassBeginInfo renderPassBeginInfo {};
+            //renderPassBeginInfo.renderPass = renderPass;
+            //renderPassBeginInfo.framebuffer = framebuffer;
+            //renderPassBeginInfo.renderArea = renderArea;
+            //renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            //renderPassBeginInfo.pClearValues = clearValues.data();
+
+            //commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+            //commandBuffer.endRenderPass();
+        }
+
+        // On-screen pass
+        //auto commandBuffer = VulkanRenderer::BeginScene(frame, frameGraph.GetRenderPass("opaque"));
+        {
+            clearValues[0].color = vk::ClearColorValue(
+                std::array<float, 4>({ 0.2f, 0.3f, 0.3f, 1.0f })
+            );
+            clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
+
+            auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
+
+            vk::RenderPassBeginInfo renderPassBeginInfo {};
+            renderPassBeginInfo.renderPass = frameGraph.GetRenderPass("forwardOpaque");;
+            renderPassBeginInfo.framebuffer = framebuffer;
+            renderPassBeginInfo.renderArea = renderArea;
+            renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            renderPassBeginInfo.pClearValues = clearValues.data();
+
+            commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+
             // TODO read from offscreen passes
             //commandBuffer.bindDescriptorSets(
             //    vk::PipelineBindPoint::eGraphics,
@@ -469,8 +541,11 @@ void VulkanLayer::OnUpdate(float dt)
             //);
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+
+            commandBuffer.endRenderPass();
         }
-        VulkanRenderer::EndScene(commandBuffer);
+        //VulkanRenderer::EndScene(commandBuffer);
+        commandBuffer.end();
     }
 
 
@@ -485,6 +560,7 @@ void VulkanLayer::ProcessUserInput()
 {
     if (Input::GetMod(MOD_KEY_CONTROL) && Input::GetKeyDown(KEY_R))
     {
+        // TODO make a menu in imgui to reconstruct certain pipelines and not all of them
         ReconstructPipelines();
         // TODO enable console widget for LOG
         //LOG_INFO("Finish reconstructing pipelines");

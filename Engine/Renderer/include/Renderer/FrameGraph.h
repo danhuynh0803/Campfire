@@ -10,19 +10,50 @@
 template <typename T>
 using LabelMap = std::map<std::string, T>;
 
+// TODO
+//enum Format
+//{
+//    None = 0,
+//    R8G8B8_UNORM,
+//    R8G8B8_SNORM,
+//    R8G8B8_SFLOAT,
+//};
+
+// TODO Replace string with enum for static checking to avoid tag typos?
+// Tags easier once rendergraph implementation completed
+enum RenderPassType
+{
+    DepthOnly = 0,
+    Gbuffer,
+    Lighting,
+    FowardOpaque,
+    PostProcess,
+};
+
 struct AttachmentInfo
 {
     vk::Format format = vk::Format::eUndefined;
     uint32_t samples  = 1;
+    VkAttachmentLoadOp loadOp;
+    VkAttachmentStoreOp storeOp;
+    VkAttachmentLoadOp stencilLoadOp;
+    VkAttachmentStoreOp stencilStoreOp;
+};
 
-    vk::Image image;
-    vk::DeviceMemory memory;
-    vk::ImageView imageView;
+struct Attachment
+{
+    Attachment(const AttachmentInfo& info)
+    {
+    }
+
+    vk::UniqueImage image;
+    vk::UniqueDeviceMemory memory;
+    vk::UniqueImageView imageView;
 };
 
 struct Framebuffer
 {
-    std::vector<AttachmentInfo> attachments;
+    std::vector<Attachment> attachments;
     uint32_t width;
     uint32_t height;
     uint32_t layers;
@@ -119,7 +150,7 @@ public:
     void ReconstructFrameGraph();
 
 private:
-    void CreateOpaque();
+    void CreateOnScreenPass();
     //void CreatePipelines();
     //SharedPtr<cf::Pipeline> CreateModelPipeline();
     //SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
