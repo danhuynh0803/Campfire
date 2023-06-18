@@ -97,6 +97,96 @@ cf::Pipeline::Pipeline(
 
 namespace cf
 {
+
+vk::Format FormatOfVertexComponent(VertexComponent component)
+{
+    switch (component)
+    {
+    case VertexComponent::Position:
+    case VertexComponent::Normal:
+    case VertexComponent::Tangent:
+    case VertexComponent::Color:
+        return vk::Format::eR32G32B32Sfloat;
+
+    case VertexComponent::UV:
+        return vk::Format::eR32G32Sfloat;
+
+    //case VertexComponent::Color:
+    //    return vk::Format::eR32G32B32A32Sfloat;
+
+    default:
+        return vk::Format::eUndefined;
+    }
+}
+
+uint32_t SizeOfVertexComponent(VertexComponent component)
+{
+    switch (component)
+    {
+    //case VertexComponent::Color:
+    //    return sizeof(glm::vec4);
+    case VertexComponent::Position:
+    case VertexComponent::Normal:
+    case VertexComponent::Color:
+    case VertexComponent::Tangent:
+        return sizeof(glm::vec3);
+
+    case VertexComponent::UV:
+        return sizeof(glm::vec2);
+
+    default:
+        return 0;
+    }
+}
+
+vk::PipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo;
+vk::VertexInputBindingDescription vertexInputBindingDescription;
+std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
+
+//std::vector<vk::VertexInputAttributeDescription> GetVertexAttributes(uint32_t binding, std::vector<VertexComponent>& components)
+//{
+//}
+
+vk::PipelineVertexInputStateCreateInfo* CreatePipelineVertexInputState(const std::vector<VertexComponent>& components)
+{
+    uint32_t location = 0;
+    uint32_t offset = 0;
+    uint32_t binding = 0;
+    vertexInputAttributeDescriptions.clear();
+
+    for (auto component : components)
+    {
+        vk::VertexInputAttributeDescription desc {};
+        desc.location = location;
+        desc.binding = binding;
+        desc.format = FormatOfVertexComponent(component);
+        desc.offset = offset;
+
+        vertexInputAttributeDescriptions.emplace_back(desc);
+        location++;
+        offset += SizeOfVertexComponent(component);
+    }
+
+    vertexInputBindingDescription.binding = binding;
+    vertexInputBindingDescription.stride  = offset;
+    vertexInputBindingDescription.inputRate = vk::VertexInputRate::eVertex;
+
+    pipelineVertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+    pipelineVertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
+    pipelineVertexInputStateCreateInfo.vertexAttributeDescriptionCount = vertexInputAttributeDescriptions.size();
+    pipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
+
+    return &pipelineVertexInputStateCreateInfo;
+}
+
+struct VertexAttributes
+{
+    glm::vec3 pos;
+    glm::vec2 uv;
+    glm::vec3 normal;
+};
+
+/*
 struct Vertex
 {
     glm::vec3 pos;
@@ -145,6 +235,8 @@ struct Vertex
         }
     }
 };
+*/
+
 } // Namespace cf
 
 // ====================================================================================
@@ -203,7 +295,8 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.pStages = shaderStages.data();
     {
         using namespace cf;
-        pipelineCreateInfo.pVertexInputState = Vertex::GetPipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
+        //pipelineCreateInfo.pVertexInputState = Vertex::GetPipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
+        pipelineCreateInfo.pVertexInputState = CreatePipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
     }
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
     pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;

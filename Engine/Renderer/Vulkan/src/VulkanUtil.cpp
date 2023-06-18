@@ -293,5 +293,64 @@ namespace vk::util
         return layouts;
     }
 
+    vk::GraphicsPipelineCreateInfo CreateBasePipelineInfo()
+    {
+        // Input assembly
+        auto inputAssemblyStateCreateInfo =
+            vk::initializers::PipelineInputAssemblyStateCreateInfo(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
 
+        // Setup viewports and scissor rect
+        auto swapChain = VulkanContext::Get()->GetSwapChain();
+        auto swapChainExtent = swapChain->GetExtent();
+        auto viewport =
+            vk::initializers::Viewport(0.0f, 0.0f, swapChainExtent.width, swapChainExtent.height, 0.0f, 1.0);
+
+        vk::Rect2D scissors;
+        scissors.offset = VkOffset2D{0, 0};
+        scissors.extent = swapChainExtent;
+
+        auto viewportStateCreateInfo =
+            vk::initializers::PipelineViewportStateCreateInfo(1, &viewport, 1, &scissors);
+
+        // Setup rasterizer
+        auto rasterizationStateCreateInfo =
+            vk::initializers::PipelineRasterizationStateCreateInfo(
+                    vk::PolygonMode::eFill,
+                    vk::CullModeFlagBits::eNone,
+                    vk::FrontFace::eCounterClockwise);
+
+        // Multisampling
+        auto multisampleCreateInfo =
+            vk::initializers::PipelineMultisampleStateCreateInfo(vk::SampleCountFlagBits::e1);
+
+        // Depth and stencil operators
+        auto depthStencilCreateInfo =
+            vk::initializers::PipelineDepthStencilStateCreateInfo(VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
+
+        // Setup color blending
+        auto colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+        auto colorBlendAttachment = vk::initializers::PipelineColorBlendAttachmentState(colorWriteMask, VK_FALSE);
+        auto colorBlendState = vk::initializers::PipelineColorBlendStateCreateInfo(1, &colorBlendAttachment);
+
+        // Setup dynamic state - these can be changed without recreating the pipeline
+        std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor, vk::DynamicState::eLineWidth };
+
+        auto dynamicStateCreateInfo = vk::initializers::PipelineDynamicStateCreateInfo(static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
+
+        // Create Graphics pipeline
+        vk::GraphicsPipelineCreateInfo pipelineCreateInfo {};
+        pipelineCreateInfo.flags = vk::PipelineCreateFlags();
+        pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
+        pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
+        pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
+        pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
+        pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
+        pipelineCreateInfo.pColorBlendState = &colorBlendState;
+        pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
+        pipelineCreateInfo.subpass = 0;
+        pipelineCreateInfo.basePipelineHandle = nullptr;
+        pipelineCreateInfo.basePipelineIndex = -1;
+
+        return pipelineCreateInfo;
+    }
 }

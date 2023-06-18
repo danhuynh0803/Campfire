@@ -64,9 +64,11 @@ struct TransformPushConstBlock
 
 enum class VertexComponent
 {
-    Position,
+    Position = 0,
     UV,
-    Normal
+    Normal,
+    Color,
+    Tangent,
 };
 
 } // namespace cf

@@ -60,4 +60,6 @@ namespace vk::util {
     std::vector<vk::DescriptorSetLayout> ConvertUnique(
         const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
     );
+
+    vk::GraphicsPipelineCreateInfo CreateBasePipelineInfo();
 }

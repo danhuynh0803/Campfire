@@ -40,48 +40,135 @@ static SharedPtr<cf::Pipeline> modelPipeline;
 static SharedPtr<cf::Pipeline> postProcessPipeline;
 static vk::DescriptorImageInfo descriptorImageInfo;
 
-//SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
-//{
-//    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
-//    { // Compute Resolve
-//        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
-//            vk::DescriptorType::eCombinedImageSampler,
-//            vk::ShaderStageFlagBits::eFragment,
-//            0);
-//
-//        // Set 0
-//        descriptorSetLayoutBindings[0] = {
-//            computeResolve,
-//        };
-//    }
-//
-//    // Shaders
-//    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert.spv");
-//    vk::PipelineShaderStageCreateInfo vsStageInfo{};
-//    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
-//    vsStageInfo.module = vs->GetShaderModule();
-//    vsStageInfo.pName  = "main";
-//
-//    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag.spv");
-//    vk::PipelineShaderStageCreateInfo fsStageInfo{};
-//    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
-//    fsStageInfo.module = fs->GetShaderModule();
-//    fsStageInfo.pName  = "main";
-//
-//    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
-//        vsStageInfo,
-//        fsStageInfo,
-//    };
-//
-//    return CreateSharedPtr<cf::Pipeline>(
-//        descriptorSetLayoutBindings,
-//        shaderStages,
-//        PipelineType::eGraphics,
-//        frameGraph.GetRenderPass("opaque")
-//    );
-//}
 
-void CreateOffscreenFramebuffer()
+vk::UniqueRenderPass CreatePostProcessPass()
+{
+    vk::AttachmentDescription colorAttachment;
+    colorAttachment.format = VulkanContext::Get()->GetSwapChain()->GetFormat();
+    colorAttachment.samples = vk::SampleCountFlagBits::e1;
+    colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    colorAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+    vk::AttachmentReference colorAttachmentRef;
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    // Setup subpasses
+    std::vector<vk::SubpassDescription> subpasses;
+    vk::SubpassDescription subpass;
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = nullptr;
+    subpasses.emplace_back(subpass);
+
+    // Setup subpass dependencies
+    std::vector<vk::SubpassDependency> subpassDependencies;
+    vk::SubpassDependency dep;
+    dep.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dep.dstSubpass = 0;
+    dep.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    dep.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    dep.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
+    dep.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    subpassDependencies.emplace_back(dep);
+
+    // Setup render pass
+    std::array<vk::AttachmentDescription, 1> attachments = { colorAttachment };
+    vk::RenderPassCreateInfo renderPassCreateInfo {};
+    renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
+    renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassCreateInfo.pAttachments = attachments.data();
+    renderPassCreateInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+    renderPassCreateInfo.pSubpasses = subpasses.data();
+    renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+    renderPassCreateInfo.pDependencies = subpassDependencies.data();
+
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    return device.createRenderPassUnique(renderPassCreateInfo);
+}
+
+void CreatePostProcessPipeline()
+{
+    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
+    std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
+    { // Compute Resolve
+        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
+            vk::DescriptorType::eCombinedImageSampler,
+            vk::ShaderStageFlagBits::eFragment,
+            0);
+
+        // Set 0
+        descriptorSetLayoutBindings[0] = {
+            computeResolve,
+
+        };
+    }
+
+    //for (auto setBindings : descriptorSetLayoutBindings)
+    //{
+    //    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
+    //        static_cast<uint32_t>(setBindings.size()),
+    //        setBindings.data()
+    //    );
+
+    //    mDescriptorSetLayouts.emplace_back(
+    //        mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo)
+    //    );
+    //}
+
+    //std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
+
+    // Setup pipeline layout
+    //auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
+    //    static_cast<uint32_t>(setLayouts.size()),
+    //    setLayouts.data()
+    //);
+
+    // TODO
+    //auto pipelineLayout =
+
+    // Shaders
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert");
+    vk::PipelineShaderStageCreateInfo vsStageInfo{};
+    vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
+    vsStageInfo.module = vs->GetShaderModule();
+    vsStageInfo.pName  = "main";
+
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag");
+    vk::PipelineShaderStageCreateInfo fsStageInfo{};
+    fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
+    fsStageInfo.module = fs->GetShaderModule();
+    fsStageInfo.pName  = "main";
+
+    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
+        vsStageInfo,
+        fsStageInfo,
+    };
+
+    auto createInfo = vk::util::CreateBasePipelineInfo();
+    createInfo.stageCount = shaderStages.size();
+    createInfo.pStages = shaderStages.data();
+
+    vk::PipelineVertexInputStateCreateInfo vertexInfo {};
+
+    createInfo.pVertexInputState = &vertexInfo; 
+    //createInfo.layout = mPipelineLayout.get();
+
+    //return CreateSharedPtr<cf::Pipeline>(
+    //    descriptorSetLayoutBindings,
+    //    shaderStages,
+    //    PipelineType::eGraphics,
+    //    frameGraph.GetRenderPass("opaque")
+    //);
+}
+
+void CreatePasses()
 {
 
 }
