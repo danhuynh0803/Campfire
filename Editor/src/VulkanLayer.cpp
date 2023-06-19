@@ -64,7 +64,7 @@ cf::RenderPass postProcessPass;
 void CreatePostProcessFb()
 {
     uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    uint32_t height = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    uint32_t height = VulkanContext::Get()->GetSwapChain()->GetHeight();
 
     FramebufferSpec spec {};
     spec.width  = width;
@@ -96,7 +96,7 @@ void CreatePostProcessFb()
 void CreateOffScreenFb()
 {
     uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    uint32_t height = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    uint32_t height = VulkanContext::Get()->GetSwapChain()->GetHeight();
     auto& attachments = offscreenPass.attachments;
 
     FramebufferSpec spec {};
