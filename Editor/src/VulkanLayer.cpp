@@ -6,6 +6,7 @@
 #include "Vulkan/VulkanUtil.h"
 #include "Vulkan/VulkanMesh.h"
 #include "Vulkan/VulkanInitializers.h"
+#include "Vulkan/VulkanPipeline.h"
 
 #include "Core/Application.h"
 #include "Core/Input.h"
@@ -31,7 +32,7 @@ static SharedPtr<Camera> editorCamera;
 static CameraController cameraController;
 double frameTime = 0;
 float metricTimer = 0.0;
-static global::RenderContext globalInfoGraphics;
+static global::RenderContext globalRenderContext;
 static FrameGraph frameGraph;
 static SharedPtr<VulkanVertexBuffer> postProcessVbo;
 static SharedPtr<VulkanIndexBuffer> postProcessIbo;
@@ -40,6 +41,24 @@ static SharedPtr<cf::Pipeline> modelPipeline;
 static SharedPtr<cf::Pipeline> postProcessPipeline;
 static vk::DescriptorImageInfo descriptorImageInfo;
 
+namespace cf
+{
+
+// Encapsulate all needed objects for a renderpass
+struct RenderPass
+{
+    std::vector<Attachment> attachments;
+    uint32_t width, height;
+    vk::UniqueFramebuffer framebuffer;
+    vk::UniqueRenderPass renderPass;
+    vk::DescriptorImageInfo descriptor;
+    vk::UniquePipelineLayout layout;
+};
+
+};
+
+cf::RenderPass offscreenPass;
+cf::RenderPass postProcessPass;
 
 vk::UniqueRenderPass CreatePostProcessPass()
 {
@@ -92,55 +111,30 @@ vk::UniqueRenderPass CreatePostProcessPass()
     return device.createRenderPassUnique(renderPassCreateInfo);
 }
 
-void CreatePostProcessPipeline()
+SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
 {
     auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
 
     std::vector<std::vector<vk::DescriptorSetLayoutBinding>> descriptorSetLayoutBindings(1);
-    { // Compute Resolve
-        auto computeResolve = vk::initializers::DescriptorSetLayoutBinding(
+    { // Input ColorAttachment
+        auto inputAttachment = vk::initializers::DescriptorSetLayoutBinding(
             vk::DescriptorType::eCombinedImageSampler,
             vk::ShaderStageFlagBits::eFragment,
             0);
 
         // Set 0
         descriptorSetLayoutBindings[0] = {
-            computeResolve,
-
+            inputAttachment,
         };
     }
 
-    //for (auto setBindings : descriptorSetLayoutBindings)
-    //{
-    //    auto descriptorSetLayoutInfo = vk::initializers::DescriptorSetLayoutCreateInfo(
-    //        static_cast<uint32_t>(setBindings.size()),
-    //        setBindings.data()
-    //    );
-
-    //    mDescriptorSetLayouts.emplace_back(
-    //        mDevice.createDescriptorSetLayoutUnique(descriptorSetLayoutInfo)
-    //    );
-    //}
-
-    //std::vector<vk::DescriptorSetLayout> setLayouts = vk::util::ConvertUnique(mDescriptorSetLayouts);
-
-    // Setup pipeline layout
-    //auto pipelineLayoutCreateInfo = vk::initializers::PipelineLayoutCreateInfo(
-    //    static_cast<uint32_t>(setLayouts.size()),
-    //    setLayouts.data()
-    //);
-
-    // TODO
-    //auto pipelineLayout =
-
-    // Shaders
-    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert");
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/deferred.vert");
     vk::PipelineShaderStageCreateInfo vsStageInfo{};
     vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
     vsStageInfo.module = vs->GetShaderModule();
     vsStageInfo.pName  = "main";
 
-    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag");
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/deferred.frag");
     vk::PipelineShaderStageCreateInfo fsStageInfo{};
     fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
     fsStageInfo.module = fs->GetShaderModule();
@@ -151,26 +145,18 @@ void CreatePostProcessPipeline()
         fsStageInfo,
     };
 
-    auto createInfo = vk::util::CreateBasePipelineInfo();
-    createInfo.stageCount = shaderStages.size();
-    createInfo.pStages = shaderStages.data();
+    std::vector<cf::VertexComponent> components = {
+        cf::VertexComponent::Position,
+        cf::VertexComponent::UV,
+    };
 
-    vk::PipelineVertexInputStateCreateInfo vertexInfo {};
-
-    createInfo.pVertexInputState = &vertexInfo; 
-    //createInfo.layout = mPipelineLayout.get();
-
-    //return CreateSharedPtr<cf::Pipeline>(
-    //    descriptorSetLayoutBindings,
-    //    shaderStages,
-    //    PipelineType::eGraphics,
-    //    frameGraph.GetRenderPass("opaque")
-    //);
-}
-
-void CreatePasses()
-{
-
+    return CreateSharedPtr<cf::Pipeline>(
+        descriptorSetLayoutBindings,
+        shaderStages,
+        PipelineType::eGraphics,
+        components,
+        postProcessPass.renderPass.get()
+    );
 }
 
 SharedPtr<cf::Pipeline> CreateDeferredPipeline()
@@ -234,11 +220,18 @@ SharedPtr<cf::Pipeline> CreateDeferredPipeline()
         fsStageInfo,
     };
 
+    std::vector<cf::VertexComponent> components = {
+        cf::VertexComponent::Position,
+        cf::VertexComponent::UV,
+        cf::VertexComponent::Normal
+    };
+
     // TODO crate deferred pass
     return CreateSharedPtr<cf::Pipeline>(
         descriptorSets,
         shaderStages,
         PipelineType::eGraphics,
+        components,
         frameGraph.GetRenderPass("deferred")
     );
 }
@@ -340,10 +333,17 @@ SharedPtr<cf::Pipeline> CreateModelPipeline()
         fsStageInfo,
     };
 
+    std::vector<cf::VertexComponent> components {
+        cf::VertexComponent::Position,
+        cf::VertexComponent::UV,
+        cf::VertexComponent::Normal
+    };
+
     return CreateSharedPtr<cf::Pipeline>(
         descriptorSets,
         shaderStages,
         PipelineType::eGraphics,
+        components,
         frameGraph.GetRenderPass("forwardOpaque")
     );
 }
@@ -433,10 +433,12 @@ void VulkanLayer::OnAttach()
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("forwardOpaque"));
 
     modelPipeline = CreateModelPipeline();
+    postProcessPass.renderPass = CreatePostProcessPass();
+    postProcessPipeline = CreatePostProcessPipeline();
     // TODO setup postprocess as compute
     //postProcessPipeline = frameGraph.GetPipeline("postprocess");
 
-    globalInfoGraphics.Init(modelPipeline);
+    globalRenderContext.Init(modelPipeline);
     auto swapChain = VulkanContext::Get()->GetSwapChain();
     ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
 
@@ -499,7 +501,7 @@ void VulkanLayer::OnUpdate(float dt)
 
     VulkanImGuiLayer* vkImguiLayer = Application::Get().imguiLayer;
 
-    globalInfoGraphics.Update(editorCamera, scene, frameIdx);
+    globalRenderContext.Update(editorCamera, scene, frameIdx);
 
     // TODO this should be called from the application loop
     vkImguiLayer->Begin();
@@ -590,7 +592,7 @@ void VulkanLayer::OnUpdate(float dt)
             //commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, postProcessPipeline->mPipeline.get());
 
             std::vector<vk::DescriptorSet> descriptorSets{
-                globalInfoGraphics.mDescriptorSets.at(0).get(),
+                globalRenderContext.mDescriptorSets.at(0).get(),
             };
 
             commandBuffer.bindDescriptorSets(
@@ -619,6 +621,13 @@ void VulkanLayer::OnUpdate(float dt)
                 meshComponent.mesh->Draw(commandBuffer, modelPipeline->mPipelineLayout.get());
             }
 
+            vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+
+            commandBuffer.endRenderPass();
+        }
+
+        // Post-process
+        {
             // Post process quad
             //VulkanRenderer::DrawIndexed(
             //    commandBuffer,
@@ -627,10 +636,9 @@ void VulkanLayer::OnUpdate(float dt)
             //    postProcessIbo->GetCount()
             //);
 
-            vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
-
-            commandBuffer.endRenderPass();
+            //vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
         }
+
         //VulkanRenderer::EndScene(commandBuffer);
         commandBuffer.end();
     }
