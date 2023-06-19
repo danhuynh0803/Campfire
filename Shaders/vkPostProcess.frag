@@ -13,5 +13,8 @@ layout (set = 0, binding = 0) uniform sampler2D uInputTexture;
 // =========================================
 void main()
 {
-    outColor = texture(uInputTexture, inUV);
+    vec3 col = texture(uInputTexture, inUV).rgb;
+    vec3 newCol = vec3(1.0f) - col;
+
+    outColor = vec4(newCol, 1.0f);
 }

@@ -241,16 +241,17 @@ void VulkanSwapChain::Present()
     mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
+// TODO also pass the attachments used for the FB
 void VulkanSwapChain::CreateFramebuffers(const vk::RenderPass& renderPass)
 {
     swapChainFramebuffers.resize(imageViews.size());
 
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
-        std::array<vk::ImageView, 2> attachments =
+        std::vector<vk::ImageView> attachments
         {
             imageViews[i].get(),
-            depthImageView.get(),
+            //depthImageView.get(),
         };
 
         vk::FramebufferCreateInfo framebufferCreateInfo {};

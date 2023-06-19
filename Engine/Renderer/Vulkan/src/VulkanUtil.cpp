@@ -218,7 +218,7 @@ namespace vk::util
         vk::Image image,
         uint32_t mipLevels,
         vk::Format format,
-        vk::ImageAspectFlagBits aspectFlags
+        vk::ImageAspectFlags aspectFlags
     )
     {
         vk::ImageViewCreateInfo createInfo {};

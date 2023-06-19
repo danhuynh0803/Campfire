@@ -53,55 +53,48 @@ struct AttachmentInfo
     uint32_t memoryProperties = 0;
 };
 
-struct Attachment
+struct FramebufferSpec
 {
-    //Attachment(const AttachmentInfo& info)
-    //{
-    //    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+    uint32_t width, height;
+    vk::Format format;
+    vk::ImageUsageFlags usageFlags;
+    vk::ImageAspectFlags aspectFlags;
+    //vk::MemoryPropertyFlags memoryFlags;
 
-    //    vk::ImageCreateInfo imageInfo {};
-    //    imageInfo.imageType     = vk::ImageType::e2D;
-    //    imageInfo.extent.width  = info.width;
-    //    imageInfo.extent.height = info.height;
-    //    imageInfo.extent.depth  = 1;
-    //    imageInfo.mipLevels     = 1;
-    //    imageInfo.arrayLayers   = 1;
-    //    imageInfo.format        = info.format;
-    //    imageInfo.tiling        = vk::ImageTiling::eOptimal;
-    //    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-    //    imageInfo.usage         = static_cast<vk::ImageUsageFlagBits>(info.usage);
-    //    imageInfo.sharingMode   = vk::SharingMode::eExclusive;
+    // TODO color vs depth conditions
+};
 
-    //    // Multisampling spec, TODO so that images can be used with attachments
-    //    imageInfo.samples       = vk::SampleCountFlagBits::e1;
-    //    image = device.createImageUnique(imageInfo);
+struct FramebufferAttachment
+{
+    FramebufferAttachment() = default;
 
-    //    vk::MemoryRequirements memReqs = device.getImageMemoryRequirements(image.get());
-    //    vk::MemoryAllocateInfo allocInfo {};
-    //    allocInfo.allocationSize = memReqs.size;
-    //    allocInfo.memoryTypeIndex = vk::util::FindMemoryType(
-    //        memReqs.memoryTypeBits,
-    //        static_cast<vk::MemoryPropertyFlagBits>(info.memoryProperties)
-    //    );
-    //    memory = device.allocateMemoryUnique(allocInfo);
+    FramebufferAttachment(const FramebufferSpec& info)
+    {
+        auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+        constexpr uint32_t mipLevels = 1;
+        image = vk::util::CreateUniqueImage(
+            info.width,
+            info.height,
+            mipLevels,
+            info.format,
+            vk::ImageTiling::eOptimal,
+            info.usageFlags
+        );
 
+        // Create image memory
+        memory = vk::util::CreateUniqueDeviceMemory(
+            image.get(),
+            vk::MemoryPropertyFlagBits::eDeviceLocal // | vk::MemoryPropertyFlagBits::eHostVisible
+        );
+        device.bindImageMemory(image.get(), memory.get(), 0);
 
-    //    vk::ImageViewCreateInfo viewInfo {};
-    //    viewInfo.image    = image.get();
-    //    viewInfo.viewType = vk::ImageViewType::e2D;
-    //    viewInfo.format   = info.format;
-
-    //    // Determine aspect mask based on type of image?
-    //    vk::ImageSubresourceRange subresourceRange {};
-    //    subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eColor;
-    //    subresourceRange.baseMipLevel   = 0;
-    //    subresourceRange.levelCount     = 1;
-    //    subresourceRange.baseArrayLayer = 0;
-    //    subresourceRange.layerCount     = 1;
-    //    viewInfo.subresourceRange = subresourceRange;
-
-    //    imageView = device.createImageViewUnique(viewInfo);
-    //}
+        imageView = vk::util::CreateUniqueImageView(
+            image.get(),
+            mipLevels,
+            info.format,
+            info.aspectFlags
+        );
+    }
 
     vk::UniqueImage image;
     vk::UniqueDeviceMemory memory;
@@ -110,7 +103,8 @@ struct Attachment
 
 struct Framebuffer
 {
-    std::vector<Attachment> attachments;
+    std::vector<FramebufferAttachment> colorAttachments;
+    FramebufferAttachment depthStencilAttachment;
     uint32_t width;
     uint32_t height;
     uint32_t layers;
