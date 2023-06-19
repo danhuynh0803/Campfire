@@ -120,6 +120,15 @@ void CreateOffScreenFb()
         views.emplace_back(attachment.imageView.get());
     }
 
+    //vk::util::SwitchImageLayout(
+    //    offscreenPass.attachments[0].image.get(),
+    //    1,
+    //    vk::Format::eR8G8B8A8Unorm,
+    //    vk::ImageLayout::eUndefined,
+    //    vk::ImageLayout::eColorAttachmentOptimal,
+    //    vk::DependencyFlagBits::eByRegion
+    //);
+
     vk::FramebufferCreateInfo createInfo {};
     createInfo.renderPass = offscreenPass.renderPass.get();
     createInfo.attachmentCount = views.size();
@@ -143,7 +152,7 @@ vk::UniqueRenderPass CreateOffScreenPass()
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachment.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
     // Depth Attachment
     vk::AttachmentDescription depthAttachment;
@@ -162,7 +171,7 @@ vk::UniqueRenderPass CreateOffScreenPass()
 
     vk::AttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachmentRef.layout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
     // Setup subpasses
     std::vector<vk::SubpassDescription> subpasses;
@@ -181,9 +190,10 @@ vk::UniqueRenderPass CreateOffScreenPass()
         vk::SubpassDependency dep;
         dep.srcSubpass = VK_SUBPASS_EXTERNAL;
         dep.dstSubpass = 0;
-        dep.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        //dep.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        dep.srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
         dep.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-        dep.srcAccessMask = static_cast<vk::AccessFlagBits>(0);
+        dep.srcAccessMask = vk::AccessFlagBits::eMemoryRead;
         dep.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
         subpassDependencies.emplace_back(dep);
     }
@@ -212,8 +222,8 @@ vk::UniqueRenderPass CreatePostProcessPass()
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
     vk::AttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;
@@ -795,14 +805,15 @@ void VulkanLayer::OnUpdate(float dt)
             commandBuffer.endRenderPass();
         }
 
-        vk::util::SwitchImageLayout(
-            offscreenPass.attachments[0].image.get(),
-            1,
-            vk::Format::eR8G8B8A8Unorm,
-            vk::ImageLayout::eColorAttachmentOptimal,
-            vk::ImageLayout::eShaderReadOnlyOptimal,
-            vk::DependencyFlagBits::eByRegion
-        );
+        // Switch offscreen image layout to shaderRead prior to using in postprocess pass
+        //vk::util::SwitchImageLayout(
+        //    offscreenPass.attachments[0].image.get(),
+        //    1,
+        //    vk::Format::eR8G8B8A8Unorm,
+        //    vk::ImageLayout::eColorAttachmentOptimal,
+        //    vk::ImageLayout::eShaderReadOnlyOptimal,
+        //    vk::DependencyFlagBits::eByRegion
+        //);
 
         // Post-process on-screen
         {
@@ -812,8 +823,8 @@ void VulkanLayer::OnUpdate(float dt)
             renderPassBeginInfo.renderPass = postProcessPass.renderPass.get();
             renderPassBeginInfo.framebuffer = framebuffer;
             renderPassBeginInfo.renderArea = renderArea;
-            renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-            renderPassBeginInfo.pClearValues = clearValues.data();
+            //renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            //renderPassBeginInfo.pClearValues = clearValues.data();
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
@@ -838,6 +849,16 @@ void VulkanLayer::OnUpdate(float dt)
             );
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
+
+            // Switch offscreen layout back to colorAttachment
+            //vk::util::SwitchImageLayout(
+            //    offscreenPass.attachments[0].image.get(),
+            //    1,
+            //    vk::Format::eR8G8B8A8Unorm,
+            //    vk::ImageLayout::eShaderReadOnlyOptimal,
+            //    vk::ImageLayout::eColorAttachmentOptimal,
+            //    vk::DependencyFlagBits::eByRegion
+            //);
 
             commandBuffer.endRenderPass();
         }

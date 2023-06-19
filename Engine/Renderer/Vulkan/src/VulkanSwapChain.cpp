@@ -226,6 +226,15 @@ void VulkanSwapChain::Present()
         vk::DependencyFlagBits::eByRegion
     );
 
+    //vk::util::SwitchImageLayout(
+    //    swapChainImages.at(mImageIndex),
+    //    1,
+    //    vk::Format::eR8G8B8A8Srgb,
+    //    vk::ImageLayout::ePresentSrcKHR,
+    //    vk::ImageLayout::eColorAttachmentOptimal,
+    //    vk::DependencyFlagBits::eByRegion
+    //);
+
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;

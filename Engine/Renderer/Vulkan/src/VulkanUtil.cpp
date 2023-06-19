@@ -127,6 +127,7 @@ namespace vk::util
         vk::PipelineStageFlagBits srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         vk::PipelineStageFlagBits dstStageFlags = vk::PipelineStageFlagBits::eBottomOfPipe;
 
+        // TODO specify barrier and stages as params instead of layout matching
         if (oldLayout == vk::ImageLayout::eUndefined
             && newLayout == vk::ImageLayout::eTransferDstOptimal)
         {
@@ -142,6 +143,30 @@ namespace vk::util
             barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
             srcStageFlags = vk::PipelineStageFlagBits::eTransfer;
             dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+        }
+        else if (oldLayout == vk::ImageLayout::eColorAttachmentOptimal
+            && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+        {
+            barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+            srcStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+            dstStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+        }
+        else if (oldLayout == vk::ImageLayout::eShaderReadOnlyOptimal
+            && newLayout == vk::ImageLayout::eColorAttachmentOptimal)
+        {
+            barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+            barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            srcStageFlags = vk::PipelineStageFlagBits::eFragmentShader;
+            dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        }
+        else if (oldLayout == vk::ImageLayout::eUndefined
+                && newLayout == vk::ImageLayout::eColorAttachmentOptimal)
+        {
+            barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+            dstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         }
         else if (oldLayout == vk::ImageLayout::eUndefined
                 && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)

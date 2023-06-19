@@ -516,7 +516,7 @@ void VulkanImGui::SetupRenderPass()
     subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    //subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
     // Setup subpass dependencies
     vk::SubpassDependency subpassDependency;
@@ -528,7 +528,10 @@ void VulkanImGui::SetupRenderPass()
     subpassDependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
 
     // Setup render pass
-    std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    std::array<vk::AttachmentDescription, 2> attachments = {
+        colorAttachment,
+        //depthAttachment
+    };
     vk::RenderPassCreateInfo renderPassCreateInfo {};
     renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
     renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
