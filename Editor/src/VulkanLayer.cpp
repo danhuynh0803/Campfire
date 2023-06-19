@@ -128,13 +128,13 @@ SharedPtr<cf::Pipeline> CreatePostProcessPipeline()
         };
     }
 
-    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/deferred.vert");
+    auto vs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.vert");
     vk::PipelineShaderStageCreateInfo vsStageInfo{};
     vsStageInfo.stage  = vk::ShaderStageFlagBits::eVertex;
     vsStageInfo.module = vs->GetShaderModule();
     vsStageInfo.pName  = "main";
 
-    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/deferred.frag");
+    auto fs = CreateSharedPtr<VulkanShader>(SHADERS + "/vkPostProcess.frag");
     vk::PipelineShaderStageCreateInfo fsStageInfo{};
     fsStageInfo.stage  = vk::ShaderStageFlagBits::eFragment;
     fsStageInfo.module = fs->GetShaderModule();
@@ -429,11 +429,11 @@ void VulkanLayer::OnAttach()
         }
     }
     frameGraph.Prepare();
+    postProcessPass.renderPass = CreatePostProcessPass();
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(frameGraph.GetRenderPass("forwardOpaque"));
 
     modelPipeline = CreateModelPipeline();
-    postProcessPass.renderPass = CreatePostProcessPass();
     postProcessPipeline = CreatePostProcessPipeline();
     // TODO setup postprocess as compute
     //postProcessPipeline = frameGraph.GetPipeline("postprocess");
