@@ -98,6 +98,8 @@ void CreateOffScreenFb()
     uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
     uint32_t height = VulkanContext::Get()->GetSwapChain()->GetHeight();
     auto& attachments = offscreenPass.attachments;
+    // TODO resize once and just overwrite baseon attachmentInfo
+    attachments.clear();
 
     FramebufferSpec spec {};
     spec.width  = width;
@@ -547,10 +549,10 @@ void VulkanLayer::OnAttach()
     //// TODO replace with just one triangle for projection quad
     float vertices[] =
     {
-        -1.0f,  1.0f, 0.0f,     0, 1,   0, 0, 0,
-        -1.0f, -1.0f, 0.0f,     0, 0,   0, 0, 0,
-         1.0f, -1.0f, 0.0f,     1, 0,   0, 0, 0,
-         1.0f,  1.0f, 0.0f,     1, 1,   0, 0, 0,
+        -1.0f,  1.0f, 0.0f,     0, 1,
+        -1.0f, -1.0f, 0.0f,     0, 0,
+         1.0f, -1.0f, 0.0f,     1, 0,
+         1.0f,  1.0f, 0.0f,     1, 1,
     };
 
     uint32_t indices[] =
@@ -594,6 +596,32 @@ void VulkanLayer::OnAttach()
     CreatePostProcessFb();
 
     // Write for post process pipeline read
+
+    // TODO generalize fb and attachment creation
+    //uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    //uint32_t height = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    //FramebufferSpec spec {};
+
+    VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(postProcessPass.renderPass.get());
+
+    globalRenderContext.Init(modelPipeline);
+    auto swapChain = VulkanContext::Get()->GetSwapChain();
+    ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
+
+    // Scene Info
+    auto environment = scene->CreateEntity("environment");
+    environment.AddComponent<VulkanMeshComponent>(
+        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
+        ASSETS + "/Models/helmet/scene.gltf"
+    );
+    // Minify sponza model scaling
+    //environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
+}
+
+void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
+{
+    // TODO move to framegraph:
+    // Update descriptor set cause offscreen FBs will be regenerated on resize
     {
         vk::SamplerCreateInfo samplerInfo {};
         samplerInfo.magFilter = vk::Filter::eLinear;
@@ -627,30 +655,6 @@ void VulkanLayer::OnAttach()
 
         mDevice.updateDescriptorSets(1, &writeInfo, 0, nullptr);
     }
-
-    // TODO generalize fb and attachment creation
-    //uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    //uint32_t height = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    //FramebufferSpec spec {};
-
-    VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(postProcessPass.renderPass.get());
-
-    globalRenderContext.Init(modelPipeline);
-    auto swapChain = VulkanContext::Get()->GetSwapChain();
-    ResizeTexture(swapChain->GetWidth(), swapChain->GetHeight());
-
-    // Scene Info
-    auto environment = scene->CreateEntity("environment");
-    environment.AddComponent<VulkanMeshComponent>(
-        //ASSETS + "/Models/Sponza/gltf/Sponza.gltf"
-        ASSETS + "/Models/helmet/scene.gltf"
-    );
-    // Minify sponza model scaling
-    //environment.GetComponent<TransformComponent>().scale = glm::vec3(0.1f);
-}
-
-void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
-{
     // TODO for resize postprocess texture but this should be handled by rendergraph
     /*
     blankTexture = CreateSharedPtr<VulkanTexture2D>(width, height);
@@ -969,7 +973,8 @@ void VulkanLayer::ReconstructPipelines()
     auto ctx = VulkanContext::Get();
     ctx->GetDevice()->GetVulkanDevice().waitIdle();
 
-    modelPipeline = CreateModelPipeline();
+    //modelPipeline = CreateModelPipeline();
+    //postProcessPipeline = CreatePostProcessPipeline();
 }
 
 bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
@@ -982,7 +987,14 @@ bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
     editorCamera->height = e.GetHeight();
     editorCamera->SetProjection();
 
-    VulkanContext::Get()->RecreateSwapChain(frameGraph.GetRenderPass("opaque"));
+    auto ctx = VulkanContext::Get();
+    ctx->GetDevice()->GetVulkanDevice().waitIdle();
+
+    VulkanContext::Get()->RecreateSwapChain(postProcessPass.renderPass.get());
+    // TODO rebake framegraph
+    CreateOffScreenFb();
+    //CreatePostProcessFb();
+
     ResizeTexture(e.GetWidth(), e.GetHeight());
 
     return false;

@@ -243,8 +243,7 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.pStages = shaderStages.data();
     {
         using namespace cf;
-        //pipelineCreateInfo.pVertexInputState = Vertex::GetPipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
-        pipelineCreateInfo.pVertexInputState = CreatePipelineVertexInputState({ VertexComponent::Position, VertexComponent::UV, VertexComponent::Normal });
+        pipelineCreateInfo.pVertexInputState = CreatePipelineVertexInputState(components);
     }
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
     pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;

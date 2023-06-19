@@ -15,7 +15,9 @@ void main()
 {
     vec3 col = texture(uInputTexture, inUV).rgb;
     //vec3 newCol = vec3(1.0f) - col;
-    vec3 newCol = col;
+
+    //vec3 newCol = col;
+    vec3 newCol = col*vec3(inUV, 1.0f);
 
     outColor = vec4(newCol, 1.0f);
 }
