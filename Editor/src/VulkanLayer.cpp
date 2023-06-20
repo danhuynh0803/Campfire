@@ -44,14 +44,13 @@ static vk::DescriptorImageInfo descriptorImageInfo;
 namespace cf
 {
 
-// Encapsulate all needed objects for a renderpass
 struct RenderPass
 {
-    std::vector<FramebufferAttachment> attachments;
-    uint32_t width, height;
-    vk::UniqueFramebuffer framebuffer;
+    //std::vector<FramebufferAttachment> attachments;
+    //uint32_t width, height;
+    //vk::UniqueFramebuffer framebuffer;
     vk::UniqueRenderPass renderPass;
-    vk::DescriptorImageInfo descriptor;
+    //vk::DescriptorImageInfo descriptor;
     //vk::UniquePipelineLayout layout;
     vk::UniqueSampler sampler;
 };
@@ -60,87 +59,42 @@ struct RenderPass
 
 cf::RenderPass offscreenPass;
 cf::RenderPass postProcessPass;
-
-void CreatePostProcessFb()
-{
-    uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    uint32_t height = VulkanContext::Get()->GetSwapChain()->GetHeight();
-
-    FramebufferSpec spec {};
-    spec.width  = width;
-    spec.height = height;
-    // TODO query swapchain format
-    spec.format = vk::Format::eB8G8R8A8Unorm;
-    //spec.format = vk::Format::eR8G8B8A8Unorm;
-    spec.usageFlags = vk::ImageUsageFlagBits::eColorAttachment;
-    spec.aspectFlags = vk::ImageAspectFlagBits::eColor;
-    FramebufferAttachment color(spec);
-
-    std::vector<vk::ImageView> views = {
-        color.imageView.get(),
-    };
-
-    vk::FramebufferCreateInfo createInfo {};
-    createInfo.renderPass = postProcessPass.renderPass.get();
-    createInfo.attachmentCount = views.size();
-    createInfo.pAttachments = views.data();
-    createInfo.width = width;
-    createInfo.height = height;
-    createInfo.layers = 1;
-
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    postProcessPass.framebuffer = device.createFramebufferUnique(createInfo);
-}
-
+SharedPtr<Framebuffer> pOffscreenFb;
 
 void CreateOffScreenFb()
 {
     uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
     uint32_t height = VulkanContext::Get()->GetSwapChain()->GetHeight();
-    auto& attachments = offscreenPass.attachments;
-    // TODO resize once and just overwrite baseon attachmentInfo
-    attachments.clear();
 
-    FramebufferSpec spec {};
-    spec.width  = width;
-    spec.height = height;
-    spec.format = vk::Format::eR8G8B8A8Unorm;
-    spec.usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-    spec.aspectFlags = vk::ImageAspectFlagBits::eColor;
-    //FramebufferAttachment color(spec);
-    attachments.emplace_back(FramebufferAttachment(spec));
-
-    spec.format = vk::util::FindDepthFormat();
-    spec.usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-    spec.aspectFlags = vk::ImageAspectFlagBits::eDepth;
-    //FramebufferAttachment depth(spec);
-    attachments.emplace_back(FramebufferAttachment(spec));
-
-    std::vector<vk::ImageView> views;
-    for (const auto& attachment : attachments)
+    std::vector<FramebufferAttachmentInfo> infos {};
+    // Color attachment
     {
-        views.emplace_back(attachment.imageView.get());
+        FramebufferAttachmentInfo info {};
+        info.tag = "offscreenColor";
+        info.width = width;
+        info.height = height;
+        info.format = vk::Format::eR8G8B8A8Unorm;
+        info.usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+        info.aspectFlags = vk::ImageAspectFlagBits::eColor;
+        infos.emplace_back(info);
+    }
+    // Depth attachment
+    {
+        FramebufferAttachmentInfo info {};
+        info.tag = "depth";
+        info.width = width;
+        info.height = height;
+        info.format = vk::util::FindDepthFormat();
+        info.usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        info.aspectFlags = vk::ImageAspectFlagBits::eDepth;
+        infos.emplace_back(info);
     }
 
-    //vk::util::SwitchImageLayout(
-    //    offscreenPass.attachments[0].image.get(),
-    //    1,
-    //    vk::Format::eR8G8B8A8Unorm,
-    //    vk::ImageLayout::eUndefined,
-    //    vk::ImageLayout::eColorAttachmentOptimal,
-    //    vk::DependencyFlagBits::eByRegion
-    //);
-
-    vk::FramebufferCreateInfo createInfo {};
-    createInfo.renderPass = offscreenPass.renderPass.get();
-    createInfo.attachmentCount = views.size();
-    createInfo.pAttachments = views.data();
-    createInfo.width = width;
-    createInfo.height = height;
-    createInfo.layers = 1;
-
-    auto device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
-    offscreenPass.framebuffer = device.createFramebufferUnique(createInfo);
+    pOffscreenFb = CreateSharedPtr<Framebuffer>(
+        infos,
+        offscreenPass.renderPass.get(),
+        vk::Extent2D{width, height}
+    );
 }
 
 vk::UniqueRenderPass CreateOffScreenPass()
@@ -584,7 +538,7 @@ void VulkanLayer::OnAttach()
             //desc.pDepthStencilAttachment = &depthAttachmentRef;
         }
     }
-    frameGraph.Prepare();
+    //frameGraph.Prepare();
     postProcessPass.renderPass = CreatePostProcessPass();
     offscreenPass.renderPass = CreateOffScreenPass();
 
@@ -593,14 +547,13 @@ void VulkanLayer::OnAttach()
 
     // TODO generalize
     CreateOffScreenFb();
-    CreatePostProcessFb();
 
     // Write for post process pipeline read
 
     // TODO generalize fb and attachment creation
     //uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
     //uint32_t height = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    //FramebufferSpec spec {};
+    //FramebufferAttachmentInfo spec {};
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(postProcessPass.renderPass.get());
 
@@ -642,7 +595,7 @@ void VulkanLayer::ResizeTexture(uint32_t width, uint32_t height)
         offscreenPass.sampler = mDevice.createSamplerUnique(samplerInfo);
 
         descriptorImageInfo.sampler = offscreenPass.sampler.get();
-        descriptorImageInfo.imageView = offscreenPass.attachments[0].imageView.get();
+        descriptorImageInfo.imageView = pOffscreenFb->GetAttachment("offscreenColor");
         descriptorImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
         vk::WriteDescriptorSet writeInfo{};
@@ -771,7 +724,7 @@ void VulkanLayer::OnUpdate(float dt)
 
             vk::RenderPassBeginInfo renderPassBeginInfo {};
             renderPassBeginInfo.renderPass = offscreenPass.renderPass.get();
-            renderPassBeginInfo.framebuffer = offscreenPass.framebuffer.get();
+            renderPassBeginInfo.framebuffer = pOffscreenFb->Get();
             renderPassBeginInfo.renderArea = renderArea;
             renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
             renderPassBeginInfo.pClearValues = clearValues.data();
@@ -993,7 +946,6 @@ bool VulkanLayer::OnWindowResize(WindowResizeEvent& e)
     VulkanContext::Get()->RecreateSwapChain(postProcessPass.renderPass.get());
     // TODO rebake framegraph
     CreateOffScreenFb();
-    //CreatePostProcessFb();
 
     ResizeTexture(e.GetWidth(), e.GetHeight());
 
