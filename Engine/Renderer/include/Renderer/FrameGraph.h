@@ -48,9 +48,9 @@ struct AttachmentInfo
     uint32_t samples  = 1;
     uint32_t levels   = 1;
     uint32_t layers   = 1;
-    std::string tag;
 
-    uint32_t memoryProperties = 0;
+    //std::string tag;
+    //uint32_t memoryProperties = 0;
 };
 
 struct FramebufferAttachmentInfo
@@ -189,30 +189,54 @@ enum RenderQueueFlagsBits
 };
 using RenderQueue = uint32_t;
 
-struct SubPass
+class SubPass
 {
+public:
+    void AddColorOutput(std::string tag, const AttachmentInfo& info)
+    {
+
+    }
+
+    void AddAttachmentInput(std::string tag, const AttachmentInfo& info)
+    {
+
+    }
+
+    void SetDepthStencilOutput(std::string tag, const AttachmentInfo& info)
+    {
+
+    }
+
+    void AddTextureInput(std::string tag, const AttachmentInfo& info)
+    {
+
+    }
+
+private:
+    LabelMap<AttachmentInfo> mInputAttachments;
+    LabelMap<AttachmentInfo> mColorAttachments;
+    LabelMap<AttachmentInfo> mResolveAttachments;
+    LabelMap<AttachmentInfo> mPreserveAttachments;
+    AttachmentInfo mDepthStencilAttachment;
+
+    LabelMap<vk::SubpassDependency> subpassDependencies;
 };
 
 class RenderPass
 {
 public:
-    vk::SubpassDescription& AddSubpass(const std::string& label)
+    SubPass& AddSubpass(const std::string& label)
     {
         auto& it = mSubpasses.find(label);
         if (it != mSubpasses.end()) {
             return it->second;
         }
 
-        mSubpasses.emplace(label, vk::SubpassDescription{});
+        mSubpasses.emplace(label, SubPass{});
         return mSubpasses.find(label)->second;
     }
 
-    void AddColorOutput(std::string tag, const AttachmentInfo& info);
-    void AddAttachmentInput(std::string tag, const AttachmentInfo& info);
-    void SetDepthStencilOutput(std::string tag, const AttachmentInfo& info);
-    void AddTextureInput(std::string tag, const AttachmentInfo& info);
-
-    vk::RenderPass& Get() {
+    vk::RenderPass Get() {
         return uniqueRenderPass.get();
     }
 
@@ -236,12 +260,8 @@ public:
     }
 
 private:
-    int32_t width, height;
-    vk::Sampler sampler;
-    vk::DescriptorImageInfo descriptorImageInfo;
-
-    LabelMap<vk::SubpassDescription> mSubpasses;
-    LabelMap<vk::SubpassDependency> subpassDependencies;
+    LabelMap<AttachmentInfo> mAttachmentInfos;
+    LabelMap<SubPass> mSubpasses;
     vk::UniqueRenderPass uniqueRenderPass;
 };
 

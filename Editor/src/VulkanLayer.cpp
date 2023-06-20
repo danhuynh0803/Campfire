@@ -97,6 +97,27 @@ void CreateOffScreenFb()
     );
 }
 
+void CreateOffScreenPass2()
+{
+    auto& rp = frameGraph.AddRenderPass("offscreenRp", RenderQueueFlagsBits::eGraphics);
+    {
+        auto& sp = rp.AddSubpass("offscreenSp");
+        { // opaque color
+            AttachmentInfo info{};
+            info.format = vk::Format::eR8G8B8A8Unorm;
+            sp.AddColorOutput("opaque", info);
+        }
+
+        { // Depth
+            AttachmentInfo info{};
+            info.format = vk::util::FindDepthFormat();
+            sp.SetDepthStencilOutput("depth", info);
+        }
+
+    }
+
+}
+
 vk::UniqueRenderPass CreateOffScreenPass()
 {
     // Color Attachment
@@ -518,26 +539,6 @@ void VulkanLayer::OnAttach()
     postProcessVbo = CreateSharedPtr<VulkanVertexBuffer>(vertices, sizeof(vertices));
     postProcessIbo = CreateSharedPtr<VulkanIndexBuffer>(indices, sizeof(indices) / sizeof(uint32_t));
 
-    // TODO
-    { // deferred opaque renderpass
-        auto& opaquePass = frameGraph.AddRenderPass("opaque", RenderQueueFlagsBits::eGraphics);
-        // TODO refactor attachment handling with subpass class
-        { // deferred mrt subpass
-            auto& desc = opaquePass.AddSubpass("mrt");
-            desc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-            desc.colorAttachmentCount = 1;
-            //desc.pColorAttachments = &colorAttachmentRef;
-            //desc.pDepthStencilAttachment = &depthAttachmentRef;
-        }
-
-        { // post process composition subpass
-            auto& desc = opaquePass.AddSubpass("postprocess");
-            desc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-            desc.colorAttachmentCount = 1;
-            //desc.pColorAttachments = &colorAttachmentRef;
-            //desc.pDepthStencilAttachment = &depthAttachmentRef;
-        }
-    }
     //frameGraph.Prepare();
     postProcessPass.renderPass = CreatePostProcessPass();
     offscreenPass.renderPass = CreateOffScreenPass();
@@ -545,15 +546,7 @@ void VulkanLayer::OnAttach()
     modelPipeline = CreateModelPipeline();
     postProcessPipeline = CreatePostProcessPipeline();
 
-    // TODO generalize
     CreateOffScreenFb();
-
-    // Write for post process pipeline read
-
-    // TODO generalize fb and attachment creation
-    //uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    //uint32_t height = VulkanContext::Get()->GetSwapChain()->GetWidth();
-    //FramebufferAttachmentInfo spec {};
 
     VulkanContext::Get()->GetSwapChain()->CreateFramebuffers(postProcessPass.renderPass.get());
 
@@ -703,7 +696,7 @@ void VulkanLayer::OnUpdate(float dt)
                 std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 1.0f })
             );
             clearValues[1].depthStencil = vk::ClearDepthStencilValue{ 1.0f, 0 };
-            vk::RenderPassBeginInfo renderPassBeginInfo {};
+            //vk::RenderPassBeginInfo renderPassBeginInfo {};
             //renderPassBeginInfo.renderPass = renderPass;
             //renderPassBeginInfo.framebuffer = framebuffer;
             //renderPassBeginInfo.renderArea = renderArea;
@@ -715,7 +708,6 @@ void VulkanLayer::OnUpdate(float dt)
         }
 
         // Off-screen pass
-        //auto commandBuffer = VulkanRenderer::BeginScene(frame, frameGraph.GetRenderPass("opaque"));
         {
             clearValues[0].color = vk::ClearColorValue(
                 std::array<float, 4>({ 0.2f, 0.3f, 0.3f, 1.0f })
@@ -762,16 +754,6 @@ void VulkanLayer::OnUpdate(float dt)
             commandBuffer.endRenderPass();
         }
 
-        // Switch offscreen image layout to shaderRead prior to using in postprocess pass
-        //vk::util::SwitchImageLayout(
-        //    offscreenPass.attachments[0].image.get(),
-        //    1,
-        //    vk::Format::eR8G8B8A8Unorm,
-        //    vk::ImageLayout::eColorAttachmentOptimal,
-        //    vk::ImageLayout::eShaderReadOnlyOptimal,
-        //    vk::DependencyFlagBits::eByRegion
-        //);
-
         // Post-process on-screen
         {
             auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
@@ -780,12 +762,12 @@ void VulkanLayer::OnUpdate(float dt)
             renderPassBeginInfo.renderPass = postProcessPass.renderPass.get();
             renderPassBeginInfo.framebuffer = framebuffer;
             renderPassBeginInfo.renderArea = renderArea;
-            //renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-            //renderPassBeginInfo.pClearValues = clearValues.data();
+            // No need to clear since all pixels should be overwritten
+            renderPassBeginInfo.clearValueCount = 0;
+            renderPassBeginInfo.pClearValues = nullptr;
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-            // TODO read from offscreen passes
             commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
                 postProcessPipeline->mPipelineLayout.get(),
@@ -806,16 +788,6 @@ void VulkanLayer::OnUpdate(float dt)
             );
 
             vkImguiLayer->mImGuiImpl->DrawFrame(commandBuffer);
-
-            // Switch offscreen layout back to colorAttachment
-            //vk::util::SwitchImageLayout(
-            //    offscreenPass.attachments[0].image.get(),
-            //    1,
-            //    vk::Format::eR8G8B8A8Unorm,
-            //    vk::ImageLayout::eShaderReadOnlyOptimal,
-            //    vk::ImageLayout::eColorAttachmentOptimal,
-            //    vk::DependencyFlagBits::eByRegion
-            //);
 
             commandBuffer.endRenderPass();
         }
