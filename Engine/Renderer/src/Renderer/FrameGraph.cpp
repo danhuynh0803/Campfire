@@ -100,6 +100,11 @@ void RenderPass::Prepare()
     {
         const auto& subpass = pairSubpass.second;
 
+        // if the attachment is a swapchain format then we can confine
+        // the layout to just be ColorAttachmentOptimal as we know that
+        // we won't be using swapchain images as intermediary targets
+        auto swapchainFormat = VulkanContext::Get()->GetSwapChain()->GetFormat();
+
         // color output attachments
         for (const auto& pairAttachment : subpass.mColorAttachments)
         {
@@ -109,19 +114,22 @@ void RenderPass::Prepare()
             desc.format = attachmentInfo.format;
             // TODO incorporate uint to samples enum
             desc.samples = vk::SampleCountFlagBits::e1;
-            desc.loadOp = vk::AttachmentLoadOp::eClear;
+            desc.loadOp = attachmentInfo.loadOp;
             // TODO options for transient?
-            desc.storeOp = vk::AttachmentStoreOp::eStore;
+            desc.storeOp = attachmentInfo.storeOp;
             desc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
             desc.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
             desc.initialLayout = vk::ImageLayout::eUndefined;
             // TODO generalize
-            desc.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            auto layout = attachmentInfo.format == swapchainFormat
+                ? vk::ImageLayout::eColorAttachmentOptimal
+                : vk::ImageLayout::eShaderReadOnlyOptimal;
+            desc.finalLayout = layout;
             attachmentDescs.emplace_back(desc);
 
             vk::AttachmentReference ref {};
             ref.attachment = colorRefs.size();
-            ref.layout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            ref.layout = layout;
             colorRefs.emplace_back(ref);
 
             // fb attachment info
@@ -144,8 +152,8 @@ void RenderPass::Prepare()
             vk::AttachmentDescription desc {};
             desc.format = depthFormat;
             desc.samples = vk::SampleCountFlagBits::e1;
-            desc.loadOp = vk::AttachmentLoadOp::eClear;
-            desc.storeOp = vk::AttachmentStoreOp::eDontCare;
+            desc.loadOp = subpass.mDepthStencilAttachment->loadOp;
+            desc.storeOp = subpass.mDepthStencilAttachment->storeOp;
             desc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
             desc.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
             desc.initialLayout = vk::ImageLayout::eUndefined;

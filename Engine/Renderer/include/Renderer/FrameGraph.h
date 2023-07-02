@@ -21,6 +21,7 @@ enum RenderPassType
     Lighting,
     FowardOpaque,
     PostProcess,
+    OnScreen,
 };
 
 struct AttachmentDescription
@@ -36,6 +37,9 @@ struct AttachmentDescription
 struct AttachmentInfo
 {
     vk::Format format = vk::Format::eUndefined;
+    // TODO generalize for other APIs with generic struct
+    vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear;
+    vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eStore;
     uint32_t samples  = 1;
     uint32_t levels   = 1;
     uint32_t layers   = 1;
