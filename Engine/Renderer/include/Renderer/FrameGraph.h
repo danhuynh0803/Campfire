@@ -2,7 +2,6 @@
 
 #include "Core/Base.h"
 #include <vulkan/vulkan.hpp>
-#include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanUtil.h"
 #include "Vulkan/VulkanContext.h"
 
@@ -110,8 +109,6 @@ enum RenderQueueFlagsBits
     Count = 4
 };
 using RenderQueue = uint32_t;
-
-class RenderPass;
 
 class SubPass
 {
