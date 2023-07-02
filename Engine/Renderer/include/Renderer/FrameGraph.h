@@ -12,15 +12,6 @@
 template <typename T>
 using LabelMap = std::map<std::string, T>;
 
-// TODO
-//enum Format
-//{
-//    None = 0,
-//    R8G8B8_UNORM,
-//    R8G8B8_SNORM,
-//    R8G8B8_SFLOAT,
-//};
-
 // TODO Replace string with enum for static checking to avoid tag typos?
 // Tags easier once rendergraph implementation completed
 enum RenderPassType
@@ -90,11 +81,11 @@ public:
         return VK_NULL_HANDLE;
     }
 
-    std::vector<FramebufferAttachment> attachments;
     vk::Framebuffer Get() { return mFramebuffer.get(); }
 
 private:
     std::unordered_map<std::string, vk::ImageView> mTagToView;
+    std::vector<FramebufferAttachment> attachments;
     vk::UniqueFramebuffer mFramebuffer;
     vk::RenderPass mRenderPass;
     uint32_t mWidth, mHeight;
@@ -160,6 +151,10 @@ public:
         return mUniqueRenderPass.get();
     }
 
+    vk::Framebuffer GetFramebuffer() {
+        return mFramebuffer->Get();
+    }
+
     vk::ImageView GetAttachment(const std::string& tag) {
         return mFramebuffer->GetAttachment(tag);
     }
@@ -184,19 +179,16 @@ public:
         RenderQueue queue
     );
 
-    vk::RenderPass GetRenderPass(const std::string& label) {
-        return tempRenderPasses.at(label).get();
+    RenderPass& GetRenderPass(const std::string& label) {
+        return mRenderPasses.at(label);
     }
 
     void ReconstructFrameGraph();
 
 private:
     LabelMap<RenderPass> mRenderPasses;
-    LabelMap<vk::UniqueRenderPass> tempRenderPasses;
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;
-    //LabelMap<vk::SubpassDescription> mSubpasses;
-    //LabelMap<vk::SubpassDependency> mSubpassDependencies;
     vk::Device mDevice;
 };

@@ -20,7 +20,7 @@ cf::Pipeline::Pipeline(
 , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
 , PipelineType type
 , const std::vector<cf::VertexComponent>& components
-, const vk::RenderPass& renderPass
+, vk::RenderPass renderPass
 )
 {
     mDevice = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
@@ -191,7 +191,7 @@ struct VertexAttributes
 vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
   , const std::vector<cf::VertexComponent>& components
-  , const vk::RenderPass& renderPass
+  , vk::RenderPass renderPass
 )
 {
     // Input assembly

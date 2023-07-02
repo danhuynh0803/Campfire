@@ -44,7 +44,7 @@ public:
       , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
       , PipelineType type
       , const std::vector<cf::VertexComponent>& components
-      , const vk::RenderPass& renderPass
+      , vk::RenderPass renderPass
     );
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
@@ -55,7 +55,7 @@ private:
     vk::UniquePipeline CreateGraphicsPipeline(
         const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
       , const std::vector<cf::VertexComponent>& components
-      , const vk::RenderPass& renderPass
+      , vk::RenderPass renderPass
     );
 
     vk::UniquePipeline CreateComputePipeline(
