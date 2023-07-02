@@ -2,41 +2,97 @@
 
 #include "Core/Base.h"
 #include <vulkan/vulkan.hpp>
-#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanUtil.h"
+#include "Vulkan/VulkanContext.h"
 
 #include <map>
 #include <vector>
+#include <optional>
 
 template <typename T>
 using LabelMap = std::map<std::string, T>;
 
-struct AttachmentInfo
+// TODO Replace string with enum for static checking to avoid tag typos?
+// Tags easier once rendergraph implementation completed
+enum RenderPassType
+{
+    DepthOnly = 0,
+    Gbuffer,
+    Lighting,
+    FowardOpaque,
+    PostProcess,
+    OnScreen,
+};
+
+struct AttachmentDescription
 {
     vk::Format format = vk::Format::eUndefined;
     uint32_t samples  = 1;
-
-    vk::Image image;
-    vk::DeviceMemory memory;
-    vk::ImageView imageView;
+    VkAttachmentLoadOp loadOp;
+    VkAttachmentStoreOp storeOp;
+    VkAttachmentLoadOp stencilLoadOp;
+    VkAttachmentStoreOp stencilStoreOp;
 };
 
-struct Framebuffer
+struct AttachmentInfo
 {
-    std::vector<AttachmentInfo> attachments;
-    uint32_t width;
-    uint32_t height;
-    uint32_t layers;
-    vk::RenderPass renderPass;
-    vk::Framebuffer framebuffer;
+    vk::Format format = vk::Format::eUndefined;
+    // TODO generalize for other APIs with generic struct
+    vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear;
+    vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eStore;
+    uint32_t samples  = 1;
+    uint32_t levels   = 1;
+    uint32_t layers   = 1;
 };
 
-struct RenderPassInfo
+struct FramebufferAttachmentInfo
 {
-    AttachmentInfo& AddAttachment() {
-        return attachments.emplace_back(AttachmentInfo());
+    uint32_t width, height;
+    vk::Format format;
+    vk::ImageUsageFlags usageFlags;
+    vk::ImageAspectFlags aspectFlags;
+    std::string tag;
+    //vk::MemoryPropertyFlags memoryFlags;
+};
+
+struct FramebufferAttachment
+{
+    FramebufferAttachment() = default;
+    FramebufferAttachment(const FramebufferAttachmentInfo& info);
+
+    vk::UniqueImage image;
+    vk::UniqueDeviceMemory memory;
+    vk::UniqueImageView imageView;
+};
+
+class Framebuffer
+{
+public:
+    Framebuffer(
+        const std::vector<FramebufferAttachmentInfo>& infos
+      , vk::RenderPass renderPass
+      , vk::Extent2D dimensions
+    );
+
+    vk::ImageView GetAttachment(const std::string& tag)
+    {
+        auto it = mTagToView.find(tag);
+        if (it != mTagToView.end())
+        {
+            return it->second;
+        }
+        CORE_ERROR("No attachment created for tag: {0}", tag);
+        return VK_NULL_HANDLE;
     }
-    std::vector<AttachmentInfo> attachments;
-    vk::AttachmentReference depthStencilAttachment;
+
+    vk::Framebuffer Get() { return mFramebuffer.get(); }
+
+private:
+    std::unordered_map<std::string, vk::ImageView> mTagToView;
+    std::vector<FramebufferAttachment> attachments;
+    vk::UniqueFramebuffer mFramebuffer;
+    vk::RenderPass mRenderPass;
+    uint32_t mWidth, mHeight;
 };
 
 enum RenderQueueFlagsBits
@@ -49,62 +105,77 @@ enum RenderQueueFlagsBits
 };
 using RenderQueue = uint32_t;
 
-struct SubPass
+class SubPass
 {
+public:
+    void AddColorOutput(std::string tag, const AttachmentInfo& info)
+    {
+        mColorAttachments.emplace(tag, info);
+    }
+
+    void AddAttachmentInput(std::string tag, const AttachmentInfo& info)
+    {
+        mInputAttachments.emplace(tag, info);
+    }
+
+    void SetDepthStencilOutput(const AttachmentInfo& info)
+    {
+        mDepthStencilAttachment = info;
+    }
+
+private:
+    LabelMap<AttachmentInfo> mInputAttachments;
+    LabelMap<AttachmentInfo> mColorAttachments;
+    LabelMap<AttachmentInfo> mResolveAttachments;
+    LabelMap<AttachmentInfo> mPreserveAttachments;
+    std::optional<AttachmentInfo> mDepthStencilAttachment;
+
+    LabelMap<vk::SubpassDependency> subpassDependencies;
+
+    friend class RenderPass;
 };
 
 class RenderPass
 {
 public:
-    vk::SubpassDescription& AddSubpass(const std::string& label)
+    SubPass& AddSubpass(const std::string& label)
     {
         auto& it = mSubpasses.find(label);
         if (it != mSubpasses.end()) {
             return it->second;
         }
 
-        mSubpasses.emplace(label, vk::SubpassDescription{});
+        mSubpasses.emplace(label, SubPass{});
         return mSubpasses.find(label)->second;
     }
 
-    vk::RenderPass& Get() {
-        return uniqueRenderPass.get();
+    void RenderPass::Prepare();
+
+    vk::RenderPass Get() {
+        return mUniqueRenderPass.get();
     }
 
-    void Prepare()
-    {
-        /*
-        // Setup render pass
-        std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    vk::Framebuffer GetFramebuffer() {
+        return mFramebuffer->Get();
+    }
 
-        vk::RenderPassCreateInfo renderPassCreateInfo {};
-        renderPassCreateInfo.flags = vk::RenderPassCreateFlags();
-        renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        renderPassCreateInfo.pAttachments = attachments.data();
-        renderPassCreateInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-        renderPassCreateInfo.pSubpasses = subpasses.data();
-        renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
-        renderPassCreateInfo.pDependencies = subpassDependencies.data();
-
-        uniqueRenderPass = mDevice.createRenderPassUnique(renderPassCreateInfo);
-        */
+    vk::ImageView GetAttachment(const std::string& tag) {
+        return mFramebuffer->GetAttachment(tag);
     }
 
 private:
-    int32_t width, height;
-    vk::Sampler sampler;
-    vk::DescriptorImageInfo descriptorImageInfo;
-
-    LabelMap<vk::SubpassDescription> mSubpasses;
-    LabelMap<vk::SubpassDependency> subpassDependencies;
-    vk::UniqueRenderPass uniqueRenderPass;
+    LabelMap<AttachmentInfo> mAttachmentInfos;
+    LabelMap<SubPass> mSubpasses;
+    vk::UniqueRenderPass mUniqueRenderPass;
+    SharedPtr<Framebuffer> mFramebuffer;
 };
 
 class FrameGraph
 {
 public:
-    FrameGraph();
-    ~FrameGraph() {}
+    FrameGraph() = default;
+    ~FrameGraph() = default;
+
     void Prepare();
 
     RenderPass& AddRenderPass(
@@ -112,26 +183,16 @@ public:
         RenderQueue queue
     );
 
-    vk::RenderPass GetRenderPass(const std::string& label) {
-        return tempRenderPasses.at(label).get();
+    RenderPass& GetRenderPass(const std::string& label) {
+        return mRenderPasses.at(label);
     }
 
     void ReconstructFrameGraph();
 
 private:
-    void CreateOpaque();
-    //void CreatePipelines();
-    //SharedPtr<cf::Pipeline> CreateModelPipeline();
-    //SharedPtr<cf::Pipeline> CreatePostProcessPipeline();
-    //SharedPtr<cf::Pipeline> CreateRaytracingComputePipeline();
-
-private:
     LabelMap<RenderPass> mRenderPasses;
-    LabelMap<vk::UniqueRenderPass> tempRenderPasses;
     LabelMap<vk::DescriptorSetLayout> mDescriptorSetLayouts;
     LabelMap<vk::DescriptorSet> mDescriptorSets;
     LabelMap<vk::PipelineLayout> mPipelineLayouts;
-    //LabelMap<vk::SubpassDescription> mSubpasses;
-    //LabelMap<vk::SubpassDependency> mSubpassDependencies;
     vk::Device mDevice;
 };

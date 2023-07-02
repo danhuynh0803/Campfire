@@ -226,6 +226,15 @@ void VulkanSwapChain::Present()
         vk::DependencyFlagBits::eByRegion
     );
 
+    //vk::util::SwitchImageLayout(
+    //    swapChainImages.at(mImageIndex),
+    //    1,
+    //    vk::Format::eR8G8B8A8Srgb,
+    //    vk::ImageLayout::ePresentSrcKHR,
+    //    vk::ImageLayout::eColorAttachmentOptimal,
+    //    vk::DependencyFlagBits::eByRegion
+    //);
+
     vk::PresentInfoKHR presentInfo;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
@@ -241,19 +250,20 @@ void VulkanSwapChain::Present()
     mCurrentFrame = (mCurrentFrame + 1) % mMaxFramesInFlight;
 }
 
+// TODO also pass the attachments used for the FB
 void VulkanSwapChain::CreateFramebuffers(const vk::RenderPass& renderPass)
 {
     swapChainFramebuffers.resize(imageViews.size());
 
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
-        std::array<vk::ImageView, 2> attachments =
+        std::vector<vk::ImageView> attachments
         {
             imageViews[i].get(),
-            depthImageView.get(),
+            //depthImageView.get(),
         };
 
-        vk::FramebufferCreateInfo framebufferCreateInfo;
+        vk::FramebufferCreateInfo framebufferCreateInfo {};
         framebufferCreateInfo.flags = vk::FramebufferCreateFlags();
         framebufferCreateInfo.renderPass = renderPass;
         framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());

@@ -44,7 +44,7 @@ namespace vk::util {
         vk::Image image,
         uint32_t mipLevels,
         vk::Format format,
-        vk::ImageAspectFlagBits aspectFlags
+        vk::ImageAspectFlags aspectFlags
     );
 
     vk::Format FindSupportedFormat(
@@ -60,4 +60,6 @@ namespace vk::util {
     std::vector<vk::DescriptorSetLayout> ConvertUnique(
         const std::vector<vk::UniqueDescriptorSetLayout>& uniqueLayouts
     );
+
+    vk::GraphicsPipelineCreateInfo CreateBasePipelineInfo();
 }

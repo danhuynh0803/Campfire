@@ -21,6 +21,16 @@ enum class PipelineType
 
 namespace cf
 {
+
+enum class VertexComponent
+{
+    Position = 0,
+    UV,
+    Normal,
+    Color,
+    Tangent,
+};
+
 class Pipeline
 {
 public:
@@ -33,7 +43,8 @@ public:
         const std::vector<std::vector<vk::DescriptorSetLayoutBinding>> & descriptorSetLayoutBindings
       , const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
       , PipelineType type
-      , const vk::RenderPass& renderPass
+      , const std::vector<cf::VertexComponent>& components
+      , vk::RenderPass renderPass
     );
     std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
     std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
@@ -43,7 +54,8 @@ public:
 private:
     vk::UniquePipeline CreateGraphicsPipeline(
         const std::vector<vk::PipelineShaderStageCreateInfo> & shaderStages
-      , const vk::RenderPass& renderPass
+      , const std::vector<cf::VertexComponent>& components
+      , vk::RenderPass renderPass
     );
 
     vk::UniquePipeline CreateComputePipeline(
@@ -62,11 +74,6 @@ struct TransformPushConstBlock
     glm::mat4 model;
 };
 
-enum class VertexComponent
-{
-    Position,
-    UV,
-    Normal
-};
+vk::PipelineVertexInputStateCreateInfo* CreatePipelineVertexInputState(const std::vector<VertexComponent>& components);
 
 } // namespace cf

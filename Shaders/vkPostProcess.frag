@@ -2,19 +2,22 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 // =========================================
-layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec2 inUV;
-layout (location = 2) in vec3 inNormal;
+layout (location = 0) in vec2 inUV;
 
 // =========================================
 layout (location = 0) out vec4 outColor;
 
 // =========================================
-layout (set = 0, binding = 0) uniform sampler2D uComputeResolve;
+layout (set = 0, binding = 0) uniform sampler2D uInputTexture;
 
 // =========================================
 void main()
 {
-    outColor = texture(uComputeResolve, inUV);
-    //outColor = vec4(inUV, 1.0f, 1.0f);
+    vec3 col = texture(uInputTexture, inUV).rgb;
+    //vec3 newCol = vec3(1.0f) - col;
+
+    //vec3 newCol = col;
+    vec3 newCol = col*vec3(inUV, 1.0f);
+
+    outColor = vec4(newCol, 1.0f);
 }

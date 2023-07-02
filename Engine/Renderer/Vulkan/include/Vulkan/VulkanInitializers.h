@@ -117,7 +117,7 @@ namespace vk::initializers
         vk::FrontFace frontFace,
         vk::PipelineRasterizationStateCreateFlags flags = vk::PipelineRasterizationStateCreateFlags())
     {
-        vk::PipelineRasterizationStateCreateInfo info;
+        vk::PipelineRasterizationStateCreateInfo info {};
         info.polygonMode = polygonMode;
         info.cullMode = cullMode;
         info.frontFace = frontFace;
