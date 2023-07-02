@@ -78,6 +78,7 @@ void CreateOffScreenFb()
         info.aspectFlags = vk::ImageAspectFlagBits::eColor;
         infos.emplace_back(info);
     }
+
     // Depth attachment
     {
         FramebufferAttachmentInfo info {};
@@ -97,6 +98,59 @@ void CreateOffScreenFb()
     );
 }
 
+void CreateGbufferFb()
+{
+    uint32_t width  = VulkanContext::Get()->GetSwapChain()->GetWidth();
+    uint32_t height = VulkanContext::Get()->GetSwapChain()->GetHeight();
+
+    std::vector<FramebufferAttachmentInfo> infos {};
+
+    // G-buffer
+    {
+        FramebufferAttachmentInfo info {};
+        info.width = width;
+        info.height = height;
+        info.usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+        info.aspectFlags = vk::ImageAspectFlagBits::eColor;
+
+        info.tag = "albedo";
+        info.format = vk::Format::eR8G8B8A8Unorm;
+        infos.push_back(info);
+
+        info.tag = "specular";
+        info.format = vk::Format::eR8G8B8A8Unorm;
+        infos.push_back(info);
+
+        info.tag = "position";
+        info.format = vk::Format::eR16G16B16A16Sfloat;
+        infos.push_back(info);
+
+        info.tag = "normal";
+        info.format = vk::Format::eR16G16B16A16Sfloat;
+        infos.push_back(info);
+    }
+
+    // Depth attachment
+    {
+        FramebufferAttachmentInfo info {};
+        info.tag = "depth";
+        info.width = width;
+        info.height = height;
+        info.format = vk::util::FindDepthFormat();
+        info.usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        info.aspectFlags = vk::ImageAspectFlagBits::eDepth;
+        infos.emplace_back(info);
+    }
+
+    pOffscreenFb = CreateSharedPtr<Framebuffer>(
+        infos,
+        offscreenPass.renderPass.get(),
+        vk::Extent2D{width, height}
+    );
+}
+
+
+
 void CreateOffScreenPass2()
 {
     auto& rp = frameGraph.AddRenderPass("offscreenRp", RenderQueueFlagsBits::eGraphics);
@@ -111,7 +165,7 @@ void CreateOffScreenPass2()
         { // Depth
             AttachmentInfo info{};
             info.format = vk::util::FindDepthFormat();
-            sp.SetDepthStencilOutput("depth", info);
+            sp.SetDepthStencilOutput(info);
         }
 
     }

@@ -25,6 +25,7 @@ set(VULKAN_HEADERS
     #include/Vulkan/VulkanGraphicsPipeline.h
     #include/Vulkan/VulkanComputePipeline.h
     include/Vulkan/VulkanPipeline.h
+    include/Vulkan/VulkanSkybox.h
 )
 
 set(VULKAN_SRC
@@ -44,6 +45,7 @@ set(VULKAN_SRC
     #src/VulkanGraphicsPipeline.cpp
     #src/VulkanComputePipeline.cpp
     src/VulkanPipeline.cpp
+    src/Vulkan/VulkanSkybox.cpp
 )
 
 target_sources(
