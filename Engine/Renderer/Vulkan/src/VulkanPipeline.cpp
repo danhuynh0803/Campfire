@@ -258,7 +258,7 @@ vk::UniquePipeline cf::Pipeline::CreateGraphicsPipeline(
     pipelineCreateInfo.basePipelineHandle = nullptr;
     pipelineCreateInfo.basePipelineIndex = -1;
 
-    return mDevice.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo);
+    return mDevice.createGraphicsPipelineUnique(nullptr, pipelineCreateInfo).value;
 }
 
 // ====================================================================================
@@ -272,5 +272,5 @@ vk::UniquePipeline cf::Pipeline::CreateComputePipeline(
     pipelineCreateInfo.layout = mPipelineLayout.get();
     // TODO cache for quicker perf
     vk::PipelineCache pipelineCache;
-    return mDevice.createComputePipelineUnique(pipelineCache, pipelineCreateInfo);
+    return mDevice.createComputePipelineUnique(pipelineCache, pipelineCreateInfo).value;
 }
