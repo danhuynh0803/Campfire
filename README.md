@@ -1,6 +1,7 @@
 # Campfire
 ![Ubuntu build](https://github.com/danhuynh0803/Campfire/workflows/Ubuntu%20build/badge.svg)
 ![Windows build](https://github.com/danhuynh0803/Campfire/workflows/Windows%20build/badge.svg)
+![CodeQL Advanced](https://github.com/danhuynh0803/Campfire/actions/workflows/codeql.yml/badge.svg)
 
 ## Summary
 Campfire is an in-progress game engine built using OpenGL and Vulkan. Most of the engine's features are currently disabled, as we work through switching to Vulkan, but are available on the [OpenGL branch](https://github.com/danhuynh0803/Campfire/tree/OpenGL).
