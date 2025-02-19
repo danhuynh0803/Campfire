@@ -48,7 +48,7 @@ Audio                   | [FMOD](https://www.fmod.com/studio)
 Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
 Entity Component System | [entt](https://github.com/skypjack/entt)
 
-##　要在 Linux 上进行 C++ 编程
+## 要在 Linux 上进行 C++ 编程
 
 要在 Linux 上进行 C++ 编程，您需要安装编译器、设置开发环境，并熟悉基本的编译和调试过程。以下是详细步骤：
 
