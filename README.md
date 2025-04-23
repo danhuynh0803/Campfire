@@ -48,6 +48,24 @@ Audio                   | [FMOD](https://www.fmod.com/studio)
 Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
 Entity Component System | [entt](https://github.com/skypjack/entt)
 
+## Contributions by ewdlop
+
+### Portions worked on
+- Editor Layer
+- Vulkan Layer
+- Hierarchy Widget
+- Inspector Widget
+- Transform Widget
+- Asset Browser
+
+### Key features and improvements
+- Implemented the Editor Layer with various functionalities such as scene management, user input processing, and rendering.
+- Developed the Vulkan Layer for rendering using Vulkan API.
+- Created the Hierarchy Widget for displaying and managing the scene hierarchy.
+- Built the Inspector Widget for inspecting and modifying entity properties.
+- Designed the Transform Widget for manipulating entity transforms.
+- Developed the Asset Browser for browsing and managing assets.
+
 ## 要在 Linux 上进行 C++ 编程
 
 要在 Linux 上进行 C++ 编程，您需要安装编译器、设置开发环境，并熟悉基本的编译和调试过程。以下是详细步骤：

@@ -183,7 +183,7 @@ void VulkanSwapChain::Present()
     device.waitForFences(inFlightFences[mCurrentFrame].get(), VK_TRUE, UINT64_MAX);
 
     auto& imageAvailableSemaphore = imageAvailableSemaphores[mCurrentFrame];
-    mImageIndex = device.acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {});
+    mImageIndex = device.acquireNextImageKHR(swapChain.get(), (std::numeric_limits<uint64_t>::max)(), imageAvailableSemaphore.get(), {}).value;
 
     // Check if previous frame is using this image (wait on its fence)
     if (imagesInFlight[mImageIndex])
