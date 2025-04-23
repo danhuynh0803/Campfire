@@ -473,10 +473,10 @@ void VulkanImGui::InitResources()
     shaderStageInfos[0] = vertShaderStageInfo;
     shaderStageInfos[1] = fragShaderStageInfo;
 
-    mPipeline = device.createGraphicsPipelineUnique(
+    mPipeline = std::move(device.createGraphicsPipelineUnique(
         mPipelineCache.get(),
         pipelineCreateInfo
-    );
+    ).value);
 }
 
 void VulkanImGui::SetupRenderPass()
