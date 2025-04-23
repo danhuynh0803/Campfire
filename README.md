@@ -51,20 +51,12 @@ Entity Component System | [entt](https://github.com/skypjack/entt)
 ## Contributions by ewdlop
 
 ### Portions worked on
-- Editor Layer
-- Vulkan Layer
-- Hierarchy Widget
-- Inspector Widget
-- Transform Widget
-- Asset Browser
+- Particle Effect System
+- File system call
+- Lua Scripting
 
 ### Key features and improvements
-- Implemented the Editor Layer with various functionalities such as scene management, user input processing, and rendering.
-- Developed the Vulkan Layer for rendering using Vulkan API.
-- Created the Hierarchy Widget for displaying and managing the scene hierarchy.
-- Built the Inspector Widget for inspecting and modifying entity properties.
-- Designed the Transform Widget for manipulating entity transforms.
-- Developed the Asset Browser for browsing and managing assets.
+- Helping and debugging the Vulkan Layer for rendering using Vulkan API.
 
 ## 要在 Linux 上进行 C++ 编程
 
