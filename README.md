@@ -48,6 +48,15 @@ Audio                   | [FMOD](https://www.fmod.com/studio)
 Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
 Entity Component System | [entt](https://github.com/skypjack/entt)
 
+## Contributions by ewdlop
+
+### Portions worked on
+- Particle Effect System
+- File system call
+- Lua Scripting
+
+### Key features and improvements
+- Helping and debugging the Vulkan Layer for rendering using Vulkan API.
 
 ## 要在 Linux 上进行 C++ 编程
 
