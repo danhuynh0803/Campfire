@@ -1,10 +1,40 @@
 # Campfire
-![Ubuntu build](https://github.com/danhuynh0803/Campfire/workflows/Ubuntu%20build/badge.svg)
-![Windows build](https://github.com/danhuynh0803/Campfire/workflows/Windows%20build/badge.svg)
-![CodeQL Advanced](https://github.com/danhuynh0803/Campfire/actions/workflows/codeql.yml/badge.svg)
+[![Ubuntu build](https://github.com/danhuynh0803/Campfire/workflows/Ubuntu%20build/badge.svg)](https://github.com/danhuynh0803/Campfire/actions/workflows/c-cpp.yml)
+[![Windows build](https://github.com/danhuynh0803/Campfire/workflows/Windows%20build/badge.svg)](https://github.com/danhuynh0803/Campfire/actions/workflows/windows-build.yml)
+[![CodeQL Advanced](https://github.com/danhuynh0803/Campfire/actions/workflows/codeql.yml/badge.svg)](https://github.com/danhuynh0803/Campfire/actions/workflows/codeql.yml)
 
 ## Summary
 Campfire is an in-progress game engine built using OpenGL and Vulkan. Most of the engine's features are currently disabled, as we work through switching to Vulkan, but are available on the [OpenGL branch](https://github.com/danhuynh0803/Campfire/tree/OpenGL).
+
+## Contributing
+When creating issues or pull requests, please use the following labels to help organize and prioritize work:
+
+**平台標籤 (Platform):**
+- `platform: linux` - Linux 相關問題
+- `platform: windows` - Windows 相關問題
+- `platform: macos` - macOS 相關問題
+- `platform: cross-platform` - 跨平台問題
+
+**類型標籤 (Type):**
+- `type: bug` - 錯誤報告
+- `type: enhancement` - 功能請求
+- `type: documentation` - 文檔改進
+- `type: question` - 問題諮詢
+- `type: performance` - 性能改進
+
+**組件標籤 (Component):**
+- `component: vulkan` - Vulkan 渲染
+- `component: opengl` - OpenGL 渲染
+- `component: editor` - 編輯器層
+- `component: scripting` - Lua 腳本系統
+- `component: physics` - 物理系統
+- `component: particles` - 粒子系統
+
+**優先級標籤 (Priority):**
+- `priority: critical` - 緊急
+- `priority: high` - 高優先級
+- `priority: medium` - 中優先級
+- `priority: low` - 低優先級
 
 ## Sample Images
 ![SampleScene](https://i.imgur.com/jZDVC6l.jpg)
@@ -113,9 +143,9 @@ Entity Component System | [entt](https://github.com/skypjack/entt)
 
 ---
 
-## 📚 AI 生成內容附錄
+## AI 生成內容附錄
 
-> ⚠️ **聲明**: 以下內容由 AI 自動生成，並非項目官方文檔的一部分。這些內容可能包含不準確或過時的信息，僅供參考。
+> **[警告]** 以下內容由 AI 自動生成，並非項目官方文檔的一部分。這些內容可能包含不準確或過時的信息，僅供參考。
 
 ### 在 Linux 上進行 C++ 編程
 
