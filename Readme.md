@@ -1,6 +1,7 @@
 # Campfire
 ![Ubuntu build](https://github.com/danhuynh0803/Campfire/workflows/Ubuntu%20build/badge.svg)
 ![Windows build](https://github.com/danhuynh0803/Campfire/workflows/Windows%20build/badge.svg)
+![CodeQL](https://github.com/ewdlop/Campfire/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/ewdlop/Campfire/actions/workflows/github-code-scanning/codeql)
 
 ## Summary
 Campfire is an in-progress game engine intended for use in small gamejam projects.
