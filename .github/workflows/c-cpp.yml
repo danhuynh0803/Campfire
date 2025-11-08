@@ -1,10 +1,12 @@
 name: Ubuntu build
+permissions:
+  contents: read
 
 on:
   push:
-    branches: [ master ]
+    branches: [ OpenGL ]
   pull_request:
-    branches: [ master ]
+    branches: [ OpenGL ]
 
 jobs:
   build:
