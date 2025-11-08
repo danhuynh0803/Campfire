@@ -4,9 +4,9 @@ permissions:
 
 on:
   push:
-    branches: [ master ]
+    branches: [ OpenGL ]
   pull_request:
-    branches: [ master ]
+    branches: [ OpenGL ]
 
 jobs:
   build:
