@@ -1,0 +1,15 @@
+- name: "platform: linux"
+  color: "FFA500"
+  description: "Issues or PRs related to Linux platform"
+
+- name: "platform: windows"
+  color: "0078D7"
+  description: "Issues or PRs related to Windows platform"
+
+- name: "platform: macos"
+  color: "000000"
+  description: "Issues or PRs related to macOS platform"
+
+- name: "platform: cross-platform"
+  color: "7CFC00"
+  description: "Issues or PRs affecting multiple platforms"
