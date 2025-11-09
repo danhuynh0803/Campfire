@@ -38,6 +38,7 @@ When creating issues or pull requests, please use the following labels to help o
 
 ## Sample Images
 ![SampleScene](https://i.imgur.com/jZDVC6l.jpg)
+![Scene](https://github.com/user-attachments/assets/69cd16ba-b1ba-47f0-94f9-07c16f356cac)
 
 ## Realtime RT
 ![RT-Scene](https://i.imgur.com/kmzx7xv.png)
