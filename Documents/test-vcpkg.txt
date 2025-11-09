@@ -1,0 +1,36 @@
+# 檢查 vcpkg 集成狀態
+
+## 可能的激活方式：
+
+1. **Visual Studio vcpkg 集成** (最可能)
+   - 之前運行過: `vcpkg integrate install`
+   - 這會修改 MSBuild 使其自動使用 vcpkg
+   - 位置: `C:\Users\<username>\AppData\Local\vcpkg\vcpkg.user.props`
+
+2. **環境變量**
+   - CMAKE_TOOLCHAIN_FILE
+   - VCPKG_ROOT
+
+3. **CMake 參數**
+   - -DCMAKE_TOOLCHAIN_FILE=...
+
+## 如何禁用 Visual Studio vcpkg 集成：
+
+```powershell
+# 如果您有 vcpkg 安裝，運行：
+C:\Games\vcpkg\vcpkg.exe integrate remove
+
+# 或者在任何 vcpkg 安裝目錄：
+.\vcpkg integrate remove
+```
+
+## 檢查命令：
+
+```powershell
+# 檢查用戶級 vcpkg props 文件
+Test-Path "$env:LOCALAPPDATA\vcpkg\vcpkg.user.props"
+
+# 如果存在，查看內容
+Get-Content "$env:LOCALAPPDATA\vcpkg\vcpkg.user.props"
+```
+

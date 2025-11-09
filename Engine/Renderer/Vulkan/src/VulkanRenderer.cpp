@@ -5,7 +5,7 @@
 
 vk::CommandBuffer& VulkanRenderer::BeginScene(uint32_t frame, const vk::RenderPass& renderPass)
 {
-    auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
+    auto commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
     auto framebuffer = VulkanContext::Get()->GetSwapChain()->GetFramebuffer(frame);
 
     vk::CommandBufferBeginInfo beginInfo;

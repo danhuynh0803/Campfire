@@ -234,7 +234,7 @@ RenderPass& FrameGraph::AddRenderPass(
     const std::string& label,
     RenderQueue queue)
 {
-    auto& it = mRenderPasses.find(label);
+    auto it = mRenderPasses.find(label);
     if (it != mRenderPasses.end()) {
         return it->second;
     }

@@ -12,22 +12,27 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
       - name: Set up Vulkan SDK
         run: |
-          choco install vulkan-sdk
-          echo "VULKAN_SDK=C:/VulkanSDK/1.x.x.x" >> $GITHUB_ENV
-          echo "PATH=$VULKAN_SDK/bin:$PATH" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-         submodules: 'true'
-      - name: Cmake
-        run: 
-         cmake -E make_directory build;
-         cmake -E chdir build cmake ..
+          choco install vulkan-sdk --version=1.3.250.1
+          $env:VULKAN_SDK = "C:\VulkanSDK\1.3.250.1"
+          echo "VULKAN_SDK=$env:VULKAN_SDK" >> $env:GITHUB_ENV
+          echo "$env:VULKAN_SDK\Bin" >> $env:GITHUB_PATH
+
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_CXX_STANDARD=20
+
       - name: Build Solution
         run: |
-         ls
-         MSBuild.exe .\build\Campfire.sln
+          cmake --build build --config Release --parallel 4

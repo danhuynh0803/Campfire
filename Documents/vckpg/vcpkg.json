@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "campfire",
+  "version": "0.1.0",
+  "description": "Campfire Game Engine",
+  "dependencies": [
+    {
+      "name": "assimp",
+      "version>=": "5.4.3"
+    },
+    {
+      "name": "bullet3",
+      "default-features": false
+    },
+    {
+      "name": "glfw3",
+      "default-features": false
+    },
+    {
+      "name": "glm"
+    },
+    {
+      "name": "imgui",
+      "features": ["glfw-binding", "opengl3-binding"]
+    },
+    {
+      "name": "spdlog",
+      "version>=": "1.16.0",
+      "features": ["fmt-external"]
+    },
+    {
+      "name": "fmt",
+      "version>=": "12.0.0"
+    },
+    {
+      "name": "nlohmann-json"
+    },
+    {
+      "name": "entt"
+    },
+    {
+      "name": "lua",
+      "default-features": false
+    },
+    {
+      "name": "stb"
+    },
+    {
+      "name": "vulkan",
+      "host": true
+    }
+  ],
+  "builtin-baseline": "c8696863d371ab7f46545de4e661c3f42d5f5b16"
+}
+

@@ -3,7 +3,19 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_library(Engine)
 
 # for including EntryPoint.h
-target_include_directories(Engine PUBLIC "./")
+set(RCCPP_DIR "${CMAKE_SOURCE_DIR}/Vendor/RuntimeCompiledCPlusPlus/Aurora")
+target_include_directories(
+    Engine
+    PUBLIC
+        "./"
+        "${RCCPP_DIR}"
+        "${RCCPP_DIR}/RuntimeObjectSystem"
+        "${RCCPP_DIR}/RuntimeCompiler"
+)
+
+if(MSVC)
+    target_compile_options(Engine PRIVATE /utf-8)
+endif()
 
 set(VS_SRC_DIR "Source Files")
 set(VS_INC_DIR "Header Files")

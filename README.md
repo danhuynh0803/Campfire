@@ -46,22 +46,22 @@ When creating issues or pull requests, please use the following labels to help o
 Vulkan SDK: [1.2.148.1](https://vulkan.lunarg.com/sdk/home)
 
 ## Build Instructions
+
 ```bash
+# 克隆包含所有 submodules
 git clone --recursive https://github.com/danhuynh0803/Campfire
 cd Campfire
-cd Build
-```
 
-Now generate a project file or makefile for your platform. If you want to use a particular IDE, make sure it is installed; don't forget to set the Start-Up Project in Visual Studio or the Target in Xcode.
-
-```bash
 # UNIX Makefile
-cmake ..
-make -j4
+cmake -B build
+cmake --build build --config Release -j4
 
 # Microsoft Windows
-cmake -G "Visual Studio 16 2019" ..
+cmake -B Build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="" -DVCPKG_MANIFEST_MODE=OFF
+cmake --build Build --config Release --parallel 4
 ```
+
+**注意**: 項目還提供了 vcpkg 配置文件（位於 `vcpkg-config/` 目錄）作為替代的依賴管理方案，但目前暫未使用。詳情請參閱 `vcpkg-config/README.md`。
 ## Library
 Functionality           | Library
 ----------------------- | ------------------------------------------
@@ -77,6 +77,8 @@ GUI                     | [imgui](https://github.com/ocornut/imgui)
 Audio                   | [FMOD](https://www.fmod.com/studio)
 Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
 Entity Component System | [entt](https://github.com/skypjack/entt)
+
+**注意**: 有關依賴庫的詳細配置和 C++20 升級路徑，請參閱 [DEPENDENCIES.md](DEPENDENCIES.md)。
 
 ## Contributions by ewdlop
 

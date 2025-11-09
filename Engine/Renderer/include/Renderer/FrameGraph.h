@@ -140,7 +140,7 @@ class RenderPass
 public:
     SubPass& AddSubpass(const std::string& label)
     {
-        auto& it = mSubpasses.find(label);
+        auto it = mSubpasses.find(label);
         if (it != mSubpasses.end()) {
             return it->second;
         }
@@ -149,7 +149,7 @@ public:
         return mSubpasses.find(label)->second;
     }
 
-    void RenderPass::Prepare();
+    void Prepare();
 
     vk::RenderPass Get() {
         return mUniqueRenderPass.get();
