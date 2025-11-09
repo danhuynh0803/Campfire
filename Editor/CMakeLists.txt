@@ -46,6 +46,10 @@ target_include_directories(
         "include"
 )
 
+if(MSVC)
+    target_compile_options(Editor PRIVATE /utf-8)
+endif()
+
 target_link_libraries(
     Editor
     PRIVATE

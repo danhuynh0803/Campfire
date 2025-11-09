@@ -117,7 +117,8 @@ void VulkanImGui::DrawFrame(vk::CommandBuffer cmdBuffer)
     if (imDrawData->CmdListsCount > 0) {
 
         VkDeviceSize offsets[1] = { 0 };
-        cmdBuffer.bindVertexBuffers(0, 1, &mVertexBuffer->Get(), offsets);
+        vk::Buffer vertexBuffer = mVertexBuffer->Get();
+        cmdBuffer.bindVertexBuffers(0, 1, &vertexBuffer, offsets);
         cmdBuffer.bindIndexBuffer(mIndexBuffer->Get(), 0, vk::IndexType::eUint16);
 
         for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)

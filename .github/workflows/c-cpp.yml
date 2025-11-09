@@ -12,20 +12,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: install-package
-      run:
-       sudo apt-get update; 
-       sudo apt-get install xorg-dev libglu1-mesa-dev
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         submodules: 'true'
-    - name: cmake
-      run: 
-       cmake -E make_directory build;
-       cmake -E chdir build cmake ..
-    - name: make
-      run: make ./build
-    #- name: make check
-    #  run: make check
-    #- name: make distcheck
-    #  run: make distcheck
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          xorg-dev \
+          libglu1-mesa-dev \
+          libvulkan-dev \
+          vulkan-tools
+
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_CXX_STANDARD=20
+
+    - name: Build
+      run: cmake --build build --config Release --parallel $(nproc)

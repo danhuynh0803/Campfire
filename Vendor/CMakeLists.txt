@@ -1,9 +1,10 @@
 # Third-party vendor libraries
 
 # assimp
-option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-option(ASSIMP_BUILD_SAMPLES OFF)
-option(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "Build bundled zlib" FORCE)
 add_subdirectory(assimp)
 set_target_properties(assimp PROPERTIES FOLDER "Vendor/assimp")
 set_target_properties(uninstall PROPERTIES FOLDER "Vendor/assimp")
@@ -116,6 +117,12 @@ add_library(font-awesome-5 INTERFACE)
 target_include_directories(font-awesome-5 INTERFACE "font-awesome-5/include/")
 
 # RuntimeCompiledCPlusPlus
+set(BUILD_EXAMPLES OFF CACHE BOOL "Disable RuntimeCompiledCPlusPlus examples" FORCE)
 add_subdirectory(RuntimeCompiledCPlusPlus/Aurora)
+set_target_properties(RuntimeCompiler RuntimeObjectSystem PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
 set_target_properties(RuntimeCompiler PROPERTIES FOLDER "Vendor")
 set_target_properties(RuntimeObjectSystem PROPERTIES FOLDER "Vendor")

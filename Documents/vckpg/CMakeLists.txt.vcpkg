@@ -1,0 +1,103 @@
+# Third-party vendor libraries via vcpkg
+
+# Note: This is an alternative CMakeLists.txt that uses vcpkg instead of git submodules
+# To use this:
+# 1. Install vcpkg: https://vcpkg.io/en/getting-started.html
+# 2. Set CMAKE_TOOLCHAIN_FILE to vcpkg.cmake
+# 3. Rename this file to CMakeLists.txt
+
+# assimp - 3D Model Loading
+find_package(assimp CONFIG REQUIRED)
+# Usage: assimp::assimp
+
+# bullet3 - Physics Engine
+find_package(Bullet CONFIG REQUIRED)
+# Usage: ${BULLET_LIBRARIES} (BulletDynamics, BulletCollision, LinearMath, etc.)
+
+# glfw3 - Windowing and Input
+find_package(glfw3 CONFIG REQUIRED)
+# Usage: glfw
+
+# glm - Mathematics Library
+find_package(glm CONFIG REQUIRED)
+# Usage: glm::glm
+
+# imgui - GUI
+find_package(imgui CONFIG REQUIRED)
+# Usage: imgui::imgui
+
+# spdlog - Logging
+find_package(spdlog CONFIG REQUIRED)
+# Usage: spdlog::spdlog
+
+# fmt - Formatting (bundled with spdlog)
+find_package(fmt CONFIG REQUIRED)
+# Usage: fmt::fmt
+
+# nlohmann-json - JSON
+find_package(nlohmann_json CONFIG REQUIRED)
+# Usage: nlohmann_json::nlohmann_json
+
+# entt - Entity Component System
+find_package(EnTT CONFIG REQUIRED)
+# Usage: EnTT::EnTT
+
+# lua - Scripting
+find_package(lua CONFIG REQUIRED)
+# Usage: ${LUA_LIBRARIES}
+
+# stb - Image Loading
+find_package(Stb REQUIRED)
+# Usage: ${Stb_INCLUDE_DIR}
+
+# Vulkan SDK - Graphics API (requires manual installation)
+find_package(Vulkan REQUIRED)
+# Usage: Vulkan::Vulkan
+
+# glad - OpenGL Function Loader (keep as local source)
+add_subdirectory(glad)
+set_target_properties(glad PROPERTIES FOLDER "Vendor")
+
+add_definitions(-DGLFW_INCLUDE_NONE)
+
+# fmod - Audio (proprietary, keep as local)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/fmod")
+    add_subdirectory(fmod)
+    set_target_properties(fmodLib PROPERTIES FOLDER "Vendor")
+endif()
+
+# freetype - Font Rendering (or use vcpkg)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/freetype-2.10.4")
+    add_subdirectory(freetype-2.10.4)
+    set_target_properties(freetype PROPERTIES FOLDER "Vendor")
+else()
+    find_package(freetype CONFIG REQUIRED)
+    # Usage: freetype
+endif()
+
+# Tracy - Profiler (keep as local source)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tracy")
+    add_library(tracy)
+    target_include_directories(tracy INTERFACE "tracy")
+    target_sources(tracy PRIVATE tracy/TracyClient.cpp)
+    if (MSVC)
+        target_compile_options(tracy PUBLIC /D TRACY_ENABLE)
+    endif()
+    set_target_properties(tracy PROPERTIES FOLDER "Vendor")
+endif()
+
+# font-awesome-5 (keep as local)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/font-awesome-5")
+    add_library(font-awesome-5 INTERFACE)
+    target_include_directories(font-awesome-5 INTERFACE "font-awesome-5/include/")
+endif()
+
+# RuntimeCompiledCPlusPlus (not available in vcpkg, keep as submodule)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/RuntimeCompiledCPlusPlus")
+    add_subdirectory(RuntimeCompiledCPlusPlus/Aurora)
+    set_target_properties(RuntimeCompiler PROPERTIES FOLDER "Vendor")
+    set_target_properties(RuntimeObjectSystem PROPERTIES FOLDER "Vendor")
+else()
+    message(WARNING "RuntimeCompiledCPlusPlus not found. Some features will be disabled.")
+endif()
+

@@ -488,7 +488,7 @@ void VulkanLayer::OnUpdate(float dt)
 
     for (size_t frame = 0; frame < swapChainSize; ++frame)
     {
-        auto& commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
+        auto commandBuffer = VulkanContext::Get()->GetSwapChain()->GetCommandBuffer(frame);
 
         vk::CommandBufferBeginInfo beginInfo {};
         beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
