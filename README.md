@@ -78,6 +78,7 @@ GUI                     | [imgui](https://github.com/ocornut/imgui)
 Audio                   | [FMOD](https://www.fmod.com/studio)
 Scripting               | [Lua 5.4.0](http://www.lua.org/download.html)
 Entity Component System | [entt](https://github.com/skypjack/entt)
+Profiling               | [tracy](https://github.com/wolfpld/tracy)
 
 **注意**: 有關依賴庫的詳細配置和 C++20 升級路徑，請參閱 [DEPENDENCIES.md](DEPENDENCIES.md)。
 
