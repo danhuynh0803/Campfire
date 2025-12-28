@@ -89,7 +89,7 @@ Profiling               | [tracy](https://github.com/wolfpld/tracy)
 - **Lua Scripting**: 重構和擴展 LuaEntity（400+ 行），創建 LuaCamera，添加 Lua 全局變量 Inspector
 - **File System**: 擴展跨平台文件系統 API，完善 Windows 文件系統文檔
 - **Asset Browser**: 添加右鍵選單、雙擊瀏覽、編輯按鈕等功能增強
-- **Transform Widget**: 實現完整撤銷/重做系統，與 Lua Transform 集成
+- **Transform Widget**: 實現撤銷/重做系統，與 Lua Transform 集成
 - **Vulkan Layer**: 性能優化和 bug 修復，實現 shader 文件監視器
 - **Editor UI**: 集成 Font Awesome 圖標，添加鍵盤快捷鍵，改進配色方案
 
